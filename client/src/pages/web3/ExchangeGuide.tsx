@@ -121,14 +121,14 @@ export default function ExchangeGuideDeep() {
       color: "text-yellow-400", border: "border-yellow-500/30", bg: "bg-yellow-500/5",
     },
     {
-      name: "OKX", icon: "🔵", rank: "#2", desc: "全球第二大交易所，以 Web3 钱包和链上功能著称",
+      name: "OKX", icon: "🔵", rank: "#2", desc: "全球顶级交易所，以 Web3 钱包和链上功能著称",
       pros: ["优秀的 Web3 钱包", "支持多链", "中文界面友好", "合约功能强大"],
       cons: ["部分高级功能复杂", "客服响应有时较慢"],
       features: ["现货交易", "合约交易", "Web3 钱包", "DEX 聚合", "链上 DeFi"],
       color: "text-blue-400", border: "border-blue-500/30", bg: "bg-blue-500/5",
     },
     {
-      name: "Bybit", icon: "🟠", rank: "#3", desc: "以合约交易著称，近年来现货和 Web3 生态快速扩张",
+      name: "Bybit", icon: "🟠", rank: "#3", desc: "以合约交易著称，近年来现货和 Web3 生态以及Tradfi快速扩张",
       pros: ["合约交易体验极佳", "手续费较低", "新手教程完善", "返佣比例高"],
       cons: ["现货交易对相对较少", "部分功能仍在完善"],
       features: ["现货交易", "合约交易", "理财产品", "Launchpad", "NFT 市场"],
@@ -246,7 +246,7 @@ export default function ExchangeGuideDeep() {
           <h2 className="text-2xl font-black text-white mb-5">📋 注册交易所：完整步骤</h2>
           <div className="space-y-3">
             {[
-              { step: "01", title: "选择交易所并下载官方 App", desc: "通过官方网站或应用商店下载，谨防钓鱼网站。建议收藏官方网址：binance.com、okx.com、bybit.com", icon: "📱", color: "text-blue-400", border: "border-blue-500/30" },
+              { step: "01", title: "选择交易所并下载官方 App", desc: "通过官方网站或应用商店下载，谨防钓鱼网站。", icon: "📱", color: "text-blue-400", border: "border-blue-500/30" },
               { step: "02", title: "注册账号", desc: "使用邮箱注册，设置强密码（12位以上，包含大小写字母、数字、符号）。建议使用专用邮箱。", icon: "📧", color: "text-purple-400", border: "border-purple-500/30" },
               { step: "03", title: "开启两步验证（2FA）", desc: "下载 Google Authenticator，绑定到账号。这是保护账号安全的关键步骤，不要跳过。", icon: "🔐", color: "text-yellow-400", border: "border-yellow-500/30" },
               { step: "04", title: "完成实名认证（KYC）", desc: "上传身份证正反面和自拍，通常 1-24 小时审核完成。完成后才能使用法币入金功能。", icon: "🪪", color: "text-emerald-400", border: "border-emerald-500/30" },
@@ -273,15 +273,15 @@ export default function ExchangeGuideDeep() {
             <div className="flex items-start gap-4">
               <span className="text-4xl">🎁</span>
               <div>
-                <h3 className="text-xl font-black text-white mb-2">通过邀请码注册，享受手续费返佣</h3>
+                <h3 className="text-xl font-black text-white mb-2">通过合作链接注册，享受手续费返佣</h3>
                 <p className="text-slate-400 text-sm leading-relaxed mb-4">
                   你已经了解了 Web3 的完整知识体系——从区块链原理到 DeFi 玩法，从钱包安全到交易所选择。
-                  现在，如果你决定迈出第一步，通过我们的邀请码注册可以享受<strong className="text-yellow-300">最高 30% 的手续费返佣</strong>，
+                  现在，如果你决定迈出第一步，通过我们的合作伙伴链接注册可以享受<strong className="text-yellow-300">永久的手续费返佣</strong>，
                   让每一笔交易都更划算。
                 </p>
                 <Link href="/crypto-saving">
                   <button className="bg-yellow-500 hover:bg-yellow-400 text-black font-black px-6 py-3 rounded-xl transition-all hover:scale-105 text-sm">
-                    查看返佣邀请码 →
+                    查看合作伙伴邀请链接 →
                   </button>
                 </Link>
               </div>
