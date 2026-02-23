@@ -23,3 +23,4 @@
 - [x] 验证所有页面 UI 一致性并保存检查点
 - [x] 修复 /crypto-saving 页面跳转时整个界面模糊的问题（移除 scale 变换 + backdrop-blur）
 - [x] 验证修复效果并保存检查点 (version: 83fc47bc)
+- [ ] 删除交易所对比页（Exchanges.tsx）中「返佣比例：个性化」显示内容

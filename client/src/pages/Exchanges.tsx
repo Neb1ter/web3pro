@@ -134,9 +134,6 @@ export default function Exchanges() {
                   <div className="text-4xl">{exchange.logo}</div>
                   <div>
                     <h3 className="text-2xl font-bold text-white">{exchange.name}</h3>
-                    <span className="bg-accent/20 text-accent text-xs px-2 py-0.5 rounded-full font-semibold">
-                      {texts.rebateRate}: {exchange.rebateRate}
-                    </span>
                   </div>
                 </div>
 
