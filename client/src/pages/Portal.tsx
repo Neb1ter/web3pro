@@ -12,12 +12,12 @@ const LANG = {
     h1c: "世界",
     h1sub: "从入门到精通的完整路径",
     desc: "无论你是刚听说比特币的新人，还是想节省交易手续费的老手，这里都有适合你的内容。",
-    stat1v: "2", stat1u: "大板块", stat1l: "内容模块",
+    stat1v: "3", stat1u: "大板块", stat1l: "内容模块",
     stat2v: "5+", stat2u: "家交易所", stat2l: "合作平台",
     stat3v: "永久", stat3u: "个性化返佣", stat3l: "终身有效",
     bannerLabel: "合作平台",
     sectionTitle: "选择你的学习路径",
-    sectionSub: "两大核心板块，满足不同阶段的需求",
+    sectionSub: "三大核心板块，覆盖从入门到实操的完整旅程",
     comingSoonBadge: "即将推出",
     comingSoonTitle: "更多板块正在建设中",
     lockLabel: "敬请期待",
@@ -44,6 +44,15 @@ const LANG = {
         cta: "查看省钱攻略 →",
         stats: [{ label: "合作交易所", value: "5家" }, { label: "永久返佣", value: "个性化" }, { label: "已服务用户", value: "持续增长" }],
       },
+      {
+        badge: "GUIDE",
+        subtitle: "EXCHANGE TUTORIAL",
+        title: "交易所扫盲指南",
+        description: "深度拆解五大头部交易所的每一个功能板块——现货、合约、理财、跟单、Web3……帮助新手快速上手，找到最适合自己的交易所。",
+        tags: ["现货交易", "合约入门", "理财产品", "跟单交易", "交易所对比"],
+        cta: "开始扫盲 →",
+        stats: [{ label: "功能板块", value: "13个" }, { label: "覆盖交易所", value: "5家" }, { label: "互动测验", value: "全程" }],
+      },
     ],
     comingSoon: [
       { icon: "📊", title: "量化策略指南", desc: "自动化交易策略与量化工具介绍" },
@@ -58,12 +67,12 @@ const LANG = {
     h1c: "World",
     h1sub: "A Complete Path from Beginner to Expert",
     desc: "Whether you're new to Bitcoin or a seasoned trader looking to cut fees, we have the right content for you.",
-    stat1v: "2", stat1u: "Modules", stat1l: "Content Areas",
+    stat1v: "3", stat1u: "Modules", stat1l: "Content Areas",
     stat2v: "5+", stat2u: "Exchanges", stat2l: "Partners",
     stat3v: "Lifetime", stat3u: "Personalized Rebates", stat3l: "Forever Valid",
     bannerLabel: "Partners",
     sectionTitle: "Choose Your Learning Path",
-    sectionSub: "Two core modules for every stage of your journey",
+    sectionSub: "Three core modules covering the complete journey from beginner to trader",
     comingSoonBadge: "Coming Soon",
     comingSoonTitle: "More Modules Under Construction",
     lockLabel: "Stay Tuned",
@@ -89,6 +98,15 @@ const LANG = {
         tags: ["Referral Rebates", "Fee Comparison", "Exchange Reviews", "Beginner Sign-up"],
         cta: "View Saving Tips →",
         stats: [{ label: "Partner Exchanges", value: "5+" }, { label: "Lifetime Rebates", value: "Custom" }, { label: "Users Served", value: "Growing" }],
+      },
+      {
+        badge: "GUIDE",
+        subtitle: "EXCHANGE TUTORIAL",
+        title: "Exchange Tutorial",
+        description: "Deep-dive into every feature of the top 5 exchanges — spot, futures, earn, copy trading, Web3... Get up to speed fast and find the exchange that fits you.",
+        tags: ["Spot Trading", "Futures Basics", "Earn Products", "Copy Trading", "Exchange Compare"],
+        cta: "Start Learning →",
+        stats: [{ label: "Feature Modules", value: "13" }, { label: "Exchanges", value: "5" }, { label: "Quizzes", value: "All" }],
       },
     ],
     comingSoon: [
@@ -361,6 +379,26 @@ const moduleColors = [
       </svg>
     ),
   },
+  {
+    accentColor: "from-blue-500/20 to-indigo-500/10",
+    borderColor: "border-blue-500/30 hover:border-blue-400/60",
+    titleColor: "text-blue-400",
+    badgeColor: "bg-blue-500",
+    ctaColor: "bg-blue-500 hover:bg-blue-400 text-white",
+    href: "/exchange-guide",
+    icon: (
+      <svg viewBox="0 0 64 64" fill="none" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+        <rect x="8" y="16" width="48" height="32" rx="4" stroke="#60A5FA" strokeWidth="2" opacity="0.4"/>
+        <rect x="14" y="22" width="10" height="10" rx="2" fill="#60A5FA" opacity="0.7"/>
+        <rect x="28" y="22" width="18" height="3" rx="1.5" fill="#60A5FA" opacity="0.5"/>
+        <rect x="28" y="28" width="12" height="3" rx="1.5" fill="#60A5FA" opacity="0.3"/>
+        <rect x="14" y="36" width="36" height="3" rx="1.5" fill="#60A5FA" opacity="0.4"/>
+        <rect x="14" y="42" width="24" height="3" rx="1.5" fill="#60A5FA" opacity="0.3"/>
+        <circle cx="52" cy="48" r="8" fill="#1E3A5F" stroke="#60A5FA" strokeWidth="1.5"/>
+        <path d="M49 48 L55 48 M52 45 L52 51" stroke="#60A5FA" strokeWidth="1.5" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
 ];
 
 export default function Portal() {
@@ -455,7 +493,7 @@ export default function Portal() {
             <p className="text-slate-400">{t.sectionSub}</p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
             {t.modules.map((mod, index) => {
               const colors = moduleColors[index];
               return (

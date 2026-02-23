@@ -24,11 +24,14 @@
 - [x] 修复 /crypto-saving 页面跳转时整个界面模糊的问题（移除 scale 变换 + backdrop-blur）
 - [x] 验证修复效果并保存检查点 (version: 83fc47bc)
 - [x] 删除交易所对比页（Exchanges.tsx）中「返佣比例：个性化」显示内容
-- [ ] 搜集五大交易所功能板块官网资料
-- [ ] 设计并创建 exchange_features 数据库表，插入详细功能数据
-- [ ] 创建 tRPC 路由 exchangeGuide（功能列表、功能详情）
-- [ ] 创建「交易所扫盲指南」主页面（ExchangeTutorial.tsx）含左侧菜单
-- [ ] 创建各功能二级页面（现货/合约/杠杆/tradfi/理财/web3/期权/跟单/社区/机器人/OTC/打新/生态）
-- [ ] 在 crypto-saving 主页添加「交易所扫盲指南」板块入口
-- [ ] 添加交易所选择建议和跳转新手问答按钮
-- [ ] 验证所有页面效果并保存检查点
+- [x] 搜集五大交易所功能板块官网资料
+- [x] 设计并创建 exchange_feature_categories 和 exchange_feature_support 数据库表，插入详细功能数据
+- [x] 创建 tRPC 路由 exchangeGuide（功能列表、功能详情）
+- [x] 创建「交易所扫盲指南」主页面（ExchangeGuideIndex.tsx）含左侧菜单
+- [x] 创建功能二级页面（ExchangeFeatureDetail.tsx）
+- [x] 在 crypto-saving 主页添加「交易所扫盲指南」板块入口（已完成但需迁移到 Portal）
+- [x] 添加交易所选择建议和跳转新手问答按钮
+- [x] 分析 Portal 页面现有两个大板块结构规格
+- [x] 在 Portal 新增「交易所扫盲指南」第三大板块（与前两个保持一致规格）
+- [x] 从 /crypto-saving 主页移除「交易所扫盲指南」板块
+- [x] 验证 Portal 页面效果和移动端适配，保存检查点

@@ -10,7 +10,6 @@ import Home from "./pages/Home";
 import Contact from "./pages/Contact";
 import Exchanges from "./pages/Exchanges";
 import Beginner from "./pages/Beginner";
-import ExchangeGuide from "./pages/ExchangeGuide";
 import CryptoIntro from "./pages/CryptoIntro";
 import CryptoNews from "./pages/CryptoNews";
 import Web3Guide from "./pages/Web3Guide";
@@ -76,7 +75,6 @@ function Router() {
         <Route path={"/contact"} component={Contact} />
         <Route path={"/exchanges"} component={Exchanges} />
         <Route path={"/beginner"} component={Beginner} />
-        <Route path={"/exchange-guide"} component={ExchangeGuide} />
         <Route path={"/crypto-intro"} component={CryptoIntro} />
         <Route path={"/crypto-news"} component={CryptoNews} />
 
@@ -91,7 +89,6 @@ function Router() {
         <Route path="/web3-guide/economic-opportunity" component={EconomicOpportunity} />
         <Route path="/exchange-guide" component={ExchangeGuideIndex} />
         <Route path="/exchange-guide/:featureSlug" component={ExchangeFeatureDetail} />
-
         <Route path={"/404"} component={NotFound} />
         <Route component={NotFound} />
       </Switch>
