@@ -34,7 +34,7 @@ export function WelcomeGuide({ onClose, onSelectNewUser, onSelectOldUser }: Welc
   const t = texts[language as keyof typeof texts];
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
       <div className="bg-card border border-accent rounded-lg p-8 max-w-2xl w-full shadow-2xl">
         <div className="flex justify-between items-start mb-6">
           <div>

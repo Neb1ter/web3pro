@@ -51,10 +51,9 @@ function PageTransition({ children }: { children: React.ReactNode }) {
     <div
       style={{
         opacity: transitionStage === "exit" ? 0 : 1,
-        transform: transitionStage === "exit" ? "translateY(-12px) scale(0.99)" : "translateY(0) scale(1)",
         transition: transitionStage === "exit"
-          ? "opacity 0.28s ease, transform 0.28s ease"
-          : "opacity 0.45s ease 0.05s, transform 0.45s ease 0.05s",
+          ? "opacity 0.2s ease"
+          : "opacity 0.3s ease 0.05s",
       }}
     >
       {children}
