@@ -9,7 +9,7 @@ const navSections = [
   { id: "intro", label: "什么是 Web3", icon: "🌐" },
   { id: "blockchain", label: "区块链基础", icon: "⛓️" },
   { id: "defi", label: "DeFi 金融", icon: "💰" },
-  { id: "economy", label: "经济形势", icon: "📈" },
+  { id: "economy", label: "经济形势与机遇", icon: "📈" },
   { id: "invest", label: "投资方式", icon: "🔄" },
   { id: "start", label: "如何开始", icon: "🚀" },
 ];
@@ -878,6 +878,7 @@ export default function Web3Guide() {
                   { label: "区块链", color: "bg-blue-500/20 text-blue-400" },
                   { label: "钱包安全", color: "bg-violet-500/20 text-violet-400" },
                   { label: "DeFi", color: "bg-yellow-500/20 text-yellow-400" },
+                  { label: "经济形势", color: "bg-orange-500/20 text-orange-400" },
                   { label: "投资门户", color: "bg-orange-500/20 text-orange-400" },
                   { label: "交易所", color: "bg-emerald-500/20 text-emerald-400" },
                 ].map((tag) => (
@@ -1147,8 +1148,8 @@ export default function Web3Guide() {
           </div>
         </FadeIn>
 
-        {/* ===== Section 4: 经济形势 ===== */}
-        <SectionTitle id="economy" icon="📈" title="经济形势与 Web3 机遇" subtitle="为什么现在是了解 Web3 的最佳时机" />
+        {/* ===== Section 4: 经济形势与 Web3 机遇 ===== */}
+        <SectionTitle id="economy" icon="📈" title="经济形势与 Web3 机遇" subtitle="为什么现在是了解 Web3 的最佳时机——结合 2025 年最新数据" />
 
         {/* 数据统计卡片（带计数动画） */}
         <FadeIn>
@@ -1211,6 +1212,26 @@ export default function Web3Guide() {
           ))}
         </div>
 
+        {/* 深入学习按钮 */}
+        <FadeIn>
+          <div className="rounded-2xl border border-orange-500/30 bg-gradient-to-r from-orange-500/10 to-yellow-500/5 p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
+            <div className="flex items-center gap-3 flex-1">
+              <span className="text-3xl">📊</span>
+              <div>
+                <h3 className="font-black text-white text-base">第四章：经济形势与 Web3 机遇（深度版）</h3>
+                <p className="text-slate-400 text-xs mt-0.5 leading-relaxed">
+                  深度解析 2025 年全球经济压力数据（就业危机、贫富差距、工资停滞），对比 Web3 机构入场、稳定币爆发、区块链市场规模等最新数据，以及主流资产 10 年回报率对比。
+                </p>
+              </div>
+            </div>
+            <Link href="/web3-guide/economic-opportunity">
+              <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-400 text-black text-sm font-black transition-all whitespace-nowrap flex-shrink-0">
+                深入了解 →
+              </button>
+            </Link>
+          </div>
+        </FadeIn>
+
         {/* 视野拓展 */}
         <FadeIn>
           <div className="rounded-2xl border border-purple-500/30 bg-gradient-to-br from-purple-500/10 to-blue-500/5 p-6 sm:p-8 mb-16">
@@ -1235,7 +1256,7 @@ export default function Web3Guide() {
         </FadeIn>
 
         {/* ===== Section 5: 投资方式对比 ===== */}
-        <SectionTitle id="invest" icon="🔄" title="Web3 投资方式对比" subtitle="CEX、DEX 与链上投资——找到最适合你的方式" />
+        <SectionTitle id="invest" icon="🔄" title="Web3 投资方式对比" subtitle="CEX、DEX 与链上投资——找到最适合你的方式（第五章）" />
 
         {/* 第五章入口引导 */}
         <FadeIn className="mb-6">
@@ -1358,7 +1379,7 @@ export default function Web3Guide() {
         </FadeIn>
 
         {/* ===== Section 6: 如何开始 ===== */}
-        <SectionTitle id="start" icon="🚀" title="如何迈出第一步" subtitle="从零开始的 Web3 入门行动指南" />
+        <SectionTitle id="start" icon="🚀" title="如何迈出第一步" subtitle="从零开始的 Web3 入门行动指南（第六章）" />
 
         <div className="space-y-4 mb-12">
           {startSteps.map((step, i) => (

@@ -20,6 +20,7 @@ import WalletKeys from "./pages/web3/WalletKeys";
 import DefiDeep from "./pages/web3/DefiDeep";
 import ExchangeGuideDeep from "./pages/web3/ExchangeGuide";
 import InvestmentGateway from "./pages/web3/InvestmentGateway";
+import EconomicOpportunity from "./pages/web3/EconomicOpportunity";
 import { useEffect, useRef, useState } from "react";
 
 // ============================================================
@@ -86,6 +87,7 @@ function Router() {
         <Route path={"/web3-guide/defi-deep"} component={DefiDeep} />
         <Route path={"/web3-guide/exchange-guide"} component={ExchangeGuideDeep} />
         <Route path={"/web3-guide/investment-gateway"} component={InvestmentGateway} />
+        <Route path={"/web3-guide/economic-opportunity"} component={EconomicOpportunity} />
 
         <Route path={"/404"} component={NotFound} />
         <Route component={NotFound} />

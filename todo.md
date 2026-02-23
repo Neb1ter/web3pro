@@ -12,4 +12,9 @@
 - [x] Run vitest tests (6 files, 23 tests, all passed)
 - [x] Save checkpoint and deliver to user (version: fa1141df)
 - [x] 修改 Portal 页面交易所跑马灯为纯文字样式（移除假 Logo）
-- [ ] 验证效果并保存检查点
+- [x] 验证效果并保存检查点 (version: 6e803633)
+- [x] 搜集最新经济形势与 Web3 数据（近半年）
+- [x] 创建「经济形势与 Web3 机遇」二级页面（EconomicOpportunity.tsx）
+- [x] 在 Web3 入圈指南首页插入新板块入口，后续板块序号顺延
+- [x] 同步二级菜单导航
+- [x] 验证效果并保存检查点
