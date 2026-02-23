@@ -10,4 +10,6 @@
 - [x] Verify Chinese/English language switching
 - [x] Verify responsive design on mobile and desktop
 - [x] Run vitest tests (6 files, 23 tests, all passed)
-- [ ] Save checkpoint and deliver to user
+- [x] Save checkpoint and deliver to user (version: fa1141df)
+- [x] 修改 Portal 页面交易所跑马灯为纯文字样式（移除假 Logo）
+- [ ] 验证效果并保存检查点

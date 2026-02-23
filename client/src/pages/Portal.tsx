@@ -100,137 +100,21 @@ const LANG = {
 };
 
 // ============================================================
-// 交易所 / DEX Logo 数据（纯 SVG 文字 + 图形，黑色调）
+// 交易所 / DEX 文字数据（纯文字跑马灯，无假 Logo）
 // ============================================================
 const PLATFORM_LOGOS = [
-  // CEX
-  {
-    name: "Binance",
-    svg: (
-      <svg viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-7 w-auto">
-        <path d="M8 16L12 12L16 16L12 20Z" fill="currentColor" opacity="0.9"/>
-        <path d="M16 8L20 12L16 16L12 12Z" fill="currentColor" opacity="0.7"/>
-        <path d="M0 16L4 12L8 16L4 20Z" fill="currentColor" opacity="0.7"/>
-        <path d="M16 24L20 20L24 24L20 28Z" fill="currentColor" opacity="0.7"/>
-        <path d="M8 24L12 20L16 24L12 28Z" fill="currentColor" opacity="0.7"/>
-        <path d="M16 16L20 12L24 16L20 20Z" fill="currentColor" opacity="0.9"/>
-        <text x="30" y="21" fill="currentColor" fontSize="14" fontWeight="700" fontFamily="Arial,sans-serif" letterSpacing="0.5">BINANCE</text>
-      </svg>
-    ),
-  },
-  {
-    name: "OKX",
-    svg: (
-      <svg viewBox="0 0 80 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-7 w-auto">
-        <rect x="2" y="2" width="10" height="10" rx="1" fill="currentColor" opacity="0.9"/>
-        <rect x="14" y="2" width="10" height="10" rx="1" fill="currentColor" opacity="0.9"/>
-        <rect x="8" y="14" width="10" height="10" rx="1" fill="currentColor" opacity="0.9"/>
-        <rect x="20" y="14" width="10" height="10" rx="1" fill="currentColor" opacity="0.9"/>
-        <text x="36" y="21" fill="currentColor" fontSize="14" fontWeight="700" fontFamily="Arial,sans-serif" letterSpacing="0.5">OKX</text>
-      </svg>
-    ),
-  },
-  {
-    name: "Bybit",
-    svg: (
-      <svg viewBox="0 0 90 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-7 w-auto">
-        <rect x="2" y="6" width="4" height="20" rx="2" fill="currentColor" opacity="0.9"/>
-        <rect x="2" y="6" width="14" height="8" rx="2" fill="currentColor" opacity="0.7"/>
-        <rect x="2" y="18" width="14" height="8" rx="2" fill="currentColor" opacity="0.7"/>
-        <text x="22" y="21" fill="currentColor" fontSize="14" fontWeight="700" fontFamily="Arial,sans-serif" letterSpacing="0.5">BYBIT</text>
-      </svg>
-    ),
-  },
-  {
-    name: "Gate.io",
-    svg: (
-      <svg viewBox="0 0 100 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-7 w-auto">
-        <circle cx="14" cy="16" r="12" stroke="currentColor" strokeWidth="2.5" fill="none" opacity="0.9"/>
-        <path d="M14 16 H22 M14 10 A6 6 0 0 1 20 16" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" fill="none" opacity="0.9"/>
-        <text x="32" y="21" fill="currentColor" fontSize="14" fontWeight="700" fontFamily="Arial,sans-serif" letterSpacing="0.5">Gate.io</text>
-      </svg>
-    ),
-  },
-  {
-    name: "Bitget",
-    svg: (
-      <svg viewBox="0 0 100 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-7 w-auto">
-        <path d="M4 24 L12 8 L20 24 Z" fill="currentColor" opacity="0.9"/>
-        <path d="M10 24 L18 8 L26 24 Z" fill="currentColor" opacity="0.5"/>
-        <text x="32" y="21" fill="currentColor" fontSize="14" fontWeight="700" fontFamily="Arial,sans-serif" letterSpacing="0.5">BITGET</text>
-      </svg>
-    ),
-  },
-  {
-    name: "HTX",
-    svg: (
-      <svg viewBox="0 0 80 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-7 w-auto">
-        <path d="M4 8 L4 24 M4 16 L14 16 M14 8 L14 24" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" fill="none" opacity="0.9"/>
-        <text x="22" y="21" fill="currentColor" fontSize="14" fontWeight="700" fontFamily="Arial,sans-serif" letterSpacing="0.5">HTX</text>
-      </svg>
-    ),
-  },
-  // DEX
-  {
-    name: "Uniswap",
-    svg: (
-      <svg viewBox="0 0 110 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-7 w-auto">
-        <circle cx="10" cy="10" r="5" fill="currentColor" opacity="0.9"/>
-        <circle cx="22" cy="22" r="5" fill="currentColor" opacity="0.6"/>
-        <path d="M10 10 Q16 4 22 22" stroke="currentColor" strokeWidth="2" fill="none" opacity="0.8"/>
-        <text x="32" y="21" fill="currentColor" fontSize="14" fontWeight="700" fontFamily="Arial,sans-serif" letterSpacing="0.5">UNISWAP</text>
-      </svg>
-    ),
-  },
-  {
-    name: "dYdX",
-    svg: (
-      <svg viewBox="0 0 80 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-7 w-auto">
-        <path d="M4 8 L14 24 M14 8 L4 24" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" opacity="0.9"/>
-        <path d="M18 8 L28 24 M28 8 L18 24" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" opacity="0.6"/>
-        <text x="34" y="21" fill="currentColor" fontSize="14" fontWeight="700" fontFamily="Arial,sans-serif" letterSpacing="0.5">dYdX</text>
-      </svg>
-    ),
-  },
-  {
-    name: "PancakeSwap",
-    svg: (
-      <svg viewBox="0 0 140 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-7 w-auto">
-        <ellipse cx="14" cy="18" rx="12" ry="6" stroke="currentColor" strokeWidth="2" fill="none" opacity="0.9"/>
-        <ellipse cx="14" cy="14" rx="10" ry="5" stroke="currentColor" strokeWidth="2" fill="none" opacity="0.7"/>
-        <ellipse cx="14" cy="10" rx="8" ry="4" stroke="currentColor" strokeWidth="2" fill="none" opacity="0.5"/>
-        <text x="32" y="21" fill="currentColor" fontSize="13" fontWeight="700" fontFamily="Arial,sans-serif" letterSpacing="0.3">PANCAKESWAP</text>
-      </svg>
-    ),
-  },
-  {
-    name: "Curve",
-    svg: (
-      <svg viewBox="0 0 90 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-7 w-auto">
-        <path d="M4 24 Q8 4 16 16 Q24 28 28 8" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" fill="none" opacity="0.9"/>
-        <text x="36" y="21" fill="currentColor" fontSize="14" fontWeight="700" fontFamily="Arial,sans-serif" letterSpacing="0.5">CURVE</text>
-      </svg>
-    ),
-  },
-  {
-    name: "Aave",
-    svg: (
-      <svg viewBox="0 0 80 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-7 w-auto">
-        <path d="M14 6 L24 26 M14 6 L4 26 M8 18 L20 18" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" fill="none" opacity="0.9"/>
-        <text x="30" y="21" fill="currentColor" fontSize="14" fontWeight="700" fontFamily="Arial,sans-serif" letterSpacing="0.5">AAVE</text>
-      </svg>
-    ),
-  },
-  {
-    name: "1inch",
-    svg: (
-      <svg viewBox="0 0 80 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-7 w-auto">
-        <path d="M14 6 C6 10 6 22 14 26 C22 22 22 10 14 6Z" stroke="currentColor" strokeWidth="2" fill="none" opacity="0.9"/>
-        <path d="M14 6 L14 26" stroke="currentColor" strokeWidth="1.5" opacity="0.6"/>
-        <text x="28" y="21" fill="currentColor" fontSize="14" fontWeight="700" fontFamily="Arial,sans-serif" letterSpacing="0.5">1INCH</text>
-      </svg>
-    ),
-  },
+  { name: "Binance", tag: "CEX" },
+  { name: "OKX", tag: "CEX" },
+  { name: "Bybit", tag: "CEX" },
+  { name: "Gate.io", tag: "CEX" },
+  { name: "Bitget", tag: "CEX" },
+  { name: "HTX", tag: "CEX" },
+  { name: "Uniswap", tag: "DEX" },
+  { name: "dYdX", tag: "DEX" },
+  { name: "PancakeSwap", tag: "DEX" },
+  { name: "Curve", tag: "DEX" },
+  { name: "Aave", tag: "DeFi" },
+  { name: "1inch", tag: "DEX" },
 ];
 
 // 复制一份用于无缝滚动
@@ -396,11 +280,30 @@ function LogoMarquee({ label }: { label: string }) {
             {ALL_LOGOS.map((logo, i) => (
               <div
                 key={i}
-                className="flex-shrink-0 text-slate-500 hover:text-slate-300 transition-colors duration-300"
-                style={{ opacity: 0.55 }}
+                className="flex-shrink-0 flex items-center gap-2 select-none"
                 title={logo.name}
               >
-                {logo.svg}
+                <span
+                  className="text-xs font-medium px-1.5 py-0.5 rounded border"
+                  style={{
+                    color: logo.tag === "CEX" ? "rgba(255,215,0,0.5)" : logo.tag === "DEX" ? "rgba(110,231,183,0.5)" : "rgba(147,197,253,0.5)",
+                    borderColor: logo.tag === "CEX" ? "rgba(255,215,0,0.2)" : logo.tag === "DEX" ? "rgba(110,231,183,0.2)" : "rgba(147,197,253,0.2)",
+                    fontSize: "10px",
+                    letterSpacing: "0.05em",
+                  }}
+                >
+                  {logo.tag}
+                </span>
+                <span
+                  className="font-semibold tracking-wide"
+                  style={{
+                    color: logo.tag === "CEX" ? "rgba(255,215,0,0.65)" : logo.tag === "DEX" ? "rgba(110,231,183,0.65)" : "rgba(147,197,253,0.65)",
+                    fontSize: "15px",
+                    letterSpacing: "0.04em",
+                  }}
+                >
+                  {logo.name}
+                </span>
               </div>
             ))}
           </div>
