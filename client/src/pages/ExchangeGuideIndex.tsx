@@ -49,8 +49,10 @@ export default function ExchangeGuideIndex() {
   const [activeTab, setActiveTab] = useState<"features" | "compare">("features");
   const [selectedExchange, setSelectedExchange] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
+  const [floatMenuOpen, setFloatMenuOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const { data: categories = [], isLoading } = trpc.exchangeGuide.categories.useQuery();
+  const selectedCat = categories.find(c => c.slug === activeCategory) ?? categories[0];
 
   return (
     <div className="min-h-screen bg-[#0A192F] text-white">
@@ -94,7 +96,7 @@ export default function ExchangeGuideIndex() {
       {/* Main Layout */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         {activeTab === "features" ? (
-          <FeaturesTab categories={categories} isLoading={isLoading} zh={zh} />
+          <FeaturesTab categories={categories} isLoading={isLoading} zh={zh} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
         ) : (
           <CompareTab zh={zh} selectedExchange={selectedExchange} setSelectedExchange={setSelectedExchange} />
         )}
@@ -125,17 +127,34 @@ export default function ExchangeGuideIndex() {
       </div>
       {/* 右下角回到顶部按钮 */}
       <ScrollToTopButton color="yellow" />
+
+      {/* 浮动章节菜单：仅在 features tab 且有内容时显示 */}
+      {activeTab === "features" && categories.length > 0 && (
+        <FloatChapterMenu
+          categories={categories}
+          activeSlug={selectedCat?.slug ?? ""}
+          zh={zh}
+          open={floatMenuOpen}
+          onToggle={() => setFloatMenuOpen(o => !o)}
+          onSelect={(slug: string) => {
+            setActiveCategory(slug);
+            setFloatMenuOpen(false);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+        />
+      )}
     </div>
   );
 }
 // ─── Features Tab ─────────────────────────────────────────────────────────────
 
-function FeaturesTab({ categories, isLoading, zh }: {
+function FeaturesTab({ categories, isLoading, zh, activeCategory, setActiveCategory }: {
   categories: Array<{ id: number; slug: string; nameZh: string; nameEn: string; icon: string; descZh: string; descEn: string; difficulty: string; sortOrder: number }>;
   isLoading: boolean;
   zh: boolean;
+  activeCategory: string | null;
+  setActiveCategory: (slug: string) => void;
 }) {
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   if (isLoading) {
     return (
@@ -179,9 +198,20 @@ function FeaturesTab({ categories, isLoading, zh }: {
 
       {/* Right Content */}
       <main className="flex-1 min-w-0">
-        {selected && (
-          <FeatureDetail category={selected} zh={zh} />
-        )}
+        {selected && (() => {
+          const idx = categories.findIndex(c => c.slug === selected.slug);
+          const prev = idx > 0 ? categories[idx - 1] : undefined;
+          const next = idx < categories.length - 1 ? categories[idx + 1] : undefined;
+          return (
+            <FeatureDetail
+              category={selected}
+              zh={zh}
+              prevCategory={prev}
+              nextCategory={next}
+              onNavigate={(slug) => setActiveCategory(slug)}
+            />
+          );
+        })()}
       </main>
     </div>
   );
@@ -189,9 +219,14 @@ function FeaturesTab({ categories, isLoading, zh }: {
 
 // ─── Feature Detail ────────────────────────────────────────────────────────────
 
-function FeatureDetail({ category, zh }: {
-  category: { slug: string; nameZh: string; nameEn: string; icon: string; descZh: string; descEn: string; difficulty: string };
+type CategoryItem = { id: number; slug: string; nameZh: string; nameEn: string; icon: string; descZh: string; descEn: string; difficulty: string; sortOrder: number };
+
+function FeatureDetail({ category, zh, prevCategory, nextCategory, onNavigate }: {
+  category: CategoryItem;
   zh: boolean;
+  prevCategory?: CategoryItem;
+  nextCategory?: CategoryItem;
+  onNavigate?: (slug: string) => void;
 }) {
   const { data: supports = [], isLoading } = trpc.exchangeGuide.featureSupport.useQuery({ featureSlug: category.slug });
   const [quizAnswer, setQuizAnswer] = useState<string | null>(null);
@@ -383,15 +418,56 @@ function FeatureDetail({ category, zh }: {
                   <Gamepad2 className="w-4 h-4" />
                   {zh ? "进入模拟游戏 →" : "Play Simulation →"}
                 </button>
-              </Link>
+               </Link>
             </div>
           </div>
         );
       })()}
+
+      {/* 上一篇 / 下一篇导航 */}
+      {(prevCategory || nextCategory) && (
+        <div className="mt-8 grid grid-cols-2 gap-3">
+          {/* 上一篇 */}
+          <div>
+            {prevCategory ? (
+              <button
+                onClick={() => { onNavigate?.(prevCategory.slug); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                className="w-full group flex flex-col items-start gap-1 px-4 py-3 rounded-xl border border-white/10 bg-white/3 hover:border-yellow-500/40 hover:bg-yellow-500/5 transition-all text-left"
+              >
+                <span className="text-xs text-slate-500 font-medium flex items-center gap-1">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                  {zh ? '上一篇' : 'Previous'}
+                </span>
+                <span className="text-sm font-bold text-white group-hover:text-yellow-300 transition-colors flex items-center gap-1.5">
+                  <span className="text-base">{prevCategory.icon}</span>
+                  {zh ? prevCategory.nameZh : prevCategory.nameEn}
+                </span>
+              </button>
+            ) : <div />}
+          </div>
+          {/* 下一篇 */}
+          <div>
+            {nextCategory ? (
+              <button
+                onClick={() => { onNavigate?.(nextCategory.slug); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                className="w-full group flex flex-col items-end gap-1 px-4 py-3 rounded-xl border border-white/10 bg-white/3 hover:border-yellow-500/40 hover:bg-yellow-500/5 transition-all text-right"
+              >
+                <span className="text-xs text-slate-500 font-medium flex items-center gap-1 justify-end">
+                  {zh ? '下一篇' : 'Next'}
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                </span>
+                <span className="text-sm font-bold text-white group-hover:text-yellow-300 transition-colors flex items-center gap-1.5 justify-end">
+                  {zh ? nextCategory.nameZh : nextCategory.nameEn}
+                  <span className="text-base">{nextCategory.icon}</span>
+                </span>
+              </button>
+            ) : <div />}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
 // ─── Compare Tab ───────────────────────────────────────────────────────────────
 
 function CompareTab({ zh, selectedExchange, setSelectedExchange }: {
@@ -514,8 +590,221 @@ function CompareTab({ zh, selectedExchange, setSelectedExchange }: {
      </div>
   );
 }
-// ─── Static Content Helpers ────────────────────────────────────────────────────
+// ─── Float Chapter Menu ────────────────────────────────────────────────────
 
+type FloatCat = { id: number; slug: string; nameZh: string; nameEn: string; icon: string; descZh: string; descEn: string; difficulty: string; sortOrder: number };
+
+function FloatChapterMenu({
+  categories,
+  activeSlug,
+  zh,
+  open,
+  onToggle,
+  onSelect,
+}: {
+  categories: FloatCat[];
+  activeSlug: string;
+  zh: boolean;
+  open: boolean;
+  onToggle: () => void;
+  onSelect: (slug: string) => void;
+}) {
+  const active = categories.find(c => c.slug === activeSlug) ?? categories[0];
+  const total = categories.length;
+  const currentIdx = categories.findIndex(c => c.slug === activeSlug);
+
+  return (
+    <>
+      {/* 遗留层：点击关闭菜单 */}
+      {open && (
+        <div
+          className="fixed inset-0 z-40"
+          onClick={onToggle}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* 浮动容器 */}
+      <div
+        style={{
+          position: 'fixed',
+          // 左下角，避免与右下角回到顶部按钮重叠
+          bottom: '24px',
+          left: '24px',
+          zIndex: 45,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          gap: '8px',
+        }}
+      >
+        {/* 展开的菜单面板 */}
+        <div
+          style={{
+            transition: 'opacity 0.25s ease, transform 0.25s ease',
+            opacity: open ? 1 : 0,
+            transform: open ? 'translateY(0) scale(1)' : 'translateY(12px) scale(0.96)',
+            pointerEvents: open ? 'auto' : 'none',
+            transformOrigin: 'bottom left',
+            background: 'rgba(10, 20, 40, 0.82)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            border: '1px solid rgba(234,179,8,0.25)',
+            borderRadius: '16px',
+            padding: '12px',
+            width: '220px',
+            maxHeight: '60vh',
+            overflowY: 'auto',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(234,179,8,0.1), inset 0 1px 0 rgba(255,255,255,0.05)',
+          }}
+        >
+          {/* 菜单标题 */}
+          <div style={{ padding: '4px 8px 10px', borderBottom: '1px solid rgba(255,255,255,0.08)', marginBottom: '8px' }}>
+            <p style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(234,179,8,0.7)', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>
+              {zh ? `章节导航 · ${currentIdx + 1} / ${total}` : `Chapters · ${currentIdx + 1} / ${total}`}
+            </p>
+          </div>
+
+          {/* 章节列表 */}
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+            {categories.map((cat, i) => {
+              const isActive = cat.slug === activeSlug;
+              return (
+                <button
+                  key={cat.slug}
+                  onClick={() => onSelect(cat.slug)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '8px 10px',
+                    borderRadius: '10px',
+                    border: isActive ? '1px solid rgba(234,179,8,0.4)' : '1px solid transparent',
+                    background: isActive ? 'rgba(234,179,8,0.12)' : 'transparent',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                    textAlign: 'left',
+                    width: '100%',
+                  }}
+                  onMouseEnter={e => {
+                    if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.06)';
+                  }}
+                  onMouseLeave={e => {
+                    if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+                  }}
+                >
+                  {/* 序号 */}
+                  <span style={{
+                    fontSize: '10px',
+                    fontWeight: 700,
+                    color: isActive ? 'rgba(234,179,8,0.8)' : 'rgba(100,116,139,0.8)',
+                    minWidth: '16px',
+                    textAlign: 'right',
+                    flexShrink: 0,
+                  }}>{String(i + 1).padStart(2, '0')}</span>
+
+                  {/* 图标 */}
+                  <span style={{ fontSize: '16px', flexShrink: 0 }}>{cat.icon}</span>
+
+                  {/* 名称 */}
+                  <span style={{
+                    fontSize: '12px',
+                    fontWeight: isActive ? 700 : 500,
+                    color: isActive ? '#fde68a' : 'rgba(148,163,184,0.9)',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    flex: 1,
+                  }}>
+                    {zh ? cat.nameZh : cat.nameEn}
+                  </span>
+
+                  {/* 当前指示点 */}
+                  {isActive && (
+                    <span style={{
+                      width: '6px',
+                      height: '6px',
+                      borderRadius: '50%',
+                      background: '#eab308',
+                      boxShadow: '0 0 6px 2px rgba(234,179,8,0.6)',
+                      flexShrink: 0,
+                    }} />
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* 触发按钮：显示当前章节图标 + 提示 */}
+        <button
+          onClick={onToggle}
+          aria-label={zh ? '打开章节菜单' : 'Open chapter menu'}
+          title={zh ? '点击切换章节' : 'Click to switch chapter'}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '8px 14px 8px 10px',
+            borderRadius: '40px',
+            border: open ? '1px solid rgba(234,179,8,0.5)' : '1px solid rgba(234,179,8,0.25)',
+            background: open ? 'rgba(234,179,8,0.15)' : 'rgba(10,20,40,0.75)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            boxShadow: open
+              ? '0 0 0 3px rgba(234,179,8,0.15), 0 4px 16px rgba(0,0,0,0.4)'
+              : '0 0 0 1px rgba(234,179,8,0.08), 0 4px 16px rgba(0,0,0,0.4)',
+            maxWidth: '200px',
+          }}
+        >
+          {/* 当前章节图标 */}
+          <span style={{ fontSize: '20px', lineHeight: 1, flexShrink: 0 }}>{active?.icon}</span>
+
+          {/* 章节名 + 提示文字 */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', overflow: 'hidden' }}>
+            <span style={{
+              fontSize: '11px',
+              fontWeight: 700,
+              color: '#fde68a',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              maxWidth: '120px',
+            }}>
+              {active ? (zh ? active.nameZh : active.nameEn) : ''}
+            </span>
+            <span style={{ fontSize: '10px', color: 'rgba(148,163,184,0.7)', whiteSpace: 'nowrap' }}>
+              {zh ? '点此切换章节' : 'Tap to switch'}
+            </span>
+          </div>
+
+          {/* 展开/收起箭头 */}
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="rgba(234,179,8,0.8)"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{
+              flexShrink: 0,
+              transition: 'transform 0.2s ease',
+              transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
+            }}
+          >
+            <path d="M18 15l-6-6-6 6" />
+          </svg>
+        </button>
+      </div>
+    </>
+  );
+}
+
+// ─── Static Content Helpers ────────────────────────────────────────────────────
 function getExchangeOverview(slug: string, zh: boolean): string {
   const data: Record<string, { zh: string; en: string }> = {
     binance: {
