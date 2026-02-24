@@ -29,6 +29,7 @@ import TradFiSim from "@/pages/sim/TradFiSim";
 import MarginSim from "@/pages/sim/MarginSim";
 import OptionsSim from "@/pages/sim/OptionsSim";
 import BotSim from "@/pages/sim/BotSim";
+import BrokerProgram from "@/pages/BrokerProgram";
 import { useEffect, useRef, useState } from "react";
 import { saveScrollPosition, getScrollPosition } from "@/hooks/useScrollMemory";
 
@@ -117,6 +118,9 @@ function Router() {
         <Route path="/sim/margin" component={MarginSim} />
         <Route path="/sim/options" component={OptionsSim} />
         <Route path="/sim/bot" component={BotSim} />
+
+        {/* 代理计划 */}
+        <Route path="/broker" component={BrokerProgram} />
 
         <Route path={"404"} component={NotFound} />
         <Route component={NotFound} />
