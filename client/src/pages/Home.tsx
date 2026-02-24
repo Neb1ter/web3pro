@@ -4,7 +4,7 @@
  * 章节顺序：Hero → 什么是返佣 → 返佣来源 → 机制揭秘 → 安全合规 → 实战案例（含计算器）→ 全场景覆盖 → 新老用户如何获得 → 总结与行动
  */
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { useLocation } from 'wouter';
+import { useLocation, Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { WelcomeGuide } from '@/components/WelcomeGuide';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -39,10 +39,13 @@ const CHAPTERS = [
   { id: 'action',          icon: '🚀', zh: '总结与行动',    en: 'Summary & Action'    },
 ];
 
-// ─── 浮动章节菜单 ─────────────────────────────────────────────────────────────
+// ─── 浮动章节菜单（可拖拽） ───────────────────────────────────────────────────
 function FloatChapterMenu({ activeId, zh }: { activeId: string; zh: boolean }) {
   const [open, setOpen] = useState(false);
   const active = CHAPTERS.find(c => c.id === activeId) ?? CHAPTERS[0];
+  // 拖拽偏移量（相对于初始位置 bottom:1.5rem left:1rem）
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const dragRef = useRef<{ startX: number; startY: number; origX: number; origY: number; moved: boolean } | null>(null);
 
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
@@ -50,18 +53,59 @@ function FloatChapterMenu({ activeId, zh }: { activeId: string; zh: boolean }) {
     setOpen(false);
   };
 
+  // 鼠标拖拽
+  const onMouseDown = (e: React.MouseEvent) => {
+    dragRef.current = { startX: e.clientX, startY: e.clientY, origX: offset.x, origY: offset.y, moved: false };
+    e.preventDefault();
+  };
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      if (!dragRef.current) return;
+      const dx = e.clientX - dragRef.current.startX;
+      const dy = e.clientY - dragRef.current.startY;
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragRef.current.moved = true;
+      setOffset({ x: dragRef.current.origX + dx, y: dragRef.current.origY + dy });
+    };
+    const onUp = () => { dragRef.current = null; };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    return () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
+  }, []);
+  // 触控拖拽
+  const onTouchStart = (e: React.TouchEvent) => {
+    const t = e.touches[0];
+    dragRef.current = { startX: t.clientX, startY: t.clientY, origX: offset.x, origY: offset.y, moved: false };
+  };
+  useEffect(() => {
+    const onMove = (e: TouchEvent) => {
+      if (!dragRef.current) return;
+      const t = e.touches[0];
+      const dx = t.clientX - dragRef.current.startX;
+      const dy = t.clientY - dragRef.current.startY;
+      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+        dragRef.current.moved = true;
+        setOffset({ x: dragRef.current.origX + dx, y: dragRef.current.origY + dy });
+        e.preventDefault();
+      }
+    };
+    const onEnd = () => { dragRef.current = null; };
+    window.addEventListener('touchmove', onMove, { passive: false });
+    window.addEventListener('touchend', onEnd);
+    return () => { window.removeEventListener('touchmove', onMove); window.removeEventListener('touchend', onEnd); };
+  }, []);
+
+  const containerStyle: React.CSSProperties = {
+    position: 'fixed',
+    left: `calc(1rem + ${offset.x}px)`,
+    bottom: `calc(1.5rem - ${offset.y}px)`,
+    zIndex: 50,
+    userSelect: 'none',
+  };
+
   return (
     <>
-      {/* 遮罩 */}
-      {open && (
-        <div
-          className="fixed inset-0 z-40"
-          onClick={() => setOpen(false)}
-        />
-      )}
-
-      {/* 浮动按钮 + 菜单面板 */}
-      <div className="fixed bottom-24 left-4 z-50">
+      {open && <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />}
+      <div style={containerStyle}>
         {/* 展开的菜单面板 */}
         {open && (
           <div
@@ -80,7 +124,7 @@ function FloatChapterMenu({ activeId, zh }: { activeId: string; zh: boolean }) {
               </p>
             </div>
             <div className="py-2">
-              {CHAPTERS.map((c, i) => (
+              {CHAPTERS.map((c) => (
                 <button
                   key={c.id}
                   onClick={() => scrollTo(c.id)}
@@ -92,40 +136,43 @@ function FloatChapterMenu({ activeId, zh }: { activeId: string; zh: boolean }) {
                 >
                   <span className="text-base shrink-0 w-6 text-center">{c.icon}</span>
                   <span className="text-sm font-semibold truncate">{zh ? c.zh : c.en}</span>
-                  {c.id === activeId && (
-                    <span className="ml-auto w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
-                  )}
+                  {c.id === activeId && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />}
                 </button>
               ))}
             </div>
           </div>
         )}
-
-        {/* 触发按钮 */}
-        <button
-          onClick={() => setOpen(v => !v)}
-          className="flex items-center gap-2.5 rounded-2xl border border-amber-500/30 px-3.5 py-2.5 transition-all hover:border-amber-500/60"
-          style={{
-            background: 'rgba(10,25,47,0.92)',
-            backdropFilter: 'blur(16px)',
-            WebkitBackdropFilter: 'blur(16px)',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.4), 0 0 12px rgba(255,215,0,0.08)',
-          }}
-          title={zh ? '点击切换章节' : 'Switch chapter'}
+        {/* 触发按钮（拖拽手柄） */}
+        <div
+          onMouseDown={onMouseDown}
+          onTouchStart={onTouchStart}
+          className="cursor-grab active:cursor-grabbing"
         >
-          <span className="text-lg">{active.icon}</span>
-          <div className="hidden sm:block">
-            <p className="text-xs font-black text-amber-400 leading-none mb-0.5">
-              {zh ? active.zh : active.en}
-            </p>
-            <p className="text-[10px] text-slate-500 leading-none">
-              {zh ? '点击切换章节' : 'Tap to switch'}
-            </p>
-          </div>
-          <span className="text-slate-500">
-            {open ? <X className="w-3.5 h-3.5" /> : <Menu className="w-3.5 h-3.5" />}
-          </span>
-        </button>
+          <button
+            onClick={() => { if (!dragRef.current?.moved) setOpen(v => !v); }}
+            className="flex items-center gap-2.5 rounded-2xl border border-amber-500/30 px-3.5 py-2.5 transition-all hover:border-amber-500/60"
+            style={{
+              background: 'rgba(10,25,47,0.92)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.4), 0 0 12px rgba(255,215,0,0.08)',
+            }}
+            title={zh ? '拖动可移位，点击切换章节' : 'Drag to move · Tap to switch'}
+          >
+            <span className="text-lg">{active.icon}</span>
+            <div className="hidden sm:block">
+              <p className="text-xs font-black text-amber-400 leading-none mb-0.5">
+                {zh ? active.zh : active.en}
+              </p>
+              <p className="text-[10px] text-slate-500 leading-none">
+                {zh ? '拖动可移位，点击切换' : 'Drag to move'}
+              </p>
+            </div>
+            <span className="text-slate-500">
+              {open ? <X className="w-3.5 h-3.5" /> : <Menu className="w-3.5 h-3.5" />}
+            </span>
+          </button>
+        </div>
       </div>
     </>
   );
@@ -294,14 +341,38 @@ export default function Home() {
       {/* ── 顶部导航 ── */}
       <nav className="sticky top-0 z-50 border-b backdrop-blur-sm" style={{ background: 'rgba(10,25,47,0.95)', borderColor: 'rgba(255,215,0,0.12)' }}>
         <div className="container mx-auto px-4 h-14 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <button onClick={() => navigate('/')} className="text-slate-500 hover:text-amber-400 transition text-sm font-medium hidden sm:block">
-              ← <span className="hidden sm:inline">主页</span>
-            </button>
-            <div className="w-px h-4 bg-border hidden sm:block" />
-            <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-lg font-bold text-amber-400 hover:opacity-80 transition">
-              {texts.nav.title}
-            </button>
+          <div className="flex items-center gap-3 min-w-0">
+            {/* 返回主页按钮：移动端 + 桌面端均显示 */}
+            <Link href="/portal">
+              <button className="flex items-center gap-1.5 text-slate-400 hover:text-amber-400 transition-colors text-sm shrink-0">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                <span className="hidden sm:inline">{zh ? '返回主页' : 'Home'}</span>
+              </button>
+            </Link>
+            <div className="w-px h-4 bg-border shrink-0" />
+            {/* 桌面端：显示页面标题；移动端：显示当前章节标题（滚动感知） */}
+            <div className="min-w-0 overflow-hidden">
+              <span className="hidden sm:block text-sm font-bold text-amber-400 truncate">{texts.nav.title}</span>
+              {/* 移动端章节标题：滚动感知，滑入动画 */}
+              <div className="sm:hidden overflow-hidden h-5 flex items-center min-w-0">
+                <span
+                  key={activeChapter}
+                  className="text-xs font-bold truncate"
+                  style={{
+                    color: '#FFD700',
+                    display: 'block',
+                    animation: 'slideInFromBottom 0.25s ease forwards',
+                  }}
+                >
+                  {(() => {
+                    const cur = CHAPTERS.find(c => c.id === activeChapter);
+                    return cur ? `${cur.icon} ${zh ? cur.zh : cur.en}` : texts.nav.title;
+                  })()}
+                </span>
+              </div>
+            </div>
           </div>
           {/* 桌面端章节快捷导航 */}
           <div className="hidden lg:flex items-center gap-5">
@@ -315,7 +386,7 @@ export default function Home() {
               </button>
             ))}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <button onClick={() => setLanguage('zh')} className={`px-3 py-1 rounded text-sm font-medium transition ${language === 'zh' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'text-slate-500 hover:text-amber-400'}`}>中文</button>
             <button onClick={() => setLanguage('en')} className={`px-3 py-1 rounded text-sm font-medium transition ${language === 'en' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'text-slate-500 hover:text-amber-400'}`}>EN</button>
           </div>

@@ -224,18 +224,68 @@ const startSteps = [
 function FloatChapterMenu({ activeId }: { activeId: string }) {
   const [open, setOpen] = useState(false);
   const active = navSections.find(s => s.id === activeId) ?? navSections[0];
+  // 拖拽偏移量
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const dragRef = useRef<{ startX: number; startY: number; origX: number; origY: number; moved: boolean } | null>(null);
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     setOpen(false);
   };
 
+  // 鼠标拖拽
+  const onMouseDown = (e: React.MouseEvent) => {
+    dragRef.current = { startX: e.clientX, startY: e.clientY, origX: offset.x, origY: offset.y, moved: false };
+    e.preventDefault();
+  };
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      if (!dragRef.current) return;
+      const dx = e.clientX - dragRef.current.startX;
+      const dy = e.clientY - dragRef.current.startY;
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragRef.current.moved = true;
+      setOffset({ x: dragRef.current.origX + dx, y: dragRef.current.origY + dy });
+    };
+    const onUp = () => { dragRef.current = null; };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    return () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
+  }, []);
+  // 触控拖拽
+  const onTouchStart = (e: React.TouchEvent) => {
+    const t = e.touches[0];
+    dragRef.current = { startX: t.clientX, startY: t.clientY, origX: offset.x, origY: offset.y, moved: false };
+  };
+  useEffect(() => {
+    const onMove = (e: TouchEvent) => {
+      if (!dragRef.current) return;
+      const t = e.touches[0];
+      const dx = t.clientX - dragRef.current.startX;
+      const dy = t.clientY - dragRef.current.startY;
+      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+        dragRef.current.moved = true;
+        setOffset({ x: dragRef.current.origX + dx, y: dragRef.current.origY + dy });
+        e.preventDefault();
+      }
+    };
+    const onEnd = () => { dragRef.current = null; };
+    window.addEventListener('touchmove', onMove, { passive: false });
+    window.addEventListener('touchend', onEnd);
+    return () => { window.removeEventListener('touchmove', onMove); window.removeEventListener('touchend', onEnd); };
+  }, []);
+
+  const containerStyle: React.CSSProperties = {
+    position: 'fixed',
+    left: `calc(1rem + ${offset.x}px)`,
+    bottom: `calc(1.5rem - ${offset.y}px)`,
+    zIndex: 50,
+    userSelect: 'none',
+  };
+
   return (
     <>
-      {open && (
-        <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-      )}
-      <div className="fixed bottom-24 left-4 z-50">
+      {open && <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />}
+      <div style={containerStyle}>
         {open && (
           <div
             className="mb-3 rounded-2xl border border-emerald-500/25 overflow-hidden"
@@ -263,34 +313,38 @@ function FloatChapterMenu({ activeId }: { activeId: string }) {
                 >
                   <span className="text-base shrink-0 w-6 text-center">{sec.icon}</span>
                   <span className="text-sm font-semibold truncate">{sec.label}</span>
-                  {sec.id === activeId && (
-                    <span className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
-                  )}
+                  {sec.id === activeId && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />}
                 </button>
               ))}
             </div>
           </div>
         )}
-        <button
-          onClick={() => setOpen(v => !v)}
-          className="flex items-center gap-2.5 rounded-2xl border border-emerald-500/30 px-3.5 py-2.5 transition-all hover:border-emerald-500/60"
-          style={{
-            background: 'rgba(5,13,26,0.92)',
-            backdropFilter: 'blur(16px)',
-            WebkitBackdropFilter: 'blur(16px)',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.4), 0 0 12px rgba(16,185,129,0.08)',
-          }}
-          title="点击切换章节"
+        <div
+          onMouseDown={onMouseDown}
+          onTouchStart={onTouchStart}
+          className="cursor-grab active:cursor-grabbing"
         >
-          <span className="text-lg">{active.icon}</span>
-          <div className="hidden sm:block">
-            <p className="text-xs font-black text-emerald-400 leading-none mb-0.5">{active.label}</p>
-            <p className="text-[10px] text-slate-500 leading-none">点击切换章节</p>
-          </div>
-          <span className="text-slate-500">
-            {open ? <X className="w-3.5 h-3.5" /> : <Menu className="w-3.5 h-3.5" />}
-          </span>
-        </button>
+          <button
+            onClick={() => { if (!dragRef.current?.moved) setOpen(v => !v); }}
+            className="flex items-center gap-2.5 rounded-2xl border border-emerald-500/30 px-3.5 py-2.5 transition-all hover:border-emerald-500/60"
+            style={{
+              background: 'rgba(5,13,26,0.92)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.4), 0 0 12px rgba(16,185,129,0.08)',
+            }}
+            title="拖动可移位，点击切换章节"
+          >
+            <span className="text-lg">{active.icon}</span>
+            <div className="hidden sm:block">
+              <p className="text-xs font-black text-emerald-400 leading-none mb-0.5">{active.label}</p>
+              <p className="text-[10px] text-slate-500 leading-none">拖动可移位，点击切换</p>
+            </div>
+            <span className="text-slate-500">
+              {open ? <X className="w-3.5 h-3.5" /> : <Menu className="w-3.5 h-3.5" />}
+            </span>
+          </button>
+        </div>
       </div>
     </>
   );
@@ -786,7 +840,6 @@ function SectionTitle({ id, icon, title, subtitle }: { id: string; icon: string;
 export default function Web3Guide() {
   useScrollMemory();
   const [activeSection, setActiveSection] = useState("intro");
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [pageVisible, setPageVisible] = useState(false);
   const [expandedDefi, setExpandedDefi] = useState<number | null>(null);
   // 页面进入渐入动画
@@ -814,7 +867,6 @@ export default function Web3Guide() {
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-    setMobileNavOpen(false);
   };
 
   return (
@@ -830,19 +882,38 @@ export default function Web3Guide() {
       {/* ===== 顶部导航栏 ===== */}
       <header className="sticky top-0 z-50 border-b border-slate-800/80 bg-[#050D1A]/90 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
             <Link href="/portal">
-              <button className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors text-sm">
+              <button className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors text-sm shrink-0">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
-                返回主页
+                <span className="hidden sm:inline">返回主页</span>
               </button>
             </Link>
-            <div className="w-px h-4 bg-slate-700" />
-            <span className="text-emerald-400 font-bold text-sm hidden sm:block">Web3 入圈指南</span>
+            <div className="w-px h-4 bg-slate-700 shrink-0" />
+            {/* 桌面端：页面标题；移动端：当前章节标题（滚动感知） */}
+            <div className="min-w-0 overflow-hidden flex-1">
+              <span className="text-emerald-400 font-bold text-sm hidden sm:block truncate">Web3 入圈指南</span>
+              {/* 移动端章节标题：滑入动画 */}
+              <div className="sm:hidden overflow-hidden h-5 flex items-center min-w-0">
+                <span
+                  key={activeSection}
+                  className="text-xs font-bold truncate"
+                  style={{
+                    color: '#34d399',
+                    display: 'block',
+                    animation: 'slideInFromBottom 0.25s ease forwards',
+                  }}
+                >
+                  {(() => {
+                    const cur = navSections.find(s => s.id === activeSection);
+                    return cur ? `${cur.icon} ${cur.label}` : 'Web3 入圈指南';
+                  })()}
+                </span>
+              </div>
+            </div>
           </div>
-
           {/* 桌面端导航 */}
           <nav className="hidden lg:flex items-center gap-1">
             {navSections.map((sec) => (
@@ -859,45 +930,9 @@ export default function Web3Guide() {
               </button>
             ))}
           </nav>
-
-          {/* 移动端菜单按钮 */}
-          <button
-            className="lg:hidden text-slate-400 hover:text-white p-2"
-            onClick={() => setMobileNavOpen(!mobileNavOpen)}
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              {mobileNavOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </button>
         </div>
 
-        {/* 移动端下拉导航 */}
-        {mobileNavOpen && (
-          <div className="lg:hidden border-t border-slate-800 bg-[#050D1A]/95 backdrop-blur-md">
-            <div className="max-w-7xl mx-auto px-4 py-3 grid grid-cols-2 gap-2">
-              {navSections.map((sec) => (
-                <button
-                  key={sec.id}
-                  onClick={() => scrollTo(sec.id)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all text-left ${
-                    activeSection === sec.id
-                      ? "bg-emerald-500/20 text-emerald-400"
-                      : "text-slate-400 hover:bg-white/5"
-                  }`}
-                >
-                  <span>{sec.icon}</span>
-                  <span>{sec.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
       </header>
-
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
 
         {/* ===== Hero ===== */}
