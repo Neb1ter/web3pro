@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "wouter";
+import { useScrollMemory } from "@/hooks/useScrollMemory";
 
 // ============================================================
 // 数据定义
@@ -703,16 +704,25 @@ function SectionTitle({ id, icon, title, subtitle }: { id: string; icon: string;
 // 主组件
 // ============================================================
 export default function Web3Guide() {
+  useScrollMemory();
   const [activeSection, setActiveSection] = useState("intro");
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [pageVisible, setPageVisible] = useState(false);
   const [expandedDefi, setExpandedDefi] = useState<number | null>(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  // 监听滚动，超过 300px 显示回到顶部按钮
+  useEffect(() => {
+    const onScroll = () => setShowScrollTop(window.scrollY > 300);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   // 页面进入渐入动画
   useEffect(() => {
     const t = setTimeout(() => setPageVisible(true), 50);
     return () => clearTimeout(t);
-  }, []);
+  }, []);;
 
   // 滚动监听，更新活跃导航项
   useEffect(() => {
@@ -1472,6 +1482,19 @@ export default function Web3Guide() {
           </Link>
         </div>
       </div>
+
+      {/* 右下角回到顶部按钮 */}
+      <button
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        aria-label="回到顶部"
+        className={`fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-white shadow-lg shadow-emerald-500/30 flex items-center justify-center transition-all duration-300 ${
+          showScrollTop ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
+        }`}
+      >
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
+        </svg>
+      </button>
     </div>
   );
 }

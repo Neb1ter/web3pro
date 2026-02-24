@@ -76,4 +76,8 @@
 
 ## ExchangeGuideIndex 滚动位置修复
 - [x] 为 ExchangeGuideIndex.tsx 添加 useScrollMemory，返回模拟游戏后恢复到游戏入口位置
+- [x] 保存检查点
+
+## /web3-guide 回到顶部按钮
+- [x] 在 Web3Guide.tsx 右下角添加悬浮圆形「回到顶部」按鈕（滚动 300px 后显示，点击平滑滚动到页面顶部）
 - [ ] 保存检查点
