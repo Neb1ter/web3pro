@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "wouter";
 import { ArrowLeft, Clock, Zap, TrendingUp, TrendingDown, CheckCircle2, Timer, AlertCircle, RefreshCw } from "lucide-react";
+import { useScrollMemory, goBack } from '@/hooks/useScrollMemory';
 
 // ─── 代币化资产配置 ────────────────────────────────────────────────────────────
 const ASSETS = [
@@ -160,6 +161,7 @@ function SettlementTimer({
 
 // ─── 主组件 ───────────────────────────────────────────────────────────────────
 export default function TradFiSim() {
+  useScrollMemory();
   const { prices, ticks } = usePrices();
   const [balance, setBalance] = useState(10000);
   const [positions, setPositions] = useState<Record<string, Position>>({});
@@ -290,12 +292,10 @@ export default function TradFiSim() {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-[#0A192F]/95 backdrop-blur-sm border-b border-white/10">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
-          <Link href="/exchange-guide">
-            <button className="flex items-center gap-2 text-slate-400 hover:text-yellow-400 transition-colors text-sm font-medium">
+          <button onClick={goBack} className="flex items-center gap-2 text-slate-400 hover:text-yellow-400 transition-colors text-sm font-medium">
               <ArrowLeft className="w-4 h-4" />
               <span className="hidden sm:inline">返回 TradFi 教程</span>
             </button>
-          </Link>
           <div className="flex items-center gap-2">
             <span className="text-lg">🏦</span>
             <span className="font-black text-sm sm:text-base">代币化资产实时交易模拟器</span>

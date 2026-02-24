@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
 import Web3ChapterNav from "@/components/Web3ChapterNav";
+import { useScrollMemory } from '@/hooks/useScrollMemory';
 
 // ============================================================
 // 工具 Hook：滚动进入视野触发动画
@@ -82,6 +83,7 @@ function Source({ children }: { children: React.ReactNode }) {
 // 主组件
 // ============================================================
 export default function EconomicOpportunity() {
+  useScrollMemory();
   const [pageVisible, setPageVisible] = useState(false);
   const [activeTab, setActiveTab] = useState<"pressure" | "web3">("pressure");
 

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
 import Web3ChapterNav from "@/components/Web3ChapterNav";
+import { useScrollMemory } from '@/hooks/useScrollMemory';
 
 function FadeIn({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -430,6 +431,7 @@ DEX 质押收益高，原因有三：
 }
 
 export default function InvestmentGateway() {
+  useScrollMemory();
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setTimeout(() => setMounted(true), 50); }, []);
 

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
+import { useScrollMemory } from '@/hooks/useScrollMemory';
 
 // ============================================================
 // 多语言文案
@@ -402,6 +403,7 @@ const moduleColors = [
 ];
 
 export default function Portal() {
+  useScrollMemory();
   const [mounted, setMounted] = useState(false);
   const [lang, setLang] = useState<"zh" | "en">("zh");
   const t = LANG[lang];

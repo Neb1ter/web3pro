@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "wouter";
 import { ArrowLeft, RefreshCw, Info } from "lucide-react";
+import { useScrollMemory, goBack } from '@/hooks/useScrollMemory';
 
 // Black-Scholes 简化版（用于教学）
 function blackScholes(S: number, K: number, T: number, r: number, sigma: number, type: "call" | "put") {
@@ -118,6 +119,7 @@ const SIGMA = 0.65; // 65% 年化波动率（BTC典型值）
 const R = 0.05;
 
 export default function OptionsSim() {
+  useScrollMemory();
   const [spotPrice, setSpotPrice] = useState(65000);
   const [priceHistory, setPriceHistory] = useState([65000]);
   const [balance, setBalance] = useState(INITIAL_BALANCE);
@@ -223,11 +225,9 @@ export default function OptionsSim() {
     <div className="min-h-screen bg-[#0A192F] text-white">
       <div className="sticky top-0 z-30 bg-[#0A192F]/95 backdrop-blur border-b border-white/10 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/exchange-guide/options">
-            <button className="flex items-center gap-1.5 text-slate-400 hover:text-white text-sm">
+          <button onClick={goBack} className="flex items-center gap-1.5 text-slate-400 hover:text-white text-sm">
               <ArrowLeft className="w-4 h-4" /> 返回期权教程
             </button>
-          </Link>
           <span className="text-slate-600">|</span>
           <span className="text-purple-400 font-bold text-sm">🎯 期权交易模拟器</span>
         </div>

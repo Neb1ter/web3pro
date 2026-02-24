@@ -29,6 +29,7 @@ import MarginSim from "@/pages/sim/MarginSim";
 import OptionsSim from "@/pages/sim/OptionsSim";
 import BotSim from "@/pages/sim/BotSim";
 import { useEffect, useRef, useState } from "react";
+import { saveScrollPosition, getScrollPosition } from "@/hooks/useScrollMemory";
 
 // ============================================================
 // 页面过渡动画包装器
@@ -37,18 +38,29 @@ function PageTransition({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const [displayLocation, setDisplayLocation] = useState(location);
   const [transitionStage, setTransitionStage] = useState<"enter" | "exit">("enter");
-  const prevLocation = useRef(location);
-
+   const prevLocation = useRef(location);
   useEffect(() => {
     if (location !== prevLocation.current) {
+      // 离开前保存当前页面的滚动位置
+      saveScrollPosition(prevLocation.current);
       // 触发退出动画
       setTransitionStage("exit");
       const timer = setTimeout(() => {
-        prevLocation.current = location;
-        setDisplayLocation(location);
+        const nextLocation = location;
+        prevLocation.current = nextLocation;
+        setDisplayLocation(nextLocation);
         setTransitionStage("enter");
-        // 滚动到顶部
-        window.scrollTo({ top: 0, behavior: "instant" });
+        // 新页面渲染后：有记录则恢复，无记录则滚顶
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            const saved = getScrollPosition(nextLocation);
+            if (saved !== null) {
+              window.scrollTo({ top: saved, behavior: "instant" });
+            } else {
+              window.scrollTo({ top: 0, behavior: "instant" });
+            }
+          });
+        });
       }, 280);
       return () => clearTimeout(timer);
     }

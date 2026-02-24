@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
 import Web3ChapterNav from "@/components/Web3ChapterNav";
+import { useScrollMemory } from '@/hooks/useScrollMemory';
 
 function FadeIn({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -177,6 +178,7 @@ function WalletTypeSelector() {
 }
 
 export default function WalletKeys() {
+  useScrollMemory();
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setTimeout(() => setMounted(true), 50); }, []);
 

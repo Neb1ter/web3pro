@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "wouter";
 import { ArrowLeft, RefreshCw, Info, AlertTriangle } from "lucide-react";
+import { useScrollMemory, goBack } from '@/hooks/useScrollMemory';
 
 function generatePrice(prev: number, vol = 0.02) {
   return Math.max(prev * (1 + (Math.random() - 0.48) * vol), 1);
@@ -73,6 +74,7 @@ const INITIAL_BALANCE = 10000;
 const HOURLY_RATE = 0.0001; // 0.01%/小时
 
 export default function MarginSim() {
+  useScrollMemory();
   const [prices, setPrices] = useState(() => initPrices(80, 65000));
   const [currentPrice, setCurrentPrice] = useState(65000);
   const [balance, setBalance] = useState(INITIAL_BALANCE);
@@ -197,11 +199,9 @@ export default function MarginSim() {
     <div className="min-h-screen bg-[#0A192F] text-white">
       <div className="sticky top-0 z-30 bg-[#0A192F]/95 backdrop-blur border-b border-white/10 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/exchange-guide/margin">
-            <button className="flex items-center gap-1.5 text-slate-400 hover:text-white text-sm">
+          <button onClick={goBack} className="flex items-center gap-1.5 text-slate-400 hover:text-white text-sm">
               <ArrowLeft className="w-4 h-4" /> 返回杠杆教程
             </button>
-          </Link>
           <span className="text-slate-600">|</span>
           <span className="text-orange-400 font-bold text-sm">🔥 杠杆交易模拟器</span>
         </div>

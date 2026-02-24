@@ -66,3 +66,10 @@
 - [x] 创建滚动位置记忆 Hook（useScrollMemory）
 - [x] 将二级页面「返回主页」改为「返回上一页」并实现滚动位置恢复
 - [x] 验证效果并保存检查点
+
+## 滚动位置记忆全面修复
+- [ ] 诊断并修复 useScrollMemory Hook 在 SPA 路由跳转时的时序问题
+- [ ] 将 Hook 应用到 Web3ChapterNav（覆盖所有 Web3 章节页）
+- [ ] 将 Hook 应用到6个模拟游戏页面，并添加「返回上一页」按钮
+- [ ] 将 Hook 应用到 Home.tsx（/crypto-saving 主页）和 Portal.tsx
+- [ ] 验证所有页面返回时滚动位置正确恢复，保存检查点

@@ -9,6 +9,7 @@ import {
   TrendingUp, Shield, CheckCircle2, Users, Gift, Zap,
   ArrowUp, ChevronDown, BookOpen,
 } from 'lucide-react';
+import { useScrollMemory } from '@/hooks/useScrollMemory';
 
 // Emoji map for each exchange slug
 const EXCHANGE_META: Record<string, { emoji: string; color: string }> = {
@@ -20,6 +21,7 @@ const EXCHANGE_META: Record<string, { emoji: string; color: string }> = {
 };
 
 export default function Home() {
+  useScrollMemory();
   const { language, setLanguage } = useLanguage();
   const [, navigate] = useLocation();
   const texts = translations[language as keyof typeof translations];

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "wouter";
 import { ArrowLeft, RefreshCw, AlertTriangle, Info, Zap } from "lucide-react";
+import { useScrollMemory, goBack } from '@/hooks/useScrollMemory';
 
 function generatePrice(prev: number, vol = 0.02): number {
   const change = (Math.random() - 0.48) * vol;
@@ -119,6 +120,7 @@ interface FuturesPosition {
 const INITIAL_BALANCE = 5000;
 
 export default function FuturesSim() {
+  useScrollMemory();
   const [prices, setPrices] = useState(() => initPrices(80, 65000));
   const [currentPrice, setCurrentPrice] = useState(65000);
   const [balance, setBalance] = useState(INITIAL_BALANCE);
@@ -239,11 +241,9 @@ export default function FuturesSim() {
     <div className="min-h-screen bg-[#0A192F] text-white">
       <div className="sticky top-0 z-30 bg-[#0A192F]/95 backdrop-blur border-b border-white/10 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/exchange-guide/futures">
-            <button className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors text-sm">
+          <button onClick={goBack} className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors text-sm">
               <ArrowLeft className="w-4 h-4" /> 返回合约教程
             </button>
-          </Link>
           <span className="text-slate-600">|</span>
           <span className="text-red-400 font-bold text-sm">⚡ 合约交易模拟器</span>
         </div>

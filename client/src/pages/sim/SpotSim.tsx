@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "wouter";
 import { ArrowLeft, TrendingUp, TrendingDown, RefreshCw, Info } from "lucide-react";
+import { useScrollMemory, goBack } from '@/hooks/useScrollMemory';
 
 // ─── 价格生成器 ───────────────────────────────────────────────
 function generateCandle(prev: number, volatility = 0.018): {
@@ -130,6 +131,7 @@ interface Position {
 const INITIAL_BALANCE = 10000; // USDT
 
 export default function SpotSim() {
+  useScrollMemory();
   const [candles, setCandles] = useState(() => initCandles(60, 65000));
   const [currentPrice, setCurrentPrice] = useState(65000);
   const [balance, setBalance] = useState(INITIAL_BALANCE);
@@ -240,11 +242,9 @@ export default function SpotSim() {
       {/* 顶部导航 */}
       <div className="sticky top-0 z-30 bg-[#0A192F]/95 backdrop-blur border-b border-white/10 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/exchange-guide/spot">
-            <button className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors text-sm">
+          <button onClick={goBack} className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors text-sm">
               <ArrowLeft className="w-4 h-4" /> 返回现货教程
             </button>
-          </Link>
           <span className="text-slate-600">|</span>
           <span className="text-yellow-400 font-bold text-sm">📈 现货交易模拟器</span>
         </div>

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useCallback } from "react";
 import { Link } from "wouter";
 import Web3ChapterNav from "@/components/Web3ChapterNav";
+import { useScrollMemory } from '@/hooks/useScrollMemory';
 
 function FadeIn({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -235,6 +236,7 @@ function HashDemo() {
 }
 
 export default function BlockchainBasics() {
+  useScrollMemory();
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setTimeout(() => setMounted(true), 50); }, []);
 

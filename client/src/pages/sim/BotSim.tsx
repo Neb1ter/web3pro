@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "wouter";
 import { ArrowLeft, RefreshCw, Info, Play, Square, Zap } from "lucide-react";
+import { useScrollMemory, goBack } from '@/hooks/useScrollMemory';
 
 function generatePrice(prev: number, vol = 0.018) {
   return Math.max(prev * (1 + (Math.random() - 0.48) * vol), 1);
@@ -143,6 +144,7 @@ interface BotTrade {
 const INITIAL_BALANCE = 20000;
 
 export default function BotSim() {
+  useScrollMemory();
   const [strategyId, setStrategyId] = useState("grid");
   const [params, setParams] = useState<Record<string, number>>(() => {
     const p: Record<string, number> = {};
@@ -318,11 +320,9 @@ export default function BotSim() {
     <div className="min-h-screen bg-[#0A192F] text-white">
       <div className="sticky top-0 z-30 bg-[#0A192F]/95 backdrop-blur border-b border-white/10 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/exchange-guide/bot">
-            <button className="flex items-center gap-1.5 text-slate-400 hover:text-white text-sm">
+          <button onClick={goBack} className="flex items-center gap-1.5 text-slate-400 hover:text-white text-sm">
               <ArrowLeft className="w-4 h-4" /> 返回机器人教程
             </button>
-          </Link>
           <span className="text-slate-600">|</span>
           <span className="text-cyan-400 font-bold text-sm">🤖 交易机器人模拟器</span>
         </div>
