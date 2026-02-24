@@ -91,3 +91,9 @@
 ## Web3Guide 回到顶部按钮修复
 - [x] 诊断 Web3Guide.tsx 中回到顶部按钮不显示的原因（按鈕被包裹在 opacity:0 的渐入 div 内）
 - [x] 修复并验证，保存检查点
+
+## 回到顶部按钮清理与设计风格存档
+- [ ] 移除 Home.tsx (/crypto-saving) 旧的内联返回顶部按钮，保留 ScrollToTopButton
+- [ ] 检查并修复 ExchangeGuideIndex.tsx 的 ScrollToTopButton 显示问题（是否被 opacity 遮蔽）
+- [ ] 将当前网站设计风格保存为技能模板（供日后参考）
+- [ ] 验证并保存检查点

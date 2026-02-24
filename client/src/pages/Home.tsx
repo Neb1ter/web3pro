@@ -7,7 +7,7 @@ import { translations } from '@/lib/i18n';
 import { trpc } from '@/lib/trpc';
 import {
   TrendingUp, Shield, CheckCircle2, Users, Gift, Zap,
-  ArrowUp, ChevronDown, BookOpen,
+  ChevronDown, BookOpen,
 } from 'lucide-react';
 import { useScrollMemory } from '@/hooks/useScrollMemory';
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
@@ -33,17 +33,9 @@ export default function Home() {
   const [showGuide, setShowGuide] = useState(() => {
     try { return !localStorage.getItem('crypto_guide_seen'); } catch { return true; }
   });
-  const [showScrollTop, setShowScrollTop] = useState(false);
-
   const downloadRef = useRef<HTMLElement>(null);
   const comparisonRef = useRef<HTMLElement>(null);
   const insightRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const onScroll = () => setShowScrollTop(window.scrollY > 400);
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
 
   const handleGuideSelection = (type: 'new' | 'old') => {
     setShowGuide(false);
@@ -71,16 +63,7 @@ export default function Home() {
         />
       )}
 
-      {/* Scroll to Top Button */}
-      {showScrollTop && (
-        <button
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="fixed bottom-8 right-8 z-40 bg-accent text-accent-foreground rounded-full p-3 shadow-lg hover:bg-accent/90 transition"
-          aria-label="回到顶部"
-        >
-          <ArrowUp size={20} />
-        </button>
-      )}
+
 
       {/* Navigation */}
       <nav className="sticky top-0 z-30 bg-background/95 backdrop-blur border-b border-border">

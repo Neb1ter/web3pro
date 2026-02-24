@@ -123,10 +123,11 @@ export default function ExchangeGuideIndex() {
           </div>
         </div>
       </div>
+      {/* 右下角回到顶部按钮 */}
+      <ScrollToTopButton color="yellow" />
     </div>
   );
 }
-
 // ─── Features Tab ─────────────────────────────────────────────────────────────
 
 function FeaturesTab({ categories, isLoading, zh }: {
@@ -510,12 +511,9 @@ function CompareTab({ zh, selectedExchange, setSelectedExchange }: {
           </Link>
         </div>
       </div>
-      {/* 右下角回到顶部按钮 */}
-      <ScrollToTopButton color="yellow" />
-    </div>
+     </div>
   );
 }
-
 // ─── Static Content Helpers ────────────────────────────────────────────────────
 
 function getExchangeOverview(slug: string, zh: boolean): string {
