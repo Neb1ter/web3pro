@@ -69,10 +69,10 @@ export default function CryptoNews() {
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-yellow-500/20 backdrop-blur-md" style={{ background: "rgba(10,25,47,0.92)" }}>
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
-          <Link href="/">
+          <Link href="/portal">
             <button className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-yellow-400 transition-colors">
               <span>←</span>
-              <span className="hidden sm:inline">{zh ? "返回首页" : "Home"}</span>
+              <span className="hidden sm:inline">{zh ? "返回主页" : "Home"}</span>
             </button>
           </Link>
           <h1 className="text-base sm:text-lg font-bold text-yellow-400 flex items-center gap-2">

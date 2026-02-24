@@ -55,3 +55,8 @@
 ## TradFi 模拟游戏修改
 - [x] 重写 TradFiSim.tsx：核心体验改为中心化交易所实时交易代币化真实资产（TSLA/AAPL/黄金/原油），突出 T+0 即时结算 vs 传统金融 T+2 延迟结算的效率差异
 - [x] 验证效果并保存检查点
+
+## 返回逻辑统一修复
+- [x] 扫描全站所有页面中指向非 /portal 的返回主页链接
+- [x] 批量将所有「返回主页」链接统一改为 /portal（涉及 Beginner/Contact/CryptoIntro/CryptoNews/ExchangeGuide/Exchanges/Web3Guide/ExchangeGuideIndex 共 13 处）
+- [x] 验证效果并保存检查点

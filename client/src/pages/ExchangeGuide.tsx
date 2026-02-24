@@ -314,7 +314,7 @@ export default function ExchangeGuide() {
               <Menu size={20} />
             </button>
             <button
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/portal')}
               className="flex items-center gap-2 text-yellow-400 hover:opacity-80 transition"
             >
               <ArrowLeft size={18} />

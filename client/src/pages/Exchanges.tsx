@@ -91,7 +91,7 @@ export default function Exchanges() {
       {/* Navigation */}
       <nav className="sticky top-0 w-full bg-background/95 backdrop-blur border-b border-border z-30">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-center gap-8">
-          <button onClick={() => navigate('/')} className="text-xl font-bold text-accent hover:opacity-80 transition whitespace-nowrap">
+          <button onClick={() => navigate('/portal')} className="text-xl font-bold text-accent hover:opacity-80 transition whitespace-nowrap">
             💰 {language === 'zh' ? '币圈省钱指南' : 'Crypto Savings Guide'}
           </button>
           <div className="flex items-center gap-1 bg-card/60 rounded-full px-1 py-1 border border-border">
@@ -108,7 +108,7 @@ export default function Exchanges() {
               EN
             </button>
           </div>
-          <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="text-accent hover:text-accent/80 whitespace-nowrap">
+          <Button variant="ghost" size="sm" onClick={() => navigate('/portal')} className="text-accent hover:text-accent/80 whitespace-nowrap">
             <ArrowLeft className="mr-1" size={16} />
             {texts.back}
           </Button>
@@ -272,7 +272,7 @@ export default function Exchanges() {
               ? '选择适合您的交易所，开始享受手续费折扣吧！'
               : 'Choose the right exchange and start enjoying fee discounts!'}
           </p>
-          <Button onClick={() => navigate('/')} className="bg-accent text-accent-foreground hover:bg-accent/90">
+          <Button onClick={() => navigate('/portal')} className="bg-accent text-accent-foreground hover:bg-accent/90">
             {texts.back}
           </Button>
         </div>

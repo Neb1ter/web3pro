@@ -143,7 +143,7 @@ export default function Contact() {
       {/* Navigation */}
       <nav className="sticky top-0 z-30 bg-background/95 backdrop-blur border-b border-border">
         <div className="container mx-auto flex items-center justify-between py-4">
-          <button onClick={() => navigate('/')} className="text-xl font-bold text-accent hover:opacity-80 transition">
+          <button onClick={() => navigate('/portal')} className="text-xl font-bold text-accent hover:opacity-80 transition">
             {t.nav.title}
           </button>
           <div className="flex items-center gap-2">
@@ -281,7 +281,7 @@ export default function Contact() {
         <div className="container mx-auto text-center">
           <h3 className="text-2xl font-bold text-white mb-4">{t.footer.title}</h3>
           <p className="text-muted-foreground mb-4">{t.footer.subtitle}</p>
-          <button onClick={() => navigate('/')} className="text-accent hover:text-accent/80 transition flex items-center gap-2 mx-auto">
+          <button onClick={() => navigate('/portal')} className="text-accent hover:text-accent/80 transition flex items-center gap-2 mx-auto">
             <ArrowLeft size={16} /> {t.nav.back}
           </button>
         </div>

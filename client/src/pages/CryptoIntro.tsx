@@ -297,7 +297,7 @@ export default function CryptoIntro() {
     <div className="min-h-screen bg-background text-foreground">
       {/* ── Top Nav ── */}
       <nav className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border px-4 py-3 flex items-center justify-between">
-        <Button variant="ghost" size="sm" onClick={() => navigate("/")} className="text-muted-foreground hover:text-foreground gap-1">
+        <Button variant="ghost" size="sm" onClick={() => navigate("/portal")} className="text-muted-foreground hover:text-foreground gap-1">
           <ArrowLeft size={16} />
           {zh ? "返回首页" : "Back"}
         </Button>

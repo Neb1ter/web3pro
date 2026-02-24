@@ -55,7 +55,7 @@ export default function ExchangeGuideIndex() {
       <header className="sticky top-0 z-50 bg-[#0A192F]/95 backdrop-blur-sm border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
           {/* Left: Back */}
-          <Link href="/crypto-saving">
+          <Link href="/portal">
             <button className="flex items-center gap-2 text-slate-400 hover:text-yellow-400 transition-colors text-sm font-medium">
               <ArrowLeft className="w-4 h-4" />
               <span className="hidden sm:inline">{zh ? "返回主页" : "Back"}</span>
