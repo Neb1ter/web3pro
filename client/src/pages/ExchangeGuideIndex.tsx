@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ChevronRight, ArrowLeft, BookOpen, TrendingUp, Zap, Shield, Coins, Globe, BarChart2, Bot, Users, Repeat, Star, Layers, Gift, Gamepad2 } from "lucide-react";
+import { useScrollMemory } from "@/hooks/useScrollMemory";
 
 const ICON_MAP: Record<string, React.ReactNode> = {
   "📊": <BarChart2 className="w-5 h-5" />,
@@ -41,6 +42,7 @@ const EXCHANGE_LIST = [
 ];
 
 export default function ExchangeGuideIndex() {
+  useScrollMemory();
   const { language } = useLanguage();
   const zh = language === "zh";
   const [activeTab, setActiveTab] = useState<"features" | "compare">("features");

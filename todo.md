@@ -68,8 +68,12 @@
 - [x] 验证效果并保存检查点
 
 ## 滚动位置记忆全面修复
-- [ ] 诊断并修复 useScrollMemory Hook 在 SPA 路由跳转时的时序问题
-- [ ] 将 Hook 应用到 Web3ChapterNav（覆盖所有 Web3 章节页）
-- [ ] 将 Hook 应用到6个模拟游戏页面，并添加「返回上一页」按钮
-- [ ] 将 Hook 应用到 Home.tsx（/crypto-saving 主页）和 Portal.tsx
-- [ ] 验证所有页面返回时滚动位置正确恢复，保存检查点
+- [x] 诊断并修复 useScrollMemory Hook 在 SPA 路由跳转时的时序问题（根本原因：PageTransition 强制 scrollTo(0)）
+- [x] 将 Hook 应用到 Web3ChapterNav（覆盖所有 Web3 章节页）
+- [x] 将 Hook 应用到 6 个模拟游戏页面，并添加「返回上一页」按鈕
+- [x] 将 Hook 应用到 Home.tsx（/crypto-saving 主页）和 Portal.tsx
+- [x] 验证所有页面返回时滚动位置正确恢复，保存检查点
+
+## ExchangeGuideIndex 滚动位置修复
+- [x] 为 ExchangeGuideIndex.tsx 添加 useScrollMemory，返回模拟游戏后恢复到游戏入口位置
+- [ ] 保存检查点
