@@ -76,7 +76,12 @@
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^1.1.2",
     "wouter": "^3.3.5",
-    "zod": "^4.1.12"
+    "zod": "^4.1.12",
+    "@ai-sdk/openai": "^3.0.12",
+    "@ai-sdk/react": "^3.0.40",
+    "ai": "^6.0.38",
+    "@streamdown/code": "^1.0.1",
+    "@streamdown/mermaid": "^1.0.1"
   },
   "devDependencies": {
     "@builder.io/vite-plugin-jsx-loc": "^0.1.1",
