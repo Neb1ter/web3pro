@@ -739,6 +739,7 @@ export default function Web3Guide() {
   };
 
   return (
+    <>
     <div
       className="min-h-screen bg-[#050D1A] text-white"
       style={{
@@ -1475,8 +1476,9 @@ export default function Web3Guide() {
         </div>
       </div>
 
-      {/* 右下角回到顶部按钮 */}
-      <ScrollToTopButton color="emerald" />
     </div>
+    {/* 右下角回到顶部按钮（在渐入 div 外部，避免被 opacity 遮蔽）*/}
+    <ScrollToTopButton color="emerald" />
+    </>
   );
 }

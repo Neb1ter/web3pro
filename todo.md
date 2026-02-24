@@ -87,3 +87,7 @@
 - [x] 为 Web3 7个章节页批量添加 ScrollToTopButton
 - [x] 为 /crypto-saving 和 /exchange-guide 添加 ScrollToTopButton
 - [x] 验证所有页面效果并保存检查点
+
+## Web3Guide 回到顶部按钮修复
+- [x] 诊断 Web3Guide.tsx 中回到顶部按钮不显示的原因（按鈕被包裹在 opacity:0 的渐入 div 内）
+- [x] 修复并验证，保存检查点
