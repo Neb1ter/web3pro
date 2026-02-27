@@ -167,6 +167,50 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    // 启用 CSS 代码分割
+    cssCodeSplit: true,
+    // 提高 chunk 警告阈值（单个 chunk 超过此值时警告）
+    chunkSizeWarningLimit: 500,
+    rollupOptions: {
+      output: {
+        // 手动分包：将稳定的第三方库分离为独立 chunk，充分利用浏览器缓存
+        manualChunks(id) {
+          // React 核心 —— 最稳定，单独缓存
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
+            return 'vendor-react';
+          }
+          // 路由
+          if (id.includes('node_modules/wouter')) {
+            return 'vendor-router';
+          }
+          // Radix UI 组件库（体积较大，单独缓存）
+          if (id.includes('node_modules/@radix-ui/')) {
+            return 'vendor-radix';
+          }
+          // Recharts 图表库（按需加载页面才会触发）
+          if (id.includes('node_modules/recharts') || id.includes('node_modules/d3-')) {
+            return 'vendor-recharts';
+          }
+          // Streamdown / AI 相关（仅 AIChatBox 使用，懒加载后才触发）
+          if (
+            id.includes('node_modules/streamdown') ||
+            id.includes('node_modules/@streamdown/') ||
+            id.includes('node_modules/ai') ||
+            id.includes('node_modules/@ai-sdk/')
+          ) {
+            return 'vendor-ai';
+          }
+          // TanStack Query
+          if (id.includes('node_modules/@tanstack/')) {
+            return 'vendor-query';
+          }
+          // 其余第三方库合并为一个 vendor chunk
+          if (id.includes('node_modules/')) {
+            return 'vendor-misc';
+          }
+        },
+      },
+    },
   },
   server: {
     host: true,
