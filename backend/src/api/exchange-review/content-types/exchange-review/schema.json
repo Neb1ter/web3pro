@@ -1,0 +1,72 @@
+{
+  "kind": "collectionType",
+  "collectionName": "exchange_reviews",
+  "info": {
+    "singularName": "exchange-review",
+    "pluralName": "exchange-reviews",
+    "displayName": "Exchange Review",
+    "description": "交易所评测"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "maxLength": 100
+    },
+    "name_en": {
+      "type": "string",
+      "maxLength": 100
+    },
+    "logo": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "rating": {
+      "type": "decimal",
+      "min": 0,
+      "max": 5
+    },
+    "pros": {
+      "type": "text"
+    },
+    "cons": {
+      "type": "text"
+    },
+    "description": {
+      "type": "richtext"
+    },
+    "rebate_rate": {
+      "type": "string",
+      "maxLength": 50
+    },
+    "rebate_link": {
+      "type": "string",
+      "maxLength": 500
+    },
+    "official_website": {
+      "type": "string",
+      "maxLength": 500
+    },
+    "trading_fee": {
+      "type": "string",
+      "maxLength": 100
+    },
+    "supported_countries": {
+      "type": "text"
+    },
+    "is_recommended": {
+      "type": "boolean",
+      "default": false
+    },
+    "sort_order": {
+      "type": "integer",
+      "default": 0
+    }
+  }
+}

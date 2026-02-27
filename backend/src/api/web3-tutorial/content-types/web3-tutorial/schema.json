@@ -1,0 +1,61 @@
+{
+  "kind": "collectionType",
+  "collectionName": "web3_tutorials",
+  "info": {
+    "singularName": "web3-tutorial",
+    "pluralName": "web3-tutorials",
+    "displayName": "Web3 Tutorial",
+    "description": "Web3科普教程文章"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "maxLength": 200
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "summary": {
+      "type": "text",
+      "maxLength": 500
+    },
+    "content": {
+      "type": "richtext",
+      "required": true
+    },
+    "cover_image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": ["beginner", "defi", "nft", "exchange", "wallet", "blockchain", "market"],
+      "default": "beginner"
+    },
+    "difficulty": {
+      "type": "enumeration",
+      "enum": ["intro", "intermediate", "advanced"],
+      "default": "intro"
+    },
+    "read_time": {
+      "type": "integer"
+    },
+    "is_featured": {
+      "type": "boolean",
+      "default": false
+    },
+    "view_count": {
+      "type": "integer",
+      "default": 0
+    }
+  }
+}
