@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!-- 首页 / Portal -->
+  <url>
+    <loc>https://get8.pro/</loc>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://get8.pro/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://get8.pro/"/>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Web3 入圈指南 -->
+  <url>
+    <loc>https://get8.pro/web3-guide</loc>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://get8.pro/web3-guide"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://get8.pro/web3-guide"/>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://get8.pro/web3-guide/what-is-web3</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://get8.pro/web3-guide/blockchain-basics</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://get8.pro/web3-guide/wallet-keys</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://get8.pro/web3-guide/defi-deep</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://get8.pro/web3-guide/exchange-guide</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://get8.pro/web3-guide/investment-gateway</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://get8.pro/web3-guide/economic-opportunity</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- 币圈省钱指南 -->
+  <url>
+    <loc>https://get8.pro/crypto-saving</loc>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://get8.pro/crypto-saving"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://get8.pro/crypto-saving"/>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- 交易所扫盲指南 -->
+  <url>
+    <loc>https://get8.pro/exchange-guide</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- 交易所下载 -->
+  <url>
+    <loc>https://get8.pro/exchange-download</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- 交易所对比 -->
+  <url>
+    <loc>https://get8.pro/exchanges</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- 新手入门 -->
+  <url>
+    <loc>https://get8.pro/beginner</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- 加密货币科普 -->
+  <url>
+    <loc>https://get8.pro/crypto-intro</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- 加密货币新闻 -->
+  <url>
+    <loc>https://get8.pro/crypto-news</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Web3 测评 -->
+  <url>
+    <loc>https://get8.pro/web3-quiz</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- 学习路径 -->
+  <url>
+    <loc>https://get8.pro/learning-path</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- 模拟交易 -->
+  <url>
+    <loc>https://get8.pro/sim/spot</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://get8.pro/sim/futures</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://get8.pro/sim/margin</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://get8.pro/sim/options</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://get8.pro/sim/bot</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- 联系我们 -->
+  <url>
+    <loc>https://get8.pro/contact</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- 法律声明 -->
+  <url>
+    <loc>https://get8.pro/legal</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+</urlset>

@@ -1,0 +1,32 @@
+# robots.txt for get8.pro
+# Get8 Pro - Web3教程, 交易所返佣, 币圈入门一站式平台
+
+User-agent: *
+Allow: /
+
+# 禁止爬取后台管理页面
+Disallow: /admin/
+Disallow: /api/
+
+# 禁止爬取模拟交易（低SEO价值）
+Disallow: /sim/
+
+# 允许爬取核心内容页面
+Allow: /web3-guide/
+Allow: /crypto-saving
+Allow: /exchange-guide/
+Allow: /exchange-download
+Allow: /exchanges
+Allow: /beginner
+Allow: /crypto-intro
+Allow: /crypto-news
+Allow: /web3-quiz
+Allow: /learning-path
+Allow: /contact
+Allow: /legal
+
+# Sitemap 地址
+Sitemap: https://get8.pro/sitemap.xml
+
+# 爬取延迟（减少服务器压力）
+Crawl-delay: 1

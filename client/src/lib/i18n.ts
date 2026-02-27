@@ -3,7 +3,7 @@ export type Language = 'zh' | 'en';
 export const translations = {
   zh: {
     nav: {
-      title: '💰 币圈省钱指南',
+      title: '💰 Get8 Pro',
       mechanism: '机制',
       comparison: '对比',
       security: '安全',
@@ -150,7 +150,7 @@ export const translations = {
   },
   en: {
     nav: {
-      title: '💰 Crypto Savings Guide',
+      title: '💰 Get8 Pro',
       mechanism: 'Mechanism',
       comparison: 'Comparison',
       security: 'Security',
@@ -161,8 +161,8 @@ export const translations = {
     },
     hero: {
       badge: '💡 Essential Tool for Crypto Traders',
-      title: 'Crypto Savings Guide',
-      subtitle: 'Maximize Trading Returns Through Referral Codes',
+      title: 'Get8 Pro | Crypto Exchange Rebates',
+      subtitle: 'Get 8, Get Pro. Your Guide to Web3 & Crypto Exchange Rebates',
       description: 'Understand exchange incentive mechanisms and achieve lifetime fee discounts',
       startBtn: 'Get Started',
       caseBtn: 'View Cases',
