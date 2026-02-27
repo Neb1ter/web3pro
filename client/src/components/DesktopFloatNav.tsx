@@ -130,7 +130,7 @@ export default function DesktopFloatNav() {
     // 仅在 md 及以上显示，始终挂载保证稳定性
     <div
       className="hidden md:block"
-      style={{ position: "fixed", bottom: BOTTOM_OFFSET, left: "50%", transform: "translateX(-50%)", zIndex: 9990 }}
+      style={{ position: "fixed", bottom: BOTTOM_OFFSET, left: "50%", transform: "translateX(-50%)", zIndex: 9990, userSelect: "none", WebkitUserSelect: "none" }}
       ref={containerRef}
     >
       {/* ── 展开的导航菜单（向上弹出） ──────────────────────────────────────── */}
@@ -272,9 +272,9 @@ export default function DesktopFloatNav() {
               <div
                 key={item.key}
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
+                  position: "relative",
+                  width: 46,
+                  height: 46,
                   animation: `desktopNavUp 0.2s cubic-bezier(0.22,1,0.36,1) both`,
                 }}
               >
@@ -282,6 +282,10 @@ export default function DesktopFloatNav() {
                 {isHovered && (
                   <div
                     style={{
+                      position: "absolute",
+                      right: "calc(100% + 10px)",
+                      top: "50%",
+                      transform: "translateY(-50%)",
                       padding: "5px 10px",
                       borderRadius: 10,
                       background: "rgba(10,15,28,0.95)",
@@ -292,6 +296,8 @@ export default function DesktopFloatNav() {
                       whiteSpace: "nowrap",
                       boxShadow: `0 4px 16px rgba(0,0,0,0.4)`,
                       backdropFilter: "blur(12px)",
+                      pointerEvents: "none",
+                      zIndex: 1,
                       animation: "fadeInLeft 0.15s ease",
                     }}
                   >
@@ -306,13 +312,15 @@ export default function DesktopFloatNav() {
 
                 {/* 导航按钮 */}
                 <button
+                  draggable={false}
                   onClick={() => handleNavClick(item.path, item.key)}
                   onMouseEnter={() => setHoveredKey(item.key)}
                   onMouseLeave={() => setHoveredKey(null)}
                   style={{
-                    position: "relative",
-                    width: 46,
-                    height: 46,
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
                     borderRadius: "50%",
                     display: "flex",
                     alignItems: "center",
@@ -370,6 +378,7 @@ export default function DesktopFloatNav() {
 
       {/* ── 主球体（底部居中） ──────────────────────────────────────────────── */}
       <button
+        draggable={false}
         onClick={() => {
           setExpanded(prev => !prev);
           if (expanded) setLearningMenuOpen(false);
@@ -378,6 +387,8 @@ export default function DesktopFloatNav() {
           position: "relative",
           width: BALL_SIZE,
           height: BALL_SIZE,
+          userSelect: "none",
+          WebkitUserSelect: "none",
           borderRadius: "50%",
           display: "flex",
           alignItems: "center",
