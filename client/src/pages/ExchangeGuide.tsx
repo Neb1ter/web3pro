@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useScrollMemory, goBack } from '@/hooks/useScrollMemory';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { trpc } from '@/lib/trpc';
 import {
   ArrowLeft, ChevronRight, Check, X, Star, ExternalLink,
   Menu, Shield, TrendingUp, Zap, Globe, Users, Gift,
@@ -258,7 +257,6 @@ export default function ExchangeGuide() {
   const [, navigate] = useLocation();
   useScrollMemory();
   const { language, setLanguage } = useLanguage();
-  const { data: dbLinks } = trpc.exchanges.list.useQuery();
   const zh = language === 'zh';
 
   const [activeSlug, setActiveSlug] = useState('gate');

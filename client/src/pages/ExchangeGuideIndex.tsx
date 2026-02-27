@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
-import { trpc } from "@/lib/trpc";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ChevronRight, ArrowLeft, BookOpen, TrendingUp, Zap, Shield, Coins, Globe, BarChart2, Bot, Users, Repeat, Star, Layers, Gift, Gamepad2, CreditCard, Shuffle } from "lucide-react";
 import { useScrollMemory } from "@/hooks/useScrollMemory";
@@ -255,7 +254,24 @@ export default function ExchangeGuideIndex() {
   const [selectedExchange, setSelectedExchange] = useState<string | null>(null);
   const [floatMenuOpen, setFloatMenuOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  const { data: categories = [], isLoading } = trpc.exchangeGuide.categories.useQuery();
+  const STATIC_CATEGORIES = [
+    { id: 1, slug: 'spot', nameZh: '现货交易', nameEn: 'Spot Trading', icon: '📊', descZh: '最基础的买卖加密货币方式', descEn: 'The most basic way to buy and sell crypto', difficulty: 'beginner', sortOrder: 1 },
+    { id: 2, slug: 'futures', nameZh: '合约交易', nameEn: 'Futures Trading', icon: '📈', descZh: '使用杠杆放大收益的高级交易', descEn: 'Advanced trading with leverage to amplify returns', difficulty: 'advanced', sortOrder: 2 },
+    { id: 3, slug: 'margin', nameZh: '杠杆交易', nameEn: 'Margin Trading', icon: '⚡', descZh: '借入资金进行交易', descEn: 'Trading with borrowed funds', difficulty: 'intermediate', sortOrder: 3 },
+    { id: 4, slug: 'staking', nameZh: '质押理财', nameEn: 'Staking', icon: '🏦', descZh: '持币生息，稳健收益', descEn: 'Earn interest by holding crypto', difficulty: 'beginner', sortOrder: 4 },
+    { id: 5, slug: 'defi', nameZh: 'DeFi 功能', nameEn: 'DeFi Features', icon: '🌐', descZh: '去中心化金融服务', descEn: 'Decentralized financial services', difficulty: 'intermediate', sortOrder: 5 },
+    { id: 6, slug: 'copy-trading', nameZh: '跟单交易', nameEn: 'Copy Trading', icon: '🤝', descZh: '跟随专业交易员自动交易', descEn: 'Automatically follow professional traders', difficulty: 'beginner', sortOrder: 6 },
+    { id: 7, slug: 'grid-bot', nameZh: '网格机器人', nameEn: 'Grid Bot', icon: '🤖', descZh: '自动化区间震荡策略', descEn: 'Automated range trading strategy', difficulty: 'intermediate', sortOrder: 7 },
+    { id: 8, slug: 'p2p', nameZh: 'P2P 交易', nameEn: 'P2P Trading', icon: '🔄', descZh: '点对点法币出入金', descEn: 'Peer-to-peer fiat on/off ramp', difficulty: 'beginner', sortOrder: 8 },
+    { id: 9, slug: 'launchpad', nameZh: '新币认购', nameEn: 'Launchpad', icon: '🚀', descZh: '参与新项目早期认购', descEn: 'Participate in early-stage token sales', difficulty: 'intermediate', sortOrder: 9 },
+    { id: 10, slug: 'earn', nameZh: '理财产品', nameEn: 'Earn Products', icon: '🌱', descZh: '多样化的被动收益产品', descEn: 'Diversified passive income products', difficulty: 'beginner', sortOrder: 10 },
+    { id: 11, slug: 'card', nameZh: '加密卡', nameEn: 'Crypto Card', icon: '💳', descZh: '用加密货币消费', descEn: 'Spend crypto in the real world', difficulty: 'beginner', sortOrder: 11 },
+    { id: 12, slug: 'convert', nameZh: '闪兑', nameEn: 'Convert', icon: '🔀', descZh: '一键快速兑换加密货币', descEn: 'Instant crypto-to-crypto conversion', difficulty: 'beginner', sortOrder: 12 },
+    { id: 13, slug: 'options', nameZh: '期权交易', nameEn: 'Options Trading', icon: '🎯', descZh: '对冲风险的衍生品工具', descEn: 'Derivatives for hedging risk', difficulty: 'advanced', sortOrder: 13 },
+    { id: 14, slug: 'nft', nameZh: 'NFT 市场', nameEn: 'NFT Marketplace', icon: '🛡️', descZh: '买卖数字藏品', descEn: 'Buy and sell digital collectibles', difficulty: 'beginner', sortOrder: 14 },
+  ];
+  const categories = STATIC_CATEGORIES;
+  const isLoading = false;
   const selectedCat = categories.find(c => c.slug === activeCategory) ?? categories[0];
 
   return (
@@ -720,8 +736,25 @@ function CompareTab({ zh, selectedExchange, setSelectedExchange, onNavigateToFea
   setSelectedExchange: (s: string | null) => void;
   onNavigateToFeature: (slug: string) => void;
 }) {
-  const { data: categories = [] } = trpc.exchangeGuide.categories.useQuery();
-  const { data: allSupport = [], isLoading } = trpc.exchangeGuide.allFeatureSupport.useQuery();
+  const STATIC_CATEGORIES = [
+    { id: 1, slug: 'spot', nameZh: '现货交易', nameEn: 'Spot Trading', icon: '📊', descZh: '最基础的买卖加密货币方式', descEn: 'The most basic way to buy and sell crypto', difficulty: 'beginner', sortOrder: 1 },
+    { id: 2, slug: 'futures', nameZh: '合约交易', nameEn: 'Futures Trading', icon: '📈', descZh: '使用杠杆放大收益的高级交易', descEn: 'Advanced trading with leverage to amplify returns', difficulty: 'advanced', sortOrder: 2 },
+    { id: 3, slug: 'margin', nameZh: '杠杆交易', nameEn: 'Margin Trading', icon: '⚡', descZh: '借入资金进行交易', descEn: 'Trading with borrowed funds', difficulty: 'intermediate', sortOrder: 3 },
+    { id: 4, slug: 'staking', nameZh: '质押理财', nameEn: 'Staking', icon: '🏦', descZh: '持币生息，稳健收益', descEn: 'Earn interest by holding crypto', difficulty: 'beginner', sortOrder: 4 },
+    { id: 5, slug: 'defi', nameZh: 'DeFi 功能', nameEn: 'DeFi Features', icon: '🌐', descZh: '去中心化金融服务', descEn: 'Decentralized financial services', difficulty: 'intermediate', sortOrder: 5 },
+    { id: 6, slug: 'copy-trading', nameZh: '跟单交易', nameEn: 'Copy Trading', icon: '🤝', descZh: '跟随专业交易员自动交易', descEn: 'Automatically follow professional traders', difficulty: 'beginner', sortOrder: 6 },
+    { id: 7, slug: 'grid-bot', nameZh: '网格机器人', nameEn: 'Grid Bot', icon: '🤖', descZh: '自动化区间震荡策略', descEn: 'Automated range trading strategy', difficulty: 'intermediate', sortOrder: 7 },
+    { id: 8, slug: 'p2p', nameZh: 'P2P 交易', nameEn: 'P2P Trading', icon: '🔄', descZh: '点对点法币出入金', descEn: 'Peer-to-peer fiat on/off ramp', difficulty: 'beginner', sortOrder: 8 },
+    { id: 9, slug: 'launchpad', nameZh: '新币认购', nameEn: 'Launchpad', icon: '🚀', descZh: '参与新项目早期认购', descEn: 'Participate in early-stage token sales', difficulty: 'intermediate', sortOrder: 9 },
+    { id: 10, slug: 'earn', nameZh: '理财产品', nameEn: 'Earn Products', icon: '🌱', descZh: '多样化的被动收益产品', descEn: 'Diversified passive income products', difficulty: 'beginner', sortOrder: 10 },
+    { id: 11, slug: 'card', nameZh: '加密卡', nameEn: 'Crypto Card', icon: '💳', descZh: '用加密货币消费', descEn: 'Spend crypto in the real world', difficulty: 'beginner', sortOrder: 11 },
+    { id: 12, slug: 'convert', nameZh: '闪兑', nameEn: 'Convert', icon: '🔀', descZh: '一键快速兑换加密货币', descEn: 'Instant crypto-to-crypto conversion', difficulty: 'beginner', sortOrder: 12 },
+    { id: 13, slug: 'options', nameZh: '期权交易', nameEn: 'Options Trading', icon: '🎯', descZh: '对冲风险的衍生品工具', descEn: 'Derivatives for hedging risk', difficulty: 'advanced', sortOrder: 13 },
+    { id: 14, slug: 'nft', nameZh: 'NFT 市场', nameEn: 'NFT Marketplace', icon: '🛡️', descZh: '买卖数字藏品', descEn: 'Buy and sell digital collectibles', difficulty: 'beginner', sortOrder: 14 },
+  ];
+  const categories = STATIC_CATEGORIES;
+  const allSupport: { id: number; exchangeSlug: string; featureSlug: string; supported: number; highlight: number; levelZh: string; levelEn: string }[] = [];
+  const isLoading = false;
 
   // Build a lookup: exchangeSlug → featureSlug → support record
   type SupportRecord = { id: number; exchangeSlug: string; featureSlug: string; supported: number; highlight: number; levelZh: string; levelEn: string };

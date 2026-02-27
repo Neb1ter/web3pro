@@ -9,13 +9,14 @@ import { Button } from '@/components/ui/button';
 import { WelcomeGuide } from '@/components/WelcomeGuide';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { translations } from '@/lib/i18n';
-import { trpc } from '@/lib/trpc';
+
 import {
   TrendingUp, Shield, CheckCircle2, Users, Gift, Zap,
   ChevronDown, BookOpen, Calculator, ChevronRight,
   Lock, Globe, AlertTriangle, ExternalLink, Menu, X,
 } from 'lucide-react';
 import { useScrollMemory } from '@/hooks/useScrollMemory';
+import { INVITE_CODES } from '@shared/exchangeFees';
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
 
 // ─── 交易所 emoji 映射 ────────────────────────────────────────────────────────
@@ -293,7 +294,7 @@ export default function Home() {
   const texts = translations[language as keyof typeof translations];
   const zh = language === 'zh';
 
-  const { data: exchangeLinksData } = trpc.exchanges.list.useQuery();
+  
 
   const [showGuide, setShowGuide] = useState(() => {
     try { return !localStorage.getItem('crypto_guide_seen'); } catch { return true; }
@@ -835,18 +836,18 @@ export default function Home() {
               </button>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-5">
-              {(exchangeLinksData ?? []).map((ex) => {
-                const meta = EXCHANGE_META[ex.slug] ?? { emoji: '💱', color: 'from-gray-800 to-gray-900' };
+              {(Object.entries(INVITE_CODES) as [string, { inviteCode: string; referralLink: string; rebateRate: string }][]).map(([slug, ex]) => {
+                const meta = EXCHANGE_META[slug] ?? { emoji: '💱', color: 'from-gray-800 to-gray-900' };
                 return (
                   <a
-                    key={ex.slug}
+                    key={slug}
                     href={ex.referralLink}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={`group relative bg-gradient-to-b ${meta.color} border border-amber-500/12 rounded-2xl p-4 flex flex-col items-center gap-2 hover:border-amber-500/45 transition-all hover:-translate-y-0.5`}
                   >
                     <div className="text-3xl group-hover:scale-110 transition-transform">{meta.emoji}</div>
-                    <span className="text-xs font-black text-white capitalize">{ex.name}</span>
+                    <span className="text-xs font-black text-white capitalize">{slug}</span>
                     {ex.rebateRate && (
                       <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(255,215,0,0.12)', color: '#FFD700', border: '1px solid rgba(255,215,0,0.2)' }}>
                         {ex.rebateRate}

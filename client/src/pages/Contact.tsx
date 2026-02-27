@@ -3,7 +3,6 @@ import { useLocation } from 'wouter';
 import { useScrollMemory, goBack } from '@/hooks/useScrollMemory';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 import { Send, ArrowLeft, MessageCircle, Twitter, Phone, Mail } from 'lucide-react';
 
@@ -18,8 +17,10 @@ export default function Contact() {
   const [exchangeUsername, setExchangeUsername] = useState('');
   const [message, setMessage] = useState('');
 
-  const submitContact = trpc.contact.submit.useMutation({
-    onSuccess: () => {
+  const submitContact = {
+    mutate: (data: Record<string, string>) => {
+      // 静态模式：直接打开 Telegram 联系
+      window.open('https://t.me/CryptoSaveGuide', '_blank');
       toast.success(t.form.successMsg);
       setPlatform('');
       setAccountName('');
@@ -27,10 +28,8 @@ export default function Contact() {
       setExchangeUsername('');
       setMessage('');
     },
-    onError: (err) => {
-      toast.error(t.form.errorMsg + ': ' + err.message);
-    },
-  });
+    isPending: false,
+  };
 
   const texts = {
     zh: {

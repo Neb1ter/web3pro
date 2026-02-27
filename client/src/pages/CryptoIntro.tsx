@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "wouter";
+import { INVITE_CODES, getFallbackInviteCode } from '@shared/exchangeFees';
 import { useScrollMemory, goBack } from "@/hooks/useScrollMemory";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { trpc } from "@/lib/trpc";
 import {
   ArrowLeft, TrendingUp, TrendingDown, ChevronRight,
   Clock, Globe, Zap, Shield, BarChart2, RefreshCw,
@@ -238,7 +238,7 @@ export default function CryptoIntro() {
   const [isAnimating, setIsAnimating] = useState(false);
   const animRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const { data: exchangeLinks } = trpc.exchanges.list.useQuery();
+  const exchangeLinks = Object.entries(INVITE_CODES).map(([slug, v]) => ({ slug, name: slug, referralLink: v.referralLink, inviteCode: v.inviteCode, rebateRate: v.rebateRate }));
 
   // Generate initial candles when coin changes
   useEffect(() => {

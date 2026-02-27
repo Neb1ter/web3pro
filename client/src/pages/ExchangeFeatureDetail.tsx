@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link, useParams } from "wouter";
-import { trpc } from "@/lib/trpc";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ArrowLeft, ChevronDown, ChevronUp, Star, CheckCircle, XCircle, AlertCircle, ExternalLink, MessageCircle, HelpCircle, TrendingUp, Shield, Zap, Users, Gamepad2 } from "lucide-react";
 
@@ -435,10 +434,14 @@ export default function ExchangeFeatureDetail() {
   const [quizSubmitted, setQuizSubmitted] = useState<Record<number, boolean>>({});
   const [expandedExchange, setExpandedExchange] = useState<string | null>(null);
 
-  const { data: supportData, isLoading } = trpc.exchangeGuide.featureSupport.useQuery(
-    { featureSlug: featureSlug ?? "" },
-    { enabled: !!featureSlug }
-  );
+  const supportData = [
+    { exchangeSlug: 'binance', supported: 1, highlight: 0, levelZh: '支持', levelEn: 'Supported' },
+    { exchangeSlug: 'okx', supported: 1, highlight: 1, levelZh: '支持', levelEn: 'Supported' },
+    { exchangeSlug: 'bybit', supported: 1, highlight: 0, levelZh: '支持', levelEn: 'Supported' },
+    { exchangeSlug: 'gate', supported: 1, highlight: 0, levelZh: '支持', levelEn: 'Supported' },
+    { exchangeSlug: 'bitget', supported: 1, highlight: 0, levelZh: '支持', levelEn: 'Supported' },
+  ];
+  const isLoading = false;
 
   const content = featureSlug ? FEATURE_CONTENT[featureSlug] : null;
 

@@ -1,18 +1,17 @@
 services:
   - type: web
-    name: gatetoweb3
-    runtime: docker
-    plan: free
-    healthCheckPath: /
-    dockerfilePath: ./Dockerfile
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 3000
-      - key: JWT_SECRET
-        generateValue: true
-      - key: VITE_APP_ID
-        value: gatetoweb3
-      - key: DATABASE_URL
-        value: mysql://demo:demo@localhost:3306/gatetoweb3
+    name: web3pro-static
+    env: static
+    buildCommand: npm install --legacy-peer-deps && npm run build:static
+    staticPublishPath: ./dist/public
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: SAMEORIGIN
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

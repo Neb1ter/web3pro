@@ -6,7 +6,6 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { trpc } from "@/lib/trpc";
 import { useScrollMemory, goBack } from "@/hooks/useScrollMemory";
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
 import {
@@ -239,10 +238,9 @@ export default function Exchanges() {
   const deepRefs = useRef<Record<string, HTMLElement | null>>({});
 
   // DB data
-  const { data: dbLinks } = trpc.exchanges.list.useQuery();
   const slugs = ["gate", "okx", "binance", "bybit", "bitget"];
-  const getLink = (slug: string) => dbLinks?.find(l => l.slug === slug)?.referralLink ?? INVITE_CODES[slug as keyof typeof INVITE_CODES]?.referralLink ?? "#";
-  const getCode = (slug: string) => dbLinks?.find(l => l.slug === slug)?.inviteCode ?? getFallbackInviteCode(slug);
+  const getLink = (slug: string) => INVITE_CODES[slug as keyof typeof INVITE_CODES]?.referralLink ?? "#";
+  const getCode = (slug: string) => getFallbackInviteCode(slug);
 
   // Simulator state
   const [simStep, setSimStep] = useState<1 | 2 | 3 | 4>(1);
