@@ -4,8 +4,8 @@
   "info": {
     "singularName": "exchange-review",
     "pluralName": "exchange-reviews",
-    "displayName": "Exchange Review",
-    "description": "交易所评测"
+    "displayName": "交易所评测 Exchange Review",
+    "description": "交易所详细评测，包含评分、返佣信息和多语言支持"
   },
   "options": {
     "draftAndPublish": true
@@ -21,52 +21,192 @@
       "type": "string",
       "maxLength": 100
     },
+    "slug": {
+      "type": "uid",
+      "targetField": "name_en",
+      "maxLength": 100,
+      "required": true
+    },
     "logo": {
       "type": "media",
       "multiple": false,
       "required": false,
       "allowedTypes": ["images"]
     },
+    "banner_image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "exchange_type": {
+      "type": "enumeration",
+      "enum": [
+        "cex",
+        "dex",
+        "hybrid"
+      ],
+      "default": "cex"
+    },
     "rating": {
       "type": "decimal",
       "min": 0,
       "max": 5
     },
-    "pros": {
+    "rating_security": {
+      "type": "decimal",
+      "min": 0,
+      "max": 5
+    },
+    "rating_fees": {
+      "type": "decimal",
+      "min": 0,
+      "max": 5
+    },
+    "rating_ux": {
+      "type": "decimal",
+      "min": 0,
+      "max": 5
+    },
+    "rating_liquidity": {
+      "type": "decimal",
+      "min": 0,
+      "max": 5
+    },
+    "pros_zh": {
       "type": "text"
     },
-    "cons": {
+    "pros_en": {
       "type": "text"
     },
-    "description": {
+    "cons_zh": {
+      "type": "text"
+    },
+    "cons_en": {
+      "type": "text"
+    },
+    "description_zh": {
       "type": "richtext"
+    },
+    "description_en": {
+      "type": "richtext"
+    },
+    "short_desc_zh": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "short_desc_en": {
+      "type": "string",
+      "maxLength": 200
     },
     "rebate_rate": {
       "type": "string",
       "maxLength": 50
     },
-    "rebate_link": {
+    "rebate_rate_display_zh": {
       "type": "string",
-      "maxLength": 500
+      "maxLength": 100
+    },
+    "rebate_rate_display_en": {
+      "type": "string",
+      "maxLength": 100
+    },
+    "main_rebate_url": {
+      "type": "string",
+      "maxLength": 2000
     },
     "official_website": {
       "type": "string",
       "maxLength": 500
     },
-    "trading_fee": {
+    "app_store_url": {
+      "type": "string",
+      "maxLength": 500
+    },
+    "google_play_url": {
+      "type": "string",
+      "maxLength": 500
+    },
+    "trading_fee_maker": {
+      "type": "string",
+      "maxLength": 50
+    },
+    "trading_fee_taker": {
+      "type": "string",
+      "maxLength": 50
+    },
+    "withdrawal_fee_note": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "min_deposit": {
       "type": "string",
       "maxLength": 100
     },
     "supported_countries": {
       "type": "text"
     },
+    "restricted_countries": {
+      "type": "text"
+    },
+    "kyc_required": {
+      "type": "boolean",
+      "default": true
+    },
+    "supports_fiat": {
+      "type": "boolean",
+      "default": true
+    },
+    "supports_futures": {
+      "type": "boolean",
+      "default": false
+    },
+    "supports_margin": {
+      "type": "boolean",
+      "default": false
+    },
+    "supports_copy_trading": {
+      "type": "boolean",
+      "default": false
+    },
+    "supports_staking": {
+      "type": "boolean",
+      "default": false
+    },
+    "founded_year": {
+      "type": "integer"
+    },
+    "headquarters": {
+      "type": "string",
+      "maxLength": 100
+    },
     "is_recommended": {
+      "type": "boolean",
+      "default": false
+    },
+    "is_featured": {
       "type": "boolean",
       "default": false
     },
     "sort_order": {
       "type": "integer",
       "default": 0
+    },
+    "seo_title_zh": {
+      "type": "string",
+      "maxLength": 100
+    },
+    "seo_title_en": {
+      "type": "string",
+      "maxLength": 100
+    },
+    "seo_description_zh": {
+      "type": "string",
+      "maxLength": 300
+    },
+    "seo_description_en": {
+      "type": "string",
+      "maxLength": 300
     }
   }
 }

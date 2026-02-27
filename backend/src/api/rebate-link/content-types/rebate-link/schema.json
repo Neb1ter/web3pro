@@ -4,8 +4,8 @@
   "info": {
     "singularName": "rebate-link",
     "pluralName": "rebate-links",
-    "displayName": "Rebate Link",
-    "description": "返佣链接管理"
+    "displayName": "返佣链接 Rebate Link",
+    "description": "每个交易所的返佣链接管理，支持多种链接类型和多语言"
   },
   "options": {
     "draftAndPublish": true
@@ -17,38 +17,126 @@
       "required": true,
       "maxLength": 100
     },
+    "exchange_name_en": {
+      "type": "string",
+      "maxLength": 100
+    },
+    "exchange_slug": {
+      "type": "uid",
+      "targetField": "exchange_name_en",
+      "maxLength": 100
+    },
+    "exchange_logo": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
     "link_type": {
       "type": "enumeration",
-      "enum": ["register_rebate", "deposit_rebate", "trading_rebate", "exclusive_offer"],
-      "default": "register_rebate"
+      "enum": [
+        "register_rebate",
+        "deposit_rebate",
+        "trading_rebate",
+        "exclusive_offer",
+        "vip_rebate",
+        "futures_rebate",
+        "spot_rebate",
+        "referral_bonus"
+      ],
+      "default": "register_rebate",
+      "required": true
+    },
+    "link_label_zh": {
+      "type": "string",
+      "maxLength": 100
+    },
+    "link_label_en": {
+      "type": "string",
+      "maxLength": 100
     },
     "rebate_url": {
       "type": "string",
       "required": true,
-      "maxLength": 1000
+      "maxLength": 2000
+    },
+    "rebate_url_backup": {
+      "type": "string",
+      "maxLength": 2000
     },
     "rebate_percentage": {
       "type": "string",
       "maxLength": 50
     },
-    "description": {
+    "rebate_percentage_display_zh": {
+      "type": "string",
+      "maxLength": 100
+    },
+    "rebate_percentage_display_en": {
+      "type": "string",
+      "maxLength": 100
+    },
+    "description_zh": {
       "type": "text",
-      "maxLength": 500
+      "maxLength": 1000
+    },
+    "description_en": {
+      "type": "text",
+      "maxLength": 1000
+    },
+    "promo_badge_zh": {
+      "type": "string",
+      "maxLength": 50
+    },
+    "promo_badge_en": {
+      "type": "string",
+      "maxLength": 50
+    },
+    "terms_and_conditions_zh": {
+      "type": "text"
+    },
+    "terms_and_conditions_en": {
+      "type": "text"
     },
     "is_active": {
       "type": "boolean",
-      "default": true
+      "default": true,
+      "required": true
+    },
+    "is_featured": {
+      "type": "boolean",
+      "default": false
+    },
+    "is_exclusive": {
+      "type": "boolean",
+      "default": false
     },
     "expires_at": {
-      "type": "date"
+      "type": "datetime"
+    },
+    "valid_from": {
+      "type": "datetime"
     },
     "click_count": {
       "type": "integer",
-      "default": 0
+      "default": 0,
+      "min": 0
     },
     "sort_order": {
       "type": "integer",
       "default": 0
+    },
+    "utm_source": {
+      "type": "string",
+      "maxLength": 100
+    },
+    "utm_campaign": {
+      "type": "string",
+      "maxLength": 100
+    },
+    "notes": {
+      "type": "text",
+      "maxLength": 500
     }
   }
 }

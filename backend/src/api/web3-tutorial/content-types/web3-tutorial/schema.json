@@ -4,30 +4,27 @@
   "info": {
     "singularName": "web3-tutorial",
     "pluralName": "web3-tutorials",
-    "displayName": "Web3 Tutorial",
-    "description": "Web3科普教程文章"
+    "displayName": "Web3教程 Tutorial",
+    "description": "Web3科普教程内容管理，支持中英文双语"
   },
   "options": {
     "draftAndPublish": true
   },
   "pluginOptions": {},
   "attributes": {
-    "title": {
+    "title_zh": {
       "type": "string",
       "required": true,
       "maxLength": 200
     },
+    "title_en": {
+      "type": "string",
+      "maxLength": 200
+    },
     "slug": {
       "type": "uid",
-      "targetField": "title",
-      "required": true
-    },
-    "summary": {
-      "type": "text",
-      "maxLength": 500
-    },
-    "content": {
-      "type": "richtext",
+      "targetField": "title_en",
+      "maxLength": 200,
       "required": true
     },
     "cover_image": {
@@ -38,24 +35,103 @@
     },
     "category": {
       "type": "enumeration",
-      "enum": ["beginner", "defi", "nft", "exchange", "wallet", "blockchain", "market"],
-      "default": "beginner"
+      "enum": [
+        "web3_basics",
+        "blockchain",
+        "defi",
+        "nft",
+        "exchange_guide",
+        "trading_basics",
+        "futures_guide",
+        "wallet_security",
+        "tax_compliance",
+        "market_analysis"
+      ],
+      "default": "web3_basics",
+      "required": true
     },
     "difficulty": {
       "type": "enumeration",
-      "enum": ["intro", "intermediate", "advanced"],
-      "default": "intro"
+      "enum": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ],
+      "default": "beginner"
     },
-    "read_time": {
-      "type": "integer"
+    "content_zh": {
+      "type": "richtext"
+    },
+    "content_en": {
+      "type": "richtext"
+    },
+    "summary_zh": {
+      "type": "text",
+      "maxLength": 500
+    },
+    "summary_en": {
+      "type": "text",
+      "maxLength": 500
+    },
+    "read_time_minutes": {
+      "type": "integer",
+      "min": 1
+    },
+    "tags_zh": {
+      "type": "string",
+      "maxLength": 300
+    },
+    "tags_en": {
+      "type": "string",
+      "maxLength": 300
+    },
+    "related_exchange": {
+      "type": "string",
+      "maxLength": 100
+    },
+    "related_rebate_url": {
+      "type": "string",
+      "maxLength": 2000
     },
     "is_featured": {
       "type": "boolean",
       "default": false
     },
+    "is_pinned": {
+      "type": "boolean",
+      "default": false
+    },
     "view_count": {
       "type": "integer",
+      "default": 0,
+      "min": 0
+    },
+    "sort_order": {
+      "type": "integer",
       "default": 0
+    },
+    "seo_title_zh": {
+      "type": "string",
+      "maxLength": 100
+    },
+    "seo_title_en": {
+      "type": "string",
+      "maxLength": 100
+    },
+    "seo_description_zh": {
+      "type": "string",
+      "maxLength": 300
+    },
+    "seo_description_en": {
+      "type": "string",
+      "maxLength": 300
+    },
+    "author_name": {
+      "type": "string",
+      "maxLength": 100
+    },
+    "published_at_custom": {
+      "type": "date"
     }
   }
 }
