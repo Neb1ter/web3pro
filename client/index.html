@@ -82,10 +82,20 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script
-      defer
-      src="%VITE_ANALYTICS_ENDPOINT%/umami"
-      data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
+    <!-- Analytics: only loads when VITE_ANALYTICS_ENDPOINT is configured -->
+    <script>
+      (function() {
+        var endpoint = '%VITE_ANALYTICS_ENDPOINT%';
+        var siteId = '%VITE_ANALYTICS_WEBSITE_ID%';
+        if (endpoint && endpoint.indexOf('%') === -1 && siteId && siteId.indexOf('%') === -1) {
+          var s = document.createElement('script');
+          s.defer = true;
+          s.src = endpoint + '/umami';
+          s.setAttribute('data-website-id', siteId);
+          document.head.appendChild(s);
+        }
+      })();
+    </script>
   </body>
 
 </html>
