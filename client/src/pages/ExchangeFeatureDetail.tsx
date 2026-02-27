@@ -435,11 +435,11 @@ export default function ExchangeFeatureDetail() {
   const [expandedExchange, setExpandedExchange] = useState<string | null>(null);
 
   const supportData = [
-    { exchangeSlug: 'binance', supported: 1, highlight: 0, levelZh: '支持', levelEn: 'Supported' },
-    { exchangeSlug: 'okx', supported: 1, highlight: 1, levelZh: '支持', levelEn: 'Supported' },
-    { exchangeSlug: 'bybit', supported: 1, highlight: 0, levelZh: '支持', levelEn: 'Supported' },
-    { exchangeSlug: 'gate', supported: 1, highlight: 0, levelZh: '支持', levelEn: 'Supported' },
-    { exchangeSlug: 'bitget', supported: 1, highlight: 0, levelZh: '支持', levelEn: 'Supported' },
+    { exchangeSlug: 'binance', supported: 1, highlight: 0, levelZh: '支持', levelEn: 'Supported', detailZh: 'Binance 提供完整支持，流动性最强。', feeInfo: '' },
+    { exchangeSlug: 'okx', supported: 1, highlight: 1, levelZh: '支持', levelEn: 'Supported', detailZh: 'OKX 提供完整支持，功能体验优秀。', feeInfo: 'OKX 在此功能上具有独特优势，推荐使用。' },
+    { exchangeSlug: 'bybit', supported: 1, highlight: 0, levelZh: '支持', levelEn: 'Supported', detailZh: 'Bybit 提供完整支持。', feeInfo: '' },
+    { exchangeSlug: 'gate', supported: 1, highlight: 0, levelZh: '支持', levelEn: 'Supported', detailZh: 'Gate.io 提供完整支持，返佣比例高达 60%。', feeInfo: '' },
+    { exchangeSlug: 'bitget', supported: 1, highlight: 0, levelZh: '支持', levelEn: 'Supported', detailZh: 'Bitget 提供完整支持。', feeInfo: '' },
   ];
   const isLoading = false;
 

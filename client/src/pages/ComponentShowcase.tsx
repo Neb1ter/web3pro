@@ -219,6 +219,7 @@ export default function ComponentsShowcase() {
     setTimeout(() => {
       const aiResponse: Message = {
         role: "assistant",
+        content: "这是一个模拟的 AI 回复示例。",
       };
       setChatMessages([...newMessages, aiResponse]);
       setIsChatLoading(false);

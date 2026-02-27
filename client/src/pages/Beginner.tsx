@@ -175,7 +175,7 @@ export default function Beginner() {
                       {catLabel(faq.category)}
                     </span>
                     <span className="text-sm sm:text-base font-semibold text-gray-100 leading-snug">
-                      {faq.question}
+                      {zh ? faq.questionZh : faq.questionEn}
                     </span>
                   </div>
                   <span className="flex-shrink-0 mt-0.5 text-gray-400">
@@ -187,7 +187,7 @@ export default function Beginner() {
                 {openId === faq.id && (
                   <div className="px-4 pb-4 border-t border-yellow-500/20">
                     <p className="text-sm sm:text-base text-gray-300 leading-relaxed pt-3">
-                      {faq.answer}
+                      {zh ? faq.answerZh : faq.answerEn}
                     </p>
                   </div>
                 )}

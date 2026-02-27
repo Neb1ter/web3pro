@@ -258,6 +258,7 @@ export default function ExchangeGuide() {
   useScrollMemory();
   const { language, setLanguage } = useLanguage();
   const zh = language === 'zh';
+  const dbLinks: { slug: string; referralLink: string; inviteCode: string }[] = [];
 
   const [activeSlug, setActiveSlug] = useState('gate');
   const [sidebarOpen, setSidebarOpen] = useState(false);
