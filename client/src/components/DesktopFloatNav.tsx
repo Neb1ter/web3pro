@@ -1,14 +1,6 @@
 /**
- * DesktopFloatNav — 桌面端悬浮导航球（底部居中）
- *
- * 设计原则：
- * - 固定在页面底部居中，不与回顶按钮重叠
- * - 点击球体展开垂直图文菜单（向上弹出）
- * - 学习路径子菜单向上弹出，显示步骤列表和进度
- * - 仅在 md 及以上屏幕显示（移动端由 MobileFloatNav 负责）
- * - 始终挂载，通过 CSS 控制可见性，确保稳定显示
+ * DesktopFloatNav — 桌面端悬浮导航球（可拖动，松手自动吸附左/右边缘）
  */
-
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -17,7 +9,6 @@ import {
   ChevronUp, CheckCircle2, Circle, ChevronRight,
 } from "lucide-react";
 
-// ─── 导航项 ──────────────────────────────────────────────────────────────────
 const NAV_ITEMS = [
   { key: "home",      path: "/",              icon: Home,      labelZh: "首页",   labelEn: "Home",      color: "#10b981", colorRgb: "16,185,129"  },
   { key: "learn",     path: "/learning-path", icon: Compass,   labelZh: "学习",   labelEn: "Learn",     color: "#06b6d4", colorRgb: "6,182,212"   },
@@ -27,7 +18,16 @@ const NAV_ITEMS = [
 ] as const;
 
 const BALL_SIZE = 56;
-const BOTTOM_OFFSET = 28;
+const EDGE_MARGIN = 16;
+const STORAGE_KEY = "desktop_nav_pos";
+
+function loadSavedPos(): { side: "left" | "right" | "center"; bottom: number } {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch { /* ignore */ }
+  return { side: "center", bottom: 28 };
+}
 
 export default function DesktopFloatNav() {
   const [location, navigate] = useLocation();
@@ -42,9 +42,13 @@ export default function DesktopFloatNav() {
   const [pathCompleted, setPathCompleted] = useState<string[]>([]);
   const [hoveredKey, setHoveredKey] = useState<string | null>(null);
 
+  const [pos, setPos] = useState<{ side: "left" | "right" | "center"; bottom: number }>(loadSavedPos);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragPos, setDragPos] = useState<{ x: number; y: number } | null>(null);
+  const dragStartRef = useRef<{ mouseX: number; mouseY: number; startX: number; startY: number } | null>(null);
+  const hasDraggedRef = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // ── 读取学习路径数据 ─────────────────────────────────────────────────────
   useEffect(() => {
     const checkPath = () => {
       try {
@@ -78,7 +82,6 @@ export default function DesktopFloatNav() {
     };
   }, []);
 
-  // ── 点击外部关闭 ─────────────────────────────────────────────────────────
   useEffect(() => {
     if (!expanded) return;
     const onOutside = (e: MouseEvent) => {
@@ -94,6 +97,99 @@ export default function DesktopFloatNav() {
     };
   }, [expanded]);
 
+  const handleDragStart = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    hasDraggedRef.current = false;
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    dragStartRef.current = {
+      mouseX: e.clientX,
+      mouseY: e.clientY,
+      startX: rect.left + rect.width / 2,
+      startY: rect.top + rect.height / 2,
+    };
+
+    const onMove = (me: MouseEvent) => {
+      if (!dragStartRef.current) return;
+      const dx = me.clientX - dragStartRef.current.mouseX;
+      const dy = me.clientY - dragStartRef.current.mouseY;
+      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+        hasDraggedRef.current = true;
+        setIsDragging(true);
+      }
+      if (!hasDraggedRef.current) return;
+      const newX = dragStartRef.current.startX + dx;
+      const newY = dragStartRef.current.startY + dy;
+      const clampedX = Math.max(BALL_SIZE / 2 + EDGE_MARGIN, Math.min(window.innerWidth - BALL_SIZE / 2 - EDGE_MARGIN, newX));
+      const clampedY = Math.max(BALL_SIZE / 2 + EDGE_MARGIN, Math.min(window.innerHeight - BALL_SIZE / 2 - EDGE_MARGIN, newY));
+      setDragPos({ x: clampedX, y: clampedY });
+    };
+
+    const onUp = (me: MouseEvent) => {
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+      setIsDragging(false);
+      if (!hasDraggedRef.current) {
+        dragStartRef.current = null;
+        setDragPos(null);
+        return;
+      }
+      const finalX = (dragStartRef.current?.startX ?? window.innerWidth / 2) + (me.clientX - (dragStartRef.current?.mouseX ?? me.clientX));
+      const finalY = (dragStartRef.current?.startY ?? window.innerHeight / 2) + (me.clientY - (dragStartRef.current?.mouseY ?? me.clientY));
+      const side: "left" | "right" = finalX < window.innerWidth / 2 ? "left" : "right";
+      const bottomVal = Math.max(EDGE_MARGIN, Math.min(
+        window.innerHeight - BALL_SIZE - EDGE_MARGIN,
+        window.innerHeight - finalY - BALL_SIZE / 2
+      ));
+      const newPos = { side, bottom: bottomVal };
+      setPos(newPos);
+      setDragPos(null);
+      dragStartRef.current = null;
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(newPos)); } catch { /* ignore */ }
+      setExpanded(false);
+      setLearningMenuOpen(false);
+    };
+
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+  }, []);
+
+  const containerStyle: React.CSSProperties = isDragging && dragPos
+    ? {
+        position: "fixed",
+        left: dragPos.x - BALL_SIZE / 2,
+        top: dragPos.y - BALL_SIZE / 2,
+        bottom: "auto",
+        transform: "none",
+        zIndex: 9990,
+        userSelect: "none",
+        WebkitUserSelect: "none",
+        cursor: "grabbing",
+        transition: "none",
+      }
+    : pos.side === "center"
+    ? {
+        position: "fixed",
+        bottom: pos.bottom,
+        left: "50%",
+        transform: "translateX(-50%)",
+        zIndex: 9990,
+        userSelect: "none",
+        WebkitUserSelect: "none",
+      }
+    : {
+        position: "fixed",
+        bottom: pos.bottom,
+        ...(pos.side === "left" ? { left: EDGE_MARGIN } : { right: EDGE_MARGIN }),
+        transform: "none",
+        zIndex: 9990,
+        userSelect: "none",
+        WebkitUserSelect: "none",
+        transition: "left 0.35s cubic-bezier(0.22,1,0.36,1), right 0.35s cubic-bezier(0.22,1,0.36,1), bottom 0.35s cubic-bezier(0.22,1,0.36,1)",
+      };
+
+  const labelOnRight = pos.side === "left";
+
   const isActive = useCallback((path: string) => {
     if (path === "/") return location === "/" || location === "/portal";
     if (path === "/learning-path") {
@@ -107,6 +203,7 @@ export default function DesktopFloatNav() {
   const activeItem = NAV_ITEMS.find(item => isActive(item.path)) ?? NAV_ITEMS[0];
 
   const handleNavClick = useCallback((path: string, key: string) => {
+    if (hasDraggedRef.current) return;
     if (key === "learn" && hasLearningPath) {
       setLearningMenuOpen(prev => !prev);
       return;
@@ -127,13 +224,12 @@ export default function DesktopFloatNav() {
   const progress = pathSteps.length > 0 ? Math.round((pathCompleted.length / pathSteps.length) * 100) : 0;
 
   return (
-    // 仅在 md 及以上显示，始终挂载保证稳定性
     <div
       className="hidden md:block"
-      style={{ position: "fixed", bottom: BOTTOM_OFFSET, left: "50%", transform: "translateX(-50%)", zIndex: 9990, userSelect: "none", WebkitUserSelect: "none" }}
+      style={containerStyle}
       ref={containerRef}
+      onMouseDown={handleDragStart}
     >
-      {/* ── 展开的导航菜单（向上弹出） ──────────────────────────────────────── */}
       {expanded && (
         <div
           style={{
@@ -150,7 +246,6 @@ export default function DesktopFloatNav() {
             isolation: "isolate",
           }}
         >
-          {/* 学习路径子菜单（向上展开） */}
           {learningMenuOpen && hasLearningPath && pathSteps.length > 0 && (
             <div
               style={{
@@ -171,7 +266,6 @@ export default function DesktopFloatNav() {
                 animation: "desktopNavUp 0.18s cubic-bezier(0.22,1,0.36,1) both",
               }}
             >
-              {/* 标题 + 进度 */}
               <div style={{ padding: "12px 16px 10px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
                   <span style={{ fontSize: 11, fontWeight: 700, color: "#06b6d4", textTransform: "uppercase", letterSpacing: "0.08em" }}>
@@ -189,8 +283,6 @@ export default function DesktopFloatNav() {
                   }
                 </p>
               </div>
-
-              {/* 步骤列表 */}
               <div style={{ padding: "6px 0" }}>
                 {pathSteps.map((step, index) => {
                   const done = pathCompleted.includes(step.id);
@@ -199,6 +291,7 @@ export default function DesktopFloatNav() {
                   return (
                     <button
                       key={step.id}
+                      draggable={false}
                       onClick={() => handleLearningStepClick(step.path)}
                       style={{
                         width: "100%",
@@ -243,11 +336,10 @@ export default function DesktopFloatNav() {
                   );
                 })}
               </div>
-
-              {/* 全部完成时的总结按钮 */}
               {allDone && (
                 <div style={{ padding: "8px 12px 12px" }}>
                   <button
+                    draggable={false}
                     onClick={() => { navigate("/learning-complete"); setLearningMenuOpen(false); setExpanded(false); }}
                     style={{ width: "100%", padding: "8px", borderRadius: 10, background: "rgba(74,222,128,0.1)", border: "1px solid rgba(74,222,128,0.2)", color: "#4ade80", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
                   >
@@ -258,16 +350,13 @@ export default function DesktopFloatNav() {
             </div>
           )}
 
-          {/* 导航项列表（从下到上排列） */}
-          {[...NAV_ITEMS].reverse().map((item, revIdx) => {
-            const idx = NAV_ITEMS.length - 1 - revIdx;
+          {[...NAV_ITEMS].reverse().map((item) => {
             const active = isActive(item.path);
             const Icon = item.icon;
             const label = zh ? item.labelZh : item.labelEn;
             const showDot = item.key === "learn" && learningIncomplete && !active;
             const isHovered = hoveredKey === item.key;
             const isLearnOpen = item.key === "learn" && learningMenuOpen;
-
             return (
               <div
                 key={item.key}
@@ -275,15 +364,17 @@ export default function DesktopFloatNav() {
                   position: "relative",
                   width: 46,
                   height: 46,
-                  animation: `desktopNavUp 0.2s cubic-bezier(0.22,1,0.36,1) both`,
+                  flexShrink: 0,
+                  animation: "desktopNavUp 0.2s cubic-bezier(0.22,1,0.36,1) both",
                 }}
               >
-                {/* 悬停文字标签（左侧） */}
                 {isHovered && (
                   <div
                     style={{
                       position: "absolute",
-                      right: "calc(100% + 10px)",
+                      ...(labelOnRight
+                        ? { left: "calc(100% + 10px)" }
+                        : { right: "calc(100% + 10px)" }),
                       top: "50%",
                       transform: "translateY(-50%)",
                       padding: "5px 10px",
@@ -294,10 +385,10 @@ export default function DesktopFloatNav() {
                       fontSize: 12,
                       fontWeight: 600,
                       whiteSpace: "nowrap",
-                      boxShadow: `0 4px 16px rgba(0,0,0,0.4)`,
+                      boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
                       backdropFilter: "blur(12px)",
                       pointerEvents: "none",
-                      zIndex: 1,
+                      zIndex: 10,
                       animation: "fadeInLeft 0.15s ease",
                     }}
                   >
@@ -309,8 +400,6 @@ export default function DesktopFloatNav() {
                     )}
                   </div>
                 )}
-
-                {/* 导航按钮 */}
                 <button
                   draggable={false}
                   onClick={() => handleNavClick(item.path, item.key)}
@@ -335,7 +424,7 @@ export default function DesktopFloatNav() {
                     WebkitBackdropFilter: "blur(16px)",
                     boxShadow: active || isLearnOpen
                       ? `0 0 0 2px rgba(${item.colorRgb},0.15), 0 4px 16px rgba(${item.colorRgb},0.25)`
-                      : `0 2px 8px rgba(0,0,0,0.3)`,
+                      : "0 2px 8px rgba(0,0,0,0.3)",
                     cursor: "pointer",
                     outline: "none",
                     transition: "all 0.2s ease",
@@ -351,7 +440,6 @@ export default function DesktopFloatNav() {
                       flexShrink: 0,
                     }}
                   />
-                  {/* 未读小点 */}
                   {showDot && (
                     <span style={{
                       position: "absolute", top: -1, right: -1,
@@ -360,7 +448,6 @@ export default function DesktopFloatNav() {
                       boxShadow: "0 0 6px rgba(6,182,212,0.8)",
                     }} />
                   )}
-                  {/* 活跃指示条（底部） */}
                   {active && (
                     <div style={{
                       position: "absolute", bottom: -1, left: "50%", transform: "translateX(-50%)",
@@ -376,10 +463,11 @@ export default function DesktopFloatNav() {
         </div>
       )}
 
-      {/* ── 主球体（底部居中） ──────────────────────────────────────────────── */}
       <button
+        data-drag="true"
         draggable={false}
         onClick={() => {
+          if (hasDraggedRef.current) return;
           setExpanded(prev => !prev);
           if (expanded) setLearningMenuOpen(false);
         }}
@@ -399,15 +487,17 @@ export default function DesktopFloatNav() {
           border: `1.5px solid rgba(${activeItem.colorRgb},${expanded ? 0.5 : 0.28})`,
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
-          boxShadow: expanded
+          boxShadow: isDragging
+            ? `0 0 0 3px rgba(${activeItem.colorRgb},0.2), 0 12px 40px rgba(0,0,0,0.5)`
+            : expanded
             ? `0 0 0 3px rgba(${activeItem.colorRgb},0.12), 0 8px 32px rgba(${activeItem.colorRgb},0.28), 0 4px 16px rgba(0,0,0,0.4)`
             : `0 0 0 1px rgba(${activeItem.colorRgb},0.1), 0 4px 20px rgba(0,0,0,0.4), 0 0 16px rgba(${activeItem.colorRgb},0.1)`,
-          cursor: "pointer",
+          cursor: isDragging ? "grabbing" : "grab",
           outline: "none",
-          transition: "all 0.25s cubic-bezier(0.22,1,0.36,1)",
+          transition: isDragging ? "none" : "all 0.25s cubic-bezier(0.22,1,0.36,1)",
+          transform: isDragging ? "scale(1.08)" : "scale(1)",
         }}
       >
-        {/* 当前页面图标 */}
         {(() => {
           const Icon = activeItem.icon;
           return (
@@ -420,36 +510,35 @@ export default function DesktopFloatNav() {
                 transition: "all 0.3s ease",
                 transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
                 flexShrink: 0,
+                pointerEvents: "none",
               }}
             />
           );
         })()}
-
-        {/* 学习路径未完成小点 */}
         {learningIncomplete && !isActive("/learning-path") && (
           <span style={{
             position: "absolute", top: 2, right: 2,
             width: 10, height: 10, borderRadius: "50%",
             background: "#06b6d4",
             boxShadow: "0 0 8px rgba(6,182,212,0.8)",
+            pointerEvents: "none",
           }} />
         )}
-
-        {/* 展开/收起箭头指示 */}
-        <div style={{
-          position: "absolute",
-          top: -10,
-          left: "50%",
-          transform: `translateX(-50%) ${expanded ? "rotate(180deg)" : "rotate(0deg)"}`,
-          transition: "transform 0.25s ease",
-          color: "rgba(255,255,255,0.3)",
-          lineHeight: 1,
-        }}>
-          <ChevronUp size={12} color={expanded ? activeItem.color : "rgba(255,255,255,0.3)"} />
-        </div>
+        {!isDragging && (
+          <div style={{
+            position: "absolute",
+            top: -10,
+            left: "50%",
+            transform: `translateX(-50%) ${expanded ? "rotate(180deg)" : "rotate(0deg)"}`,
+            transition: "transform 0.25s ease",
+            lineHeight: 1,
+            pointerEvents: "none",
+          }}>
+            <ChevronUp size={12} color={expanded ? activeItem.color : "rgba(255,255,255,0.3)"} />
+          </div>
+        )}
       </button>
 
-      {/* 动画样式 */}
       <style>{`
         @keyframes desktopNavUp {
           from { opacity: 0; transform: translateY(12px) scale(0.85); }
