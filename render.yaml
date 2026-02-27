@@ -2,7 +2,7 @@ services:
   - type: web
     name: web3pro-static
     env: static
-    buildCommand: npm install --legacy-peer-deps && npm run build:static
+    buildCommand: npm install -g pnpm && pnpm install --no-frozen-lockfile && pnpm run build:static
     staticPublishPath: ./dist/public
     headers:
       - path: /*
