@@ -45,7 +45,10 @@ const config = ({ env }: Core.Config.Shared.ConfigParams): Core.Config.Database 
     },
     sqlite: {
       connection: {
-        filename: path.join(__dirname, '..', env('DATABASE_FILENAME', '.tmp/data.db')),
+        // Railway 上使用 /tmp 目录，本地使用项目目录下的 .tmp
+        filename: env('DATABASE_FILENAME',
+          path.join(process.cwd(), '.tmp', 'data.db')
+        ),
       },
       useNullAsDefault: true,
     },
