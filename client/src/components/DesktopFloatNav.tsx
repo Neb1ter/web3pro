@@ -146,6 +146,8 @@ export default function DesktopFloatNav() {
             alignItems: "center",
             gap: 6,
             animation: "desktopNavUp 0.22s cubic-bezier(0.22,1,0.36,1) both",
+            willChange: "transform, opacity",
+            isolation: "isolate",
           }}
         >
           {/* 学习路径子菜单（向上展开） */}
@@ -273,11 +275,11 @@ export default function DesktopFloatNav() {
                   display: "flex",
                   alignItems: "center",
                   gap: 8,
-                  animation: `desktopNavUp 0.22s cubic-bezier(0.22,1,0.36,1) ${idx * 0.04}s both`,
+                  animation: `desktopNavUp 0.2s cubic-bezier(0.22,1,0.36,1) both`,
                 }}
               >
                 {/* 悬停文字标签（左侧） */}
-                {(isHovered || active) && (
+                {isHovered && (
                   <div
                     style={{
                       padding: "5px 10px",
