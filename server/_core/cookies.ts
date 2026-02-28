@@ -39,10 +39,12 @@ export function getSessionCookieOptions(
   //       ? hostname
   //       : undefined;
 
+  const secure = isSecureRequest(req);
   return {
     httpOnly: true,
     path: "/",
-    sameSite: "none",
-    secure: isSecureRequest(req),
+    // 生产环境用 lax（防 CSRF），本地开发 http 时用 lax 也兼容
+    sameSite: secure ? "lax" : "lax",
+    secure,
   };
 }

@@ -6,7 +6,7 @@
  * 2. cors           — 限制跨域来源，只允许白名单域名
  * 3. globalLimiter  — 全局限流：每 IP 每分钟最多 120 次请求
  * 4. apiLimiter     — API 限流：每 IP 每分钟最多 60 次 API 请求
- * 5. contactLimiter — 联系表单：每 IP 每小时最多 5 次提交（防垃圾表单）
+ * 5. contactLimiter — 联系表单：每 IP 每小时最多 20 次提交（防垃圾表单）
  * 6. authLimiter    — 认证接口：每 IP 每 15 分钟最多 20 次（防暴力破解）
  */
 
@@ -106,9 +106,9 @@ export function registerSecurityMiddleware(app: Express) {
       contentSecurityPolicy: {
         directives: {
           defaultSrc: ["'self'"],
-          // 生产环境去掉 unsafe-eval，开发环境保留供 Vite HMR 使用
+          // 生产环境去掉 unsafe-eval 和 unsafe-inline，开发环境保留供 Vite HMR 使用
           scriptSrc: isProd
-            ? ["'self'", "'unsafe-inline'"]
+            ? ["'self'"]
             : ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
           styleSrc: ["'self'", "'unsafe-inline'"],
           imgSrc: ["'self'", "data:", "https:"],
