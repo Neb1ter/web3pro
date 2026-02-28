@@ -217,7 +217,7 @@ function Router() {
           <Route path="/exchange-guide/:featureSlug" component={ExchangeFeatureDetail} />
 
           {/* ── 后台管理 ── */}
-          <Route path="/login"               component={AdminLogin} />
+          <Route path="/manage-m2u0z0i04"    component={AdminLogin} />
           <Route path="/admin/exchange-guide" component={AdminExchangeGuide} />
 
           {/* ── 测评与学习路径 ── */}

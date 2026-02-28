@@ -555,7 +555,7 @@ export default function AdminExchangeGuide() {
           <div className="text-5xl mb-4">🔐</div>
           <h1 className="text-2xl font-bold mb-2">{zh ? "需要登录" : "Login Required"}</h1>
           <p className="text-slate-400 mb-6">{zh ? "请先登录管理员账户才能访问后台" : "Please log in with an admin account to continue"}</p>
-          <a href="/login" className="admin-btn-primary inline-block">{zh ? "前往登录" : "Go to Login"}</a>
+          <a href="/manage-m2u0z0i04" className="admin-btn-primary inline-block">{zh ? "前往登录" : "Go to Login"}</a>
         </div>
       </div>
     );
