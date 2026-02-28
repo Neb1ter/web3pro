@@ -48,20 +48,43 @@ export async function setupVite(app: Express, server: Server) {
 }
 
 export function serveStatic(app: Express) {
-  const distPath =
-    process.env.NODE_ENV === "development"
-      ? path.resolve(import.meta.dirname, "../..", "dist", "public")
-      : path.resolve(import.meta.dirname, "public");
+  // 生产环境中，静态文件位于 /app/dist/public（Vite 构建输出）
+  // __dirname = /app/dist，所以 ../public = /app/public（错误）
+  // 正确的路径应该是 /app/dist/public
+  const distPath = path.resolve(import.meta.dirname, "public");
+  
   if (!fs.existsSync(distPath)) {
     console.error(
       `Could not find the build directory: ${distPath}, make sure to build the client first`
     );
+    console.error(`Expected Vite build output at: ${distPath}`);
+  } else {
+    console.log(`[Static] Serving static files from: ${distPath}`);
   }
 
-  app.use(express.static(distPath));
+  // 设置强制刷新缓存的响应头
+  app.use(express.static(distPath, {
+    maxAge: "1h", // 静态资源缓存 1 小时
+    etag: true,   // 启用 ETag，确保有更新时立即刷新
+  }));
 
-  // fall through to index.html if the file doesn't exist
+  // 对于 index.html，禁用缓存以确保总是获取最新版本
+  app.get("/index.html", (_req, res) => {
+    res.set({
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+      "Pragma": "no-cache",
+      "Expires": "0",
+    });
+    res.sendFile(path.resolve(distPath, "index.html"));
+  });
+
+  // fall through to index.html if the file doesn't exist（SPA 路由）
   app.use("*", (_req, res) => {
+    res.set({
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+      "Pragma": "no-cache",
+      "Expires": "0",
+    });
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }
