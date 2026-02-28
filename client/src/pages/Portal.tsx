@@ -66,7 +66,7 @@ const LANG = {
       columns: [
         { title: "学习与指南", links: [{ label: "Web3 入圈指南", href: "/web3-guide" }, { label: "币圈省钱指南", href: "/crypto-saving" }, { label: "交易所扫盲", href: "/exchange-guide" }, { label: "下载交易所", href: "/exchange-download" }, { label: "知识测评", href: "/web3-quiz" }] },
         { title: "交易与工具", links: [{ label: "交易所对比", href: "/exchanges" }, { label: "现货模拟", href: "/sim/spot" }, { label: "合约模拟", href: "/sim/futures" }, { label: "杠杆模拟", href: "/sim/margin" }] },
-        { title: "支持与关于", links: [{ label: "联系我们", href: "/contact" }, { label: "新手入门", href: "/beginner" }, { label: "加密货币科普", href: "/crypto-intro" }] },
+        { title: "支持与关于", links: [{ label: "联系我们", href: "/contact" }, { label: "新手入门", href: "/beginner" }, { label: "加密货币科普", href: "/crypto-intro" }, { label: "SEO 优化指南", href: "/seo-guide" }] },
         { title: "法律与合规", links: [{ label: "免责声明", href: "/legal#disclaimer" }, { label: "风险提示", href: "/legal#risk" }] },
       ],
       copyright: "© 2026 Get8 Pro",
@@ -132,7 +132,7 @@ const LANG = {
       columns: [
         { title: "Learn & Guide", links: [{ label: "Web3 Guide", href: "/web3-guide" }, { label: "Crypto Saving", href: "/crypto-saving" }, { label: "Exchange Tutorial", href: "/exchange-guide" }, { label: "Download Exchange", href: "/exchange-download" }, { label: "Knowledge Quiz", href: "/web3-quiz" }] },
         { title: "Trade & Tools", links: [{ label: "Exchange Compare", href: "/exchanges" }, { label: "Spot Sim", href: "/sim/spot" }, { label: "Futures Sim", href: "/sim/futures" }, { label: "Margin Sim", href: "/sim/margin" }] },
-        { title: "Support & About", links: [{ label: "Contact Us", href: "/contact" }, { label: "Beginner Guide", href: "/beginner" }, { label: "Crypto Intro", href: "/crypto-intro" }] },
+        { title: "Support & About", links: [{ label: "Contact Us", href: "/contact" }, { label: "Beginner Guide", href: "/beginner" }, { label: "Crypto Intro", href: "/crypto-intro" }, { label: "SEO Guide", href: "/seo-guide" }] },
         { title: "Legal", links: [{ label: "Disclaimer", href: "/legal#disclaimer" }, { label: "Risk Notice", href: "/legal#risk" }] },
       ],
       copyright: "© 2026 Get8 Pro",
@@ -184,8 +184,10 @@ function AnimatedBackground() {
     resize();
     window.addEventListener("resize", resize);
 
-    // 粒子
-    const particles = Array.from({ length: 60 }, () => ({
+    // 粒子（移动端减少粒子数量以节省性能）
+    const isMobile = window.innerWidth < 768;
+    const particleCount = isMobile ? 30 : 60;
+    const particles = Array.from({ length: particleCount }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
       vx: (Math.random() - 0.5) * 0.4,
@@ -243,16 +245,19 @@ function AnimatedBackground() {
         ctx.fill();
       });
 
-      // 粒子连线
+      // 粒子连线（使用距离平方比较，避免 sqrt 开销）
+      const maxDist = isMobile ? 80 : 100;
+      const maxDistSq = maxDist * maxDist;
+      ctx.lineWidth = 0.5;
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
           const dx = particles[i].x - particles[j].x;
           const dy = particles[i].y - particles[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 100) {
+          const distSq = dx * dx + dy * dy;
+          if (distSq < maxDistSq) {
+            const alpha = 0.06 * (1 - Math.sqrt(distSq) / maxDist);
             ctx.beginPath();
-            ctx.strokeStyle = `rgba(255,215,0,${0.06 * (1 - dist / 100)})`;
-            ctx.lineWidth = 0.5;
+            ctx.strokeStyle = `rgba(255,215,0,${alpha})`;
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
             ctx.stroke();

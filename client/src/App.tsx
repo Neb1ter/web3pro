@@ -54,6 +54,9 @@ const MarginSim  = lazy(() => import("./pages/sim/MarginSim"));
 const OptionsSim = lazy(() => import("./pages/sim/OptionsSim"));
 const BotSim     = lazy(() => import("./pages/sim/BotSim"));
 
+// SEO 指南文章
+const SeoGuide       = lazy(() => import("./pages/SeoGuide"));
+
 // 测评与学习路径
 const Web3Quiz       = lazy(() => import("./pages/Web3Quiz"));
 const LearningPath   = lazy(() => import("./pages/LearningPath"));
@@ -173,6 +176,9 @@ function Router() {
 
           {/* ── 后台管理 ── */}
           <Route path="/admin/exchange-guide" component={AdminExchangeGuide} />
+
+          {/* ── SEO 指南文章 ── */}
+          <Route path="/seo-guide"        component={SeoGuide} />
 
           {/* ── 测评与学习路径 ── */}
           <Route path="/web3-quiz"        component={Web3Quiz} />

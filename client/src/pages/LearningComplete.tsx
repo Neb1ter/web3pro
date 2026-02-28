@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, Link } from "wouter";
 import { useScrollMemory } from "@/hooks/useScrollMemory";
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
-import { LEARNING_PATH_KEY, QUIZ_STORAGE_KEY } from "./Web3Quiz";
+import { LEARNING_PATH_KEY, QUIZ_STORAGE_KEY } from "@/lib/quizConst";
 
 const ALL_SECTIONS = [
   {

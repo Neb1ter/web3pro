@@ -181,6 +181,14 @@
     <priority>0.6</priority>
   </url>
 
+  <!-- SEO 优化指南文章 -->
+  <url>
+    <loc>https://get8.pro/seo-guide</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
   <!-- 联系我们 -->
   <url>
     <loc>https://get8.pro/contact</loc>

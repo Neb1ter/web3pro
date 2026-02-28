@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { QUIZ_STORAGE_KEY, LEARNING_PATH_KEY } from "@/pages/Web3Quiz";
+import { QUIZ_STORAGE_KEY, LEARNING_PATH_KEY } from "@/lib/quizConst";
 
 const DISMISSED_KEY = "web3_onboarding_dismissed";
 

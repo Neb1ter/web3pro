@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { useLocation, Link } from "wouter";
 import { useScrollMemory } from "@/hooks/useScrollMemory";
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
-import { LEARNING_PATH_KEY, QUIZ_STORAGE_KEY } from "./Web3Quiz";
-import type { LearningStep } from "./Web3Quiz";
+import { LEARNING_PATH_KEY, QUIZ_STORAGE_KEY } from "@/lib/quizConst";
+import type { LearningStep } from "@/lib/quizConst";
 
 interface PathState {
   steps: LearningStep[];

@@ -184,7 +184,12 @@ export default defineConfig({
         // 手动分包：将稳定的第三方库分离为独立 chunk，充分利用浏览器缓存
         manualChunks(id) {
           // React 核心 —— 最稳定，单独缓存
-          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
+          if (
+            id.includes('node_modules/react/') ||
+            id.includes('node_modules/react-dom/') ||
+            id.includes('node_modules/react-jsx-runtime') ||
+            id.includes('node_modules/scheduler/')
+          ) {
             return 'vendor-react';
           }
           // 路由
@@ -212,8 +217,17 @@ export default defineConfig({
           if (id.includes('node_modules/@tanstack/')) {
             return 'vendor-query';
           }
+          // lucide-react 图标库（体积较大，单独缓存）
+          if (id.includes('node_modules/lucide-react')) {
+            return 'vendor-icons';
+          }
           // 其余第三方库合并为一个 vendor chunk
-          if (id.includes('node_modules/')) {
+          // 注意：排除已单独分组的库，避免循环依赖
+          if (id.includes('node_modules/') &&
+              !id.includes('node_modules/react/') &&
+              !id.includes('node_modules/react-dom/') &&
+              !id.includes('node_modules/react-jsx-runtime') &&
+              !id.includes('node_modules/scheduler/')) {
             return 'vendor-misc';
           }
         },
