@@ -5,13 +5,14 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# 安装 pnpm
-RUN npm install -g pnpm
+# 安装 pnpm（固定版本，避免 pnpm 版本不一致导致 patch 解析失败）
+RUN npm install -g pnpm@9
 
 RUN echo ">>> Step 1: pnpm installed" && pnpm --version
 
-# 先复制依赖文件（利用 Docker 层缓存）
+# 先复制依赖文件 + patches 目录（pnpm patch 必须在 install 前存在）
 COPY package.json pnpm-lock.yaml ./
+COPY patches/ ./patches/
 
 RUN echo ">>> Step 2: Installing dependencies..."
 RUN pnpm install --frozen-lockfile
@@ -33,11 +34,12 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# 安装 pnpm
-RUN npm install -g pnpm
+# 安装 pnpm（固定版本）
+RUN npm install -g pnpm@9
 
-# 复制 package.json 并只安装生产依赖
+# 复制 package.json + patches 并只安装生产依赖
 COPY package.json pnpm-lock.yaml ./
+COPY patches/ ./patches/
 RUN pnpm install --frozen-lockfile --prod
 
 # 从构建阶段复制编译产物
