@@ -756,7 +756,7 @@ function NewsTab({ zh }: { zh: boolean }) {
         </div>
         <div className="md:col-span-2 flex gap-2 justify-end">
           <button className="admin-btn-ghost" onClick={onCancel}>{zh ? "取消" : "Cancel"}</button>
-          <button className="admin-btn" onClick={onSubmit} disabled={loading || !value.title}>{zh ? "保存" : "Save"}</button>
+          <button className="admin-btn-primary" onClick={onSubmit} disabled={loading || !value.title}>{zh ? "保存" : "Save"}</button>
         </div>
       </div>
     );
@@ -767,7 +767,7 @@ function NewsTab({ zh }: { zh: boolean }) {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-white font-semibold text-lg">{zh ? "快讯管理" : "News Management"}</h2>
         {!form && !editing && (
-          <button className="admin-btn" onClick={() => setForm(emptyForm)}>{zh ? "+ 新增快讯" : "+ Add News"}</button>
+          <button className="admin-btn-primary" onClick={() => setForm(emptyForm)}>{zh ? "+ 新增快讯" : "+ Add News"}</button>
         )}
       </div>
 
