@@ -2,6 +2,8 @@ import "dotenv/config";
 import express, { type Request, type Response } from "express";
 import { createServer } from "http";
 import net from "net";
+import path from "path";
+import { fileURLToPath } from "url";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
@@ -15,9 +17,13 @@ import {
 } from "./security";
 import { ENV } from "./env";
 import { sdk } from "./sdk";
-import { upsertUser } from "../db";
+import { upsertUser, getDb } from "../db";
 import { getSessionCookieOptions } from "./cookies";
 import { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
+import { migrate } from "drizzle-orm/mysql2/migrator";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const ADMIN_OPEN_ID = "admin";
 
@@ -41,8 +47,29 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 }
 
 async function startServer() {
+  // ── 自动运行数据库迁移（首次部署或表结构变更时自动创建/更新表）──
+  if (process.env.DATABASE_URL) {
+    try {
+      const db = await getDb();
+      if (db) {
+        // 迁移文件在构建后位于 dist/ 同级的 drizzle/ 目录
+        // __dirname = /app/dist ，所以 ../drizzle = /app/drizzle
+        const migrationsFolder = path.resolve(__dirname, "../drizzle");
+        console.log(`[Database] Running migrations from: ${migrationsFolder}`);
+        await migrate(db as any, { migrationsFolder });
+        console.log("[Database] Migrations completed successfully");
+      }
+    } catch (error) {
+      console.error("[Database] Migration failed:", error);
+      // 迁移失败不阻止启动，允许服务在无数据库时运行（静态页面仍可访问）
+    }
+  }
+
   const app = express();
   const server = createServer(app);
+
+  // ── 信任反向代理（Railway / Nginx 等），使 rate-limit 能正确识别真实 IP ──
+  app.set('trust proxy', 1);
 
   // ── 安全中间件（helmet + cors + 全局限流）──────────────────────────────────
   registerSecurityMiddleware(app);

@@ -22,6 +22,9 @@ COPY . .
 # 构建前端 + 后端
 RUN pnpm run build
 
+# 将 drizzle 迁移文件复制到 dist/ 同级目录（运行时自动迁移需要）
+RUN cp -r drizzle dist/../drizzle 2>/dev/null || true
+
 # 构建完成后删除 devDependencies，减小镜像体积
 RUN pnpm prune --prod
 
