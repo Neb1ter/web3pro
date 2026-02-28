@@ -26,13 +26,15 @@ const ALLOWED_ORIGINS: (string | RegExp)[] = [
   /^https:\/\/.*\.vercel\.app$/,
 ];
 
-// 本地开发时额外允许 localhost
+// 本地开发时额外允许 localhost 和 Manus 预览域名
 if (process.env.NODE_ENV !== "production") {
   ALLOWED_ORIGINS.push(
     "http://localhost:3000",
     "http://localhost:3001",
     "http://localhost:3002",
     "http://localhost:5173",
+    // Manus 沙箱预览域名
+    /^https:\/\/.*\.manus\.computer$/,
   );
 }
 

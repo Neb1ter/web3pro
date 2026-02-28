@@ -8,6 +8,7 @@ import {
   cryptoNews, InsertCryptoNews, CryptoNews,
   exchangeFeatureCategories, ExchangeFeatureCategory, InsertExchangeFeatureCategory,
   exchangeFeatureSupport, ExchangeFeatureSupport, InsertExchangeFeatureSupport,
+  cryptoTools, CryptoTool, InsertCryptoTool,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -585,4 +586,70 @@ export async function deleteFeatureSupport(exchangeSlug: string, featureSlug: st
       eq(exchangeFeatureSupport.exchangeSlug, exchangeSlug),
       eq(exchangeFeatureSupport.featureSlug, featureSlug)
     ));
+}
+
+// ─── Crypto Tools ─────────────────────────────────────────────────────────────
+
+/** Get all active crypto tools, ordered by sortOrder */
+export async function getCryptoTools(activeOnly = true): Promise<CryptoTool[]> {
+  const db = await getDb();
+  if (!db) return [];
+  const { asc } = await import('drizzle-orm');
+  if (activeOnly) {
+    return db.select().from(cryptoTools)
+      .where(eq(cryptoTools.isActive, true))
+      .orderBy(asc(cryptoTools.sortOrder), asc(cryptoTools.id));
+  }
+  return db.select().from(cryptoTools)
+    .orderBy(asc(cryptoTools.sortOrder), asc(cryptoTools.id));
+}
+
+/** Get all crypto tools (admin) */
+export async function getAllCryptoTools(): Promise<CryptoTool[]> {
+  return getCryptoTools(false);
+}
+
+/** Upsert a crypto tool */
+export async function upsertCryptoTool(data: InsertCryptoTool): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  if (data.id) {
+    await db.update(cryptoTools)
+      .set({ ...data, createdAt: undefined })
+      .where(eq(cryptoTools.id, data.id));
+  } else {
+    await db.insert(cryptoTools).values(data);
+  }
+}
+
+/** Delete a crypto tool by id */
+export async function deleteCryptoTool(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  await db.delete(cryptoTools).where(eq(cryptoTools.id, id));
+}
+
+/** Seed default crypto tools if table is empty */
+export async function seedCryptoToolsIfEmpty(): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  const existing = await db.select({ id: cryptoTools.id }).from(cryptoTools).limit(1);
+  if (existing.length > 0) return;
+
+  const defaults: InsertCryptoTool[] = [
+    { name: "CoinGecko 行情", nameEn: "CoinGecko", description: "全球最大加密货币数据平台，实时价格、市值、交易量，支持数千种代币", descriptionEn: "World's largest crypto data platform with real-time prices, market cap, and volume for thousands of tokens", category: "price", source: "CoinGecko", url: "https://www.coingecko.com", icon: "🦎", tags: "价格,市值,新手", difficulty: "beginner", sortOrder: 1, isActive: true },
+    { name: "CoinMarketCap", nameEn: "CoinMarketCap", description: "加密货币市场数据权威平台，提供价格、排名、DeFi、NFT 等全方位数据", descriptionEn: "Leading crypto market data platform with prices, rankings, DeFi and NFT data", category: "price", source: "CoinMarketCap", url: "https://coinmarketcap.com", icon: "📊", tags: "价格,排名,新手", difficulty: "beginner", sortOrder: 2, isActive: true },
+    { name: "TradingView 图表", nameEn: "TradingView", description: "专业 K 线图表工具，支持技术指标、画线工具，是交易者必备的图表分析平台", descriptionEn: "Professional charting tool with technical indicators and drawing tools, essential for traders", category: "chart", source: "TradingView", url: "https://www.tradingview.com", icon: "📈", tags: "K线,技术分析,进阶", difficulty: "intermediate", sortOrder: 3, isActive: true },
+    { name: "Etherscan 区块浏览器", nameEn: "Etherscan", description: "以太坊区块链浏览器，查询交易记录、钱包余额、智能合约，链上数据透明可查", descriptionEn: "Ethereum blockchain explorer to check transactions, wallet balances, and smart contracts", category: "onchain", source: "Etherscan", url: "https://etherscan.io", icon: "🔍", tags: "链上,以太坊,新手", difficulty: "beginner", sortOrder: 4, isActive: true },
+    { name: "DeFiLlama TVL 追踪", nameEn: "DeFiLlama", description: "追踪所有 DeFi 协议的 TVL（总锁仓量），了解 DeFi 生态资金流向和协议排名", descriptionEn: "Track TVL across all DeFi protocols to understand capital flows and protocol rankings", category: "defi", source: "DeFiLlama", url: "https://defillama.com", icon: "🦙", tags: "DeFi,TVL,进阶", difficulty: "intermediate", sortOrder: 5, isActive: true },
+    { name: "Dune Analytics 数据分析", nameEn: "Dune Analytics", description: "链上数据查询和可视化平台，可自定义 SQL 查询区块链数据，适合深度研究者", descriptionEn: "On-chain data query and visualization platform with custom SQL queries for blockchain data", category: "onchain", source: "Dune Analytics", url: "https://dune.com", icon: "🔮", tags: "链上,数据分析,高级", difficulty: "advanced", sortOrder: 6, isActive: true },
+    { name: "Nansen 智能钱包追踪", nameEn: "Nansen", description: "追踪聪明钱包（Smart Money）的链上行为，发现早期机会和市场趋势", descriptionEn: "Track smart money on-chain behavior to discover early opportunities and market trends", category: "onchain", source: "Nansen", url: "https://www.nansen.ai", icon: "🧠", tags: "聪明钱包,链上,高级", difficulty: "advanced", sortOrder: 7, isActive: true },
+    { name: "Fear & Greed Index 恐贪指数", nameEn: "Fear & Greed Index", description: "比特币市场情绪指数，0-100 分衡量市场恐惧与贪婪程度，辅助判断市场顶底", descriptionEn: "Bitcoin market sentiment index from 0-100 measuring fear and greed to help identify market tops and bottoms", category: "general", source: "Alternative.me", url: "https://alternative.me/crypto/fear-and-greed-index/", icon: "😱", tags: "情绪,市场,新手", difficulty: "beginner", sortOrder: 8, isActive: true },
+    { name: "Glassnode 链上指标", nameEn: "Glassnode", description: "专业链上数据分析平台，提供比特币/以太坊持仓分布、矿工行为等高级指标", descriptionEn: "Professional on-chain analytics with BTC/ETH holder distribution, miner behavior, and advanced metrics", category: "onchain", source: "Glassnode", url: "https://glassnode.com", icon: "🔬", tags: "链上,比特币,高级", difficulty: "advanced", sortOrder: 9, isActive: true },
+    { name: "Messari 研究报告", nameEn: "Messari", description: "加密货币研究和数据平台，提供项目分析报告、代币经济学研究，适合深度投研", descriptionEn: "Crypto research and data platform with project analysis, tokenomics research for deep investment research", category: "general", source: "Messari", url: "https://messari.io", icon: "📋", tags: "研究,报告,进阶", difficulty: "intermediate", sortOrder: 10, isActive: true },
+    { name: "Gas 费用追踪", nameEn: "ETH Gas Tracker", description: "实时追踪以太坊 Gas 费用，选择最优时机发送交易，节省手续费", descriptionEn: "Real-time Ethereum gas fee tracker to choose optimal timing for transactions and save on fees", category: "defi", source: "Etherscan", url: "https://etherscan.io/gastracker", icon: "⛽", tags: "Gas,以太坊,新手", difficulty: "beginner", sortOrder: 11, isActive: true },
+    { name: "Crypto.com 税务计算", nameEn: "Koinly Tax Calculator", description: "加密货币税务计算工具，自动整合交易记录，生成合规税务报告", descriptionEn: "Crypto tax calculator that automatically aggregates trading records and generates compliant tax reports", category: "tax", source: "Koinly", url: "https://koinly.io", icon: "🧾", tags: "税务,合规,进阶", difficulty: "intermediate", sortOrder: 12, isActive: true },
+  ];
+
+  await db.insert(cryptoTools).values(defaults);
 }

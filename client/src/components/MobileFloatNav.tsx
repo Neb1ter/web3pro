@@ -12,7 +12,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Home, Building2, BookOpen, Mail, Compass } from "lucide-react";
+import { Home, Building2, BookOpen, Mail, Compass, Wrench } from "lucide-react";
 
 // ─── 导航项（未来增加只需在此追加）────────────────────────────────────────────
 const NAV_ITEMS = [
@@ -20,6 +20,7 @@ const NAV_ITEMS = [
   { key: "learn",     path: "/learning-path", icon: Compass,   labelZh: "学习",   labelEn: "Learn",     color: "#06b6d4", colorRgb: "6,182,212"  },
   { key: "exchanges", path: "/exchanges",      icon: Building2, labelZh: "交易所", labelEn: "Exchanges", color: "#3b82f6", colorRgb: "59,130,246" },
   { key: "guide",     path: "/exchange-guide", icon: BookOpen,  labelZh: "指南",   labelEn: "Guide",     color: "#f59e0b", colorRgb: "245,158,11" },
+  { key: "tools",    path: "/tools",          icon: Wrench,    labelZh: "工具",   labelEn: "Tools",     color: "#f59e0b", colorRgb: "245,158,11" },
   { key: "contact",   path: "/contact",        icon: Mail,      labelZh: "联系",   labelEn: "Contact",   color: "#a855f7", colorRgb: "168,85,247" },
 ] as const;
 

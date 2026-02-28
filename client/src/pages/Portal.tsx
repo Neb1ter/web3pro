@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
 import { useScrollMemory } from '@/hooks/useScrollMemory';
 import OnboardingPrompt from "@/components/OnboardingPrompt";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // ============================================================
 // 多语言文案
@@ -55,6 +56,15 @@ const LANG = {
         cta: "开始扫盲 →",
         stats: [{ label: "功能板块", value: "13个" }, { label: "覆盖交易所", value: "5家" }, { label: "互动测验", value: "全程" }],
       },
+      {
+        badge: "TOOLS",
+        subtitle: "CRYPTO TOOLS HUB",
+        title: "币圈工具合集",
+        description: "精选新手到专业交易者都能用到的加密货币工具，标注工具来源与功能，涵盖行情查询、图表分析、链上数据、DeFi、税务等多个层面。",
+        tags: ["行情查询", "链上数据", "DeFi 工具", "图表分析", "税务工具"],
+        cta: "查看工具合集 →",
+        stats: [{ label: "工具数量", value: "12+" }, { label: "适合人群", value: "全级别" }, { label: "持续更新", value: "实时" }],
+      },
     ],
     comingSoon: [
       { icon: "📊", title: "量化策略指南", desc: "自动化交易策略与量化工具介绍" },
@@ -65,7 +75,7 @@ const LANG = {
       tagline: "Get8 Pro: 官方认证，专业致胜。",
       columns: [
         { title: "学习与指南", links: [{ label: "Web3 入圈指南", href: "/web3-guide" }, { label: "币圈省钱指南", href: "/crypto-saving" }, { label: "交易所扫盲", href: "/exchange-guide" }, { label: "下载交易所", href: "/exchange-download" }, { label: "知识测评", href: "/web3-quiz" }] },
-        { title: "交易与工具", links: [{ label: "交易所对比", href: "/exchanges" }, { label: "现货模拟", href: "/sim/spot" }, { label: "合约模拟", href: "/sim/futures" }, { label: "杠杆模拟", href: "/sim/margin" }] },
+        { title: "交易与工具", links: [{ label: "交易所对比", href: "/exchanges" }, { label: "币圈工具合集", href: "/tools" }, { label: "现货模拟", href: "/sim/spot" }, { label: "合约模拟", href: "/sim/futures" }, { label: "杠杆模拟", href: "/sim/margin" }] },
         { title: "支持与关于", links: [{ label: "联系我们", href: "/contact" }, { label: "新手入门", href: "/beginner" }, { label: "加密货币科普", href: "/crypto-intro" }] },
         { title: "法律与合规", links: [{ label: "免责声明", href: "/legal#disclaimer" }, { label: "风险提示", href: "/legal#risk" }] },
       ],
@@ -121,6 +131,15 @@ const LANG = {
         cta: "Start Learning →",
         stats: [{ label: "Feature Modules", value: "13" }, { label: "Exchanges", value: "5" }, { label: "Quizzes", value: "All" }],
       },
+      {
+        badge: "TOOLS",
+        subtitle: "CRYPTO TOOLS HUB",
+        title: "Crypto Tools Hub",
+        description: "Curated crypto tools for beginners to pro traders — with source labels and function descriptions. Covers price data, charts, on-chain analytics, DeFi, tax tools, and more.",
+        tags: ["Price Data", "On-Chain", "DeFi Tools", "Chart Analysis", "Tax Tools"],
+        cta: "View Tools Hub →",
+        stats: [{ label: "Tools", value: "12+" }, { label: "For", value: "All Levels" }, { label: "Updated", value: "Live" }],
+      },
     ],
     comingSoon: [
       { icon: "📊", title: "Quant Strategy Guide", desc: "Automated trading strategies and quant tools" },
@@ -131,7 +150,7 @@ const LANG = {
       tagline: "Get8 Pro: Officially Verified, Professionally Vetted.",
       columns: [
         { title: "Learn & Guide", links: [{ label: "Web3 Guide", href: "/web3-guide" }, { label: "Crypto Saving", href: "/crypto-saving" }, { label: "Exchange Tutorial", href: "/exchange-guide" }, { label: "Download Exchange", href: "/exchange-download" }, { label: "Knowledge Quiz", href: "/web3-quiz" }] },
-        { title: "Trade & Tools", links: [{ label: "Exchange Compare", href: "/exchanges" }, { label: "Spot Sim", href: "/sim/spot" }, { label: "Futures Sim", href: "/sim/futures" }, { label: "Margin Sim", href: "/sim/margin" }] },
+        { title: "Trade & Tools", links: [{ label: "Exchange Compare", href: "/exchanges" }, { label: "Crypto Tools Hub", href: "/tools" }, { label: "Spot Sim", href: "/sim/spot" }, { label: "Futures Sim", href: "/sim/futures" }, { label: "Margin Sim", href: "/sim/margin" }] },
         { title: "Support & About", links: [{ label: "Contact Us", href: "/contact" }, { label: "Beginner Guide", href: "/beginner" }, { label: "Crypto Intro", href: "/crypto-intro" }] },
         { title: "Legal", links: [{ label: "Disclaimer", href: "/legal#disclaimer" }, { label: "Risk Notice", href: "/legal#risk" }] },
       ],
@@ -498,13 +517,34 @@ const moduleColors = [
       </svg>
     ),
   },
+  {
+    accentColor: "from-purple-500/20 to-violet-500/10",
+    borderColor: "border-purple-500/30 hover:border-purple-400/60",
+    titleColor: "text-purple-400",
+    badgeColor: "bg-purple-500",
+    ctaColor: "bg-purple-500 hover:bg-purple-400 text-white",
+    href: "/tools",
+    icon: (
+      <svg viewBox="0 0 64 64" fill="none" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="32" cy="32" r="28" stroke="#A78BFA" strokeWidth="2" opacity="0.3"/>
+        <rect x="18" y="20" width="12" height="12" rx="3" fill="#A78BFA" opacity="0.7"/>
+        <rect x="34" y="20" width="12" height="12" rx="3" fill="#A78BFA" opacity="0.5"/>
+        <rect x="18" y="36" width="12" height="12" rx="3" fill="#A78BFA" opacity="0.5"/>
+        <rect x="34" y="36" width="12" height="12" rx="3" fill="#A78BFA" opacity="0.7"/>
+        <circle cx="24" cy="26" r="3" fill="#0A192F"/>
+        <circle cx="40" cy="26" r="3" fill="#0A192F"/>
+        <circle cx="24" cy="42" r="3" fill="#0A192F"/>
+        <circle cx="40" cy="42" r="3" fill="#0A192F"/>
+      </svg>
+    ),
+  },
 ];
 
 export default function Portal() {
   useScrollMemory();
   const [mounted, setMounted] = useState(false);
-  const [lang, setLang] = useState<"zh" | "en">("zh");
-  const t = LANG[lang];
+  const { language: lang, setLanguage: setLang } = useLanguage();
+  const t = LANG[lang as "zh" | "en"] ?? LANG["zh"];
 
   useEffect(() => {
     setMounted(true);

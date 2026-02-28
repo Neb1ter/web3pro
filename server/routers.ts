@@ -3,7 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { z } from "zod";
-import { submitContactForm, getContactSubmissions, getExchangeLinks, updateExchangeLink, getFaqs, getCryptoNews, getExchangeFeatureCategories, getExchangeFeatureSupport, getAllExchangeFeatureSupport, getExchangeAllFeatures, createFeatureCategory, updateFeatureCategory, deleteFeatureCategory, upsertFeatureSupport, deleteFeatureSupport } from "./db";
+import { submitContactForm, getContactSubmissions, getExchangeLinks, updateExchangeLink, getFaqs, getCryptoNews, getExchangeFeatureCategories, getExchangeFeatureSupport, getAllExchangeFeatureSupport, getExchangeAllFeatures, createFeatureCategory, updateFeatureCategory, deleteFeatureCategory, upsertFeatureSupport, deleteFeatureSupport, getCryptoTools, getAllCryptoTools, upsertCryptoTool, deleteCryptoTool } from "./db";
 import { TRPCError } from "@trpc/server";
 
 export const appRouter = router({
@@ -283,6 +283,48 @@ export const appRouter = router({
         if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'DB unavailable' });
         await db.delete(simTradeHistory).where(eq(simTradeHistory.userId, ctx.user.id));
         return { success: true, message: '所有模拟交易记录已重置' } as const;
+      }),
+  }),
+
+  tools: router({
+    /** Public: get all active tools */
+    list: publicProcedure.query(async () => {
+      return getCryptoTools(true);
+    }),
+    /** Admin: get all tools including inactive */
+    listAll: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+      return getAllCryptoTools();
+    }),
+    /** Admin: upsert a tool */
+    upsert: protectedProcedure
+      .input(z.object({
+        id: z.number().optional(),
+        name: z.string().min(1).max(64),
+        nameEn: z.string().min(1).max(64),
+        description: z.string().min(1),
+        descriptionEn: z.string().min(1),
+        category: z.string().max(32).default('general'),
+        source: z.string().min(1).max(128),
+        url: z.string().url().max(512),
+        icon: z.string().max(8).default('🔧'),
+        tags: z.string().max(256).optional(),
+        difficulty: z.enum(['beginner', 'intermediate', 'advanced']).default('beginner'),
+        sortOrder: z.number().int().default(0),
+        isActive: z.boolean().default(true),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+        await upsertCryptoTool(input);
+        return { success: true };
+      }),
+    /** Admin: delete a tool */
+    delete: protectedProcedure
+      .input(z.object({ id: z.number().int() }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+        await deleteCryptoTool(input.id);
+        return { success: true };
       }),
   }),
 });

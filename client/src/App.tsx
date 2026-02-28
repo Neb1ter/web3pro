@@ -60,6 +60,9 @@ const MarginSim  = lazy(() => import("./pages/sim/MarginSim"));
 const OptionsSim = lazy(() => import("./pages/sim/OptionsSim"));
 const BotSim     = lazy(() => import("./pages/sim/BotSim"));
 
+// 币圈工具合集
+const CryptoTools    = lazy(() => import("./pages/CryptoTools"));
+
 // 测评与学习路径
 const Web3Quiz       = lazy(() => import("./pages/Web3Quiz"));
 const LearningPath   = lazy(() => import("./pages/LearningPath"));
@@ -219,6 +222,9 @@ function Router() {
           {/* ── 后台管理 ── */}
           <Route path="/manage-m2u0z0i04"    component={AdminLogin} />
           <Route path="/admin/exchange-guide" component={AdminExchangeGuide} />
+
+          {/* ── 币圈工具合集 ── */}
+          <Route path="/tools" component={CryptoTools} />
 
           {/* ── 测评与学习路径 ── */}
           <Route path="/web3-quiz"        component={Web3Quiz} />

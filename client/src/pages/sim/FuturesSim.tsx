@@ -1,6 +1,7 @@
 /**
  * FuturesSim — 合约交易模拟器（重构版）
  * 参考 OKX 移动端合约界面
+ * 修复：爆仓记录历史、加仓合并均价、图表显示加权均价/爆仓线
  */
 
 import { useState, useEffect, useRef, useCallback } from "react";
@@ -75,6 +76,45 @@ export default function FuturesSim() {
     }
   };
 
+  // 全仓/逐仓爆仓价计算
+  // 逐仓：只用该仓位保证金，爆仓价更近
+  // 全仓：共享账户余额，爆仓价更远（简化为 0.95 系数）
+  const calcLiqPrice = (dir: "long" | "short", price: number, lev: number, mode: typeof MARGIN_MODES[number]) => {
+    const safetyFactor = mode === "逐仓" ? 0.9 : 0.95;
+    return dir === "long"
+      ? price * (1 - 1 / lev * safetyFactor)
+      : price * (1 + 1 / lev * safetyFactor);
+  };
+
+  // 加权平均爆仓价（全仓模式下，多个同方向仓位共享保证金）
+  const calcMergedLiqPrice = (
+    dir: "long" | "short",
+    avgEntry: number,
+    totalSize: number,
+    totalMargin: number,
+    lev: number,
+    mode: typeof MARGIN_MODES[number]
+  ) => {
+    if (mode === "逐仓") {
+      // 逐仓：各自独立，用加权均价重算
+      const safetyFactor = 0.9;
+      return dir === "long"
+        ? avgEntry * (1 - 1 / lev * safetyFactor)
+        : avgEntry * (1 + 1 / lev * safetyFactor);
+    } else {
+      // 全仓：爆仓价 = 均价 ± 保证金/持仓量（简化模型）
+      const safetyFactor = 0.95;
+      return dir === "long"
+        ? avgEntry * (1 - 1 / lev * safetyFactor)
+        : avgEntry * (1 + 1 / lev * safetyFactor);
+    }
+  };
+
+  const showMsg = (text: string, ok: boolean) => {
+    setMsg({ text, ok });
+    setTimeout(() => setMsg(null), 2500);
+  };
+
   const tick = useCallback(() => {
     setCandles(prev => {
       const last = prev[prev.length - 1];
@@ -83,37 +123,102 @@ export default function FuturesSim() {
       setCurrentPrice(price);
       setBook(genBook(price));
 
-      // 爆仓检查
-      setPositions(ps => ps.filter(p => {
-        if (p.direction === "long" && price <= p.liquidPrice) { showMsg("⚠️ 仓位已爆仓", false); return false; }
-        if (p.direction === "short" && price >= p.liquidPrice) { showMsg("⚠️ 仓位已爆仓", false); return false; }
-        // 止盈止损触发
-        if (p.tpPrice && p.direction === "long" && price >= p.tpPrice) {
-          const pnl = (price - p.entryPrice) * p.size;
-          setBalance(b => b + p.margin + pnl);
-          showMsg(`✅ 止盈触发 +${pnl.toFixed(2)} USDT`, true);
-          return false;
+      // 爆仓检查 — 爆仓时记录历史
+      setPositions(ps => {
+        const surviving: Position[] = [];
+        for (const p of ps) {
+          const isLiquidated =
+            (p.direction === "long" && price <= p.liquidPrice) ||
+            (p.direction === "short" && price >= p.liquidPrice);
+
+          if (isLiquidated) {
+            // 爆仓：损失全部保证金，PnL = -margin
+            const pnl = -p.margin;
+            const pnlPct = -100;
+            showMsg("⚠️ 仓位已爆仓，损失全部保证金", false);
+            // 记录爆仓历史
+            addHistory({
+              simType: "futures",
+              symbol: p.symbol,
+              direction: p.direction,
+              entryPrice: p.entryPrice.toFixed(2),
+              exitPrice: price.toFixed(2),
+              size: p.size.toFixed(6),
+              leverage: p.leverage,
+              pnl: pnl.toFixed(2),
+              pnlPct: pnlPct.toFixed(2),
+              closeReason: "liquidation",
+              marginMode: p.marginMode,
+              openedAt: openedAt[p.id] ?? Date.now(),
+            });
+            setOpenedAt(prev => { const n = { ...prev }; delete n[p.id]; return n; });
+            // 爆仓不退还保证金（balance 不变）
+            continue;
+          }
+
+          // 止盈触发
+          if (p.tpPrice && p.direction === "long" && price >= p.tpPrice) {
+            const pnl = (price - p.entryPrice) * p.size;
+            setBalance(b => b + p.margin + pnl);
+            showMsg(`✅ 止盈触发 +${pnl.toFixed(2)} USDT`, true);
+            addHistory({
+              simType: "futures", symbol: p.symbol, direction: p.direction,
+              entryPrice: p.entryPrice.toFixed(2), exitPrice: price.toFixed(2),
+              size: p.size.toFixed(6), leverage: p.leverage,
+              pnl: pnl.toFixed(2), pnlPct: (pnl / p.margin * 100).toFixed(2),
+              closeReason: "tp", marginMode: p.marginMode, openedAt: openedAt[p.id] ?? Date.now(),
+            });
+            setOpenedAt(prev => { const n = { ...prev }; delete n[p.id]; return n; });
+            continue;
+          }
+          if (p.tpPrice && p.direction === "short" && price <= p.tpPrice) {
+            const pnl = (p.entryPrice - price) * p.size;
+            setBalance(b => b + p.margin + pnl);
+            showMsg(`✅ 止盈触发 +${pnl.toFixed(2)} USDT`, true);
+            addHistory({
+              simType: "futures", symbol: p.symbol, direction: p.direction,
+              entryPrice: p.entryPrice.toFixed(2), exitPrice: price.toFixed(2),
+              size: p.size.toFixed(6), leverage: p.leverage,
+              pnl: pnl.toFixed(2), pnlPct: (pnl / p.margin * 100).toFixed(2),
+              closeReason: "tp", marginMode: p.marginMode, openedAt: openedAt[p.id] ?? Date.now(),
+            });
+            setOpenedAt(prev => { const n = { ...prev }; delete n[p.id]; return n; });
+            continue;
+          }
+          // 止损触发
+          if (p.slPrice && p.direction === "long" && price <= p.slPrice) {
+            const pnl = (price - p.entryPrice) * p.size;
+            setBalance(b => b + p.margin + pnl);
+            showMsg(`🛑 止损触发 ${pnl.toFixed(2)} USDT`, false);
+            addHistory({
+              simType: "futures", symbol: p.symbol, direction: p.direction,
+              entryPrice: p.entryPrice.toFixed(2), exitPrice: price.toFixed(2),
+              size: p.size.toFixed(6), leverage: p.leverage,
+              pnl: pnl.toFixed(2), pnlPct: (pnl / p.margin * 100).toFixed(2),
+              closeReason: "sl", marginMode: p.marginMode, openedAt: openedAt[p.id] ?? Date.now(),
+            });
+            setOpenedAt(prev => { const n = { ...prev }; delete n[p.id]; return n; });
+            continue;
+          }
+          if (p.slPrice && p.direction === "short" && price >= p.slPrice) {
+            const pnl = (p.entryPrice - price) * p.size;
+            setBalance(b => b + p.margin + pnl);
+            showMsg(`🛑 止损触发 ${pnl.toFixed(2)} USDT`, false);
+            addHistory({
+              simType: "futures", symbol: p.symbol, direction: p.direction,
+              entryPrice: p.entryPrice.toFixed(2), exitPrice: price.toFixed(2),
+              size: p.size.toFixed(6), leverage: p.leverage,
+              pnl: pnl.toFixed(2), pnlPct: (pnl / p.margin * 100).toFixed(2),
+              closeReason: "sl", marginMode: p.marginMode, openedAt: openedAt[p.id] ?? Date.now(),
+            });
+            setOpenedAt(prev => { const n = { ...prev }; delete n[p.id]; return n; });
+            continue;
+          }
+
+          surviving.push(p);
         }
-        if (p.tpPrice && p.direction === "short" && price <= p.tpPrice) {
-          const pnl = (p.entryPrice - price) * p.size;
-          setBalance(b => b + p.margin + pnl);
-          showMsg(`✅ 止盈触发 +${pnl.toFixed(2)} USDT`, true);
-          return false;
-        }
-        if (p.slPrice && p.direction === "long" && price <= p.slPrice) {
-          const pnl = (price - p.entryPrice) * p.size;
-          setBalance(b => b + p.margin + pnl);
-          showMsg(`🛑 止损触发 ${pnl.toFixed(2)} USDT`, false);
-          return false;
-        }
-        if (p.slPrice && p.direction === "short" && price >= p.slPrice) {
-          const pnl = (p.entryPrice - price) * p.size;
-          setBalance(b => b + p.margin + pnl);
-          showMsg(`🛑 止损触发 ${pnl.toFixed(2)} USDT`, false);
-          return false;
-        }
-        return true;
-      }));
+        return surviving;
+      });
 
       // 限价单触发
       setLimitOrders(orders => {
@@ -124,14 +229,17 @@ export default function FuturesSim() {
             const margin = o.amount * o.price / leverage;
             setBalance(b => b - margin);
             posIdRef.current++;
-            const liqP = o.side === "buy"
-              ? o.price * (1 - 1 / leverage * 0.9)
-              : o.price * (1 + 1 / leverage * 0.9);
-            setPositions(ps => [...ps, {
-              id: posIdRef.current, symbol: "BTC/USDT", type: "futures",
-              direction: o.side === "buy" ? "long" : "short",
+            const newId = posIdRef.current;
+            const dir = o.side === "buy" ? "long" : "short";
+            const liqP = calcLiqPrice(dir, o.price, leverage, "全仓");
+            // 限价单触发时也合并同方向仓位
+            setPositions(ps => mergeOrAddPosition(ps, {
+              id: newId, symbol: "BTC/USDT", type: "futures",
+              direction: dir,
               size: o.amount, entryPrice: o.price, leverage, margin, liquidPrice: liqP,
-            }]);
+              marginMode: "全仓",
+            }));
+            setOpenedAt(prev => ({ ...prev, [newId]: Date.now() }));
             showMsg(`限价单成交 ${o.side === "buy" ? "多" : "空"} @ ${o.price.toFixed(2)}`, true);
           } else {
             remaining.push(o);
@@ -142,18 +250,13 @@ export default function FuturesSim() {
 
       return [...prev.slice(-99), c];
     });
-  }, [leverage, priceBias]);
+  }, [leverage, priceBias, openedAt, addHistory]);
 
   useEffect(() => {
     if (paused) return;
     tickRef.current = setInterval(tick, speed === 1 ? TICK_MS : 350);
     return () => { if (tickRef.current) clearInterval(tickRef.current); };
   }, [tick, speed, paused]);
-
-  const showMsg = (text: string, ok: boolean) => {
-    setMsg({ text, ok });
-    setTimeout(() => setMsg(null), 2500);
-  };
 
   const execPrice = orderType === "market" ? currentPrice : (parseFloat(limitPrice) || currentPrice);
   const amountNum = parseFloat(amountInput) || (sliderPct > 0 ? balance * sliderPct / 100 * leverage / execPrice : 0);
@@ -172,25 +275,37 @@ export default function FuturesSim() {
     return () => clearInterval(t);
   }, []);
 
-  // 全仓模式：爆仓价更远（共享账户余额）；逐仓模式：爆仓价更近（独立保证金）
-  const calcLiqPrice = (dir: "long" | "short", price: number, lev: number, mode: typeof MARGIN_MODES[number]) => {
-    // 逐仓：保证金率 = 1/lev，维持保证金率 0.5%
-    // 全仓：共享账户余额，爆仓价更远（简化为 0.95 系数）
-    const safetyFactor = mode === "逐仓" ? 0.9 : 0.95;
-    return dir === "long"
-      ? price * (1 - 1 / lev * safetyFactor)
-      : price * (1 + 1 / lev * safetyFactor);
+  /**
+   * 加仓合并逻辑：若已有同方向仓位（相同 marginMode），合并为一个仓位
+   * - 新开仓均价 = 加权平均价
+   * - 新持仓量 = 两者之和
+   * - 新保证金 = 两者之和
+   * - 新爆仓价 = 按新均价重算
+   */
+  const mergeOrAddPosition = (ps: Position[], newPos: Position): Position[] => {
+    const sameDir = ps.find(p => p.direction === newPos.direction && p.marginMode === newPos.marginMode);
+    if (!sameDir) return [...ps, newPos];
+
+    const totalSize = sameDir.size + newPos.size;
+    const avgEntry = (sameDir.entryPrice * sameDir.size + newPos.entryPrice * newPos.size) / totalSize;
+    const totalMargin = sameDir.margin + newPos.margin;
+    const newLiqP = calcLiqPrice(newPos.direction, avgEntry, newPos.leverage, newPos.marginMode ?? "全仓");
+
+    const merged: Position = {
+      ...sameDir,
+      size: totalSize,
+      entryPrice: avgEntry,
+      margin: totalMargin,
+      liquidPrice: newLiqP,
+      leverage: newPos.leverage, // 使用最新杠杆
+    };
+    return ps.map(p => p.id === sameDir.id ? merged : p);
   };
 
   const openPosition = (direction: "long" | "short") => {
     if (amountNum <= 0) return showMsg("请输入数量", false);
-    // 全仓：可用余额需满足开仓保证金，全仓时全部资金共同承担
-    if (marginMode === "全仓") {
-      if (marginNeeded > balance) return showMsg("保证金不足", false);
-    } else {
-      // 逐仓：仅用本笔开仓的保证金
-      if (marginNeeded > balance) return showMsg("保证金不足", false);
-    }
+    if (marginNeeded > balance) return showMsg("保证金不足", false);
+
     if (orderType === "limit") {
       ordIdRef.current++;
       setLimitOrders(o => [...o, { id: ordIdRef.current, side: direction === "long" ? "buy" : "sell", price: execPrice, amount: amountNum, time: new Date().toLocaleTimeString() }]);
@@ -198,22 +313,26 @@ export default function FuturesSim() {
       setAmountInput(""); setSliderPct(0);
       return;
     }
-    const totalEquity = balance + positions.reduce((s, p) => s + p.margin, 0);
+
     const liqP = calcLiqPrice(direction, execPrice, leverage, marginMode);
     posIdRef.current++;
     const newId = posIdRef.current;
-    setOpenedAt(prev => ({ ...prev, [newId]: Date.now() }));
-    setPositions(ps => [...ps, {
+    const newPos: Position = {
       id: newId, symbol: "BTC/USDT", type: "futures", direction,
       size: amountNum, entryPrice: execPrice, leverage, margin: marginNeeded, liquidPrice: liqP,
       marginMode,
-    }]);
+    };
+
+    setOpenedAt(prev => ({ ...prev, [newId]: Date.now() }));
+    setPositions(ps => mergeOrAddPosition(ps, newPos));
     setBalance(b => b - marginNeeded);
+
     // 约 70% 胜率：开多 70% 向上偏 / 开空 70% 向下偏，30% 则反向
     setPriceBias(direction === "long"
       ? (Math.random() < 0.7 ? 0.22 : -0.22)
       : (Math.random() < 0.7 ? -0.22 : 0.22));
     setTimeout(() => setPriceBias(0), 15000);
+
     const modeLabel = marginMode === "全仓" ? "[全仓]" : "[逐仓]";
     showMsg(`${direction === "long" ? "开多" : "开空"} ${amountNum.toFixed(4)} BTC @ ${execPrice.toFixed(2)} ${modeLabel}`, true);
     setAmountInput(""); setSliderPct(0);
@@ -253,15 +372,16 @@ export default function FuturesSim() {
   const reversePosition = (pos: Position) => {
     closePosition(pos);
     const newDir = pos.direction === "long" ? "short" : "long";
-    const liqP = newDir === "long"
-      ? currentPrice * (1 - 1 / pos.leverage * 0.9)
-      : currentPrice * (1 + 1 / pos.leverage * 0.9);
+    const liqP = calcLiqPrice(newDir, currentPrice, pos.leverage, pos.marginMode ?? "全仓");
     const newMargin = pos.size * currentPrice / pos.leverage;
     if (newMargin > balance) return showMsg("余额不足以反手", false);
     posIdRef.current++;
+    const newId = posIdRef.current;
+    setOpenedAt(prev => ({ ...prev, [newId]: Date.now() }));
     setPositions(ps => [...ps, {
-      id: posIdRef.current, symbol: "BTC/USDT", type: "futures", direction: newDir,
+      id: newId, symbol: "BTC/USDT", type: "futures", direction: newDir,
       size: pos.size, entryPrice: currentPrice, leverage: pos.leverage, margin: newMargin, liquidPrice: liqP,
+      marginMode: pos.marginMode,
     }]);
     setBalance(b => b - newMargin);
     showMsg(`反手 ${newDir === "long" ? "开多" : "开空"} @ ${currentPrice.toFixed(2)}`, true);
@@ -280,6 +400,36 @@ export default function FuturesSim() {
   }, 0);
 
   const totalMargin = positions.reduce((s, p) => s + p.margin, 0);
+
+  // 计算图表显示的加权均价和综合爆仓价（取多仓或空仓中持仓最大的一侧）
+  const chartLines = (() => {
+    if (positions.length === 0) return { entryPrice: undefined, liquidPrice: undefined };
+    // 分别计算多仓和空仓的加权均价
+    const longs = positions.filter(p => p.direction === "long");
+    const shorts = positions.filter(p => p.direction === "short");
+    const calcWeighted = (ps: Position[]) => {
+      if (ps.length === 0) return null;
+      const totalSize = ps.reduce((s, p) => s + p.size, 0);
+      const avgEntry = ps.reduce((s, p) => s + p.entryPrice * p.size, 0) / totalSize;
+      // 爆仓价取最危险的（多仓取最高爆仓价，空仓取最低爆仓价）
+      const liqPrice = ps[0].direction === "long"
+        ? Math.max(...ps.map(p => p.liquidPrice))
+        : Math.min(...ps.map(p => p.liquidPrice));
+      return { avgEntry, liqPrice, totalSize };
+    };
+    const longInfo = calcWeighted(longs);
+    const shortInfo = calcWeighted(shorts);
+    // 优先显示持仓量更大的一侧
+    if (longInfo && shortInfo) {
+      return longInfo.totalSize >= shortInfo.totalSize
+        ? { entryPrice: longInfo.avgEntry, liquidPrice: longInfo.liqPrice }
+        : { entryPrice: shortInfo.avgEntry, liquidPrice: shortInfo.liqPrice };
+    }
+    if (longInfo) return { entryPrice: longInfo.avgEntry, liquidPrice: longInfo.liqPrice };
+    if (shortInfo) return { entryPrice: shortInfo.avgEntry, liquidPrice: shortInfo.liqPrice };
+    return { entryPrice: undefined, liquidPrice: undefined };
+  })();
+
   const emas = (() => {
     const closes = candles.map(c => c.close);
     return {
@@ -344,13 +494,13 @@ export default function FuturesSim() {
         <span style={{ color: "#ef4444" }}>EMA144:{emas.ema144.toFixed(0)}</span>
       </div>
 
-      {/* K线图 */}
+      {/* K线图 — 显示加权均价线和综合爆仓线 */}
       <div style={{ flexShrink: 0 }}>
         <CandleChart
           candles={candles}
           height={chartH}
-          entryPrice={positions.length > 0 ? positions[positions.length - 1].entryPrice : undefined}
-          liquidPrice={positions.length > 0 ? positions[positions.length - 1].liquidPrice : undefined}
+          entryPrice={chartLines.entryPrice}
+          liquidPrice={chartLines.liquidPrice}
         />
       </div>
 
@@ -498,7 +648,7 @@ export default function FuturesSim() {
         <div style={{ background: "#0b0f1e", minHeight: 180, padding: "12px 12px 24px" }}>
           {drawerTab === "positions" && (
             positions.length === 0
-              ? <EmptyHint text="暂无持仓" hint={"点击「开多」或「开空」开始交易\n例：选 20x 杠杆，输入 0.001 BTC，点开多\n价格上涨 1% = 盈利 20%"} />
+              ? <EmptyHint text="暂无持仓" hint={"点击「开多」或「开空」开始交易\n例：选 20x 杠杆，输入 0.001 BTC，点开多\n价格上涨 1% = 盈利 20%\n\n💡 加仓同方向仓位会自动合并，更新开仓均价"} />
               : <>
                   <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
                     <button onClick={() => { positions.forEach(p => closePosition(p)); }} style={{
@@ -627,8 +777,9 @@ export default function FuturesSim() {
             <button onClick={() => setShowTip(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.4)" }}><X size={14} /></button>
           </div>
           <p style={{ marginBottom: 6 }}><strong style={{ color: "#fff" }}>杠杆</strong>：放大收益的同时也放大亏损，高杠杆容易爆仓</p>
-          <p style={{ marginBottom: 6 }}><strong style={{ color: "#fff" }}>资金费率</strong>：多空双方每8小时互相支付，影响持仓成本</p>
-          <p style={{ marginBottom: 6 }}><strong style={{ color: "#fff" }}>强平价</strong>：价格触及时仓位被强制平仓，损失保证金</p>
+          <p style={{ marginBottom: 6 }}><strong style={{ color: "#fff" }}>加仓</strong>：同方向加仓会自动合并，更新开仓均价和爆仓价</p>
+          <p style={{ marginBottom: 6 }}><strong style={{ color: "#fff" }}>爆仓</strong>：损失全部保证金，记录在历史中标注「爆仓」</p>
+          <p style={{ marginBottom: 6 }}><strong style={{ color: "#fff" }}>全仓 vs 逐仓</strong>：全仓爆仓价更远，逐仓风险隔离</p>
           <p><strong style={{ color: "#fff" }}>止盈止损</strong>：开仓后点仓位卡片上的「止盈/止损」按钮设置</p>
         </div>
       )}

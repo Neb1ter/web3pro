@@ -36,6 +36,13 @@
       "when": 1772000000000,
       "tag": "0004_add_ip_address",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1772100000000,
+      "tag": "0005_crypto_tools",
+      "breakpoints": true
     }
   ]
 }

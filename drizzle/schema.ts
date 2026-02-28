@@ -193,3 +193,38 @@ export const simTradeHistory = mysqlTable("sim_trade_history", {
 
 export type SimTradeHistory = typeof simTradeHistory.$inferSelect;
 export type InsertSimTradeHistory = typeof simTradeHistory.$inferInsert;
+
+/**
+ * Crypto tools collection — curated list of useful crypto tools for users.
+ * Editable from admin panel.
+ */
+export const cryptoTools = mysqlTable("crypto_tools", {
+  id: int("id").autoincrement().primaryKey(),
+  /** Tool name in Chinese */
+  name: varchar("name", { length: 64 }).notNull(),
+  /** Tool name in English */
+  nameEn: varchar("nameEn", { length: 64 }).notNull(),
+  /** Description in Chinese */
+  description: text("description").notNull(),
+  /** Description in English */
+  descriptionEn: text("descriptionEn").notNull(),
+  /** Category: "price" | "chart" | "onchain" | "defi" | "nft" | "security" | "tax" | "news" | "general" */
+  category: varchar("category", { length: 32 }).default("general").notNull(),
+  /** Source/provider name, e.g. "CoinGecko", "TradingView" */
+  source: varchar("source", { length: 128 }).notNull(),
+  /** Tool URL */
+  url: varchar("url", { length: 512 }).notNull(),
+  /** Emoji icon */
+  icon: varchar("icon", { length: 8 }).default("🔧").notNull(),
+  /** Comma-separated tags */
+  tags: varchar("tags", { length: 256 }),
+  /** Difficulty level */
+  difficulty: mysqlEnum("difficulty", ["beginner", "intermediate", "advanced"]).default("beginner").notNull(),
+  /** Sort order */
+  sortOrder: int("sortOrder").default(0).notNull(),
+  /** Whether visible on site */
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type CryptoTool = typeof cryptoTools.$inferSelect;
+export type InsertCryptoTool = typeof cryptoTools.$inferInsert;

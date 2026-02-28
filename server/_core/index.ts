@@ -17,7 +17,7 @@ import {
 } from "./security";
 import { ENV } from "./env";
 import { sdk } from "./sdk";
-import { upsertUser, getDb } from "../db";
+import { upsertUser, getDb, seedCryptoToolsIfEmpty } from "../db";
 import { getSessionCookieOptions } from "./cookies";
 import { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 import { migrate } from "drizzle-orm/mysql2/migrator";
@@ -58,6 +58,9 @@ async function startServer() {
         console.log(`[Database] Running migrations from: ${migrationsFolder}`);
         await migrate(db as any, { migrationsFolder });
         console.log("[Database] Migrations completed successfully");
+        // 初始化默认数据（如果表为空则插入种子数据）
+        await seedCryptoToolsIfEmpty();
+        console.log("[Database] Seed data initialized");
       }
     } catch (error) {
       console.error("[Database] Migration failed:", error);

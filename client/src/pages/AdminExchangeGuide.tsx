@@ -5,7 +5,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
-type Tab = "exchanges" | "categories" | "featureSupport" | "contacts";
+type Tab = "exchanges" | "categories" | "featureSupport" | "contacts" | "tools";
 
 // ─── Shared UI helpers ─────────────────────────────────────────────────────────
 
@@ -533,6 +533,186 @@ function ContactsTab({ zh }: { zh: boolean }) {
   );
 }
 
+// ─── Tools Tab ────────────────────────────────────────────────────────────────
+const TOOL_CATEGORIES = [
+  { key: "price",    zh: "行情价格", en: "Price" },
+  { key: "chart",    zh: "图表分析", en: "Charts" },
+  { key: "onchain",  zh: "链上数据", en: "On-Chain" },
+  { key: "defi",     zh: "DeFi",     en: "DeFi" },
+  { key: "nft",      zh: "NFT",      en: "NFT" },
+  { key: "security", zh: "安全工具", en: "Security" },
+  { key: "tax",      zh: "税务合规", en: "Tax" },
+  { key: "news",     zh: "资讯新闻", en: "News" },
+  { key: "general",  zh: "综合工具", en: "General" },
+];
+
+const EMPTY_TOOL = {
+  name: "", nameEn: "", description: "", descriptionEn: "",
+  category: "general", source: "", url: "", icon: "🔧",
+  tags: "", difficulty: "beginner" as const, sortOrder: 0, isActive: true,
+};
+
+function ToolsTab({ zh }: { zh: boolean }) {
+  const toolsQuery = trpc.tools.listAll.useQuery();
+  const upsertMutation = trpc.tools.upsert.useMutation({
+    onSuccess: () => { toast.success(zh ? "保存成功" : "Saved"); toolsQuery.refetch(); setEditing(null); },
+    onError: () => toast.error(zh ? "保存失败" : "Save failed"),
+  });
+  const deleteMutation = trpc.tools.delete.useMutation({
+    onSuccess: () => { toast.success(zh ? "已删除" : "Deleted"); toolsQuery.refetch(); },
+    onError: () => toast.error(zh ? "删除失败" : "Delete failed"),
+  });
+
+  const [editing, setEditing] = useState<number | "new" | null>(null);
+  const [form, setForm] = useState<typeof EMPTY_TOOL & { id?: number }>(EMPTY_TOOL);
+
+  const startNew = () => { setForm(EMPTY_TOOL); setEditing("new"); };
+  const startEdit = (t: any) => {
+    setForm({
+      id: t.id, name: t.name, nameEn: t.nameEn,
+      description: t.description, descriptionEn: t.descriptionEn,
+      category: t.category, source: t.source, url: t.url,
+      icon: t.icon, tags: t.tags ?? "",
+      difficulty: t.difficulty, sortOrder: t.sortOrder, isActive: !!t.isActive,
+    });
+    setEditing(t.id);
+  };
+  const handleSave = () => {
+    const { id, ...rest } = form;
+    upsertMutation.mutate(editing === "new" ? rest : { id: id!, ...rest });
+  };
+
+  if (toolsQuery.isLoading) return <LoadingSpinner />;
+
+  const tools = toolsQuery.data ?? [];
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-bold text-white">
+          {zh ? "币圈工具合集管理" : "Crypto Tools Management"}
+          <span className="ml-2 text-sm font-normal text-slate-400">({tools.length} {zh ? "个工具" : "tools"})</span>
+        </h2>
+        <button onClick={startNew} className="admin-btn-primary text-sm">+ {zh ? "新增工具" : "Add Tool"}</button>
+      </div>
+
+      {/* Edit / New Form */}
+      {editing !== null && (
+        <div className="bg-slate-800/60 border border-cyan-700/40 rounded-xl p-5 mb-4 space-y-3">
+          <h3 className="text-white font-semibold mb-2">{editing === "new" ? (zh ? "新增工具" : "New Tool") : (zh ? "编辑工具" : "Edit Tool")}</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <LabeledInput label={zh ? "工具名称（中文）" : "Name (ZH)"} value={form.name} onChange={v => setForm(f => ({ ...f, name: v }))} />
+            <LabeledInput label={zh ? "工具名称（英文）" : "Name (EN)"} value={form.nameEn} onChange={v => setForm(f => ({ ...f, nameEn: v }))} />
+            <div className="sm:col-span-2">
+              <LabeledInput label={zh ? "功能描述（中文）" : "Description (ZH)"} value={form.description} onChange={v => setForm(f => ({ ...f, description: v }))} />
+            </div>
+            <div className="sm:col-span-2">
+              <LabeledInput label={zh ? "功能描述（英文）" : "Description (EN)"} value={form.descriptionEn} onChange={v => setForm(f => ({ ...f, descriptionEn: v }))} />
+            </div>
+            <LabeledInput label={zh ? "来源 / 提供方" : "Source"} value={form.source} onChange={v => setForm(f => ({ ...f, source: v }))} placeholder="CoinGecko" />
+            <LabeledInput label="URL" value={form.url} onChange={v => setForm(f => ({ ...f, url: v }))} placeholder="https://..." />
+            <div>
+              <label className="block text-xs text-slate-400 mb-1">{zh ? "分类" : "Category"}</label>
+              <select className="admin-input w-full" value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}>
+                {TOOL_CATEGORIES.map(c => <option key={c.key} value={c.key}>{zh ? c.zh : c.en}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-slate-400 mb-1">{zh ? "难度" : "Difficulty"}</label>
+              <select className="admin-input w-full" value={form.difficulty} onChange={e => setForm(f => ({ ...f, difficulty: e.target.value as any }))}>
+                <option value="beginner">{zh ? "新手" : "Beginner"}</option>
+                <option value="intermediate">{zh ? "进阶" : "Intermediate"}</option>
+                <option value="advanced">{zh ? "高级" : "Advanced"}</option>
+              </select>
+            </div>
+            <LabeledInput label={zh ? "图标（Emoji）" : "Icon (Emoji)"} value={form.icon} onChange={v => setForm(f => ({ ...f, icon: v }))} placeholder="🔧" />
+            <LabeledInput label={zh ? "标签（逗号分隔）" : "Tags (comma-separated)"} value={form.tags} onChange={v => setForm(f => ({ ...f, tags: v }))} placeholder="价格,实时,免费" />
+            <LabeledInput label={zh ? "排序权重" : "Sort Order"} value={String(form.sortOrder)} onChange={v => setForm(f => ({ ...f, sortOrder: parseInt(v) || 0 }))} type="number" />
+            <div className="flex items-center gap-2 mt-4">
+              <input type="checkbox" id="toolActive" checked={form.isActive} onChange={e => setForm(f => ({ ...f, isActive: e.target.checked }))} className="w-4 h-4 accent-cyan-500" />
+              <label htmlFor="toolActive" className="text-sm text-slate-300">{zh ? "启用（前台可见）" : "Active (visible on site)"}</label>
+            </div>
+          </div>
+          <div className="flex gap-2 pt-2">
+            <button onClick={handleSave} disabled={upsertMutation.isPending} className="admin-btn-primary">
+              {upsertMutation.isPending ? (zh ? "保存中..." : "Saving...") : (zh ? "保存" : "Save")}
+            </button>
+            <button onClick={() => setEditing(null)} className="admin-btn-ghost">{zh ? "取消" : "Cancel"}</button>
+          </div>
+        </div>
+      )}
+
+      {/* Tools Table */}
+      {tools.length === 0 ? (
+        <div className="text-center text-slate-500 py-12">
+          <div className="text-4xl mb-3">🛠️</div>
+          <p>{zh ? "暂无工具，点击上方按钮新增" : "No tools yet. Click above to add."}</p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-slate-700 text-slate-400 text-left">
+                <th className="py-3 px-3">{zh ? "图标" : "Icon"}</th>
+                <th className="py-3 px-3">{zh ? "名称" : "Name"}</th>
+                <th className="py-3 px-3">{zh ? "分类" : "Category"}</th>
+                <th className="py-3 px-3">{zh ? "来源" : "Source"}</th>
+                <th className="py-3 px-3">{zh ? "难度" : "Difficulty"}</th>
+                <th className="py-3 px-3">{zh ? "状态" : "Status"}</th>
+                <th className="py-3 px-3">{zh ? "操作" : "Actions"}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tools.map(t => (
+                <tr key={t.id} className="border-b border-slate-800 hover:bg-slate-800/30 transition-colors">
+                  <td className="py-3 px-3 text-2xl">{t.icon}</td>
+                  <td className="py-3 px-3">
+                    <div className="font-medium text-white">{zh ? t.name : t.nameEn}</div>
+                    <div className="text-xs text-slate-500 mt-0.5 line-clamp-1">{zh ? t.description : t.descriptionEn}</div>
+                  </td>
+                  <td className="py-3 px-3">
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-slate-700/60 text-slate-300 border border-slate-600/40">
+                      {TOOL_CATEGORIES.find(c => c.key === t.category)?.[zh ? "zh" : "en"] ?? t.category}
+                    </span>
+                  </td>
+                  <td className="py-3 px-3 text-slate-400 text-xs">{t.source}</td>
+                  <td className="py-3 px-3">
+                    <span className={`text-xs px-2 py-0.5 rounded-full border ${
+                      t.difficulty === "beginner" ? "bg-green-500/20 text-green-400 border-green-500/30" :
+                      t.difficulty === "intermediate" ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" :
+                      "bg-red-500/20 text-red-400 border-red-500/30"
+                    }`}>
+                      {t.difficulty === "beginner" ? (zh ? "新手" : "Beginner") :
+                       t.difficulty === "intermediate" ? (zh ? "进阶" : "Intermediate") :
+                       (zh ? "高级" : "Advanced")}
+                    </span>
+                  </td>
+                  <td className="py-3 px-3">
+                    {t.isActive
+                      ? <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/30">{zh ? "启用" : "Active"}</span>
+                      : <span className="text-xs px-2 py-0.5 rounded-full bg-slate-700/40 text-slate-500 border border-slate-600/30">{zh ? "停用" : "Inactive"}</span>
+                    }
+                  </td>
+                  <td className="py-3 px-3">
+                    <div className="flex gap-2">
+                      <button onClick={() => startEdit(t)} className="admin-btn-ghost text-xs">{zh ? "编辑" : "Edit"}</button>
+                      <button
+                        onClick={() => { if (confirm(zh ? `确定删除「${t.name}」？` : `Delete "${t.nameEn}"?`)) deleteMutation.mutate({ id: t.id }); }}
+                        disabled={deleteMutation.isPending}
+                        className="admin-btn-danger text-xs"
+                      >{zh ? "删除" : "Delete"}</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Main Admin Page ───────────────────────────────────────────────────────────
 export default function AdminExchangeGuide() {
   const { language } = useLanguage();
@@ -545,6 +725,7 @@ export default function AdminExchangeGuide() {
     { id: "categories", label: zh ? "📂 功能分类" : "📂 Categories" },
     { id: "featureSupport", label: zh ? "⚙️ 功能支持" : "⚙️ Feature Support" },
     { id: "contacts", label: zh ? "📬 联系记录" : "📬 Contacts" },
+    { id: "tools", label: zh ? "🛠️ 工具合集" : "🛠️ Tools" },
   ];
 
   if (loading) {
@@ -660,6 +841,7 @@ export default function AdminExchangeGuide() {
             {tab === "categories" && <CategoriesTab zh={zh} />}
             {tab === "featureSupport" && <FeatureSupportTab zh={zh} />}
             {tab === "contacts" && <ContactsTab zh={zh} />}
+            {tab === "tools" && <ToolsTab zh={zh} />}
           </div>
         </div>
       </div>
