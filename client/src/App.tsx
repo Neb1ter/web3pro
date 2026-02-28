@@ -50,6 +50,7 @@ const ExchangeFeatureDetail = lazy(() => import("./pages/ExchangeFeatureDetail")
 
 // 后台管理（仅内部使用，懒加载更合适）
 const AdminExchangeGuide = lazy(() => import("./pages/AdminExchangeGuide"));
+const AdminLogin         = lazy(() => import("./pages/AdminLogin"));
 
 // 模拟交易游戏（体积最大，懒加载收益最高）
 const SpotSim    = lazy(() => import("./pages/sim/SpotSim"));
@@ -216,6 +217,7 @@ function Router() {
           <Route path="/exchange-guide/:featureSlug" component={ExchangeFeatureDetail} />
 
           {/* ── 后台管理 ── */}
+          <Route path="/login"               component={AdminLogin} />
           <Route path="/admin/exchange-guide" component={AdminExchangeGuide} />
 
           {/* ── 测评与学习路径 ── */}
