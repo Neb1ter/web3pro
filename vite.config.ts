@@ -179,6 +179,10 @@ export default defineConfig({
     cssCodeSplit: true,
     // 提高 chunk 警告阈值（单个 chunk 超过此值时警告）
     chunkSizeWarningLimit: 500,
+    // 启用 modulepreload polyfill，确保旧浏览器也能预加载 chunk
+    modulePreload: {
+      polyfill: true,
+    },
     rollupOptions: {
       output: {
         // 手动分包：将稳定的第三方库分离为独立 chunk，充分利用浏览器缓存

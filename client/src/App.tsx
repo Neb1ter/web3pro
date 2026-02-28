@@ -4,7 +4,7 @@ import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
-import { useEffect, useRef, useState, lazy, Suspense } from "react";
+import { useEffect, useRef, useState, lazy, Suspense, Component } from "react";
 import { saveScrollPosition, getScrollPosition } from "@/hooks/useScrollMemory";
 import { useLearningPathSync } from "@/hooks/useLearningPathSync";
 import MobileFloatNav from "@/components/MobileFloatNav";
@@ -62,6 +62,44 @@ const Web3Quiz       = lazy(() => import("./pages/Web3Quiz"));
 const LearningPath   = lazy(() => import("./pages/LearningPath"));
 const LearningComplete = lazy(() => import("./pages/LearningComplete"));
 const Legal          = lazy(() => import("./pages/Legal"));
+
+// ============================================================
+// Chunk 加载失败的错误边界（网络问题/部署问题时显示重试按钮）
+// ============================================================
+interface ChunkErrorState { hasError: boolean; }
+class ChunkErrorBoundary extends Component<{ children: React.ReactNode }, ChunkErrorState> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError(): ChunkErrorState {
+    return { hasError: true };
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div
+          className="min-h-screen flex flex-col items-center justify-center gap-6 p-8"
+          style={{ background: "#0a192f" }}
+        >
+          <div className="text-4xl">⚠️</div>
+          <h2 className="text-white text-xl font-semibold">页面加载失败</h2>
+          <p className="text-slate-400 text-sm text-center max-w-sm">
+            资源加载出错，可能是网络问题或版本更新。请刷新页面重试。
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-2.5 rounded-xl text-white font-semibold text-sm"
+            style={{ background: "linear-gradient(135deg, #06b6d4, #8b5cf6)" }}
+          >
+            刷新重试
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 // ============================================================
 // 骨架屏 Fallback：懒加载过渡动画
@@ -144,6 +182,7 @@ function PageTransition({ children }: { children: React.ReactNode }) {
 
 function Router() {
   return (
+    <ChunkErrorBoundary>
     <Suspense fallback={<PageSkeleton />}>
       <PageTransition>
         <Switch>
@@ -199,6 +238,7 @@ function Router() {
         </Switch>
       </PageTransition>
     </Suspense>
+    </ChunkErrorBoundary>
   );
 }
 

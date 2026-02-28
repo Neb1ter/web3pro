@@ -17,12 +17,24 @@
   },
   "routes": [
     {
-      "src": "/api/.*",
+      "src": "/api/(.*)",
       "dest": "dist/index.js"
     },
     {
+      "src": "/assets/(.*)",
+      "dest": "/assets/$1"
+    },
+    {
+      "src": "/(robots\\.txt|sitemap\\.xml|backlink-strategy\\.md|favicon\\.ico|og-image\\.png|logo\\.png)",
+      "dest": "/$1"
+    },
+    {
+      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|map|webp|avif|json))",
+      "dest": "/$1"
+    },
+    {
       "src": "/(.*)",
-      "dest": "dist/public/$1"
+      "dest": "/index.html"
     }
   ]
 }
