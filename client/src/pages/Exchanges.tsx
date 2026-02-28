@@ -14,7 +14,8 @@ import {
   TrendingDown, Globe, Zap, Clock, BarChart2, Lock,
   RefreshCw, CheckCircle2, ChevronRight, MessageCircle,
 } from "lucide-react";
-import { EXCHANGE_FEES, SPOT_MAKER_ROW, FUT_MAKER_ROW, REBATE_ROW, INVITE_CODES, getFallbackInviteCode } from "@shared/exchangeFees";
+import { EXCHANGE_FEES, SPOT_MAKER_ROW, FUT_MAKER_ROW, REBATE_ROW, INVITE_CODES } from "@shared/exchangeFees";
+import { useExchangeLinks } from '@/contexts/ExchangeLinksContext';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 数据层
@@ -237,10 +238,11 @@ export default function Exchanges() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const deepRefs = useRef<Record<string, HTMLElement | null>>({});
 
-  // DB data
+  // DB data — 数据库优先，fallback 到硬编码
   const slugs = ["gate", "okx", "binance", "bybit", "bitget"];
-  const getLink = (slug: string) => INVITE_CODES[slug as keyof typeof INVITE_CODES]?.referralLink ?? "#";
-  const getCode = (slug: string) => getFallbackInviteCode(slug);
+  const { getReferralLink, getInviteCode } = useExchangeLinks();
+  const getLink = (slug: string) => getReferralLink(slug);
+  const getCode = (slug: string) => getInviteCode(slug);
 
   // Simulator state
   const [simStep, setSimStep] = useState<1 | 2 | 3 | 4>(1);
@@ -471,7 +473,7 @@ export default function Exchanges() {
             <div className="bg-white/[0.04] border border-white/10 rounded-xl p-5">
               <p className="text-yellow-400/80 font-semibold mb-3 text-sm">{zh ? "⚠️ 若链接无法跳转，注册时请手动填写邀请码：" : "⚠️ If the link fails, enter the invite code manually:"}</p>
               <div className="space-y-2">
-                {([["Gate.io", INVITE_CODES.gate.inviteCode], [zh ? "其他交易所（OKX / Binance / Bybit / Bitget）" : "Others (OKX / Binance / Bybit / Bitget)", INVITE_CODES.okx.inviteCode]] as [string, string][]).map(([label, code]) => (
+                {([["Gate.io", getCode("gate")], [zh ? "其他交易所（OKX / Binance / Bybit / Bitget）" : "Others (OKX / Binance / Bybit / Bitget)", getCode("okx")]] as [string, string][]).map(([label, code]) => (
                   <div key={code} className="flex items-center justify-between bg-white/5 rounded-lg px-4 py-3">
                     <span className="text-white/50 text-sm">{label}</span>
                     <code className="font-mono font-black text-yellow-400 text-lg tracking-widest">{code}</code>
@@ -924,7 +926,7 @@ export default function Exchanges() {
                 {zh ? "查看全部交易所" : "All Exchanges"}
               </Button>
             </div>
-            <p className="text-xs text-white/30">{zh ? `邀请码：${INVITE_CODES.gate.inviteCode}（Gate.io）/ ${INVITE_CODES.okx.inviteCode}（其他交易所）` : `Invite code: ${INVITE_CODES.gate.inviteCode} (Gate.io) / ${INVITE_CODES.okx.inviteCode} (others)`}</p>
+            <p className="text-xs text-white/30">{zh ? `邀请码：${getCode("gate")}（Gate.io）/ ${getCode("okx")}（其他交易所）` : `Invite code: ${getCode("gate")} (Gate.io) / ${getCode("okx")} (others)`}</p>
           </div>
         </div>
       )}

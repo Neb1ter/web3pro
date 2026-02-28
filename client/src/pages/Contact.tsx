@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
 import { Send, ArrowLeft, MessageCircle, Twitter, Phone, Mail } from 'lucide-react';
+import { trpc } from '@/lib/trpc';
 
 export default function Contact() {
   const { language, setLanguage } = useLanguage();
@@ -17,10 +18,8 @@ export default function Contact() {
   const [exchangeUsername, setExchangeUsername] = useState('');
   const [message, setMessage] = useState('');
 
-  const submitContact = {
-    mutate: (data: Record<string, string>) => {
-      // 静态模式：直接打开 Telegram 联系
-      window.open('https://t.me/CryptoSaveGuide', '_blank');
+  const submitContact = trpc.contact.submit.useMutation({
+    onSuccess: () => {
       toast.success(t.form.successMsg);
       setPlatform('');
       setAccountName('');
@@ -28,8 +27,10 @@ export default function Contact() {
       setExchangeUsername('');
       setMessage('');
     },
-    isPending: false,
-  };
+    onError: (err) => {
+      toast.error(language === 'zh' ? '提交失败，请稍后重试' : 'Submission failed, please try again');
+    },
+  });
 
   const texts = {
     zh: {

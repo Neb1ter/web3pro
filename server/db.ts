@@ -110,6 +110,28 @@ export async function submitContactForm(
   }
 }
 
+/**
+ * 获取客户联系表单提交记录（管理员后台使用）
+ * 按创建时间倒序排列，支持分页加载
+ */
+export async function getContactSubmissions(
+  limit = 50,
+  offset = 0
+): Promise<{ submissions: import("../drizzle/schema").ContactSubmission[]; total: number }> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const [submissions, countResult] = await Promise.all([
+    db
+      .select()
+      .from(contactSubmissions)
+      .orderBy(desc(contactSubmissions.createdAt))
+      .limit(limit)
+      .offset(offset),
+    db.select({ count: contactSubmissions.id }).from(contactSubmissions),
+  ]);
+  return { submissions, total: countResult.length };
+}
+
 // ─── Exchange Links ────────────────────────────────────────────────────────────
 
 const DEFAULT_EXCHANGE_LINKS: InsertExchangeLink[] = [

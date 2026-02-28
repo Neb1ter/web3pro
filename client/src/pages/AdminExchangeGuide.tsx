@@ -414,24 +414,114 @@ function FeatureSupportTab({ zh }: { zh: boolean }) {
   );
 }
 
-// ─── Contacts Tab ──────────────────────────────────────────────────────────────
+// ─── Contacts Tab ──────────────────────────────────────────────
 function ContactsTab({ zh }: { zh: boolean }) {
+  const [page, setPage] = useState(0);
+  const PAGE_SIZE = 20;
+  const contactsQuery = trpc.contact.list.useQuery(
+    { limit: PAGE_SIZE, offset: page * PAGE_SIZE }
+  );
+
+  const submissions = contactsQuery.data?.submissions ?? [];
+  const total = contactsQuery.data?.total ?? 0;
+  const totalPages = Math.ceil(total / PAGE_SIZE);
+
+  const PLATFORM_LABELS: Record<string, string> = {
+    telegram: "Telegram", wechat: "微信", whatsapp: "WhatsApp",
+    twitter: "Twitter / X", email: "邮箱", other: "其他",
+  };
+
+  if (contactsQuery.isLoading) return <LoadingSpinner />;
+
+  if (contactsQuery.isError) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-4xl mb-3">⚠️</div>
+        <p className="text-red-400">{zh ? "加载失败，请刷新页面" : "Failed to load. Please refresh."}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-bold text-white mb-4">{zh ? "联系表单提交记录" : "Contact Submissions"}</h2>
-      <div className="text-slate-400 text-center py-12">
-        <div className="text-4xl mb-3">📬</div>
-        <p className="text-base">{zh ? "联系表单记录请在数据库管理面板中查看" : "View contact submissions in your database panel"}</p>
-        <p className="text-sm mt-2 text-slate-500">{zh ? "Railway Dashboard → 数据库 → contact_submissions 表" : "Railway Dashboard → Database → contact_submissions table"}</p>
-        <a
-          href="https://railway.com/dashboard"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block mt-4 admin-btn-primary text-sm"
-        >
-          {zh ? "前往 Railway Dashboard" : "Open Railway Dashboard"}
-        </a>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-bold text-white">
+          {zh ? "客户联系表单" : "Contact Submissions"}
+          <span className="ml-2 text-sm font-normal text-slate-400">({total} {zh ? "条记录" : "records"})</span>
+        </h2>
+        <button onClick={() => contactsQuery.refetch()} className="admin-btn-primary text-sm">
+          {zh ? "刷新" : "Refresh"}
+        </button>
       </div>
+
+      {submissions.length === 0 ? (
+        <div className="text-center text-slate-500 py-12">
+          <div className="text-4xl mb-3">📬</div>
+          <p>{zh ? "暂无客户提交的联系表单" : "No contact submissions yet"}</p>
+        </div>
+      ) : (
+        <>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-700 text-slate-400 text-left">
+                  <th className="py-3 px-4">#</th>
+                  <th className="py-3 px-4">{zh ? "提交时间" : "Time"}</th>
+                  <th className="py-3 px-4">{zh ? "联系方式" : "Platform"}</th>
+                  <th className="py-3 px-4">{zh ? "账号" : "Account"}</th>
+                  <th className="py-3 px-4">{zh ? "交易所 UID" : "Exchange UID"}</th>
+                  <th className="py-3 px-4">{zh ? "交易所用户名" : "Exchange Username"}</th>
+                  <th className="py-3 px-4">{zh ? "留言" : "Message"}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {submissions.map((s, i) => (
+                  <tr key={s.id} className="border-b border-slate-800 hover:bg-slate-800/30 transition-colors">
+                    <td className="py-3 px-4 text-slate-500 text-xs">{page * PAGE_SIZE + i + 1}</td>
+                    <td className="py-3 px-4 text-slate-400 text-xs whitespace-nowrap">
+                      {new Date(s.createdAt).toLocaleString(zh ? "zh-CN" : "en-US", {
+                        month: "2-digit", day: "2-digit",
+                        hour: "2-digit", minute: "2-digit",
+                      })}
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className="px-2 py-0.5 rounded-full text-xs bg-cyan-900/40 text-cyan-300 border border-cyan-800/40">
+                        {PLATFORM_LABELS[s.platform] ?? s.platform}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-white font-medium">{s.accountName}</td>
+                    <td className="py-3 px-4 text-slate-300">{s.exchangeUid || <span className="text-slate-600">—</span>}</td>
+                    <td className="py-3 px-4 text-slate-300">{s.exchangeUsername || <span className="text-slate-600">—</span>}</td>
+                    <td className="py-3 px-4 text-slate-400 max-w-xs">
+                      <span className="line-clamp-2 text-xs">{s.message || <span className="text-slate-600">—</span>}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-3 pt-2">
+              <button
+                onClick={() => setPage(p => Math.max(0, p - 1))}
+                disabled={page === 0}
+                className="admin-btn-primary text-sm disabled:opacity-40"
+              >
+                {zh ? "上一页" : "Prev"}
+              </button>
+              <span className="text-slate-400 text-sm">{page + 1} / {totalPages}</span>
+              <button
+                onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+                disabled={page >= totalPages - 1}
+                className="admin-btn-primary text-sm disabled:opacity-40"
+              >
+                {zh ? "下一页" : "Next"}
+              </button>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

@@ -8,7 +8,8 @@ import {
   ChevronDown, ChevronUp,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { EXCHANGE_FEES, SPOT_MAKER_ROW, FUT_MAKER_ROW, INVITE_CODES, getFallbackInviteCode, getFallbackReferralLink } from '@shared/exchangeFees';
+import { EXCHANGE_FEES, SPOT_MAKER_ROW, FUT_MAKER_ROW } from '@shared/exchangeFees';
+import { useExchangeLinks } from '@/contexts/ExchangeLinksContext';
 
 // ─── Exchange static data ─────────────────────────────────────────────────────
 
@@ -258,7 +259,7 @@ export default function ExchangeGuide() {
   useScrollMemory();
   const { language, setLanguage } = useLanguage();
   const zh = language === 'zh';
-  const dbLinks: { slug: string; referralLink: string; inviteCode: string }[] = [];
+  const { getReferralLink, getInviteCode } = useExchangeLinks();
 
   const [activeSlug, setActiveSlug] = useState('gate');
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -285,12 +286,7 @@ export default function ExchangeGuide() {
     }, 50);
   };
 
-  const getReferralLink = (slug: string) => {
-    return dbLinks?.find(l => l.slug === slug)?.referralLink ?? getFallbackReferralLink(slug);
-  };
-  const getInviteCode = (slug: string) => {
-    return dbLinks?.find(l => l.slug === slug)?.inviteCode ?? getFallbackInviteCode(slug);
-  };
+  // getReferralLink / getInviteCode 来自 ExchangeLinksContext（数据库优先，fallback 到硬编码）
 
   const renderValue = (val: string | boolean) => {
     if (val === true) return <Check size={16} className="text-green-400 mx-auto" />;

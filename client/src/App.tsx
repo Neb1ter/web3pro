@@ -4,6 +4,7 @@ import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
+import { ExchangeLinksProvider } from "./contexts/ExchangeLinksContext";
 import { useEffect, useRef, useState, lazy, Suspense, Component, useMemo } from "react";
 import { saveScrollPosition, getScrollPosition } from "@/hooks/useScrollMemory";
 import { useLearningPathSync } from "@/hooks/useLearningPathSync";
@@ -284,13 +285,15 @@ function AppInner() {
     <ErrorBoundary>
       <LanguageProvider>
         <ThemeProvider defaultTheme="dark">
-          <TooltipProvider>
-            <Toaster />
-            <Router />
-            <MobileFloatNav />
-            <DesktopFloatNav />
-            <GlobalSwipeBlocker />
-          </TooltipProvider>
+          <ExchangeLinksProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Router />
+              <MobileFloatNav />
+              <DesktopFloatNav />
+              <GlobalSwipeBlocker />
+            </TooltipProvider>
+          </ExchangeLinksProvider>
         </ThemeProvider>
       </LanguageProvider>
     </ErrorBoundary>

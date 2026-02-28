@@ -3,7 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { z } from "zod";
-import { submitContactForm, getExchangeLinks, updateExchangeLink, getFaqs, getCryptoNews, getExchangeFeatureCategories, getExchangeFeatureSupport, getAllExchangeFeatureSupport, getExchangeAllFeatures, createFeatureCategory, updateFeatureCategory, deleteFeatureCategory, upsertFeatureSupport, deleteFeatureSupport } from "./db";
+import { submitContactForm, getContactSubmissions, getExchangeLinks, updateExchangeLink, getFaqs, getCryptoNews, getExchangeFeatureCategories, getExchangeFeatureSupport, getAllExchangeFeatureSupport, getExchangeAllFeatures, createFeatureCategory, updateFeatureCategory, deleteFeatureCategory, upsertFeatureSupport, deleteFeatureSupport } from "./db";
 import { TRPCError } from "@trpc/server";
 
 export const appRouter = router({
@@ -38,6 +38,16 @@ export const appRouter = router({
           message:         input.message         ? sanitize(input.message)          : null,
         });
         return { success: true } as const;
+      }),
+    /** 管理员查看所有联系表单提交记录 */
+    list: protectedProcedure
+      .input(z.object({
+        limit:  z.number().min(1).max(100).default(50),
+        offset: z.number().min(0).default(0),
+      }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN', message: '仅管理员可查看表单记录' });
+        return getContactSubmissions(input.limit, input.offset);
       }),
   }),
 

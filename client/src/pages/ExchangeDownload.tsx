@@ -7,7 +7,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { INVITE_CODES, getFallbackInviteCode } from '@shared/exchangeFees';
+import { useExchangeLinks } from '@/contexts/ExchangeLinksContext';
 import { useScrollMemory, goBack } from "@/hooks/useScrollMemory";
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
 import { Button } from "@/components/ui/button";
@@ -128,7 +128,7 @@ export default function ExchangeDownload() {
   const zh = language === "zh";
   const [, navigate] = useLocation();
   const [activeExchange, setActiveExchange] = useState("gate");
-  const exchangeLinksData = Object.entries(INVITE_CODES).map(([slug, v]) => ({ slug, name: slug, referralLink: v.referralLink, inviteCode: v.inviteCode, rebateRate: v.rebateRate }));
+  const { allLinks: exchangeLinksData } = useExchangeLinks();
 
   const meta = EXCHANGE_META[activeExchange];
   const exchangeData = exchangeLinksData.find(e => e.slug === activeExchange);
