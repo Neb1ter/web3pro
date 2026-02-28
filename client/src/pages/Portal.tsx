@@ -10,10 +10,10 @@ import { useLanguage } from "@/contexts/LanguageContext";
 const LANG = {
   zh: {
     badge: "Web3 专业交易者的可信导航仪",
-    h1a: "",
-    h1b: "Get8 Pro",
+    h1a: "Get it, ",
+    h1b: "Get Pro.",
     h1c: "",
-    h1sub: "官方认证，专业致胜。",
+    h1sub: "Web3 交易者的晋升之路",
     desc: "消除信息不对称，重建行业信任链。我们通过官方合作返佣与权威数据分析，降低交易成本，提升决策效率。在 Get8 Pro，像专业交易者一样思考、决策、盈利。",
     stat1v: "3", stat1u: "大板块", stat1l: "内容模块",
     stat2v: "5+", stat2u: "家交易所", stat2l: "合作平台",
@@ -85,10 +85,10 @@ const LANG = {
   },
   en: {
     badge: "The Trusted Navigator for Web3 Professionals",
-    h1a: "",
-    h1b: "Get8 Pro",
+    h1a: "Get it, ",
+    h1b: "Get Pro.",
     h1c: "",
-    h1sub: "Officially Verified. Professionally Vetted.",
+    h1sub: "From Trader. To Pro.",
     desc: "Eliminating information asymmetry. Rebuilding industry trust. We provide officially-partnered rebates and authority-backed data analysis to lower your trading costs and sharpen your decisions.",
     stat1v: "3", stat1u: "Modules", stat1l: "Content Areas",
     stat2v: "5+", stat2u: "Exchanges", stat2l: "Partners",
@@ -584,19 +584,41 @@ export default function Portal() {
           </div>
 
           {/* 主标题 */}
-          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black mb-6 leading-tight tracking-tight">
-            <span className="text-white">{t.h1a}</span>
-            <span
-              className="bg-clip-text text-transparent"
-              style={{ backgroundImage: "linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FFD700 100%)" }}
-            >
-              {t.h1b}
-            </span>
-            <span className="text-white">{t.h1c}</span>
-            <br />
-            <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-400 mt-2 block">
+          <style>{`
+            @keyframes gradientShift {
+              0%   { background-position: 0% 50%; }
+              50%  { background-position: 100% 50%; }
+              100% { background-position: 0% 50%; }
+            }
+            .animated-gradient {
+              background: linear-gradient(270deg, #a78bfa, #60a5fa, #34d399, #fbbf24, #f472b6, #a78bfa);
+              background-size: 300% 300%;
+              animation: gradientShift 6s ease infinite;
+              -webkit-background-clip: text;
+              -webkit-text-fill-color: transparent;
+              background-clip: text;
+            }
+            .subtitle-gradient {
+              background: linear-gradient(135deg, #94a3b8 0%, #cbd5e1 50%, #94a3b8 100%);
+              -webkit-background-clip: text;
+              -webkit-text-fill-color: transparent;
+              background-clip: text;
+            }
+          `}</style>
+          <h1 className="mb-4 leading-tight tracking-tight">
+            {/* Get it, Get Pro. */}
+            <div className="text-4xl sm:text-5xl lg:text-7xl font-black">
+              <span className="text-white">{t.h1a}</span>
+              <span className="animated-gradient">{t.h1b}</span>
+            </div>
+            {/* 中文副标：Web3 交易者的晋升之路 */}
+            <div className="text-xl sm:text-2xl lg:text-3xl font-semibold mt-3 subtitle-gradient tracking-wide">
               {t.h1sub}
-            </span>
+            </div>
+            {/* 英文小标：From Trader. To Pro. */}
+            <div className="text-base sm:text-lg lg:text-xl font-medium mt-2 text-slate-500 tracking-widest uppercase">
+              {lang === 'zh' ? 'From Trader. To Pro.' : ''}
+            </div>
           </h1>
 
           {/* 副标题 */}
