@@ -9,4 +9,9 @@ export const ENV = {
   forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? "",
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
   siteUrl: process.env.SITE_URL ?? "",
+  // Telegram Bot 推送（可选）
+  telegramBotToken: process.env.TELEGRAM_BOT_TOKEN ?? "",
+  telegramChannelId: process.env.TELEGRAM_CHANNEL_ID ?? "",
+  // RSS 抓取开关（默认开启）
+  rssEnabled: process.env.RSS_ENABLED !== "false",
 };

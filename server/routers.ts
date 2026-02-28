@@ -187,6 +187,84 @@ export const appRouter = router({
     list: publicProcedure
       .input(z.object({ limit: z.number().min(1).max(50).optional().default(20) }))
       .query(async ({ input }) => getCryptoNews(input.limit)),
+    /** Admin: list all news (including inactive) */
+    listAll: protectedProcedure
+      .input(z.object({ limit: z.number().min(1).max(200).default(100), offset: z.number().min(0).default(0) }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+        const { getDb } = await import('./db');
+        const { cryptoNews } = await import('../drizzle/schema');
+        const { desc } = await import('drizzle-orm');
+        const db = await getDb();
+        if (!db) return [];
+        return db.select().from(cryptoNews).orderBy(desc(cryptoNews.publishedAt)).limit(input.limit).offset(input.offset);
+      }),
+    /** Admin: create a news item */
+    create: protectedProcedure
+      .input(z.object({
+        title: z.string().min(1).max(200),
+        summary: z.string().max(500).optional(),
+        source: z.string().max(64).default('律动BlockBeats'),
+        url: z.string().url().max(512).optional(),
+        category: z.enum(['market','policy','exchange','defi','nft','other']).default('market'),
+        isPinned: z.boolean().default(false),
+        isActive: z.boolean().default(true),
+        publishedAt: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+        const { getDb } = await import('./db');
+        const { cryptoNews } = await import('../drizzle/schema');
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+        await db.insert(cryptoNews).values({
+          title: input.title,
+          summary: input.summary ?? null,
+          source: input.source,
+          url: input.url ?? null,
+          category: input.category,
+          isPinned: input.isPinned,
+          isActive: input.isActive,
+          publishedAt: input.publishedAt ? new Date(input.publishedAt) : new Date(),
+        });
+        return { success: true };
+      }),
+    /** Admin: update a news item */
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number().int(),
+        title: z.string().min(1).max(200).optional(),
+        summary: z.string().max(500).optional(),
+        source: z.string().max(64).optional(),
+        url: z.string().url().max(512).optional().or(z.literal('')),
+        category: z.enum(['market','policy','exchange','defi','nft','other']).optional(),
+        isPinned: z.boolean().optional(),
+        isActive: z.boolean().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+        const { getDb } = await import('./db');
+        const { cryptoNews } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+        const { id, ...data } = input;
+        await db.update(cryptoNews).set(data).where(eq(cryptoNews.id, id));
+        return { success: true };
+      }),
+    /** Admin: delete a news item */
+    delete: protectedProcedure
+      .input(z.object({ id: z.number().int() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+        const { getDb } = await import('./db');
+        const { cryptoNews } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+        await db.delete(cryptoNews).where(eq(cryptoNews.id, input.id));
+        return { success: true };
+      }),
   }),
 
   /**

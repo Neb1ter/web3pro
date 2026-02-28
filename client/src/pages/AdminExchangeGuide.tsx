@@ -5,7 +5,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
-type Tab = "exchanges" | "categories" | "featureSupport" | "contacts" | "tools";
+type Tab = "exchanges" | "categories" | "featureSupport" | "contacts" | "tools" | "news";
 
 // ─── Shared UI helpers ─────────────────────────────────────────────────────────
 
@@ -713,6 +713,127 @@ function ToolsTab({ zh }: { zh: boolean }) {
   );
 }
 
+// ─── NewsTab ───────────────────────────────────────────────────────────────────
+function NewsTab({ zh }: { zh: boolean }) {
+  const utils = trpc.useUtils();
+  const { data: newsList, isLoading } = trpc.news.listAll.useQuery({ limit: 100, offset: 0 });
+  const createMutation = trpc.news.create.useMutation({ onSuccess: () => { utils.news.listAll.invalidate(); toast.success(zh ? "已添加" : "Added"); setForm(null); } });
+  const updateMutation = trpc.news.update.useMutation({ onSuccess: () => { utils.news.listAll.invalidate(); toast.success(zh ? "已更新" : "Updated"); setEditing(null); } });
+  const deleteMutation = trpc.news.delete.useMutation({ onSuccess: () => { utils.news.listAll.invalidate(); toast.success(zh ? "已删除" : "Deleted"); } });
+
+  type NewsForm = { title: string; summary: string; source: string; url: string; category: string; isPinned: boolean; isActive: boolean; };
+  const emptyForm: NewsForm = { title: "", summary: "", source: "律动BlockBeats", url: "", category: "market", isPinned: false, isActive: true };
+  const [form, setForm] = useState<NewsForm | null>(null);
+  const [editing, setEditing] = useState<(NewsForm & { id: number }) | null>(null);
+
+  const categoryLabel: Record<string, string> = { market: "行情", policy: "政策", exchange: "交易所", defi: "DeFi", nft: "NFT", other: "其他" };
+
+  function NewsForm({ value, onChange, onSubmit, onCancel, loading }: {
+    value: NewsForm; onChange: (v: NewsForm) => void;
+    onSubmit: () => void; onCancel: () => void; loading: boolean;
+  }) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 bg-slate-800/60 rounded-xl border border-slate-700/50 mb-4">
+        <div className="md:col-span-2"><LabeledInput label={zh ? "标题 *" : "Title *"} value={value.title} onChange={v => onChange({ ...value, title: v })} /></div>
+        <div className="md:col-span-2"><LabeledInput label={zh ? "摘要" : "Summary"} value={value.summary} onChange={v => onChange({ ...value, summary: v })} /></div>
+        <LabeledInput label={zh ? "来源" : "Source"} value={value.source} onChange={v => onChange({ ...value, source: v })} />
+        <LabeledInput label="URL" value={value.url} onChange={v => onChange({ ...value, url: v })} />
+        <div>
+          <label className="block text-xs text-slate-400 mb-1">{zh ? "分类" : "Category"}</label>
+          <select className="admin-input w-full" value={value.category} onChange={e => onChange({ ...value, category: e.target.value })}>
+            {Object.entries(categoryLabel).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+          </select>
+        </div>
+        <div className="flex items-center gap-4 pt-5">
+          <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer">
+            <input type="checkbox" checked={value.isPinned} onChange={e => onChange({ ...value, isPinned: e.target.checked })} className="w-4 h-4" />
+            {zh ? "置顶" : "Pinned"}
+          </label>
+          <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer">
+            <input type="checkbox" checked={value.isActive} onChange={e => onChange({ ...value, isActive: e.target.checked })} className="w-4 h-4" />
+            {zh ? "显示" : "Active"}
+          </label>
+        </div>
+        <div className="md:col-span-2 flex gap-2 justify-end">
+          <button className="admin-btn-ghost" onClick={onCancel}>{zh ? "取消" : "Cancel"}</button>
+          <button className="admin-btn" onClick={onSubmit} disabled={loading || !value.title}>{zh ? "保存" : "Save"}</button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-white font-semibold text-lg">{zh ? "快讯管理" : "News Management"}</h2>
+        {!form && !editing && (
+          <button className="admin-btn" onClick={() => setForm(emptyForm)}>{zh ? "+ 新增快讯" : "+ Add News"}</button>
+        )}
+      </div>
+
+      {form && (
+        <NewsForm value={form} onChange={setForm}
+          onSubmit={() => createMutation.mutate({ ...form, category: form.category as any })}
+          onCancel={() => setForm(null)} loading={createMutation.isPending} />
+      )}
+
+      {isLoading ? <LoadingSpinner /> : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-slate-700/50 text-slate-400 text-xs">
+                <th className="text-left py-2 pr-3 w-8">ID</th>
+                <th className="text-left py-2 pr-3">{zh ? "标题" : "Title"}</th>
+                <th className="text-left py-2 pr-3 hidden md:table-cell">{zh ? "来源" : "Source"}</th>
+                <th className="text-left py-2 pr-3 hidden md:table-cell">{zh ? "分类" : "Cat"}</th>
+                <th className="text-left py-2 pr-3 hidden lg:table-cell">{zh ? "状态" : "Status"}</th>
+                <th className="text-right py-2">{zh ? "操作" : "Actions"}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(newsList ?? []).map(n => (
+                <tr key={n.id} className="border-b border-slate-800/60 hover:bg-slate-800/30">
+                  <td className="py-2 pr-3 text-slate-500 text-xs">{n.id}</td>
+                  <td className="py-2 pr-3 text-slate-200 max-w-xs">
+                    {editing?.id === n.id ? (
+                      <NewsForm value={editing} onChange={v => setEditing({ ...v, id: n.id })}
+                        onSubmit={() => updateMutation.mutate({ id: n.id, ...editing, category: editing.category as any })}
+                        onCancel={() => setEditing(null)} loading={updateMutation.isPending} />
+                    ) : (
+                      <span className="line-clamp-2">{n.isPinned && "📌 "}{n.title}</span>
+                    )}
+                  </td>
+                  <td className="py-2 pr-3 text-slate-400 text-xs hidden md:table-cell">{n.source}</td>
+                  <td className="py-2 pr-3 hidden md:table-cell">
+                    <span className="px-2 py-0.5 rounded text-xs bg-slate-700/60 text-slate-300">{categoryLabel[n.category] ?? n.category}</span>
+                  </td>
+                  <td className="py-2 pr-3 hidden lg:table-cell">
+                    <span className={`px-2 py-0.5 rounded text-xs ${n.isActive ? "bg-green-900/40 text-green-400" : "bg-slate-700/40 text-slate-500"}`}>
+                      {n.isActive ? (zh ? "显示" : "Active") : (zh ? "隐藏" : "Hidden")}
+                    </span>
+                  </td>
+                  <td className="py-2 text-right">
+                    {editing?.id !== n.id && (
+                      <div className="flex gap-1 justify-end">
+                        <button className="admin-btn-ghost text-xs" onClick={() => setEditing({ id: n.id, title: n.title, summary: n.summary ?? "", source: n.source, url: n.url ?? "", category: n.category, isPinned: n.isPinned, isActive: n.isActive })}>
+                          {zh ? "编辑" : "Edit"}
+                        </button>
+                        <button className="admin-btn-danger text-xs" onClick={() => { if (confirm(zh ? `确定删除？` : `Delete?`)) deleteMutation.mutate({ id: n.id }); }} disabled={deleteMutation.isPending}>
+                          {zh ? "删除" : "Del"}
+                        </button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Main Admin Page ───────────────────────────────────────────────────────────
 export default function AdminExchangeGuide() {
   const { language } = useLanguage();
@@ -726,6 +847,7 @@ export default function AdminExchangeGuide() {
     { id: "featureSupport", label: zh ? "⚙️ 功能支持" : "⚙️ Feature Support" },
     { id: "contacts", label: zh ? "📬 联系记录" : "📬 Contacts" },
     { id: "tools", label: zh ? "🛠️ 工具合集" : "🛠️ Tools" },
+    { id: "news", label: zh ? "📰 快讯管理" : "📰 News" },
   ];
 
   if (loading) {
@@ -842,6 +964,7 @@ export default function AdminExchangeGuide() {
             {tab === "featureSupport" && <FeatureSupportTab zh={zh} />}
             {tab === "contacts" && <ContactsTab zh={zh} />}
             {tab === "tools" && <ToolsTab zh={zh} />}
+            {tab === "news" && <NewsTab zh={zh} />}
           </div>
         </div>
       </div>
