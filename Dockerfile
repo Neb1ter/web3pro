@@ -1,15 +1,13 @@
 # ============================================================
 # 单阶段构建：安装依赖 → 构建 → 清理开发依赖 → 运行
-# 避免多阶段构建中 pnpm patchedDependencies 哈希不匹配问题
+# 关键：pnpm 版本必须与 package.json packageManager 字段一致
 # ============================================================
 FROM node:20-alpine
 
 WORKDIR /app
 
-ENV NODE_ENV=production
-
-# 安装 pnpm（固定版本 9，与本地开发环境一致）
-RUN npm install -g pnpm@9
+# 安装 pnpm v10（与 package.json packageManager: pnpm@10.4.1 一致）
+RUN npm install -g pnpm@10
 
 # 先复制依赖文件 + patches 目录（pnpm patch 必须在 install 前存在）
 COPY package.json pnpm-lock.yaml ./
