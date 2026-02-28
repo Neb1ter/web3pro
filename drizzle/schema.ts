@@ -228,3 +228,18 @@ export const cryptoTools = mysqlTable("crypto_tools", {
 });
 export type CryptoTool = typeof cryptoTools.$inferSelect;
 export type InsertCryptoTool = typeof cryptoTools.$inferInsert;
+
+/**
+ * System settings — key/value store for runtime configuration.
+ * Editable from admin panel without redeployment.
+ * key examples: "rss_enabled", "telegram_enabled"
+ */
+export const systemSettings = mysqlTable("system_settings", {
+  id: int("id").autoincrement().primaryKey(),
+  key: varchar("key", { length: 64 }).notNull().unique(),
+  value: varchar("value", { length: 256 }).notNull(),
+  description: text("description"),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type SystemSetting = typeof systemSettings.$inferSelect;
+export type InsertSystemSetting = typeof systemSettings.$inferInsert;

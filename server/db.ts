@@ -10,6 +10,7 @@ import {
   exchangeFeatureCategories, ExchangeFeatureCategory, InsertExchangeFeatureCategory,
   exchangeFeatureSupport, ExchangeFeatureSupport, InsertExchangeFeatureSupport,
   cryptoTools, CryptoTool, InsertCryptoTool,
+  systemSettings,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -655,8 +656,6 @@ export async function deleteCryptoTool(id: number): Promise<void> {
 export async function seedCryptoToolsIfEmpty(): Promise<void> {
   const db = await getDb();
   if (!db) return;
-  const existing = await db.select({ id: cryptoTools.id }).from(cryptoTools).limit(1);
-  if (existing.length > 0) return;
 
   const defaults: InsertCryptoTool[] = [
     { name: "CoinGecko 行情", nameEn: "CoinGecko", description: "全球最大加密货币数据平台，实时价格、市值、交易量，支持数千种代币", descriptionEn: "World's largest crypto data platform with real-time prices, market cap, and volume for thousands of tokens", category: "price", source: "CoinGecko", url: "https://www.coingecko.com", icon: "🦎", tags: "价格,市值,新手", difficulty: "beginner", sortOrder: 1, isActive: true },
@@ -671,7 +670,50 @@ export async function seedCryptoToolsIfEmpty(): Promise<void> {
     { name: "Messari 研究报告", nameEn: "Messari", description: "加密货币研究和数据平台，提供项目分析报告、代币经济学研究，适合深度投研", descriptionEn: "Crypto research and data platform with project analysis, tokenomics research for deep investment research", category: "general", source: "Messari", url: "https://messari.io", icon: "📋", tags: "研究,报告,进阶", difficulty: "intermediate", sortOrder: 10, isActive: true },
     { name: "Gas 费用追踪", nameEn: "ETH Gas Tracker", description: "实时追踪以太坊 Gas 费用，选择最优时机发送交易，节省手续费", descriptionEn: "Real-time Ethereum gas fee tracker to choose optimal timing for transactions and save on fees", category: "defi", source: "Etherscan", url: "https://etherscan.io/gastracker", icon: "⛽", tags: "Gas,以太坊,新手", difficulty: "beginner", sortOrder: 11, isActive: true },
     { name: "Crypto.com 税务计算", nameEn: "Koinly Tax Calculator", description: "加密货币税务计算工具，自动整合交易记录，生成合规税务报告", descriptionEn: "Crypto tax calculator that automatically aggregates trading records and generates compliant tax reports", category: "tax", source: "Koinly", url: "https://koinly.io", icon: "🧾", tags: "税务,合规,进阶", difficulty: "intermediate", sortOrder: 12, isActive: true },
+    { name: "金十数据", nameEn: "Jin10 Data", description: "国内最快的财经资讯平台，提供加密货币、外汇、股市实时快讯，7×24 小时不间断推送市场重要消息", descriptionEn: "China's fastest financial news platform with real-time crypto, forex, and stock market alerts 24/7", category: "news", source: "Jin10", url: "https://www.jin10.com", icon: "⚡", tags: "资讯,快讯,新手", difficulty: "beginner", sortOrder: 13, isActive: true },
+    { name: "律动 BlockBeats", nameEn: "BlockBeats", description: "专注 Web3 的中文资讯媒体，深度报道 DeFi、NFT、公链生态，提供行业研究与项目分析", descriptionEn: "Web3-focused Chinese media with in-depth coverage of DeFi, NFT, and blockchain ecosystems", category: "news", source: "BlockBeats", url: "https://www.theblockbeats.info", icon: "🎵", tags: "资讯,Web3,进阶", difficulty: "intermediate", sortOrder: 14, isActive: true },
+    { name: "CoinGlass 合约数据", nameEn: "CoinGlass", description: "专业加密货币衍生品数据平台，提供爆仓数据、资金费率、持仓量、多空比等合约核心指标", descriptionEn: "Professional crypto derivatives data platform with liquidations, funding rates, open interest, and long/short ratios", category: "chart", source: "CoinGlass", url: "https://www.coinglass.com", icon: "🔮", tags: "合约,爆仓,进阶", difficulty: "intermediate", sortOrder: 15, isActive: true },
   ];
 
-  await db.insert(cryptoTools).values(defaults);
+  // 使用 upsert 逻辑：按 name 查找，不存在则插入，确保新增工具能自动同步到已有数据库
+  const existingNames = new Set(
+    (await db.select({ name: cryptoTools.name }).from(cryptoTools)).map((r: { name: string }) => r.name)
+  );
+  const toInsert = defaults.filter(d => !existingNames.has(d.name));
+  if (toInsert.length > 0) {
+    await db.insert(cryptoTools).values(toInsert);
+    console.log(`[Database] Seeded ${toInsert.length} new crypto tools`);
+  }
 }
+
+// ─── System Settings ─────────────────────────────────────────────────────────
+
+export async function getSystemSetting(key: string, defaultValue: string = "true"): Promise<string> {
+  const db = await getDb();
+  if (!db) return defaultValue;
+  try {
+    const rows = await db.select().from(systemSettings).where(eq(systemSettings.key, key)).limit(1);
+    if (rows.length === 0) return defaultValue;
+    return rows[0].value;
+  } catch {
+    return defaultValue;
+  }
+}
+
+export async function setSystemSetting(key: string, value: string, description?: string): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  const existing = await db.select({ id: systemSettings.id }).from(systemSettings).where(eq(systemSettings.key, key)).limit(1);
+  if (existing.length > 0) {
+    await db.update(systemSettings).set({ value }).where(eq(systemSettings.key, key));
+  } else {
+    await db.insert(systemSettings).values({ key, value, description: description ?? null });
+  }
+}
+
+export async function getAllSystemSettings(): Promise<Array<{ key: string; value: string; description: string | null; updatedAt: Date }>> {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(systemSettings).orderBy(systemSettings.key);
+}
+

@@ -13,7 +13,7 @@
  */
 
 import { ENV } from "./env";
-import { getDb } from "../db";
+import { getDb, getSystemSetting } from "../db";
 import { cryptoNews } from "../../drizzle/schema";
 import { desc } from "drizzle-orm";
 
@@ -97,6 +97,9 @@ function stripCdata(s: string): string {
 // ─── Telegram 推送 ─────────────────────────────────────────────────────────────
 async function sendTelegram(text: string): Promise<void> {
   if (!ENV.telegramBotToken || !ENV.telegramChannelId) return;
+  // 检查数据库中的 Telegram 推送开关
+  const telegramEnabled = await getSystemSetting("telegram_enabled", "true");
+  if (telegramEnabled !== "true") return;
   try {
     const url = `https://api.telegram.org/bot${ENV.telegramBotToken}/sendMessage`;
     await fetch(url, {

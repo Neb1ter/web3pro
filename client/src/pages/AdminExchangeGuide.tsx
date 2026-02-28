@@ -5,7 +5,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
-type Tab = "exchanges" | "categories" | "featureSupport" | "contacts" | "tools" | "news";
+type Tab = "exchanges" | "categories" | "featureSupport" | "contacts" | "tools" | "news" | "settings";
 
 // ─── Shared UI helpers ─────────────────────────────────────────────────────────
 
@@ -713,6 +713,115 @@ function ToolsTab({ zh }: { zh: boolean }) {
   );
 }
 
+// ─── Settings Tab ─────────────────────────────────────────────────────────────
+function SettingsTab({ zh }: { zh: boolean }) {
+  const settingsQuery = trpc.settings.getAll.useQuery();
+  const setMutation = trpc.settings.set.useMutation({
+    onSuccess: () => {
+      settingsQuery.refetch();
+      toast.success(zh ? "设置已保存" : "Settings saved");
+    },
+    onError: (e: { message: string }) => toast.error(e.message),
+  });
+
+  const settings = settingsQuery.data ?? [];
+
+  function getVal(key: string, def: string = "true") {
+    return settings.find((s: { key: string; value: string }) => s.key === key)?.value ?? def;
+  }
+
+  function toggle(key: string, description: string) {
+    const current = getVal(key);
+    setMutation.mutate({ key, value: current === "true" ? "false" : "true", description });
+  }
+
+  const switchItems = [
+    {
+      key: "rss_enabled",
+      label: zh ? "RSS 自动抓取快讯" : "RSS Auto-fetch News",
+      desc: zh ? "每 30 分钟自动从各大媒体抓取最新加密快讯并入库" : "Auto-fetch latest crypto news from media sources every 30 minutes",
+      icon: "📡",
+    },
+    {
+      key: "telegram_enabled",
+      label: zh ? "Telegram 自动推送" : "Telegram Auto-push",
+      desc: zh ? "每条新快讯入库时自动推送到 Telegram 频道（需配置 TELEGRAM_BOT_TOKEN）" : "Auto-push each new article to Telegram channel (requires TELEGRAM_BOT_TOKEN)",
+      icon: "✈️",
+    },
+  ];
+
+  if (settingsQuery.isLoading) return <div className="py-8 text-center text-slate-400">{zh ? "加载中..." : "Loading..."}</div>;
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-white font-semibold text-lg">{zh ? "系统设置" : "System Settings"}</h2>
+      <p className="text-slate-400 text-sm">{zh ? "以下开关可随时切换，无需重新部署，立即生效。" : "These switches take effect immediately without redeployment."}</p>
+
+      {/* Auto-push switches */}
+      <div className="space-y-4">
+        <h3 className="text-slate-300 font-medium text-sm uppercase tracking-wider">{zh ? "自动化功能" : "Automation"}</h3>
+        {switchItems.map(item => {
+          const isOn = getVal(item.key) === "true";
+          return (
+            <div key={item.key} className="flex items-center justify-between p-4 rounded-xl bg-slate-800/50 border border-slate-700/50">
+              <div className="flex items-start gap-3">
+                <span className="text-2xl mt-0.5">{item.icon}</span>
+                <div>
+                  <div className="text-white font-medium text-sm">{item.label}</div>
+                  <div className="text-slate-400 text-xs mt-0.5 max-w-md">{item.desc}</div>
+                </div>
+              </div>
+              <button
+                onClick={() => toggle(item.key, item.desc)}
+                disabled={setMutation.isPending}
+                className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-200 focus:outline-none flex-shrink-0 ml-4 ${
+                  isOn ? "bg-cyan-500" : "bg-slate-600"
+                } ${setMutation.isPending ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+              >
+                <span
+                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-200 ${
+                    isOn ? "translate-x-6" : "translate-x-1"
+                  }`}
+                />
+              </button>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Raw settings table */}
+      {settings.length > 0 && (
+        <div>
+          <h3 className="text-slate-300 font-medium text-sm uppercase tracking-wider mb-3">{zh ? "所有设置记录" : "All Settings"}</h3>
+          <div className="overflow-x-auto rounded-xl border border-slate-700/50">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-700/50 bg-slate-800/40">
+                  <th className="text-left px-4 py-2 text-slate-400 font-medium">Key</th>
+                  <th className="text-left px-4 py-2 text-slate-400 font-medium">{zh ? "值" : "Value"}</th>
+                  <th className="text-left px-4 py-2 text-slate-400 font-medium">{zh ? "最后更新" : "Updated"}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {settings.map((s: { key: string; value: string; description: string | null; updatedAt: Date }) => (
+                  <tr key={s.key} className="border-b border-slate-700/30 hover:bg-slate-800/30">
+                    <td className="px-4 py-2 font-mono text-cyan-400">{s.key}</td>
+                    <td className="px-4 py-2">
+                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                        s.value === "true" ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"
+                      }`}>{s.value}</span>
+                    </td>
+                    <td className="px-4 py-2 text-slate-500 text-xs">{new Date(s.updatedAt).toLocaleString("zh-CN")}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 // ─── NewsTab ───────────────────────────────────────────────────────────────────
 function NewsTab({ zh }: { zh: boolean }) {
   const utils = trpc.useUtils();
@@ -848,6 +957,7 @@ export default function AdminExchangeGuide() {
     { id: "contacts", label: zh ? "📬 联系记录" : "📬 Contacts" },
     { id: "tools", label: zh ? "🛠️ 工具合集" : "🛠️ Tools" },
     { id: "news", label: zh ? "📰 快讯管理" : "📰 News" },
+    { id: "settings", label: zh ? "⚙️ 系统设置" : "⚙️ Settings" },
   ];
 
   if (loading) {
@@ -965,6 +1075,7 @@ export default function AdminExchangeGuide() {
             {tab === "contacts" && <ContactsTab zh={zh} />}
             {tab === "tools" && <ToolsTab zh={zh} />}
             {tab === "news" && <NewsTab zh={zh} />}
+            {tab === "settings" && <SettingsTab zh={zh} />}
           </div>
         </div>
       </div>

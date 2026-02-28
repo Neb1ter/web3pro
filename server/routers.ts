@@ -3,7 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { z } from "zod";
-import { submitContactForm, getContactSubmissions, getExchangeLinks, updateExchangeLink, getFaqs, getCryptoNews, getExchangeFeatureCategories, getExchangeFeatureSupport, getAllExchangeFeatureSupport, getExchangeAllFeatures, createFeatureCategory, updateFeatureCategory, deleteFeatureCategory, upsertFeatureSupport, deleteFeatureSupport, getCryptoTools, getAllCryptoTools, upsertCryptoTool, deleteCryptoTool } from "./db";
+import { submitContactForm, getContactSubmissions, getExchangeLinks, updateExchangeLink, getFaqs, getCryptoNews, getExchangeFeatureCategories, getExchangeFeatureSupport, getAllExchangeFeatureSupport, getExchangeAllFeatures, createFeatureCategory, updateFeatureCategory, deleteFeatureCategory, upsertFeatureSupport, deleteFeatureSupport, getCryptoTools, getAllCryptoTools, upsertCryptoTool, deleteCryptoTool, getSystemSetting, setSystemSetting, getAllSystemSettings } from "./db";
 import { TRPCError } from "@trpc/server";
 import { and, eq, asc } from "drizzle-orm";
 
@@ -403,6 +403,30 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) => {
         if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
         await deleteCryptoTool(input.id);
+        return { success: true };
+      }),
+  }),
+  settings: router({
+    /** Admin: get all system settings */
+    getAll: protectedProcedure.query(async () => {
+      return getAllSystemSettings();
+    }),
+    /** Admin: get a single setting by key */
+    get: protectedProcedure
+      .input(z.object({ key: z.string().min(1).max(64) }))
+      .query(async ({ input }: { input: { key: string } }) => {
+        const value = await getSystemSetting(input.key, "true");
+        return { key: input.key, value };
+      }),
+    /** Admin: set a system setting */
+    set: protectedProcedure
+      .input(z.object({
+        key: z.string().min(1).max(64),
+        value: z.string().max(256),
+        description: z.string().max(512).optional(),
+      }))
+      .mutation(async ({ input }: { input: { key: string; value: string; description?: string } }) => {
+        await setSystemSetting(input.key, input.value, input.description);
         return { success: true };
       }),
   }),
