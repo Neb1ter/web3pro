@@ -25,6 +25,23 @@ export async function getDb() {
   return _db;
 }
 
+/**
+ * 检查数据库中是否已有管理员账号。
+ * 用于「首位注册用户自动成为管理员」逻辑。
+ */
+async function hasAnyAdmin(db: ReturnType<typeof drizzle>): Promise<boolean> {
+  try {
+    const result = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.role, 'admin'))
+      .limit(1);
+    return result.length > 0;
+  } catch {
+    return false;
+  }
+}
+
 export async function upsertUser(user: InsertUser): Promise<void> {
   if (!user.openId) throw new Error("User openId is required for upsert");
   const db = await getDb();
@@ -43,8 +60,27 @@ export async function upsertUser(user: InsertUser): Promise<void> {
     };
     textFields.forEach(assignNullable);
     if (user.lastSignedIn !== undefined) { values.lastSignedIn = user.lastSignedIn; updateSet.lastSignedIn = user.lastSignedIn; }
-    if (user.role !== undefined) { values.role = user.role; updateSet.role = user.role; }
-    else if (user.openId === ENV.ownerOpenId) { values.role = 'admin'; updateSet.role = 'admin'; }
+
+    // ── 角色分配逻辑（优先级从高到低）────────────────────────────────────────
+    if (user.role !== undefined) {
+      // 1. 调用方显式指定了角色（最高优先级）
+      values.role = user.role;
+      updateSet.role = user.role;
+    } else if (ENV.ownerOpenId && user.openId === ENV.ownerOpenId) {
+      // 2. openId 匹配环境变量 OWNER_OPEN_ID（固定管理员）
+      values.role = 'admin';
+      updateSet.role = 'admin';
+    } else {
+      // 3. 首位注册用户自动成为管理员（仅当数据库中还没有任何管理员时）
+      //    此后所有新用户默认为普通 user，该逻辑自动关闭
+      const adminExists = await hasAnyAdmin(db);
+      if (!adminExists) {
+        values.role = 'admin';
+        // 注意：updateSet 不设置 role，避免已有账号重新登录时被降级
+        console.log(`[Auth] First user detected — granting admin role to openId: ${user.openId}`);
+      }
+    }
+
     if (!values.lastSignedIn) values.lastSignedIn = new Date();
     if (Object.keys(updateSet).length === 0) updateSet.lastSignedIn = new Date();
     await db.insert(users).values(values).onDuplicateKeyUpdate({ set: updateSet });
