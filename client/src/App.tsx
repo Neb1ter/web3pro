@@ -215,6 +215,7 @@ function usePageMeta() {
 }
 
 
+function Router() {
   return (
     <ChunkErrorBoundary>
     <Suspense fallback={<PageSkeleton />}>
