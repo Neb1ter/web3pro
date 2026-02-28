@@ -196,257 +196,112 @@ const PLATFORM_LOGOS = [
   { name: "1inch", tag: "DEX" },
 ];
 
-// 复制一份用于无缝滚动
 const ALL_LOGOS = [...PLATFORM_LOGOS, ...PLATFORM_LOGOS];
 
 // ============================================================
-// 背景动画：流动网格 + 光球 + 粒子
+// 背景动画
 // ============================================================
 function AnimatedBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-
-    let animId: number;
-    let t = 0;
-
-    const resize = () => {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
-    };
-    resize();
-    window.addEventListener("resize", resize);
-
-    // 粒子（移动端减少粒子数量以节省性能）
-    const isMobile = window.innerWidth < 768;
-    const particleCount = isMobile ? 30 : 60;
-    const particles = Array.from({ length: particleCount }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * 0.4,
-      vy: (Math.random() - 0.5) * 0.4,
-      r: Math.random() * 1.5 + 0.5,
-      color: Math.random() > 0.6 ? "#FFD700" : Math.random() > 0.5 ? "#6EE7B7" : "#60A5FA",
-      alpha: Math.random() * 0.5 + 0.1,
-    }));
-
-    const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      t += 0.008;
-
-      // 流动网格线
-      const gridSize = 80;
-      ctx.strokeStyle = "rgba(255,215,0,0.04)";
-      ctx.lineWidth = 1;
-      for (let x = 0; x <= canvas.width; x += gridSize) {
-        ctx.beginPath();
+    let w = (canvas.width = window.innerWidth);
+    let h = (canvas.height = window.innerHeight);
+    const particles: { x: number; y: number; r: number; vx: number; vy: number; opacity: number }[] = [];
+    for (let i = 0; i < 40; i++) {
+      particles.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: Math.random() * 1.5 + 0.5,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        opacity: Math.random() * 0.5 + 0.2,
+      });
+    }
+    let raf: number;
+    const render = () => {
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = "rgba(100, 150, 255, 0.05)";
+      const step = 60;
+      ctx.beginPath();
+      for (let x = 0; x < w; x += step) {
         ctx.moveTo(x, 0);
-        ctx.lineTo(x, canvas.height);
-        ctx.stroke();
+        ctx.lineTo(x, h);
       }
-      for (let y = 0; y <= canvas.height; y += gridSize) {
-        ctx.beginPath();
+      for (let y = 0; y < h; y += step) {
         ctx.moveTo(0, y);
-        ctx.lineTo(canvas.width, y);
-        ctx.stroke();
+        ctx.lineTo(w, y);
       }
-
-      // 流动光线（斜向）
-      for (let i = 0; i < 3; i++) {
-        const progress = ((t * 0.3 + i * 0.33) % 1);
-        const x = progress * (canvas.width + 400) - 200;
-        const grad = ctx.createLinearGradient(x - 100, 0, x + 100, canvas.height);
-        grad.addColorStop(0, "transparent");
-        grad.addColorStop(0.5, `rgba(${i === 0 ? "255,215,0" : i === 1 ? "110,231,183" : "96,165,250"},0.04)`);
-        grad.addColorStop(1, "transparent");
-        ctx.fillStyle = grad;
-        ctx.fillRect(x - 100, 0, 200, canvas.height);
-      }
-
-      // 粒子
+      ctx.strokeStyle = "rgba(100, 150, 255, 0.03)";
+      ctx.stroke();
       particles.forEach((p) => {
         p.x += p.vx;
         p.y += p.vy;
-        if (p.x < 0) p.x = canvas.width;
-        if (p.x > canvas.width) p.x = 0;
-        if (p.y < 0) p.y = canvas.height;
-        if (p.y > canvas.height) p.y = 0;
-
+        if (p.x < 0) p.x = w;
+        if (p.x > w) p.x = 0;
+        if (p.y < 0) p.y = h;
+        if (p.y > h) p.y = 0;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = p.color + Math.floor(p.alpha * 255).toString(16).padStart(2, "0");
+        ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity})`;
         ctx.fill();
       });
-
-      // 粒子连线（使用距离平方比较，避免 sqrt 开销）
-      const maxDist = isMobile ? 80 : 100;
-      const maxDistSq = maxDist * maxDist;
-      ctx.lineWidth = 0.5;
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const distSq = dx * dx + dy * dy;
-          if (distSq < maxDistSq) {
-            const alpha = 0.06 * (1 - Math.sqrt(distSq) / maxDist);
-            ctx.beginPath();
-            ctx.strokeStyle = `rgba(255,215,0,${alpha})`;
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.stroke();
-          }
-        }
-      }
-
-      // 脉冲圆环
-      for (let i = 0; i < 2; i++) {
-        const phase = (t * 0.5 + i * 0.5) % 1;
-        const cx = i === 0 ? canvas.width * 0.25 : canvas.width * 0.75;
-        const cy = i === 0 ? canvas.height * 0.3 : canvas.height * 0.7;
-        const maxR = 200;
-        ctx.beginPath();
-        ctx.arc(cx, cy, phase * maxR, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(${i === 0 ? "110,231,183" : "255,215,0"},${0.08 * (1 - phase)})`;
-        ctx.lineWidth = 1;
-        ctx.stroke();
-      }
-
-      animId = requestAnimationFrame(draw);
+      raf = requestAnimationFrame(render);
     };
-
-    draw();
+    render();
+    const onResize = () => {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    };
+    window.addEventListener("resize", onResize);
     return () => {
-      cancelAnimationFrame(animId);
-      window.removeEventListener("resize", resize);
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", onResize);
     };
   }, []);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0 w-full h-full pointer-events-none"
-      style={{ opacity: 0.8 }}
-    />
-  );
+  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none" />;
 }
 
-// ============================================================
-// Logo 滚动横幅
-// ============================================================
 function LogoMarquee({ label }: { label: string }) {
   return (
-    <div className="w-full overflow-hidden py-4">
-      {/* 标签 */}
-      <div className="text-center mb-4">
-        <span className="text-slate-600 text-xs tracking-[0.2em] uppercase font-medium">{label}</span>
+    <div className="relative py-8 border-y border-white/5 bg-white/[0.01] overflow-hidden">
+      <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-[#050D1A] to-transparent z-10" />
+      <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-[#050D1A] to-transparent z-10" />
+      <div className="flex items-center gap-4 mb-4 px-8">
+        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
+        <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">{label}</span>
+        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
       </div>
-
-      {/* 渐变遮罩 */}
-      <div className="relative">
-        <div className="absolute left-0 top-0 bottom-0 w-16 sm:w-32 z-10 pointer-events-none"
-          style={{ background: "linear-gradient(to right, #050D1A, transparent)" }} />
-        <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-32 z-10 pointer-events-none"
-          style={{ background: "linear-gradient(to left, #050D1A, transparent)" }} />
-
-        {/* 滚动轨道 */}
-        <div className="flex overflow-hidden">
-          <div
-            className="flex items-center gap-10 sm:gap-14 flex-shrink-0"
-            style={{
-              animation: "marquee 30s linear infinite",
-              willChange: "transform",
-            }}
-          >
-            {ALL_LOGOS.map((logo, i) => (
-              <div
-                key={i}
-                className="flex-shrink-0 flex items-center gap-2 select-none"
-                title={logo.name}
-              >
-                <span
-                  className="text-xs font-medium px-1.5 py-0.5 rounded border"
-                  style={{
-                    color: logo.tag === "CEX" ? "rgba(255,215,0,0.5)" : logo.tag === "DEX" ? "rgba(110,231,183,0.5)" : "rgba(147,197,253,0.5)",
-                    borderColor: logo.tag === "CEX" ? "rgba(255,215,0,0.2)" : logo.tag === "DEX" ? "rgba(110,231,183,0.2)" : "rgba(147,197,253,0.2)",
-                    fontSize: "10px",
-                    letterSpacing: "0.05em",
-                  }}
-                >
-                  {logo.tag}
-                </span>
-                <span
-                  className="font-semibold tracking-wide"
-                  style={{
-                    color: logo.tag === "CEX" ? "rgba(255,215,0,0.65)" : logo.tag === "DEX" ? "rgba(110,231,183,0.65)" : "rgba(147,197,253,0.65)",
-                    fontSize: "15px",
-                    letterSpacing: "0.04em",
-                  }}
-                >
-                  {logo.name}
-                </span>
-              </div>
-            ))}
+      <div className="flex whitespace-nowrap animate-marquee">
+        {ALL_LOGOS.map((logo, i) => (
+          <div key={i} className="inline-flex items-center gap-2 mx-8 group">
+            <span className="text-xl font-black text-slate-400 group-hover:text-white transition-colors tracking-tighter">
+              {logo.name}
+            </span>
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/5 text-slate-600 font-bold border border-white/5">
+              {logo.tag}
+            </span>
           </div>
-        </div>
+        ))}
       </div>
-
       <style>{`
         @keyframes marquee {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+          animation: marquee 40s linear infinite;
         }
       `}</style>
     </div>
   );
 }
 
-// ============================================================
-// 个性化学习引导卡片（非模态，始终可见）
-// ============================================================
-function QuizBanner({ lang }: { lang: "zh" | "en" }) {
+function QuizBanner({ lang }: { lang: string }) {
   const zh = lang === "zh";
-  const [show, setShow] = useState(false);
-  const [hasPath, setHasPath] = useState(false);
-
-  useEffect(() => {
-    const profile = localStorage.getItem("web3_quiz_profile");
-    const path = localStorage.getItem("web3_learning_path");
-    if (path) {
-      setHasPath(true);
-      setShow(true);
-    } else if (!profile) {
-      setShow(true);
-    }
-  }, []);
-
-  if (!show) return null;
-
-  if (hasPath) {
-    return (
-      <div className="mb-8">
-        <Link href="/learning-path">
-          <div className="group mx-auto max-w-xl rounded-2xl border border-cyan-500/20 p-4 flex items-center gap-4 cursor-pointer hover:border-cyan-500/40 transition-all"
-            style={{ background: "linear-gradient(135deg, rgba(6,182,212,0.06), rgba(139,92,246,0.04))" }}>
-            <span className="text-3xl shrink-0">🗺️</span>
-            <div className="flex-1 min-w-0">
-              <h4 className="text-sm font-bold text-white group-hover:text-cyan-300 transition-colors">
-                {zh ? "继续你的学习路径" : "Continue Your Learning Path"}
-              </h4>
-              <p className="text-xs text-slate-500">{zh ? "个性化定制的 Web3 学习之旅等你探索" : "Your personalized Web3 journey awaits"}</p>
-            </div>
-            <svg className="w-5 h-5 text-slate-600 group-hover:text-cyan-400 transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </div>
-        </Link>
-      </div>
-    );
-  }
-
   return (
     <div className="mb-8">
       <Link href="/web3-quiz">
@@ -474,9 +329,6 @@ function QuizBanner({ lang }: { lang: "zh" | "en" }) {
   );
 }
 
-// ============================================================
-// 主组件
-// ============================================================
 const moduleColors = [
   {
     accentColor: "from-emerald-500/20 to-teal-500/10",
@@ -590,15 +442,11 @@ export default function Portal() {
   return (
     <div className="min-h-screen bg-[#050D1A] text-white relative overflow-hidden">
       <OnboardingPrompt lang={lang} />
-      {/* Canvas 背景动画 */}
       <AnimatedBackground />
 
-      {/* 背景光晕 */}
       <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-emerald-600/8 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-yellow-500/5 rounded-full blur-[150px] pointer-events-none" />
 
-      {/* 中英切换按钮（右上角固定） */}
       <div className="fixed top-4 right-4 z-50">
         <button
           onClick={() => setLang(lang === "zh" ? "en" : "zh")}
@@ -612,15 +460,12 @@ export default function Portal() {
       </div>
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* ===== Hero 区域 ===== */}
         <div className="pt-16 pb-10 sm:pt-24 sm:pb-12 text-center">
-          {/* 顶部标签 */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-yellow-500/30 bg-yellow-500/10 text-yellow-400 text-sm font-medium mb-8">
             <span className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" />
             {t.badge}
           </div>
 
-          {/* 主标题 */}
           <style>{`
             @keyframes gradientShift {
               0%   { background-position: 0% 50%; }
@@ -643,27 +488,19 @@ export default function Portal() {
             }
           `}</style>
           <h1 className="mb-4 leading-tight tracking-tight">
-            {/* Get it, Get Pro. */}
             <div className="text-4xl sm:text-5xl lg:text-7xl font-black">
               <span className="text-white">{t.h1a}</span>
               <span className="animated-gradient">{t.h1b}</span>
             </div>
-            {/* 中文副标：Web3 交易者的晋升之路 */}
             <div className="text-xl sm:text-2xl lg:text-3xl font-semibold mt-3 subtitle-gradient tracking-wide">
               {t.h1sub}
             </div>
-            {/* 英文小标：From Trader. To Pro. */}
-            <div className="text-base sm:text-lg lg:text-xl font-medium mt-2 text-slate-500 tracking-widest uppercase">
-              {lang === 'zh' ? 'From Trader. To Pro.' : ''}
-            </div>
           </h1>
 
-          {/* 副标题 */}
           <p className="text-slate-400 text-lg sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
             {t.desc}
           </p>
 
-          {/* 数据统计 */}
           <div className="flex flex-wrap justify-center gap-6 sm:gap-12 mb-10">
             {[
               { value: t.stat1v, unit: t.stat1u, label: t.stat1l },
@@ -681,15 +518,9 @@ export default function Portal() {
           </div>
         </div>
 
-        {/* ===== 个性化学习引导卡片 ===== */}
         <QuizBanner lang={lang} />
+        <LogoMarquee label={t.bannerLabel} />
 
-        {/* ===== Logo 滚动横幅 ===== */}
-        <div className="mb-12">
-          <LogoMarquee label={t.bannerLabel} />
-        </div>
-
-        {/* ===== 模块卡片区域 ===== */}
         <div className="pb-16">
           <div className="text-center mb-10">
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">{t.sectionTitle}</h2>
@@ -736,8 +567,8 @@ export default function Portal() {
                         ))}
                       </div>
                       <div className="grid grid-cols-3 gap-3 mb-6 p-4 rounded-xl bg-black/20 border border-white/5">
-                        {mod.stats.map((stat) => (
-                          <div key={stat.label} className="text-center">
+                        {mod.stats.map((stat, i) => (
+                          <div key={i} className="text-center">
                             <div className={`text-lg font-black ${colors.titleColor}`}>{stat.value}</div>
                             <div className="text-slate-500 text-xs mt-0.5">{stat.label}</div>
                           </div>
@@ -754,34 +585,6 @@ export default function Portal() {
           </div>
         </div>
 
-        {/* ===== 即将推出 ===== */}
-        <div className="pb-16">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-slate-700 bg-slate-800/50 text-slate-400 text-sm mb-4">
-              <span>🚀</span>
-              {t.comingSoonBadge}
-            </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-300">{t.comingSoonTitle}</h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {t.comingSoon.map((item, i) => (
-              <div key={i} className="relative rounded-xl border border-slate-700/50 bg-slate-800/30 p-5 overflow-hidden">
-                <div className="absolute inset-0 backdrop-blur-[1px] bg-slate-900/40 flex items-center justify-center rounded-xl">
-                  <div className="text-center">
-                    <div className="text-2xl mb-1">🔒</div>
-                    <span className="text-slate-400 text-xs font-medium">{t.lockLabel}</span>
-                  </div>
-                </div>
-                <div className="text-3xl mb-3 opacity-40">{item.icon}</div>
-                <h3 className="font-bold text-slate-400 mb-1 opacity-40">{item.title}</h3>
-                <p className="text-slate-500 text-sm opacity-40">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ===== 页脚（大厂/OKX 风格多列） ===== */}
-        {t.footer ? (
         <footer className="border-t border-slate-800/80 bg-slate-900/40">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-14">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 lg:gap-10">
@@ -824,15 +627,6 @@ export default function Portal() {
             </div>
           </div>
         </footer>
-        ) : (
-        <div className="border-t border-slate-800 py-8">
-          <div className="max-w-6xl mx-auto px-4 text-center">
-            <p className="text-slate-500 text-sm">{t.footerCopy}</p>
-            <p className="text-slate-600 text-xs mt-2">{t.footerDisclaimer}</p>
-            <Link href="/contact"><span className="text-slate-400 hover:text-yellow-400 text-sm">{t.contactUs}</span></Link>
-          </div>
-        </div>
-        )}
       </div>
     </div>
   );
