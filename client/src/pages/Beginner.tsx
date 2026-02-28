@@ -37,10 +37,10 @@ export default function Beginner() {
       "@type": "FAQPage",
       "mainEntity": rawFaqs.map(f => ({
         "@type": "Question",
-        "name": zh ? (f.questionZh ?? f.question) : (f.questionEn ?? f.question),
+        "name": f.question,
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": zh ? (f.answerZh ?? f.answer) : (f.answerEn ?? f.answer)
+          "text": f.answer
         }
       }))
     };
@@ -191,7 +191,7 @@ export default function Beginner() {
                       {catLabel(faq.category)}
                     </span>
                     <span className="text-sm sm:text-base font-semibold text-gray-100 leading-snug">
-                      {zh ? (faq.questionZh ?? faq.question) : (faq.questionEn ?? faq.question)}
+                      {faq.question}
                     </span>
                   </div>
                   <span className="flex-shrink-0 mt-0.5 text-gray-400">
@@ -203,7 +203,7 @@ export default function Beginner() {
                 {openId === faq.id && (
                   <div className="px-4 pb-4 border-t border-yellow-500/20">
                     <p className="text-sm sm:text-base text-gray-300 leading-relaxed pt-3">
-                      {zh ? (faq.answerZh ?? faq.answer) : (faq.answerEn ?? faq.answer)}
+                      {faq.answer}
                     </p>
                   </div>
                 )}

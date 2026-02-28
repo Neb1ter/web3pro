@@ -791,13 +791,13 @@ function NewsTab({ zh }: { zh: boolean }) {
               </tr>
             </thead>
             <tbody>
-              {(newsList ?? []).map(n => (
+              {(newsList ?? []).map((n: any) => (
                 <tr key={n.id} className="border-b border-slate-800/60 hover:bg-slate-800/30">
                   <td className="py-2 pr-3 text-slate-500 text-xs">{n.id}</td>
                   <td className="py-2 pr-3 text-slate-200 max-w-xs">
                     {editing?.id === n.id ? (
-                      <NewsForm value={editing} onChange={v => setEditing({ ...v, id: n.id })}
-                        onSubmit={() => updateMutation.mutate({ id: n.id, ...editing, category: editing.category as any })}
+                      <NewsForm value={editing as any} onChange={v => setEditing({ ...v, id: n.id })}
+                        onSubmit={() => editing && updateMutation.mutate({ id: n.id, title: editing.title, summary: editing.summary, source: editing.source, url: editing.url, category: editing.category as any, isPinned: editing.isPinned, isActive: editing.isActive })}
                         onCancel={() => setEditing(null)} loading={updateMutation.isPending} />
                     ) : (
                       <span className="line-clamp-2">{n.isPinned && "📌 "}{n.title}</span>

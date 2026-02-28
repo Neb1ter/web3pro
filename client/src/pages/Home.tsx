@@ -983,9 +983,6 @@ export default function Home() {
             <a
               href="/manage-m2u0z0i04"
               style={{ color: 'inherit', textDecoration: 'none', cursor: 'default' }}
-              tabIndex={-1}
-              aria-hidden="true"
-              title=""
             >{zh ? '祝您在币圈稳健获利，财富自由！' : 'Wishing you stable profits and financial freedom in crypto!'}</a>
           </p>
         </div>

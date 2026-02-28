@@ -622,9 +622,6 @@ export default function Portal() {
                 <a
                   href="/manage-m2u0z0i04"
                   style={{ color: 'inherit', textDecoration: 'none', cursor: 'default' }}
-                  tabIndex={-1}
-                  aria-hidden="true"
-                  title=""
                 >©</a>{t.footer.copyright.replace('©', '')}
               </p>
               <p id="disclaimer" className="text-slate-600 text-xs max-w-xl text-center sm:text-right">

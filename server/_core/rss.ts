@@ -156,7 +156,7 @@ async function fetchAndIngest(source: typeof RSS_SOURCES[0]): Promise<number> {
     .from(cryptoNews)
     .orderBy(desc(cryptoNews.createdAt))
     .limit(200);
-  const existingTitles = new Set(existing.map(r => r.title));
+  const existingTitles = new Set(existing.map((r: { title: string }) => r.title));
 
   let inserted = 0;
   for (const item of items.slice(0, 20)) {

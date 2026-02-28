@@ -1,5 +1,6 @@
 import { eq, like, or, asc, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
+import { createPool } from "mysql2/promise";
 import {
   InsertUser, users,
   contactSubmissions, InsertContactSubmission,
@@ -12,12 +13,27 @@ import {
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
-let _db: ReturnType<typeof drizzle> | null = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let _db: any = null;
 
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      const pool = createPool({
+        uri: process.env.DATABASE_URL,
+        supportBigNumbers: true,
+        bigNumberStrings: false,
+        waitForConnections: true,
+        connectionLimit: 10,
+        queueLimit: 0,
+        connectTimeout: 30000,
+        // Railway MySQL 内部连接不需要 SSL，外部连接需要
+        ssl: process.env.DATABASE_URL?.includes('railway.app') || process.env.DATABASE_URL?.includes('sslmode=require')
+          ? { rejectUnauthorized: false }
+          : undefined,
+      });
+      _db = drizzle(pool);
+      console.log('[Database] Connection pool created successfully');
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
@@ -595,6 +611,12 @@ export async function getCryptoTools(activeOnly = true): Promise<CryptoTool[]> {
   const db = await getDb();
   if (!db) return [];
   const { asc } = await import('drizzle-orm');
+  // 如果表为空，自动插入种子数据（与 getCryptoNews 逻辑一致）
+  const existing = await db.select({ id: cryptoTools.id }).from(cryptoTools).limit(1);
+  if (existing.length === 0) {
+    console.log('[Database] Seeding crypto_tools table with defaults...');
+    await seedCryptoToolsIfEmpty();
+  }
   if (activeOnly) {
     return db.select().from(cryptoTools)
       .where(eq(cryptoTools.isActive, true))
