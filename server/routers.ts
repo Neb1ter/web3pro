@@ -20,19 +20,22 @@ export const appRouter = router({
   contact: router({
     submit: publicProcedure
       .input(z.object({
-        platform: z.string().min(1, "请选择联系平台"),
-        accountName: z.string().min(1, "请填写账号名称"),
-        exchangeUid: z.string().optional().default(""),
-        exchangeUsername: z.string().optional().default(""),
-        message: z.string().optional().default(""),
+        // 字段长度限制，防止超大输入体
+        platform:        z.string().min(1, "请选择联系平台").max(32),
+        accountName:     z.string().min(1, "请填写账号名称").max(64),
+        exchangeUid:     z.string().max(64).optional().default(""),
+        exchangeUsername:z.string().max(64).optional().default(""),
+        message:         z.string().max(500).optional().default(""),
       }))
       .mutation(async ({ input }) => {
+        // 简单内容过滤：去除潜在的 HTML/Script 注入
+        const sanitize = (s: string) => s.replace(/<[^>]*>/g, "").trim();
         await submitContactForm({
-          platform: input.platform,
-          accountName: input.accountName,
-          exchangeUid: input.exchangeUid || null,
-          exchangeUsername: input.exchangeUsername || null,
-          message: input.message || null,
+          platform:        sanitize(input.platform),
+          accountName:     sanitize(input.accountName),
+          exchangeUid:     input.exchangeUid     ? sanitize(input.exchangeUid)      : null,
+          exchangeUsername:input.exchangeUsername? sanitize(input.exchangeUsername) : null,
+          message:         input.message         ? sanitize(input.message)          : null,
         });
         return { success: true } as const;
       }),

@@ -7,6 +7,12 @@ import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
+import {
+  registerSecurityMiddleware,
+  apiLimiter,
+  contactLimiter,
+  authLimiter,
+} from "./security";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -30,12 +36,23 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   const app = express();
   const server = createServer(app);
-  // Configure body parser with larger size limit for file uploads
-  app.use(express.json({ limit: "50mb" }));
-  app.use(express.urlencoded({ limit: "50mb", extended: true }));
-  // OAuth callback under /api/oauth/callback
+
+  // ── 安全中间件（helmet + cors + 全局限流）──────────────────────────────────
+  registerSecurityMiddleware(app);
+
+  // ── Body Parser（收紧为 1mb，防止超大请求体攻击）───────────────────────────
+  app.use(express.json({ limit: "1mb" }));
+  app.use(express.urlencoded({ limit: "1mb", extended: true }));
+
+  // ── OAuth 回调（独立限流：每 IP 每 15 分钟 20 次）──────────────────────────
+  app.use("/api/oauth", authLimiter);
   registerOAuthRoutes(app);
-  // tRPC API
+
+  // ── 联系表单限流（每 IP 每小时 5 次，防垃圾提交）──────────────────────────
+  app.use("/api/trpc/contact.submit", contactLimiter);
+
+  // ── tRPC API（API 级限流：每 IP 每分钟 60 次）─────────────────────────────
+  app.use("/api/trpc", apiLimiter);
   app.use(
     "/api/trpc",
     createExpressMiddleware({
@@ -43,6 +60,7 @@ async function startServer() {
       createContext,
     })
   );
+
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);
