@@ -5,6 +5,7 @@ import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import { submitContactForm, getContactSubmissions, getExchangeLinks, updateExchangeLink, getFaqs, getCryptoNews, getExchangeFeatureCategories, getExchangeFeatureSupport, getAllExchangeFeatureSupport, getExchangeAllFeatures, createFeatureCategory, updateFeatureCategory, deleteFeatureCategory, upsertFeatureSupport, deleteFeatureSupport, getCryptoTools, getAllCryptoTools, upsertCryptoTool, deleteCryptoTool } from "./db";
 import { TRPCError } from "@trpc/server";
+import { and, eq, asc } from "drizzle-orm";
 
 export const appRouter = router({
   system: systemRouter,
@@ -77,7 +78,7 @@ export const appRouter = router({
   /** FAQ (新手问答) — supports optional search query */
   faq: router({
     list: publicProcedure
-      .input(z.object({ search: z.string().optional() }))
+      .input(z.object({ search: z.string().max(100).optional() }))
       .query(async ({ input }) => getFaqs(input.search)),
   }),
 
@@ -217,17 +218,17 @@ export const appRouter = router({
         // 防止单用户大量写入：每类型最多保留 200 条记录
         const existing = await db.select({ id: simTradeHistory.id })
           .from(simTradeHistory)
-          .where(require('drizzle-orm').and(
-            require('drizzle-orm').eq(simTradeHistory.userId, ctx.user.id),
-            require('drizzle-orm').eq(simTradeHistory.simType, input.simType)
+          .where(and(
+            eq(simTradeHistory.userId, ctx.user.id),
+            eq(simTradeHistory.simType, input.simType)
           ))
-          .orderBy(require('drizzle-orm').asc(simTradeHistory.closedAt))
+          .orderBy(asc(simTradeHistory.closedAt))
           .limit(1000);
         if (existing.length >= 200) {
           // 删除最早的记录，保持在 200 条以内
           const toDelete = existing.slice(0, existing.length - 199);
           for (const rec of toDelete) {
-            await db.delete(simTradeHistory).where(require('drizzle-orm').eq(simTradeHistory.id, rec.id));
+            await db.delete(simTradeHistory).where(eq(simTradeHistory.id, rec.id));
           }
         }
         await db.insert(simTradeHistory).values({

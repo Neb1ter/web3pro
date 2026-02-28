@@ -4,6 +4,7 @@ import { createServer } from "http";
 import net from "net";
 import path from "path";
 import { fileURLToPath } from "url";
+import { timingSafeEqual } from "crypto";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
@@ -14,6 +15,7 @@ import {
   apiLimiter,
   contactLimiter,
   authLimiter,
+  readLimiter,
 } from "./security";
 import { ENV } from "./env";
 import { sdk } from "./sdk";
@@ -21,6 +23,25 @@ import { upsertUser, getDb, seedCryptoToolsIfEmpty } from "../db";
 import { getSessionCookieOptions } from "./cookies";
 import { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 import { migrate } from "drizzle-orm/mysql2/migrator";
+
+// 管理员 session 有效期：8 小时（替代原来的 1 年）
+const ADMIN_SESSION_MS = 1000 * 60 * 60 * 8;
+
+/** 防时序攻击的密码比较 */
+function safeComparePassword(input: string, expected: string): boolean {
+  try {
+    const a = Buffer.from(input);
+    const b = Buffer.from(expected);
+    if (a.length !== b.length) {
+      // 长度不同时仍执行一次比较，避免时序泄露
+      timingSafeEqual(Buffer.alloc(b.length), b);
+      return false;
+    }
+    return timingSafeEqual(a, b);
+  } catch {
+    return false;
+  }
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -89,7 +110,7 @@ async function startServer() {
       res.status(503).json({ error: "管理员密码登录未配置，请设置 ADMIN_PASSWORD 环境变量" });
       return;
     }
-    if (!password || password !== ENV.adminPassword) {
+    if (!password || !safeComparePassword(password, ENV.adminPassword)) {
       res.status(401).json({ error: "密码错误" });
       return;
     }
@@ -103,13 +124,13 @@ async function startServer() {
         role: "admin",
         lastSignedIn: new Date(),
       });
-      // 创建 session token
+      // 创建 session token（8 小时有效期）
       const sessionToken = await sdk.createSessionToken(ADMIN_OPEN_ID, {
         name: "管理员",
-        expiresInMs: ONE_YEAR_MS,
+        expiresInMs: ADMIN_SESSION_MS,
       });
       const cookieOptions = getSessionCookieOptions(req);
-      res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
+      res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ADMIN_SESSION_MS });
       res.json({ success: true });
     } catch (error) {
       console.error("[AdminLogin] Failed:", error);
@@ -124,6 +145,15 @@ async function startServer() {
   // ── 联系表单限流（每 IP 每小时 5 次，防垃圾提交）──────────────────────────
   app.use("/api/trpc/contact.submit", contactLimiter);
 
+  // ── 公开读接口限流（每 IP 每分钟 30 次，防爬虫批量抓取）──────────────────
+  app.use("/api/trpc/exchanges.list", readLimiter);
+  app.use("/api/trpc/faq.list", readLimiter);
+  app.use("/api/trpc/news.list", readLimiter);
+  app.use("/api/trpc/exchangeGuide.categories", readLimiter);
+  app.use("/api/trpc/exchangeGuide.allFeatureSupport", readLimiter);
+  app.use("/api/trpc/exchangeGuide.featureSupport", readLimiter);
+  app.use("/api/trpc/exchangeGuide.exchangeFeatures", readLimiter);
+
   // ── tRPC API（API 级限流：每 IP 每分钟 60 次）─────────────────────────────
   app.use("/api/trpc", apiLimiter);
   app.use(
@@ -133,6 +163,39 @@ async function startServer() {
       createContext,
     })
   );
+
+  // ── Sitemap（SEO：自动生成站点地图）──────────────────────────────────────
+  app.get("/sitemap.xml", (_req: Request, res: Response) => {
+    const base = ENV.siteUrl ?? "https://web3pro.com";
+    const staticRoutes = [
+      { path: "/",                  priority: "1.0", changefreq: "daily"   },
+      { path: "/exchanges",         priority: "0.9", changefreq: "weekly"  },
+      { path: "/exchange-guide",    priority: "0.8", changefreq: "weekly"  },
+      { path: "/news",              priority: "0.9", changefreq: "hourly"  },
+      { path: "/beginner",          priority: "0.7", changefreq: "weekly"  },
+      { path: "/broker-program",    priority: "0.8", changefreq: "monthly" },
+      { path: "/contact",           priority: "0.5", changefreq: "monthly" },
+    ];
+    const now = new Date().toISOString().split("T")[0];
+    const urls = staticRoutes.map(r => `
+  <url>
+    <loc>${base}${r.path}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>${r.changefreq}</changefreq>
+    <priority>${r.priority}</priority>
+  </url>`).join("");
+    res.header("Content-Type", "application/xml");
+    res.send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls}
+</urlset>`);
+  });
+
+  // ── robots.txt ────────────────────────────────────────────────────────────
+  app.get("/robots.txt", (_req: Request, res: Response) => {
+    const base = ENV.siteUrl ?? "https://web3pro.com";
+    res.header("Content-Type", "text/plain");
+    res.send(`User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /manage-m2u0z0i04\nSitemap: ${base}/sitemap.xml\n`);
+  });
 
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {

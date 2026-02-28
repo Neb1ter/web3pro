@@ -88,15 +88,28 @@ export const authLimiter = rateLimit({
   handler: rateLimitHandler,
 });
 
+// ─── 公开读接口限流：每 IP 每分钟 30 次（防爬虫批量抓取）────────────────────
+export const readLimiter = rateLimit({
+  windowMs: 60 * 1000,           // 1 分钟
+  max: 30,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  handler: rateLimitHandler,
+});
+
 // ─── 注册所有安全中间件 ──────────────────────────────────────────────────────
 export function registerSecurityMiddleware(app: Express) {
   // 1. Helmet — 安全 HTTP 头
+  const isProd = process.env.NODE_ENV === "production";
   app.use(
     helmet({
       contentSecurityPolicy: {
         directives: {
           defaultSrc: ["'self'"],
-          scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],  // Vite HMR 需要
+          // 生产环境去掉 unsafe-eval，开发环境保留供 Vite HMR 使用
+          scriptSrc: isProd
+            ? ["'self'", "'unsafe-inline'"]
+            : ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
           styleSrc: ["'self'", "'unsafe-inline'"],
           imgSrc: ["'self'", "data:", "https:"],
           connectSrc: ["'self'", "https:", "wss:"],

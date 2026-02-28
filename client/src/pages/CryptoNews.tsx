@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ArrowLeft } from "lucide-react";
 import { useScrollMemory, goBack } from "@/hooks/useScrollMemory";
+import { trpc } from "@/lib/trpc";
 
 const CATEGORY_LABELS: Record<string, { zh: string; en: string; color: string }> = {
   market:   { zh: "行情",   en: "Market",   color: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30" },
@@ -51,17 +52,43 @@ export default function CryptoNews() {
   useScrollMemory();
   const [activeFilter, setActiveFilter] = useState<CategoryFilter>("all");
 
-  const newsItems = [
-    { id: 1, titleZh: "比特币突破 10 万美元大关，市场情绪高涨", titleEn: "Bitcoin Breaks $100K Milestone, Market Sentiment Soars", summaryZh: "比特币价格首次突破 10 万美元，创历史新高，机构投资者持续加仓。", summaryEn: "Bitcoin price breaks $100K for the first time, setting a new all-time high as institutional investors continue to accumulate.", category: "market", publishedAt: new Date("2026-01-15"), url: "https://coindesk.com" },
-    { id: 2, titleZh: "SEC 批准多只以太坊现货 ETF，机构入场加速", titleEn: "SEC Approves Multiple Ethereum Spot ETFs, Institutional Entry Accelerates", summaryZh: "美国证券交易委员会批准多只以太坊现货 ETF，标志着加密货币监管进入新阶段。", summaryEn: "The SEC approves multiple Ethereum spot ETFs, marking a new phase in crypto regulation.", category: "policy", publishedAt: new Date("2026-01-12"), url: "https://coindesk.com" },
-    { id: 3, titleZh: "Gate.io 推出 60% 返佣计划，创行业新高", titleEn: "Gate.io Launches 60% Rebate Program, Setting Industry Record", summaryZh: "Gate.io 宣布推出业内最高返佣计划，通过推荐链接注册可获得高达 60% 的手续费返还。", summaryEn: "Gate.io announces the industry's highest rebate program — up to 60% fee rebate for users who register through referral links.", category: "exchange", publishedAt: new Date("2026-01-10"), url: "https://gate.io" },
-    { id: 4, titleZh: "DeFi 总锁仓量突破 2000 亿美元", titleEn: "DeFi Total Value Locked Surpasses $200 Billion", summaryZh: "DeFi 协议总锁仓量创历史新高，Uniswap、Aave 等头部协议贡献了主要增量。", summaryEn: "DeFi protocol TVL hits a new all-time high, with Uniswap, Aave and other leading protocols driving major growth.", category: "defi", publishedAt: new Date("2026-01-08"), url: "https://defillama.com" },
-    { id: 5, titleZh: "OKX 获得欧盟 MiCA 监管牌照", titleEn: "OKX Obtains EU MiCA Regulatory License", summaryZh: "OKX 宣布正式获得欧盟 MiCA 框架下的加密资产服务商牌照，合规运营覆盖全欧盟市场。", summaryEn: "OKX announces it has officially obtained a crypto asset service provider license under the EU MiCA framework, covering the entire EU market.", category: "exchange", publishedAt: new Date("2026-01-05"), url: "https://okx.com" },
-    { id: 6, titleZh: "以太坊完成 Pectra 升级，Gas 费大幅降低", titleEn: "Ethereum Completes Pectra Upgrade, Gas Fees Drop Significantly", summaryZh: "以太坊 Pectra 升级成功上线，Layer2 交易成本进一步降低，用户体验大幅提升。", summaryEn: "Ethereum's Pectra upgrade successfully launches, further reducing Layer2 transaction costs and significantly improving user experience.", category: "market", publishedAt: new Date("2026-01-03"), url: "https://ethereum.org" },
-    { id: 7, titleZh: "Binance 宣布与多国央行合作探索 CBDC", titleEn: "Binance Announces CBDC Exploration Partnerships with Multiple Central Banks", summaryZh: "Binance 宣布与多个国家央行建立合作关系，共同探索中央银行数字货币（CBDC）的技术实现路径。", summaryEn: "Binance announces partnerships with multiple central banks to jointly explore technical implementation paths for Central Bank Digital Currencies (CBDCs).", category: "policy", publishedAt: new Date("2025-12-28"), url: "https://binance.com" },
-    { id: 8, titleZh: "NFT 市场回暖，蓝筹项目交易量环比增长 40%", titleEn: "NFT Market Rebounds, Blue-Chip Project Volume Up 40% MoM", summaryZh: "NFT 市场在经历低迷后开始回暖，CryptoPunks、BAYC 等蓝筹项目交易量环比增长超 40%。", summaryEn: "The NFT market begins to recover after a slump, with blue-chip projects like CryptoPunks and BAYC seeing trading volume increase over 40% month-on-month.", category: "nft", publishedAt: new Date("2025-12-25"), url: "https://opensea.io" },
-  ];
-  const isLoading = false;
+  // 从数据库加载真实快讯数据
+  const { data: newsItems = [], isLoading } = trpc.news.list.useQuery({ limit: 50 });
+
+  // 注入 SEO 结构化数据（ItemList schema）
+  useEffect(() => {
+    if (!newsItems.length) return;
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": zh ? "加密货币快讯" : "Crypto News",
+      "description": zh ? "最新加密货币市场动态、政策、交易所资讯" : "Latest crypto market updates, policy news, and exchange announcements",
+      "itemListElement": newsItems.slice(0, 10).map((item, idx) => ({
+        "@type": "ListItem",
+        "position": idx + 1,
+        "item": {
+          "@type": "NewsArticle",
+          "headline": item.title,
+          "description": item.summary ?? "",
+          "datePublished": new Date(item.publishedAt).toISOString(),
+          "url": item.url ?? window.location.href,
+          "publisher": {
+            "@type": "Organization",
+            "name": item.source ?? "加密快讯"
+          }
+        }
+      }))
+    };
+    let el = document.getElementById("news-schema");
+    if (!el) {
+      el = document.createElement("script");
+      el.id = "news-schema";
+      (el as HTMLScriptElement).type = "application/ld+json";
+      document.head.appendChild(el);
+    }
+    el.textContent = JSON.stringify(schema);
+    return () => { el?.remove(); };
+  }, [newsItems, zh]);
 
   const filtered = activeFilter === "all"
     ? newsItems
@@ -205,13 +232,13 @@ export default function CryptoNews() {
 
                               {/* Title */}
                               <h3 className="text-sm sm:text-base font-semibold text-gray-100 leading-snug mb-1.5 group-hover:text-yellow-300 transition-colors">
-                                {zh ? item.titleZh : item.titleEn}
+                                {item.title}
                               </h3>
 
                               {/* Summary */}
-                              {(zh ? item.summaryZh : item.summaryEn) && (
+                              {item.summary && (
                                 <p className="text-xs sm:text-sm text-gray-400 leading-relaxed line-clamp-2">
-                                  {zh ? item.summaryZh : item.summaryEn}
+                                  {item.summary}
                                 </p>
                               )}
 
@@ -219,7 +246,7 @@ export default function CryptoNews() {
                               <div className="flex items-center justify-between mt-2.5 pt-2.5 border-t border-gray-700/50">
                                 <span className="text-xs text-gray-500 flex items-center gap-1">
                                   <span>📰</span>
-                                  {zh ? "加密新闻" : "Crypto News"}
+                                  {item.source ?? (zh ? "加密新闻" : "Crypto News")}
                                 </span>
                                 {item.url && (
                                   <a

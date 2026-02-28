@@ -143,6 +143,7 @@ function PageSkeleton() {
 function PageTransition({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   useLearningPathSync();
+  usePageMeta();
   const [displayLocation, setDisplayLocation] = useState(location);
   const [transitionStage, setTransitionStage] = useState<"enter" | "exit">("enter");
   const prevLocation = useRef(location);
@@ -186,7 +187,34 @@ function PageTransition({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Router() {
+// ============================================================
+// 动态 Meta：根据路由更新 title 和 description（SEO）
+// ============================================================
+const PAGE_META: Record<string, { title: string; desc: string }> = {
+  "/":                    { title: "Get8 Pro — 官方认证返佣 | Web3 专业交易者导航平台", desc: "Get8 Pro 提供官方认证的交易所返佣、权威数据分析与独立评测，助你降低交易成本，提升决策效率。" },
+  "/portal":              { title: "Get8 Pro — 官方认证返佣 | Web3 专业交易者导航平台", desc: "Get8 Pro 提供官方认证的交易所返佣、权威数据分析与独立评测，助你降低交易成本，提升决策效率。" },
+  "/crypto-saving":       { title: "币圈省钱指南 — Get8 Pro", desc: "最全交易所返佣攻略，Binance、OKX、Gate.io 官方认证返佣，最高节省 60% 手续费。" },
+  "/exchanges":           { title: "交易所对比 — Get8 Pro", desc: "客观对比主流加密货币交易所的手续费、安全性、功能与返佣比例，找到最适合你的平台。" },
+  "/exchange-guide":      { title: "交易所功能指南 — Get8 Pro", desc: "深度解析各大交易所功能差异，现货、合约、杠杆、理财一网打尽。" },
+  "/beginner":            { title: "新手问答 — Get8 Pro", desc: "币圈基础知识 Q&A，从区块链原理到交易技巧，零基础入门加密货币。" },
+  "/crypto-intro":        { title: "加密货币入门 — Get8 Pro", desc: "系统学习加密货币基础知识，了解比特币、以太坊、DeFi 和 NFT 的核心概念。" },
+  "/crypto-news":         { title: "加密快讯 — Get8 Pro", desc: "实时追踪加密货币市场动态、政策法规、交易所公告，掌握最新行情资讯。" },
+  "/web3-guide":          { title: "Web3 入圈指南 — Get8 Pro", desc: "从零开始了解 Web3 世界，区块链、钱包、DeFi、NFT 全面科普。" },
+  "/contact":             { title: "联系我们 — Get8 Pro", desc: "有任何问题或合作意向，欢迎联系 Get8 Pro 团队。" },
+  "/legal":               { title: "法律声明 — Get8 Pro", desc: "Get8 Pro 使用条款、隐私政策与免责声明。" },
+};
+
+function usePageMeta() {
+  const [location] = useLocation();
+  useEffect(() => {
+    const meta = PAGE_META[location] ?? PAGE_META["/"];
+    document.title = meta.title;
+    const el = document.querySelector('meta[name="description"]');
+    if (el) el.setAttribute("content", meta.desc);
+  }, [location]);
+}
+
+
   return (
     <ChunkErrorBoundary>
     <Suspense fallback={<PageSkeleton />}>
