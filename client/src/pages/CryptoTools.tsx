@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ArrowLeft, ExternalLink, Twitter, Youtube, Send, Calculator, Shield, Globe, Wifi, WifiOff } from "lucide-react";
 import { goBack } from "@/hooks/useScrollMemory";
+import { trpc } from "@/lib/trpc";
 
 // ─── 分类定义 ────────────────────────────────────────────────────────────────
 const CATEGORIES = [
@@ -26,376 +27,97 @@ const DIFFICULTY_LABELS: Record<string, { zh: string; en: string; color: string 
   advanced:     { zh: "高级",   en: "Advanced",     color: "bg-red-500/20 text-red-400 border-red-500/30" },
 };
 
-// ─── 工具数据 ─────────────────────────────────────────────────────────────────
-// needVpn: true = 国内需要VPN, false = 国内可直接访问
-const DEFAULT_TOOLS = [
-  // ── 资讯新闻 ──
-  {
-    id: 2, icon: "📡",
-    name: "律动 BlockBeats",           nameEn: "BlockBeats",
-    description: "国内领先的加密货币媒体，提供深度行业报道、项目分析和市场快讯，是币圈人必读的中文媒体",
-    descriptionEn: "China's leading crypto media with in-depth industry reports, project analysis, and market news — essential reading for Chinese crypto community",
-    category: "news", source: "BlockBeats", url: "https://www.theblockbeats.info",
-    tags: "资讯,深度,华语", difficulty: "beginner", needVpn: false, sortOrder: 2, isActive: true,
-  },
-  {
-    id: 3, icon: "⚡",
-    name: "金十数据",                   nameEn: "Jinshi Data",
-    description: "实时财经快讯平台，提供加密货币、外汇、大宗商品等全球市场的秒级资讯推送，适合关注宏观行情的投资者",
-    descriptionEn: "Real-time financial news platform with second-level updates on crypto, forex, and commodities — ideal for macro-focused investors",
-    category: "news", source: "金十数据", url: "https://www.jin10.com",
-    tags: "快讯,宏观,实时", difficulty: "beginner", needVpn: false, sortOrder: 3, isActive: true,
-  },
-  {
-    id: 4, icon: "🌐",
-    name: "CoinDesk 新闻",             nameEn: "CoinDesk",
-    description: "全球最权威的加密货币英文媒体，提供行业深度报道、政策解读和市场分析",
-    descriptionEn: "World's most authoritative English crypto media with in-depth industry coverage, policy analysis, and market insights",
-    category: "news", source: "CoinDesk", url: "https://www.coindesk.com",
-    tags: "英文,深度,权威", difficulty: "intermediate", needVpn: true, sortOrder: 4, isActive: true,
-  },
-  // ── 行情价格 ──
-  {
-    id: 5, icon: "🦎",
-    name: "CoinGecko 行情",            nameEn: "CoinGecko",
-    description: "全球最大加密货币数据平台，实时价格、市值、交易量，支持数千种代币",
-    descriptionEn: "World's largest crypto data platform with real-time prices, market cap, and volume for thousands of tokens",
-    category: "price", source: "CoinGecko", url: "https://www.coingecko.com",
-    tags: "价格,市值,新手", difficulty: "beginner", needVpn: true, sortOrder: 5, isActive: true,
-  },
-  {
-    id: 6, icon: "📊",
-    name: "CoinMarketCap",             nameEn: "CoinMarketCap",
-    description: "加密货币市场数据权威平台，提供价格、排名、DeFi、NFT 等全方位数据",
-    descriptionEn: "Leading crypto market data platform with prices, rankings, DeFi and NFT data",
-    category: "price", source: "CoinMarketCap", url: "https://coinmarketcap.com",
-    tags: "价格,排名,新手", difficulty: "beginner", needVpn: true, sortOrder: 6, isActive: true,
-  },
-  {
-    id: 7, icon: "📉",
-    name: "Coinglass 合约数据",        nameEn: "Coinglass",
-    description: "专注合约市场的数据平台，提供爆仓数据、多空比、资金费率、持仓量等衍生品核心指标",
-    descriptionEn: "Derivatives-focused data platform with liquidation data, long/short ratio, funding rates, and open interest",
-    category: "price", source: "Coinglass", url: "https://www.coinglass.com",
-    tags: "合约,爆仓,资金费率", difficulty: "intermediate", needVpn: false, sortOrder: 7, isActive: true,
-  },
-  {
-    id: 8, icon: "😱",
-    name: "恐贪指数",                   nameEn: "Fear & Greed Index",
-    description: "比特币市场情绪指数，0-100 分衡量市场恐惧与贪婪程度，辅助判断市场顶底",
-    descriptionEn: "Bitcoin market sentiment index from 0-100 measuring fear and greed to help identify market tops and bottoms",
-    category: "price", source: "Alternative.me", url: "https://alternative.me/crypto/fear-and-greed-index/",
-    tags: "情绪,市场,新手", difficulty: "beginner", needVpn: true, sortOrder: 8, isActive: true,
-  },
-  // ── 图表分析 ──
-  {
-    id: 9, icon: "📈",
-    name: "TradingView 图表",          nameEn: "TradingView",
-    description: "专业 K 线图表工具，支持技术指标、画线工具，是交易者必备的图表分析平台",
-    descriptionEn: "Professional charting tool with technical indicators and drawing tools, essential for traders",
-    category: "chart", source: "TradingView", url: "https://www.tradingview.com",
-    tags: "K线,技术分析,进阶", difficulty: "intermediate", needVpn: true, sortOrder: 9, isActive: true,
-  },
-  // ── 链上数据 ──
-  {
-    id: 10, icon: "🔍",
-    name: "Etherscan 区块浏览器",      nameEn: "Etherscan",
-    description: "以太坊区块链浏览器，查询交易记录、钱包余额、智能合约，链上数据透明可查",
-    descriptionEn: "Ethereum blockchain explorer to check transactions, wallet balances, and smart contracts",
-    category: "onchain", source: "Etherscan", url: "https://etherscan.io",
-    tags: "链上,以太坊,新手", difficulty: "beginner", needVpn: true, sortOrder: 10, isActive: true,
-  },
-  {
-    id: 11, icon: "🔎",
-    name: "BscScan 区块浏览器",        nameEn: "BscScan",
-    description: "币安智能链（BSC）区块浏览器，查询 BNB Chain 上的交易、合约和代币信息",
-    descriptionEn: "BNB Chain block explorer for transactions, contracts, and token information on BSC",
-    category: "onchain", source: "BscScan", url: "https://bscscan.com",
-    tags: "链上,BSC,新手", difficulty: "beginner", needVpn: true, sortOrder: 11, isActive: true,
-  },
-  {
-    id: 12, icon: "🦙",
-    name: "DeFiLlama TVL 追踪",        nameEn: "DeFiLlama",
-    description: "追踪所有 DeFi 协议的 TVL（总锁仓量），了解 DeFi 生态资金流向和协议排名",
-    descriptionEn: "Track TVL across all DeFi protocols to understand capital flows and protocol rankings",
-    category: "defi", source: "DeFiLlama", url: "https://defillama.com",
-    tags: "DeFi,TVL,进阶", difficulty: "intermediate", needVpn: true, sortOrder: 12, isActive: true,
-  },
-  {
-    id: 13, icon: "🔮",
-    name: "Dune Analytics 数据分析",   nameEn: "Dune Analytics",
-    description: "链上数据查询和可视化平台，可自定义 SQL 查询区块链数据，适合深度研究者",
-    descriptionEn: "On-chain data query and visualization platform with custom SQL queries for blockchain data",
-    category: "onchain", source: "Dune Analytics", url: "https://dune.com",
-    tags: "链上,数据分析,高级", difficulty: "advanced", needVpn: true, sortOrder: 13, isActive: true,
-  },
-  {
-    id: 14, icon: "🧠",
-    name: "Nansen 智能钱包追踪",       nameEn: "Nansen",
-    description: "追踪聪明钱包（Smart Money）的链上行为，发现早期机会和市场趋势",
-    descriptionEn: "Track smart money on-chain behavior to discover early opportunities and market trends",
-    category: "onchain", source: "Nansen", url: "https://www.nansen.ai",
-    tags: "聪明钱包,链上,高级", difficulty: "advanced", needVpn: true, sortOrder: 14, isActive: true,
-  },
-  {
-    id: 15, icon: "🔬",
-    name: "Glassnode 链上指标",        nameEn: "Glassnode",
-    description: "专业链上数据分析平台，提供比特币/以太坊持仓分布、矿工行为等高级指标",
-    descriptionEn: "Professional on-chain analytics with BTC/ETH holder distribution, miner behavior, and advanced metrics",
-    category: "onchain", source: "Glassnode", url: "https://glassnode.com",
-    tags: "链上,比特币,高级", difficulty: "advanced", needVpn: true, sortOrder: 15, isActive: true,
-  },
-  // ── DeFi ──
-  {
-    id: 16, icon: "⛽",
-    name: "ETH Gas 费用追踪",          nameEn: "ETH Gas Tracker",
-    description: "实时追踪以太坊 Gas 费用，选择最优时机发送交易，节省手续费",
-    descriptionEn: "Real-time Ethereum gas fee tracker to choose optimal timing for transactions and save on fees",
-    category: "defi", source: "Etherscan", url: "https://etherscan.io/gastracker",
-    tags: "Gas,以太坊,新手", difficulty: "beginner", needVpn: true, sortOrder: 16, isActive: true,
-  },
-  {
-    id: 17, icon: "🦄",
-    name: "Uniswap 去中心化交易",      nameEn: "Uniswap",
-    description: "以太坊最大去中心化交易所，直接用钱包兑换代币，无需注册，支持数千种 ERC-20 代币",
-    descriptionEn: "Ethereum's largest DEX for swapping tokens directly from your wallet, no registration needed",
-    category: "defi", source: "Uniswap", url: "https://app.uniswap.org",
-    tags: "DEX,DeFi,进阶", difficulty: "intermediate", needVpn: true, sortOrder: 17, isActive: true,
-  },
-  // ── 安全工具 ──
-  {
-    id: 18, icon: "🦊",
-    name: "MetaMask 钱包",             nameEn: "MetaMask",
-    description: "最流行的以太坊浏览器插件钱包，支持 EVM 兼容链，是进入 DeFi/NFT 世界的必备工具",
-    descriptionEn: "Most popular Ethereum browser wallet supporting EVM-compatible chains, essential for DeFi and NFT",
-    category: "security", source: "MetaMask", url: "https://metamask.io",
-    tags: "钱包,安全,新手", difficulty: "beginner", needVpn: true, sortOrder: 18, isActive: true,
-  },
-  {
-    id: 19, icon: "🛡️",
-    name: "Revoke.cash 授权管理",      nameEn: "Revoke.cash",
-    description: "检查并撤销钱包对智能合约的代币授权，防止因过度授权导致资产被盗",
-    descriptionEn: "Check and revoke token approvals to smart contracts, protecting assets from over-approval exploits",
-    category: "security", source: "Revoke.cash", url: "https://revoke.cash",
-    tags: "安全,授权,进阶", difficulty: "intermediate", needVpn: true, sortOrder: 19, isActive: true,
-  },
-  // ── 社区社交 ──
-  {
-    id: 20, icon: "🐦",
-    name: "X (Twitter) 币圈社区",      nameEn: "X (Twitter) Crypto",
-    description: "全球币圈最活跃的社交平台，关注项目方、KOL 和交易所官方账号，第一时间获取市场动态",
-    descriptionEn: "The most active global crypto social platform — follow projects, KOLs, and exchanges for real-time market updates",
-    category: "social", source: "X (Twitter)", url: "https://x.com/search?q=%23crypto",
-    tags: "社交,KOL,动态", difficulty: "beginner", needVpn: true, sortOrder: 20, isActive: true,
-  },
-  {
-    id: 21, icon: "✈️",
-    name: "Telegram 币圈群组",         nameEn: "Telegram Crypto Groups",
-    description: "币圈项目方和社区最常用的即时通讯工具，大多数项目的官方公告和社区讨论都在 Telegram",
-    descriptionEn: "The most popular messaging tool for crypto projects and communities — most official announcements and community discussions happen here",
-    category: "social", source: "Telegram", url: "https://telegram.org",
-    tags: "社交,社区,公告", difficulty: "beginner", needVpn: true, sortOrder: 21, isActive: true,
-  },
-  {
-    id: 22, icon: "▶️",
-    name: "YouTube 币圈频道",          nameEn: "YouTube Crypto Channels",
-    description: "观看币圈教程、项目分析和市场解读视频，适合新手系统学习加密货币知识",
-    descriptionEn: "Watch crypto tutorials, project analysis, and market commentary videos — great for beginners to systematically learn about crypto",
-    category: "social", source: "YouTube", url: "https://www.youtube.com/results?search_query=crypto+tutorial",
-    tags: "视频,教程,学习", difficulty: "beginner", needVpn: true, sortOrder: 22, isActive: true,
-  },
-  // ── 综合工具 ──
-  {
-    id: 23, icon: "📋",
-    name: "Messari 研究报告",          nameEn: "Messari",
-    description: "加密货币研究和数据平台，提供项目分析报告、代币经济学研究，适合深度投研",
-    descriptionEn: "Crypto research and data platform with project analysis, tokenomics research for deep investment research",
-    category: "general", source: "Messari", url: "https://messari.io",
-    tags: "研究,报告,进阶", difficulty: "intermediate", needVpn: true, sortOrder: 23, isActive: true,
-  },
-  {
-    id: 24, icon: "⚖️",
-    name: "CryptoCompare 对比",        nameEn: "CryptoCompare",
-    description: "多维度加密货币对比平台，支持交易所、钱包、矿池等产品的详细评测与对比",
-    descriptionEn: "Multi-dimensional crypto comparison platform for exchanges, wallets, mining pools with detailed reviews",
-    category: "general", source: "CryptoCompare", url: "https://www.cryptocompare.com",
-    tags: "对比,评测,新手", difficulty: "beginner", needVpn: true, sortOrder: 24, isActive: true,
-  },
-  // ── NFT ──
-  {
-    id: 25, icon: "🖼️",
-    name: "NFT Floor Price 追踪",      nameEn: "NFTGo",
-    description: "实时追踪主流 NFT 系列的地板价、交易量和持有者分布，快速把握 NFT 市场动态",
-    descriptionEn: "Real-time tracking of floor prices, volume, and holder distribution for major NFT collections",
-    category: "nft", source: "NFTGo", url: "https://nftgo.io",
-    tags: "NFT,地板价,进阶", difficulty: "intermediate", needVpn: true, sortOrder: 25, isActive: true,
-  },
-  // ── 税务合规 ──
-  {
-    id: 26, icon: "🧾",
-    name: "Koinly 税务计算",           nameEn: "Koinly",
-    description: "加密货币税务计算工具，自动整合交易记录，生成合规税务报告",
-    descriptionEn: "Crypto tax calculator that automatically aggregates trading records and generates compliant tax reports",
-    category: "tax", source: "Koinly", url: "https://koinly.io",
-    tags: "税务,合规,进阶", difficulty: "intermediate", needVpn: true, sortOrder: 26, isActive: true,
-  },
-];
+// ─── 辅助组件 ─────────────────────────────────────────────────────────────────
 
-// ─── 手续费计算器组件 ────────────────────────────────────────────────────────
-function FeeCalculator({ zh }: { zh: boolean }) {
-  const [amount, setAmount] = useState("");
-  const [feeRate, setFeeRate] = useState("0.1");
-  const [leverage, setLeverage] = useState("1");
-
-  const numAmount = parseFloat(amount) || 0;
-  const numFee = parseFloat(feeRate) || 0;
-  const numLev = parseFloat(leverage) || 1;
-
-  const positionSize = numAmount * numLev;
-  const openFee = positionSize * (numFee / 100);
-  const closeFee = positionSize * (numFee / 100);
-  const totalFee = openFee + closeFee;
-  const breakEvenPct = numAmount > 0 ? (totalFee / numAmount) * 100 : 0;
-
-  return (
-    <div className="rounded-2xl border border-yellow-500/30 bg-yellow-500/5 p-5 mb-8">
-      <div className="flex items-center gap-2 mb-4">
-        <Calculator size={18} className="text-yellow-400" />
-        <h3 className="font-bold text-yellow-400 text-base">
-          {zh ? "手续费计算器" : "Fee Calculator"}
-        </h3>
-        <span className="text-xs text-slate-500 ml-1">
-          {zh ? "（开仓 + 平仓双边）" : "(Open + Close, both sides)"}
-        </span>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-        <div>
-          <label className="text-xs text-slate-400 mb-1 block">{zh ? "本金 (USDT)" : "Principal (USDT)"}</label>
-          <input
-            type="number" value={amount} onChange={e => setAmount(e.target.value)}
-            placeholder="1000"
-            className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white text-sm focus:outline-none focus:border-yellow-500"
-          />
-        </div>
-        <div>
-          <label className="text-xs text-slate-400 mb-1 block">{zh ? "手续费率 (%)" : "Fee Rate (%)"}</label>
-          <input
-            type="number" value={feeRate} onChange={e => setFeeRate(e.target.value)}
-            placeholder="0.1" step="0.01"
-            className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white text-sm focus:outline-none focus:border-yellow-500"
-          />
-          <p className="text-xs text-slate-600 mt-1">{zh ? "OKX/Binance Maker≈0.02%, Taker≈0.05%" : "OKX/Binance Maker≈0.02%, Taker≈0.05%"}</p>
-        </div>
-        <div>
-          <label className="text-xs text-slate-400 mb-1 block">{zh ? "杠杆倍数" : "Leverage"}</label>
-          <input
-            type="number" value={leverage} onChange={e => setLeverage(e.target.value)}
-            placeholder="1" min="1" max="125"
-            className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white text-sm focus:outline-none focus:border-yellow-500"
-          />
-        </div>
-      </div>
-      {numAmount > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {[
-            { label: zh ? "仓位大小" : "Position Size", value: `${positionSize.toFixed(2)} USDT`, color: "text-white" },
-            { label: zh ? "开仓手续费" : "Open Fee",    value: `${openFee.toFixed(4)} USDT`,      color: "text-orange-400" },
-            { label: zh ? "平仓手续费" : "Close Fee",   value: `${closeFee.toFixed(4)} USDT`,     color: "text-orange-400" },
-            { label: zh ? "双边总费用" : "Total Fees",  value: `${totalFee.toFixed(4)} USDT`,     color: "text-red-400" },
-          ].map(item => (
-            <div key={item.label} className="bg-slate-800/60 rounded-xl p-3 text-center">
-              <p className="text-xs text-slate-500 mb-1">{item.label}</p>
-              <p className={`font-bold text-sm ${item.color}`}>{item.value}</p>
-            </div>
-          ))}
-          <div className="col-span-2 sm:col-span-4 bg-slate-800/40 rounded-xl p-3 text-center border border-slate-700/40">
-            <p className="text-xs text-slate-500 mb-1">
-              {zh ? "盈亏平衡涨幅（需涨超此幅度才开始盈利）" : "Break-even move needed to start profiting"}
-            </p>
-            <p className="font-bold text-yellow-400 text-lg">{breakEvenPct.toFixed(4)}%</p>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ─── 谷歌验证器提示卡 ────────────────────────────────────────────────────────
-function GoogleAuthCard({ zh }: { zh: boolean }) {
-  return (
-    <div className="rounded-2xl border border-blue-500/30 bg-blue-500/5 p-5 mb-8">
-      <div className="flex items-start gap-3">
-        <div className="text-3xl flex-shrink-0">🔐</div>
-        <div className="flex-1">
-          <h3 className="font-bold text-blue-300 text-base mb-1">
-            {zh ? "Google 验证器（交易所二次验证必备）" : "Google Authenticator (Required for 2FA)"}
-          </h3>
-          <p className="text-slate-400 text-sm mb-3 leading-relaxed">
-            {zh
-              ? "几乎所有主流交易所（OKX、Binance、Bybit 等）都要求开启「谷歌验证器」进行二次验证（2FA），用于保护账户安全。每次登录或提币时需要输入验证器中的 6 位动态码。强烈建议所有用户在注册交易所后立即绑定。"
-              : "Almost all major exchanges (OKX, Binance, Bybit, etc.) require Google Authenticator for two-factor authentication (2FA) to protect your account. You'll need the 6-digit code when logging in or withdrawing funds. We strongly recommend binding it immediately after registration."}
-          </p>
-          <div className="flex flex-wrap gap-3">
-            <a
-              href="https://apps.apple.com/app/google-authenticator/id388497605"
-              target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white text-sm font-medium transition-all"
-            >
-              <span>🍎</span>
-              <span>{zh ? "iOS 下载" : "Download iOS"}</span>
-              <ExternalLink size={12} className="text-slate-400" />
-            </a>
-            <a
-              href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2"
-              target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white text-sm font-medium transition-all"
-            >
-              <span>🤖</span>
-              <span>{zh ? "Android 下载" : "Download Android"}</span>
-              <ExternalLink size={12} className="text-slate-400" />
-            </a>
-            <a
-              href="https://support.google.com/accounts/answer/1066447"
-              target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/40 text-blue-300 text-sm font-medium transition-all"
-            >
-              <span>📖</span>
-              <span>{zh ? "使用教程" : "Setup Guide"}</span>
-              <ExternalLink size={12} />
-            </a>
-          </div>
-          <p className="text-xs text-slate-600 mt-2">
-            {zh
-              ? "⚠️ 绑定后请务必保存好备份码（Recovery Codes），手机丢失时可用于恢复账户"
-              : "⚠️ After binding, save your Recovery Codes — they're needed if you lose your phone"}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── 社交媒体入口 ────────────────────────────────────────────────────────────
 function SocialBar({ zh }: { zh: boolean }) {
   const socials = [
-    { icon: <Twitter size={16} />, label: "X / Twitter", url: "https://x.com/search?q=%23crypto", color: "hover:border-sky-400/60 hover:text-sky-400" },
-    { icon: <Send size={16} />,    label: "Telegram",    url: "https://telegram.org",              color: "hover:border-blue-400/60 hover:text-blue-400" },
-    { icon: <Youtube size={16} />, label: "YouTube",     url: "https://www.youtube.com/results?search_query=crypto+tutorial", color: "hover:border-red-400/60 hover:text-red-400" },
+    { icon: <Twitter size={18} />, label: "Twitter", url: "https://twitter.com", color: "hover:text-sky-400" },
+    { icon: <Send size={18} />, label: "Telegram", url: "https://t.me", color: "hover:text-blue-400" },
+    { icon: <Youtube size={18} />, label: "YouTube", url: "https://youtube.com", color: "hover:text-red-500" },
   ];
   return (
-    <div className="flex flex-wrap gap-3 mb-8 justify-center">
+    <div className="flex justify-center gap-6 mb-10">
       {socials.map(s => (
-        <a
-          key={s.label}
-          href={s.url}
-          target="_blank" rel="noopener noreferrer"
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-700/60 bg-slate-800/40 text-slate-400 text-sm font-medium transition-all ${s.color}`}
-        >
-          {s.icon}
-          <span>{s.label}</span>
-          <span className="text-xs text-slate-600">{zh ? "需VPN" : "VPN req."}</span>
+        <a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer" className={`flex flex-col items-center gap-1.5 text-slate-500 transition-colors ${s.color}`}>
+          <div className="w-10 h-10 rounded-full bg-slate-800/40 border border-slate-700/60 flex items-center justify-center">
+            {s.icon}
+          </div>
+          <span className="text-[10px] font-medium uppercase tracking-wider">{s.label}</span>
         </a>
       ))}
+    </div>
+  );
+}
+
+function GoogleAuthCard({ zh }: { zh: boolean }) {
+  return (
+    <div className="mb-10 p-5 rounded-2xl border border-cyan-500/20 bg-cyan-500/5 flex flex-col sm:flex-row items-center gap-5">
+      <div className="w-14 h-14 rounded-2xl bg-cyan-500/20 flex items-center justify-center text-3xl flex-shrink-0">
+        🛡️
+      </div>
+      <div className="flex-1 text-center sm:text-left">
+        <h3 className="text-lg font-bold text-white mb-1">
+          {zh ? "强烈建议：开启 Google 验证器" : "Strongly Recommended: Enable Google Authenticator"}
+        </h3>
+        <p className="text-slate-400 text-sm leading-relaxed">
+          {zh
+            ? "为了您的资金安全，请务必在所有交易所开启 2FA 双重验证。Google Authenticator 是最安全、最通用的选择。"
+            : "For your fund safety, please enable 2FA on all exchanges. Google Authenticator is the most secure and universal choice."}
+        </p>
+      </div>
+      <div className="flex gap-2 flex-shrink-0">
+        <a href="https://apps.apple.com/app/google-authenticator/id388497605" target="_blank" rel="noopener noreferrer" className="px-4 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-bold hover:bg-slate-700 transition-colors">iOS</a>
+        <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2" target="_blank" rel="noopener noreferrer" className="px-4 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-bold hover:bg-slate-700 transition-colors">Android</a>
+      </div>
+    </div>
+  );
+}
+
+function FeeCalculator({ zh }: { zh: boolean }) {
+  const [amount, setAmount] = useState("");
+  const [rate, setRate] = useState("0.1");
+  const fee = useMemo(() => {
+    const a = parseFloat(amount) || 0;
+    const r = parseFloat(rate) || 0;
+    return (a * (r / 100)).toFixed(4);
+  }, [amount, rate]);
+
+  return (
+    <div className="mb-12 p-6 rounded-2xl border border-yellow-500/20 bg-yellow-500/5">
+      <div className="flex items-center gap-2 mb-5">
+        <Calculator className="text-yellow-400" size={20} />
+        <h3 className="text-lg font-bold text-white">{zh ? "交易手续费计算器" : "Trading Fee Calculator"}</h3>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+        <div>
+          <label className="block text-xs text-slate-500 mb-1.5">{zh ? "交易金额 (USDT)" : "Trade Amount (USDT)"}</label>
+          <input
+            type="number"
+            value={amount}
+            onChange={e => setAmount(e.target.value)}
+            placeholder="1000"
+            className="w-full px-4 py-2.5 rounded-xl bg-slate-900/60 border border-slate-700 text-white focus:outline-none focus:border-yellow-500/50"
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-slate-500 mb-1.5">{zh ? "费率 (%)" : "Fee Rate (%)"}</label>
+          <select
+            value={rate}
+            onChange={e => setRate(e.target.value)}
+            className="w-full px-4 py-2.5 rounded-xl bg-slate-900/60 border border-slate-700 text-white focus:outline-none focus:border-yellow-500/50"
+          >
+            <option value="0.1">0.1% (标准)</option>
+            <option value="0.08">0.08% (OKX Maker)</option>
+            <option value="0.06">0.06% (VIP1)</option>
+            <option value="0.04">0.04% (合约 Maker)</option>
+            <option value="0.02">0.02% (Bitget Maker)</option>
+          </select>
+        </div>
+        <div className="p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-center">
+          <div className="text-[10px] text-yellow-500/70 uppercase font-bold tracking-wider mb-0.5">{zh ? "预估手续费" : "Est. Fee"}</div>
+          <div className="text-xl font-black text-yellow-400">{fee} <span className="text-xs">USDT</span></div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -410,14 +132,24 @@ export default function CryptoTools() {
   const [search, setSearch] = useState("");
   const [vpnFilter, setVpnFilter] = useState<"all" | "no-vpn" | "vpn">("all");
 
+  // 从数据库加载真实工具数据
+  const { data: dbTools = [], isLoading } = trpc.tools.list.useQuery();
+
   const filtered = useMemo(() => {
-    return DEFAULT_TOOLS.filter(t => {
-      if (!t.isActive) return false;
+    return dbTools.filter(t => {
+      // 后端 list 接口已经过滤了 isActive: true，这里作为双重保险
+      if (t.isActive === false) return false;
+      
       const matchCat = activeCategory === "all" || t.category === activeCategory;
+      
+      // 数据库中目前没有 needVpn 字段，默认为 true (因为大部分币圈工具国内都需要 VPN)
+      // 如果以后数据库增加了 needVpn 字段，这里可以改为使用 t.needVpn
+      const toolNeedVpn = (t as any).needVpn ?? true;
       const matchVpn =
         vpnFilter === "all" ? true :
-        vpnFilter === "no-vpn" ? !t.needVpn :
-        t.needVpn;
+        vpnFilter === "no-vpn" ? !toolNeedVpn :
+        toolNeedVpn;
+        
       const q = search.toLowerCase();
       const matchSearch = !q
         || (zh ? t.name : t.nameEn).toLowerCase().includes(q)
@@ -426,7 +158,7 @@ export default function CryptoTools() {
         || (t.tags || "").toLowerCase().includes(q);
       return matchCat && matchVpn && matchSearch;
     });
-  }, [activeCategory, search, vpnFilter, zh]);
+  }, [dbTools, activeCategory, search, vpnFilter, zh]);
 
   return (
     <div className="min-h-screen bg-[#0a0f1e] text-white">
@@ -498,7 +230,7 @@ export default function CryptoTools() {
         <div className="flex justify-center gap-2 mb-5">
           {[
             { key: "all",    icon: <Globe size={13} />,   zh: "全部",      en: "All" },
-            { key: "no-vpn", icon: <Wifi size={13} />,    zh: "🟢 无需VPN", en: "🟢 No VPN" },
+            { key: "no-vpn", icon: <Wifi size={13} />,    zh: "🟢 直连",   en: "🟢 Direct" },
             { key: "vpn",    icon: <WifiOff size={13} />, zh: "🔒 需要VPN", en: "🔒 Needs VPN" },
           ].map(opt => (
             <button
@@ -534,7 +266,13 @@ export default function CryptoTools() {
         </div>
 
         {/* ── 工具卡片网格 ── */}
-        {filtered.length === 0 ? (
+        {isLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="h-48 rounded-2xl bg-slate-800/40 animate-pulse border border-slate-700/50" />
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="text-center text-slate-500 py-20">
             <div className="text-4xl mb-3">🔍</div>
             <p>{zh ? "没有找到匹配的工具" : "No tools found"}</p>
@@ -545,6 +283,8 @@ export default function CryptoTools() {
               const diff = DIFFICULTY_LABELS[tool.difficulty] ?? DIFFICULTY_LABELS.beginner;
               const tags = tool.tags ? tool.tags.split(",").filter(Boolean) : [];
               const catLabel = CATEGORIES.find(c => c.key === tool.category);
+              const toolNeedVpn = (tool as any).needVpn ?? true;
+              
               return (
                 <div
                   key={tool.id}
@@ -560,7 +300,7 @@ export default function CryptoTools() {
                             {zh ? tool.name : tool.nameEn}
                           </h3>
                           {/* VPN 标注 */}
-                          {tool.needVpn ? (
+                          {toolNeedVpn ? (
                             <span className="flex-shrink-0 text-xs px-1.5 py-0.5 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/30 font-medium">
                               🔒 {zh ? "需VPN" : "VPN"}
                             </span>
@@ -624,8 +364,8 @@ export default function CryptoTools() {
         {/* ── 底部统计 ── */}
         <div className="text-center mt-10 text-slate-600 text-sm">
           {zh
-            ? `共收录 ${DEFAULT_TOOLS.length} 个工具，当前显示 ${filtered.length} 个 · 🟢 ${DEFAULT_TOOLS.filter(t => !t.needVpn).length} 个无需VPN`
-            : `${DEFAULT_TOOLS.length} tools total, showing ${filtered.length} · 🟢 ${DEFAULT_TOOLS.filter(t => !t.needVpn).length} accessible without VPN`}
+            ? `共收录 ${dbTools.length} 个工具，当前显示 ${filtered.length} 个`
+            : `${dbTools.length} tools total, showing ${filtered.length}`}
         </div>
       </div>
     </div>

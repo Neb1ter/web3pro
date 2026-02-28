@@ -203,14 +203,14 @@ export default function CryptoNews() {
                         <div key={item.id} className="relative group">
                           {/* Timeline dot */}
                           <div className={`absolute -left-5 top-3 w-2.5 h-2.5 rounded-full border-2 transition-transform group-hover:scale-125 ${
-                            false
+                            item.isPinned
                               ? "bg-yellow-400 border-yellow-400 shadow-[0_0_8px_rgba(255,215,0,0.6)]"
                               : "bg-gray-700 border-yellow-500/50 group-hover:bg-yellow-500/60"
                           }`} />
 
                           {/* Card */}
                           <div className={`rounded-xl border transition-all duration-200 group-hover:border-yellow-500/40 group-hover:shadow-[0_0_20px_rgba(255,215,0,0.06)] ${
-                            false
+                            item.isPinned
                               ? "border-yellow-500/40 bg-yellow-500/5"
                               : "border-gray-700/60 bg-gray-800/40"
                           }`}>
@@ -220,7 +220,7 @@ export default function CryptoNews() {
                                 <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${catInfo.color}`}>
                                   {catLabel}
                                 </span>
-                                {false && (
+                                {item.isPinned && (
                                   <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 font-medium">
                                     📌 {zh ? "置顶" : "Pinned"}
                                   </span>
@@ -253,10 +253,10 @@ export default function CryptoNews() {
                                     href={item.url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-xs text-yellow-500 hover:text-yellow-300 transition-colors flex items-center gap-1"
-                                    onClick={e => e.stopPropagation()}
+                                    className="text-xs font-bold text-yellow-500 hover:text-yellow-400 transition-colors flex items-center gap-1"
                                   >
-                                    {zh ? "原文" : "Source"} →
+                                    {zh ? "阅读原文" : "Read More"}
+                                    <span className="text-[10px]">↗</span>
                                   </a>
                                 )}
                               </div>
@@ -273,28 +273,25 @@ export default function CryptoNews() {
         )}
 
         {/* Bottom CTA */}
-        <div className="mt-10 p-4 sm:p-5 rounded-2xl border border-yellow-500/30 bg-gradient-to-r from-yellow-500/10 to-transparent text-center">
-          <p className="text-sm sm:text-base font-semibold text-yellow-300 mb-1">
-            {zh ? "🔔 想第一时间获取币圈资讯？" : "🔔 Want real-time crypto updates?"}
+        <div className="mt-12 p-6 rounded-2xl border border-gray-700 bg-gray-800/30 text-center">
+          <h4 className="text-gray-200 font-bold mb-2">{zh ? "想要更低的手续费？" : "Want lower fees?"}</h4>
+          <p className="text-xs text-gray-500 mb-4">
+            {zh ? "使用我们的邀请码注册交易所，享受永久手续费返佣。" : "Register with our referral codes for lifetime fee rebates."}
           </p>
-          <p className="text-xs text-gray-400 mb-3">
-            {zh ? "关注律动BlockBeats，掌握市场第一手动态" : "Follow BlockBeats for the latest market insights"}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-2 justify-center">
-            <a
-              href="https://www.theblockbeats.info"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-4 py-2 rounded-lg bg-yellow-500 text-gray-900 text-sm font-bold hover:bg-yellow-400 transition-colors"
-            >
-              {zh ? "访问律动BlockBeats" : "Visit BlockBeats"}
-            </a>
-            <Link href="/exchanges" className="px-4 py-2 rounded-lg border border-yellow-500/40 text-yellow-400 text-sm font-medium hover:bg-yellow-500/10 transition-colors w-full sm:w-auto">
-                {zh ? "查看交易所返佣" : "View Exchange Rebates"}
-            </Link>
-          </div>
+          <Link href="/exchanges">
+            <span className="inline-block px-6 py-2 rounded-lg bg-yellow-500 text-gray-900 text-sm font-bold hover:bg-yellow-400 transition-colors cursor-pointer">
+              {zh ? "查看交易所对比" : "Compare Exchanges"}
+            </span>
+          </Link>
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="max-w-3xl mx-auto px-4 py-8 border-t border-gray-800/50 text-center">
+        <p className="text-xs text-gray-600">
+          © 2026 Get8 Pro · {zh ? "专业 Web3 导航" : "Professional Web3 Navigator"}
+        </p>
+      </footer>
     </div>
   );
 }
