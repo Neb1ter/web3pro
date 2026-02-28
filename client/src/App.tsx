@@ -4,11 +4,15 @@ import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
-import { useEffect, useRef, useState, lazy, Suspense, Component } from "react";
+import { useEffect, useRef, useState, lazy, Suspense, Component, useMemo } from "react";
 import { saveScrollPosition, getScrollPosition } from "@/hooks/useScrollMemory";
 import { useLearningPathSync } from "@/hooks/useLearningPathSync";
 import MobileFloatNav from "@/components/MobileFloatNav";
 import DesktopFloatNav from "@/components/DesktopFloatNav";
+import { trpc } from "@/lib/trpc";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { httpBatchLink } from "@trpc/client";
+import superjson from "superjson";
 
 // ============================================================
 // 首屏同步加载：仅 Portal（首页）和 NotFound 保持同步
@@ -53,9 +57,6 @@ const TradFiSim  = lazy(() => import("./pages/sim/TradFiSim"));
 const MarginSim  = lazy(() => import("./pages/sim/MarginSim"));
 const OptionsSim = lazy(() => import("./pages/sim/OptionsSim"));
 const BotSim     = lazy(() => import("./pages/sim/BotSim"));
-
-// SEO 指南文章
-const SeoGuide       = lazy(() => import("./pages/SeoGuide"));
 
 // 测评与学习路径
 const Web3Quiz       = lazy(() => import("./pages/Web3Quiz"));
@@ -216,9 +217,6 @@ function Router() {
           {/* ── 后台管理 ── */}
           <Route path="/admin/exchange-guide" component={AdminExchangeGuide} />
 
-          {/* ── SEO 指南文章 ── */}
-          <Route path="/seo-guide"        component={SeoGuide} />
-
           {/* ── 测评与学习路径 ── */}
           <Route path="/web3-quiz"        component={Web3Quiz} />
           <Route path="/learning-path"    component={LearningPath} />
@@ -281,7 +279,7 @@ function GlobalSwipeBlocker() {
   return null;
 }
 
-function App() {
+function AppInner() {
   return (
     <ErrorBoundary>
       <LanguageProvider>
@@ -296,6 +294,30 @@ function App() {
         </ThemeProvider>
       </LanguageProvider>
     </ErrorBoundary>
+  );
+}
+
+function App() {
+  const [queryClient] = useState(() => new QueryClient({
+    defaultOptions: {
+      queries: { staleTime: 1000 * 60 * 5, retry: 1 },
+    },
+  }));
+  const trpcClient = useMemo(() => trpc.createClient({
+    links: [
+      httpBatchLink({
+        url: "/api/trpc",
+        transformer: superjson,
+      }),
+    ],
+  }), []);
+
+  return (
+    <trpc.Provider client={trpcClient} queryClient={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <AppInner />
+      </QueryClientProvider>
+    </trpc.Provider>
   );
 }
 
