@@ -64,10 +64,10 @@ export const apiLimiter = rateLimit({
   handler: rateLimitHandler,
 });
 
-// ─── 联系表单限流：每 IP 每小时 5 次 ────────────────────────────────────────
+// ─── 联系表单限流：每 IP 每小时 20 次 ────────────────────────────────────
 export const contactLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,      // 1 小时
-  max: 5,
+  max: 20,
   standardHeaders: "draft-7",
   legacyHeaders: false,
   message: {

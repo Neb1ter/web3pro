@@ -27,15 +27,20 @@ export const appRouter = router({
         exchangeUsername:z.string().max(64).optional().default(""),
         message:         z.string().max(500).optional().default(""),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         // 简单内容过滤：去除潜在的 HTML/Script 注入
         const sanitize = (s: string) => s.replace(/<[^>]*>/g, "").trim();
+        // 获取用户真实 IP（已配置 trust proxy，可信任 X-Forwarded-For）
+        const ipAddress = (ctx.req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim()
+          ?? ctx.req.socket?.remoteAddress
+          ?? null;
         await submitContactForm({
           platform:        sanitize(input.platform),
           accountName:     sanitize(input.accountName),
           exchangeUid:     input.exchangeUid     ? sanitize(input.exchangeUid)      : null,
           exchangeUsername:input.exchangeUsername? sanitize(input.exchangeUsername) : null,
           message:         input.message         ? sanitize(input.message)          : null,
+          ipAddress,
         });
         return { success: true } as const;
       }),

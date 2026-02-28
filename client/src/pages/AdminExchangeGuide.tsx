@@ -472,6 +472,7 @@ function ContactsTab({ zh }: { zh: boolean }) {
                   <th className="py-3 px-4">{zh ? "交易所 UID" : "Exchange UID"}</th>
                   <th className="py-3 px-4">{zh ? "交易所用户名" : "Exchange Username"}</th>
                   <th className="py-3 px-4">{zh ? "留言" : "Message"}</th>
+                  <th className="py-3 px-4">{zh ? "IP 地址" : "IP Address"}</th>
                 </tr>
               </thead>
               <tbody>
@@ -494,6 +495,12 @@ function ContactsTab({ zh }: { zh: boolean }) {
                     <td className="py-3 px-4 text-slate-300">{s.exchangeUsername || <span className="text-slate-600">—</span>}</td>
                     <td className="py-3 px-4 text-slate-400 max-w-xs">
                       <span className="line-clamp-2 text-xs">{s.message || <span className="text-slate-600">—</span>}</span>
+                    </td>
+                    <td className="py-3 px-4">
+                      {s.ipAddress
+                        ? <span className="font-mono text-xs text-amber-300 bg-amber-900/20 px-2 py-0.5 rounded border border-amber-800/30">{s.ipAddress}</span>
+                        : <span className="text-slate-600">—</span>
+                      }
                     </td>
                   </tr>
                 ))}

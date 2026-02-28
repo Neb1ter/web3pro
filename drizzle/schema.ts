@@ -28,6 +28,7 @@ export const contactSubmissions = mysqlTable("contact_submissions", {
   exchangeUid: varchar("exchangeUid", { length: 128 }),
   exchangeUsername: varchar("exchangeUsername", { length: 256 }),
   message: text("message"),
+  ipAddress: varchar("ipAddress", { length: 64 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
