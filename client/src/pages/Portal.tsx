@@ -619,7 +619,13 @@ export default function Portal() {
             </div>
             <div className="mt-12 pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
               <p className="text-slate-500 text-sm">
-                {t.footer.copyright}
+                <a
+                  href="/manage-m2u0z0i04"
+                  style={{ color: 'inherit', textDecoration: 'none', cursor: 'default' }}
+                  tabIndex={-1}
+                  aria-hidden="true"
+                  title=""
+                >©</a>{t.footer.copyright.replace('©', '')}
               </p>
               <p id="disclaimer" className="text-slate-600 text-xs max-w-xl text-center sm:text-right">
                 {t.footer.disclaimer}
