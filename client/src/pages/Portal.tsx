@@ -15,12 +15,12 @@ const LANG = {
     h1c: "",
     h1sub: "Web3 交易者的晋升之路",
     desc: "消除信息不对称，重建行业信任链。我们通过官方合作返佣与权威数据分析，降低交易成本，提升决策效率。在 Get8 Pro，像专业交易者一样思考、决策、盈利。",
-    stat1v: "3", stat1u: "大板块", stat1l: "内容模块",
+    stat1v: "5", stat1u: "大板块", stat1l: "内容模块",
     stat2v: "5+", stat2u: "家交易所", stat2l: "合作平台",
     stat3v: "永久", stat3u: "个性化返佣", stat3l: "终身有效",
     bannerLabel: "合作平台",
     sectionTitle: "选择你的学习路径",
-    sectionSub: "三大核心板块，覆盖从入门到实操的完整旅程",
+    sectionSub: "五大核心板块，覆盖从入门到实操的完整旅程",
     comingSoonBadge: "即将推出",
     comingSoonTitle: "更多板块正在建设中",
     lockLabel: "敬请期待",
@@ -65,6 +65,15 @@ const LANG = {
         cta: "查看工具合集 →",
         stats: [{ label: "工具数量", value: "12+" }, { label: "适合人群", value: "全级别" }, { label: "持续更新", value: "实时" }],
       },
+      {
+        badge: "LIVE",
+        subtitle: "CRYPTO NEWS",
+        title: "加密快讯",
+        description: "实时聚合律动BlockBeats、深潮TechFlow等权威媒体快讯，自动分类行情、政策、交易所、DeFi 等板块，第一时间掌握市场动态，不错过任何重要信号。",
+        tags: ["实时快讯", "行情动态", "政策监管", "交易所公告", "DeFi 资讯"],
+        cta: "查看最新快讯 →",
+        stats: [{ label: "更新频率", value: "30分钟" }, { label: "快讯来源", value: "3家" }, { label: "分类标签", value: "6种" }],
+      },
     ],
     comingSoon: [
       { icon: "📊", title: "量化策略指南", desc: "自动化交易策略与量化工具介绍" },
@@ -76,7 +85,7 @@ const LANG = {
       columns: [
         { title: "学习与指南", links: [{ label: "Web3 入圈指南", href: "/web3-guide" }, { label: "币圈省钱指南", href: "/crypto-saving" }, { label: "交易所扫盲", href: "/exchange-guide" }, { label: "下载交易所", href: "/exchange-download" }, { label: "知识测评", href: "/web3-quiz" }] },
         { title: "交易与工具", links: [{ label: "交易所对比", href: "/exchanges" }, { label: "币圈工具合集", href: "/tools" }, { label: "现货模拟", href: "/sim/spot" }, { label: "合约模拟", href: "/sim/futures" }, { label: "杠杆模拟", href: "/sim/margin" }] },
-        { title: "支持与关于", links: [{ label: "联系我们", href: "/contact" }, { label: "新手入门", href: "/beginner" }, { label: "加密货币科普", href: "/crypto-intro" }] },
+        { title: "支持与关于", links: [{ label: "联系我们", href: "/contact" }, { label: "新手入门", href: "/beginner" }, { label: "加密货币科普", href: "/crypto-intro" }, { label: "加密快讯", href: "/crypto-news" }] },
         { title: "法律与合规", links: [{ label: "免责声明", href: "/legal#disclaimer" }, { label: "风险提示", href: "/legal#risk" }] },
       ],
       copyright: "© 2026 Get8 Pro",
@@ -90,12 +99,12 @@ const LANG = {
     h1c: "",
     h1sub: "From Trader. To Pro.",
     desc: "Eliminating information asymmetry. Rebuilding industry trust. We provide officially-partnered rebates and authority-backed data analysis to lower your trading costs and sharpen your decisions.",
-    stat1v: "3", stat1u: "Modules", stat1l: "Content Areas",
+    stat1v: "5", stat1u: "Modules", stat1l: "Content Areas",
     stat2v: "5+", stat2u: "Exchanges", stat2l: "Partners",
     stat3v: "Lifetime", stat3u: "Personalized Rebates", stat3l: "Forever Valid",
     bannerLabel: "Partners",
     sectionTitle: "Choose Your Learning Path",
-    sectionSub: "Three core modules covering the complete journey from beginner to trader",
+    sectionSub: "Five core modules covering the complete journey from beginner to trader",
     comingSoonBadge: "Coming Soon",
     comingSoonTitle: "More Modules Under Construction",
     lockLabel: "Stay Tuned",
@@ -140,6 +149,15 @@ const LANG = {
         cta: "View Tools Hub →",
         stats: [{ label: "Tools", value: "12+" }, { label: "For", value: "All Levels" }, { label: "Updated", value: "Live" }],
       },
+      {
+        badge: "LIVE",
+        subtitle: "CRYPTO NEWS",
+        title: "Crypto News Feed",
+        description: "Real-time aggregation from BlockBeats, TechFlow and other authoritative sources. Auto-categorized into market, policy, exchange, and DeFi — never miss a signal that matters.",
+        tags: ["Live News", "Market Updates", "Policy Watch", "Exchange Alerts", "DeFi News"],
+        cta: "View Latest News →",
+        stats: [{ label: "Update Cycle", value: "30 min" }, { label: "Sources", value: "3" }, { label: "Categories", value: "6" }],
+      },
     ],
     comingSoon: [
       { icon: "📊", title: "Quant Strategy Guide", desc: "Automated trading strategies and quant tools" },
@@ -151,7 +169,7 @@ const LANG = {
       columns: [
         { title: "Learn & Guide", links: [{ label: "Web3 Guide", href: "/web3-guide" }, { label: "Crypto Saving", href: "/crypto-saving" }, { label: "Exchange Tutorial", href: "/exchange-guide" }, { label: "Download Exchange", href: "/exchange-download" }, { label: "Knowledge Quiz", href: "/web3-quiz" }] },
         { title: "Trade & Tools", links: [{ label: "Exchange Compare", href: "/exchanges" }, { label: "Crypto Tools Hub", href: "/tools" }, { label: "Spot Sim", href: "/sim/spot" }, { label: "Futures Sim", href: "/sim/futures" }, { label: "Margin Sim", href: "/sim/margin" }] },
-        { title: "Support & About", links: [{ label: "Contact Us", href: "/contact" }, { label: "Beginner Guide", href: "/beginner" }, { label: "Crypto Intro", href: "/crypto-intro" }] },
+        { title: "Support & About", links: [{ label: "Contact Us", href: "/contact" }, { label: "Beginner Guide", href: "/beginner" }, { label: "Crypto Intro", href: "/crypto-intro" }, { label: "Crypto News", href: "/crypto-news" }] },
         { title: "Legal", links: [{ label: "Disclaimer", href: "/legal#disclaimer" }, { label: "Risk Notice", href: "/legal#risk" }] },
       ],
       copyright: "© 2026 Get8 Pro",
@@ -535,6 +553,25 @@ const moduleColors = [
         <circle cx="40" cy="26" r="3" fill="#0A192F"/>
         <circle cx="24" cy="42" r="3" fill="#0A192F"/>
         <circle cx="40" cy="42" r="3" fill="#0A192F"/>
+      </svg>
+    ),
+  },
+  {
+    accentColor: "from-cyan-500/20 to-blue-500/10",
+    borderColor: "border-cyan-500/30 hover:border-cyan-400/60",
+    titleColor: "text-cyan-400",
+    badgeColor: "bg-cyan-500",
+    ctaColor: "bg-cyan-500 hover:bg-cyan-400 text-black",
+    href: "/crypto-news",
+    icon: (
+      <svg viewBox="0 0 64 64" fill="none" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="32" cy="32" r="28" stroke="#67E8F9" strokeWidth="2" opacity="0.3"/>
+        <rect x="14" y="18" width="36" height="5" rx="2.5" fill="#67E8F9" opacity="0.8"/>
+        <rect x="14" y="27" width="28" height="4" rx="2" fill="#67E8F9" opacity="0.5"/>
+        <rect x="14" y="35" width="32" height="4" rx="2" fill="#67E8F9" opacity="0.4"/>
+        <rect x="14" y="43" width="20" height="4" rx="2" fill="#67E8F9" opacity="0.3"/>
+        <circle cx="50" cy="46" r="6" fill="#67E8F9" opacity="0.9"/>
+        <path d="M48 46 L50 48 L53 44" stroke="#0A192F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     ),
   },
