@@ -134,20 +134,21 @@ interface TranslateOutput {
 async function batchTranslateToZh(items: TranslateInput[]): Promise<TranslateOutput[]> {
   if (!items.length) return [];
 
-  // 没有配置 API Key 时直接返回原文
-  const apiKey = ENV.forgeApiKey;
+  // 优先使用 DeepSeek，回退到 OpenAI
+  const apiKey = ENV.deepseekApiKey || ENV.forgeApiKey;
   if (!apiKey) {
-    console.log("[RSS翻译] 未配置 BUILT_IN_FORGE_API_KEY，跳过翻译");
+    console.log("[RSS翻译] 未配置 DEEPSEEK_API_KEY 或 BUILT_IN_FORGE_API_KEY，跳过翻译");
     return items.map(i => ({ title: i.title, summary: i.summary }));
   }
 
-  // 构建 API URL：如果 forgeApiUrl 已包含 /v1 则不重复添加
-  const baseUrl = ENV.forgeApiUrl
-    ? ENV.forgeApiUrl.replace(/\/$/, "")
-    : "https://api.openai.com/v1";
+  // 构建 API URL
+  const baseUrl = ENV.deepseekApiKey
+    ? (ENV.deepseekApiUrl || "https://api.deepseek.com/v1")
+    : (ENV.forgeApiUrl ? ENV.forgeApiUrl.replace(/\/$/, "") : "https://api.openai.com/v1");
   const apiUrl = baseUrl.endsWith("/v1")
     ? `${baseUrl}/chat/completions`
     : `${baseUrl}/v1/chat/completions`;
+  const model = ENV.deepseekApiKey ? "deepseek-chat" : "gpt-4o-mini";
 
   // 构建批量翻译 prompt，一次请求翻译多条，节约 API
   const numbered = items.map((item, idx) =>
@@ -170,7 +171,7 @@ ${numbered}`;
         "Authorization": `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model,
         messages: [{ role: "user", content: prompt }],
         max_tokens: 1500,
         temperature: 0.3,

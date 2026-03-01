@@ -61,16 +61,18 @@ export async function generateArticleWithAI(options: ArticleGenerateOptions): Pr
   metaKeywords: string;
   tags: string;
 }> {
-  const apiKey = ENV.forgeApiKey;
-  const baseUrl = ENV.forgeApiUrl
-    ? ENV.forgeApiUrl.replace(/\/$/, "")
-    : "https://api.openai.com/v1";
+  // 优先使用 DeepSeek，回退到 OpenAI
+  const apiKey = ENV.deepseekApiKey || ENV.forgeApiKey;
+  const baseUrl = ENV.deepseekApiKey
+    ? (ENV.deepseekApiUrl || "https://api.deepseek.com/v1")
+    : (ENV.forgeApiUrl ? ENV.forgeApiUrl.replace(/\/$/, "") : "https://api.openai.com/v1");
   const apiUrl = baseUrl.endsWith("/v1")
     ? `${baseUrl}/chat/completions`
     : `${baseUrl}/v1/chat/completions`;
+  const model = ENV.deepseekApiKey ? "deepseek-chat" : "gpt-4o-mini";
 
   if (!apiKey) {
-    throw new Error("未配置 AI API Key（BUILT_IN_FORGE_API_KEY）");
+    throw new Error("未配置 AI API Key（DEEPSEEK_API_KEY 或 BUILT_IN_FORGE_API_KEY）");
   }
 
   const perspectiveMap = {
@@ -136,7 +138,7 @@ export async function generateArticleWithAI(options: ArticleGenerateOptions): Pr
       "Authorization": `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "gpt-4o-mini",
+      model,
       messages: [{ role: "user", content: prompt }],
       max_tokens: 3000,
       temperature: 0.7,
@@ -242,13 +244,14 @@ export async function rewriteForCompliance(
   content: string,
   flaggedWords: SensitiveCheckResult["flaggedWords"]
 ): Promise<string> {
-  const apiKey = ENV.forgeApiKey;
-  const baseUrl = ENV.forgeApiUrl
-    ? ENV.forgeApiUrl.replace(/\/$/, "")
-    : "https://api.openai.com/v1";
+  const apiKey = ENV.deepseekApiKey || ENV.forgeApiKey;
+  const baseUrl = ENV.deepseekApiKey
+    ? (ENV.deepseekApiUrl || "https://api.deepseek.com/v1")
+    : (ENV.forgeApiUrl ? ENV.forgeApiUrl.replace(/\/$/, "") : "https://api.openai.com/v1");
   const apiUrl = baseUrl.endsWith("/v1")
     ? `${baseUrl}/chat/completions`
     : `${baseUrl}/v1/chat/completions`;
+  const model = ENV.deepseekApiKey ? "deepseek-chat" : "gpt-4o-mini";
 
   if (!apiKey || flaggedWords.length === 0) return content;
 
@@ -273,7 +276,7 @@ ${content}`;
         "Authorization": `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model,
         messages: [{ role: "user", content: prompt }],
         max_tokens: 3000,
         temperature: 0.3,

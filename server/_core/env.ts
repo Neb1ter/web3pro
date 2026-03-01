@@ -14,4 +14,7 @@ export const ENV = {
   telegramChannelId: process.env.TELEGRAM_CHANNEL_ID ?? "",
   // RSS 抓取开关（默认开启）
   rssEnabled: process.env.RSS_ENABLED !== "false",
+  // DeepSeek AI（文章生成、翻译）
+  deepseekApiKey: process.env.DEEPSEEK_API_KEY ?? "",
+  deepseekApiUrl: process.env.DEEPSEEK_API_URL ?? "https://api.deepseek.com/v1",
 };
