@@ -50,6 +50,38 @@ export function generateSlug(title: string): string {
     + "-" + Date.now().toString(36);
 }
 
+
+// ─── Markdown 清洗工具 ───────────────────────────────────────────────────────────
+
+/**
+ * cleanMarkdown — 清理 AI 生成内容中的排版问题：
+ *  1. 删除行内多余的 *** 或 ** 包裹的空内容（如 "**  **"）
+ *  2. 删除行首行尾独立的星号（非列表标记）
+ *  3. 修复连续4个以上星号折叠为 **
+ *  4. 去除重复的空行（3行以上压缩为2行）
+ *  5. 删除重复的中文标点（如 "。。" "，，"）
+ *  6. 删除行末多余空格
+ */
+export function cleanMarkdown(text: string): string {
+  return text
+    // 1. 删除空的加粗/斜体标记（如 "**  **" "*  *"）
+    .replace(/\*{1,3}\s*\*{1,3}/g, "")
+    // 2. 删除行首独立的星号（非列表标记，即不是 "- " 或 "* " 开头的列表项）
+    .replace(/^\*{2,}\s*/gm, "")
+    // 3. 删除行尾独立的星号
+    .replace(/\s*\*{2,}$/gm, "")
+    // 4. 修复四个以上连续星号（保留最多两个）
+    .replace(/\*{4,}/g, "**")
+    // 5. 删除行末多余空格
+    .replace(/[ \t]+$/gm, "")
+    // 6. 压缩超过2个连续空行为2个
+    .replace(/\n{3,}/g, "\n\n")
+    // 7. 删除重复的中文标点
+    .replace(/([。，！？；：、]){2,}/g, "$1")
+    .trim();
+}
+
+
 // ─── AI Article Generation ────────────────────────────────────────────────────
 
 export async function generateArticleWithAI(options: ArticleGenerateOptions): Promise<{
@@ -158,9 +190,11 @@ export async function generateArticleWithAI(options: ArticleGenerateOptions): Pr
   if (!jsonMatch) throw new Error("无法解析 AI 响应");
 
   const parsed = JSON.parse(jsonMatch[0]);
+  // 对 AI 生成的正文进行 Markdown 清洗（去除多余星号、重复标点、多余空行等）
+  const cleanedContent = cleanMarkdown(parsed.content || "");
   return {
     title: parsed.title || options.topic,
-    content: parsed.content || "",
+    content: cleanedContent,
     excerpt: parsed.excerpt || "",
     metaTitle: parsed.metaTitle || parsed.title || options.topic,
     metaDescription: parsed.metaDescription || parsed.excerpt || "",

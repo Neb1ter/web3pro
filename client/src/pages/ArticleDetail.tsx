@@ -4,6 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { ArrowLeft } from "lucide-react";
 import { goBack } from "@/hooks/useScrollMemory";
 import { trpc } from "@/lib/trpc";
+import { Markdown } from "@/components/Markdown";
 
 const ARTICLE_CATEGORY_LABELS: Record<string, { zh: string; en: string; color: string }> = {
   analysis:    { zh: "市场分析", en: "Analysis",    color: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30" },
@@ -156,9 +157,8 @@ export default function ArticleDetail() {
           </div>
         )}
 
-        {/* Content */}
-        <div
-          className="prose prose-invert prose-sm sm:prose-base max-w-none
+        {/* Content — Markdown 渲染，正确处理 AI 生成的 ** 加粗、## 标题等语法 */}
+        <div className="prose prose-invert prose-sm sm:prose-base max-w-none
             prose-headings:text-white prose-headings:font-bold
             prose-h2:text-lg prose-h2:border-b prose-h2:border-gray-700 prose-h2:pb-2 prose-h2:mb-4
             prose-h3:text-base prose-h3:text-cyan-300
@@ -171,9 +171,9 @@ export default function ArticleDetail() {
             prose-li:marker:text-cyan-500
             prose-table:text-gray-300
             prose-th:text-white prose-th:bg-gray-800
-            prose-td:border-gray-700"
-          dangerouslySetInnerHTML={{ __html: article.content || "" }}
-        />
+            prose-td:border-gray-700">
+          <Markdown>{article.content || ""}</Markdown>
+        </div>
 
         {/* Tags footer */}
         {tags.length > 0 && (

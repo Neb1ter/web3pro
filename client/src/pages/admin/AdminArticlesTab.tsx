@@ -129,6 +129,24 @@ export function ArticlesTab({ zh }: { zh: boolean }) {
     platformSuggestions: Record<string, boolean>;
   } | null>(null);
   const [qwenTargetId, setQwenTargetId] = useState<number | null>(null);
+  // 多平台推送面板：记录当前展开推送面板的文章 ID 和已选择的平台
+  const [publishPanelId, setPublishPanelId] = useState<number | null>(null);
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(["telegram"]);
+
+  // 所有已注册平台（与 publish.ts PLATFORM_REGISTRY 保持一致）
+  const ALL_PLATFORMS = [
+    { id: "telegram", label: "Telegram", icon: "✈️", ready: true },
+    { id: "wechat",   label: "微信公众号", icon: "💬", ready: false },
+    { id: "weibo",    label: "微博",       icon: "🌐", ready: false },
+    { id: "twitter",  label: "Twitter/X",  icon: "🐦", ready: false },
+    { id: "douyin",   label: "抖音",       icon: "🎵", ready: false },
+  ];
+
+  const togglePlatform = (id: string) => {
+    setSelectedPlatforms(prev =>
+      prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
+    );
+  };
 
   const articles = (listQuery.data ?? []) as Article[];
 
@@ -386,14 +404,64 @@ export function ArticlesTab({ zh }: { zh: boolean }) {
                     )}
                     {(a.status === "approved" || a.status === "published") && (
                       <button
-                        onClick={() => publishMutation.mutate({ id: a.id, platforms: ["telegram"] })}
-                        disabled={publishMutation.isPending}
+                        onClick={() => setPublishPanelId(publishPanelId === a.id ? null : a.id)}
                         className="admin-btn-primary text-xs"
                       >
-                        {zh ? "📡 推送 Telegram" : "📡 Push Telegram"}
+                        {zh ? "📡 推送到平台" : "📡 Push to Platform"}
                       </button>
                     )}
                   </div>
+
+                  {/* 多平台推送面板 */}
+                  {publishPanelId === a.id && (
+                    <div className="mt-3 bg-slate-800/60 border border-cyan-700/30 rounded-xl p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-semibold text-cyan-300">
+                          {zh ? "📡 选择推送平台" : "📡 Select Platforms"}
+                        </span>
+                        <button onClick={() => setPublishPanelId(null)} className="text-slate-500 hover:text-white text-xs">✕</button>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {ALL_PLATFORMS.map(p => (
+                          <button
+                            key={p.id}
+                            onClick={() => togglePlatform(p.id)}
+                            title={p.ready ? undefined : (zh ? "开发中，配置 API Key 后可用" : "In development, configure API Key to enable")}
+                            className={`text-xs px-3 py-1.5 rounded-lg border transition-all flex items-center gap-1 ${
+                              selectedPlatforms.includes(p.id)
+                                ? "border-cyan-500 bg-cyan-900/40 text-cyan-200"
+                                : "border-slate-600 bg-slate-700/40 text-slate-400 hover:border-slate-500"
+                            } ${!p.ready ? "opacity-50 cursor-not-allowed" : ""}`}
+                            disabled={!p.ready}
+                          >
+                            {p.icon} {p.label}
+                            {!p.ready && <span className="text-yellow-500 text-[10px] ml-1">{zh ? "开发中" : "WIP"}</span>}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => {
+                            if (selectedPlatforms.length === 0) {
+                              toast.warning(zh ? "请至少选择一个平台" : "Select at least one platform");
+                              return;
+                            }
+                            publishMutation.mutate({ id: a.id, platforms: selectedPlatforms });
+                            setPublishPanelId(null);
+                          }}
+                          disabled={publishMutation.isPending || selectedPlatforms.length === 0}
+                          className="admin-btn-primary text-xs"
+                        >
+                          {publishMutation.isPending
+                            ? (zh ? "推送中..." : "Pushing...")
+                            : (zh ? `确认推送 (${selectedPlatforms.length} 个平台)` : `Push (${selectedPlatforms.length} platforms)`)}
+                        </button>
+                        <span className="text-xs text-slate-500">
+                          {zh ? "已选：" : "Selected: "}{selectedPlatforms.join(", ") || (zh ? "无" : "none")}
+                        </span>
+                      </div>
+                    </div>
+                  )}
 
                   {/* 通义千问审核结果展示 */}
                   {qwenTargetId === a.id && qwenResult && (
