@@ -24,23 +24,13 @@ import { desc } from "drizzle-orm";
 const RSS_SOURCES = [
   // ── 中文源（直接入库，不消耗翻译 API）──────────────────────────────────────
   {
-    name: "律动BlockBeats",
-    url: "https://www.theblockbeats.info/rss",
-    lang: "zh" as const,
-  },
-  {
-    name: "深潮TechFlow",
-    url: "https://www.techflowpost.com/rss.xml",
+    name: "吴说区块链",
+    url: "https://wublock.substack.com/feed",
     lang: "zh" as const,
   },
   {
     name: "Foresight News",
     url: "https://foresightnews.pro/rss",
-    lang: "zh" as const,
-  },
-  {
-    name: "吴说区块链",
-    url: "https://wublock.substack.com/feed",
     lang: "zh" as const,
   },
   {
@@ -52,6 +42,16 @@ const RSS_SOURCES = [
   {
     name: "CoinDesk",
     url: "https://www.coindesk.com/arc/outboundfeeds/rss/",
+    lang: "en" as const,
+  },
+  {
+    name: "CoinTelegraph",
+    url: "https://cointelegraph.com/rss",
+    lang: "en" as const,
+  },
+  {
+    name: "Decrypt",
+    url: "https://decrypt.co/feed",
     lang: "en" as const,
   },
 ];
