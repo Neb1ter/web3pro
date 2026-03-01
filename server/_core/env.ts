@@ -14,6 +14,9 @@ export const ENV = {
   telegramChannelId: process.env.TELEGRAM_CHANNEL_ID ?? "",
   // RSS 抓取开关（默认开启）
   rssEnabled: process.env.RSS_ENABLED !== "false",
+  // 敏感词库自动更新间隔（小时，默认 24 小时）
+  // 可通过环境变量 WORD_UPDATE_INTERVAL_HOURS 调整，设为 0 可禁用自动更新
+  wordUpdateIntervalHours: parseInt(process.env.WORD_UPDATE_INTERVAL_HOURS ?? "24", 10),
   // DeepSeek AI（文章生成、翻译）
   deepseekApiKey: process.env.DEEPSEEK_API_KEY ?? "",
   deepseekApiUrl: process.env.DEEPSEEK_API_URL ?? "https://api.deepseek.com/v1",

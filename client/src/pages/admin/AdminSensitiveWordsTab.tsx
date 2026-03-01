@@ -2,6 +2,32 @@ import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
+type UpdateLog = {
+  id: number;
+  source: string;
+  sourceName: string;
+  addedCount: number;
+  skippedCount: number;
+  status: string;
+  errorMessage: string | null;
+  isManual: boolean | null;
+  createdAt: string;
+};
+
+type WordSource = {
+  id: string;
+  name: string;
+  type: string;
+  enabled: boolean;
+  url: string | null;
+};
+
+const STATUS_LOG_COLORS: Record<string, string> = {
+  success: "bg-green-900/60 text-green-300",
+  failed:  "bg-red-900/60 text-red-300",
+  partial: "bg-yellow-900/60 text-yellow-300",
+};
+
 type SensitiveWord = {
   id: number;
   word: string;
@@ -52,6 +78,27 @@ export function SensitiveWordsTab({ zh }: { zh: boolean }) {
   });
   const [checkResult, setCheckResult] = useState<{ isClean: boolean; flaggedWords: Array<{ word: string; positions: number[]; severity: string; replacement?: string | null }> } | null>(null);
 
+  // ── 词库自动更新 ──────────────────────────────────────────────────────────
+  const [showUpdatePanel, setShowUpdatePanel] = useState(false);
+  const [selectedSources, setSelectedSources] = useState<string[]>([]);
+  const [updateResult, setUpdateResult] = useState<{ totalAdded: number; totalSkipped: number; successCount: number; failedCount: number; results: Array<{ source: string; sourceName: string; added: number; skipped: number; status: string; error?: string }> } | null>(null);
+
+  const logsQuery = trpc.wordUpdate.logs.useQuery(undefined, { enabled: showUpdatePanel });
+  const sourcesQuery = trpc.wordUpdate.sources.useQuery(undefined, { enabled: showUpdatePanel });
+  const runUpdateMutation = trpc.wordUpdate.run.useMutation({
+    onSuccess: (data) => {
+      setUpdateResult(data);
+      toast.success(zh ? `词库更新完成：新增 ${data.totalAdded} 个词条` : `Update done: +${data.totalAdded} words`);
+      listQuery.refetch();
+      logsQuery.refetch();
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const toggleSource = (id: string) => {
+    setSelectedSources(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]);
+  };
+
   const words = (listQuery.data ?? []) as SensitiveWord[];
   const categories = ["all", ...Array.from(new Set(words.map(w => w.category)))];
   const filtered = filterCategory === "all" ? words : words.filter(w => w.category === filterCategory);
@@ -66,10 +113,163 @@ export function SensitiveWordsTab({ zh }: { zh: boolean }) {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h2 className="text-xl font-bold text-white">{zh ? "🔍 敏感词库管理" : "🔍 Sensitive Words"}</h2>
-        <button onClick={() => setShowAdd(!showAdd)} className="admin-btn-primary text-sm">
-          {zh ? "+ 添加敏感词" : "+ Add Word"}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowUpdatePanel(!showUpdatePanel)}
+            className={`text-sm px-3 py-1.5 rounded-lg border transition-all ${
+              showUpdatePanel
+                ? "border-cyan-500 bg-cyan-900/40 text-cyan-200"
+                : "border-slate-600 bg-slate-700/40 text-slate-300 hover:border-slate-500"
+            }`}
+          >
+            {zh ? "🔄 自动更新词库" : "🔄 Auto Update"}
+          </button>
+          <button onClick={() => setShowAdd(!showAdd)} className="admin-btn-primary text-sm">
+            {zh ? "+ 添加敏感词" : "+ Add Word"}
+          </button>
+        </div>
       </div>
+
+      {/* ── 词库自动更新面板 ─────────────────────────────────────────────── */}
+      {showUpdatePanel && (
+        <div className="space-y-4">
+          {/* 来源选择 */}
+          <div className="bg-slate-800/60 border border-cyan-700/30 rounded-xl p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-cyan-300 font-semibold text-sm">{zh ? "📦 词库来源" : "📦 Word Sources"}</h3>
+              <span className="text-xs text-slate-500">
+                {zh ? "选择要更新的来源（不选则更新所有启用来源）" : "Select sources to update (empty = all enabled)"}
+              </span>
+            </div>
+            {sourcesQuery.isLoading ? (
+              <div className="flex gap-2 items-center text-slate-400 text-sm">
+                <div className="w-4 h-4 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+                {zh ? "加载来源列表..." : "Loading sources..."}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {(sourcesQuery.data ?? [] as WordSource[]).map((s: WordSource) => (
+                  <div key={s.id} className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      id={`src-${s.id}`}
+                      checked={selectedSources.includes(s.id)}
+                      onChange={() => toggleSource(s.id)}
+                      className="accent-cyan-500"
+                    />
+                    <label htmlFor={`src-${s.id}`} className="flex items-center gap-2 cursor-pointer">
+                      <span className="text-white text-sm">{s.name}</span>
+                      <span className={`text-xs px-1.5 py-0.5 rounded ${
+                        s.type === "ai" ? "bg-purple-900/60 text-purple-300" :
+                        s.type === "github" ? "bg-blue-900/60 text-blue-300" :
+                        "bg-slate-700 text-slate-400"
+                      }`}>{s.type}</span>
+                      {!s.enabled && <span className="text-xs text-yellow-500">{zh ? "已禁用" : "disabled"}</span>}
+                      {s.url && <span className="text-xs text-slate-500 truncate max-w-xs">{s.url}</span>}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="flex gap-3 items-center pt-1">
+              <button
+                onClick={() => {
+                  setUpdateResult(null);
+                  runUpdateMutation.mutate({ sourceIds: selectedSources.length > 0 ? selectedSources : undefined });
+                }}
+                disabled={runUpdateMutation.isPending}
+                className="admin-btn-primary text-sm"
+              >
+                {runUpdateMutation.isPending
+                  ? (zh ? "更新中..." : "Updating...")
+                  : (zh
+                    ? selectedSources.length > 0 ? `🚀 更新选中来源 (${selectedSources.length})` : "🚀 更新所有启用来源"
+                    : selectedSources.length > 0 ? `🚀 Update Selected (${selectedSources.length})` : "🚀 Update All Enabled"
+                  )}
+              </button>
+              {selectedSources.length > 0 && (
+                <button onClick={() => setSelectedSources([])} className="text-xs text-slate-400 hover:text-white">
+                  {zh ? "清除选择" : "Clear"}
+                </button>
+              )}
+            </div>
+
+            {/* 本次更新结果 */}
+            {updateResult && (
+              <div className="mt-3 bg-slate-900/60 rounded-lg p-4 space-y-3">
+                <div className="flex gap-4 flex-wrap">
+                  <span className="text-sm text-green-300">+{updateResult.totalAdded} {zh ? "新增" : "added"}</span>
+                  <span className="text-sm text-slate-400">{updateResult.totalSkipped} {zh ? "跳过" : "skipped"}</span>
+                  <span className="text-sm text-green-300">{updateResult.successCount} {zh ? "成功" : "success"}</span>
+                  {updateResult.failedCount > 0 && (
+                    <span className="text-sm text-red-300">{updateResult.failedCount} {zh ? "失败" : "failed"}</span>
+                  )}
+                </div>
+                <div className="space-y-1">
+                  {updateResult.results.map((r, i) => (
+                    <div key={i} className="flex items-center gap-2 text-xs">
+                      <span className={`px-1.5 py-0.5 rounded ${STATUS_LOG_COLORS[r.status] ?? "bg-slate-700 text-slate-300"}`}>{r.status}</span>
+                      <span className="text-slate-300">{r.sourceName}</span>
+                      <span className="text-green-400">+{r.added}</span>
+                      <span className="text-slate-500">{zh ? "跳过" : "skip"} {r.skipped}</span>
+                      {r.error && <span className="text-red-400 truncate max-w-xs">{r.error}</span>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 更新日志 */}
+          <div className="bg-slate-800/40 border border-slate-700/40 rounded-xl p-4 space-y-3">
+            <h3 className="text-slate-300 font-medium text-sm">{zh ? "📋 更新日志" : "📋 Update Logs"}</h3>
+            {logsQuery.isLoading ? (
+              <div className="flex justify-center py-6"><div className="w-6 h-6 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" /></div>
+            ) : (logsQuery.data ?? []).length === 0 ? (
+              <p className="text-slate-500 text-sm text-center py-4">{zh ? "暂无更新记录" : "No update logs yet"}</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="border-b border-slate-700 text-slate-400 text-left">
+                      <th className="py-2 px-2">{zh ? "时间" : "Time"}</th>
+                      <th className="py-2 px-2">{zh ? "来源" : "Source"}</th>
+                      <th className="py-2 px-2">{zh ? "新增" : "Added"}</th>
+                      <th className="py-2 px-2">{zh ? "跳过" : "Skipped"}</th>
+                      <th className="py-2 px-2">{zh ? "状态" : "Status"}</th>
+                      <th className="py-2 px-2">{zh ? "触发方式" : "Trigger"}</th>
+                      <th className="py-2 px-2">{zh ? "备注" : "Note"}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(logsQuery.data as UpdateLog[]).map((log) => (
+                      <tr key={log.id} className="border-b border-slate-800 hover:bg-slate-800/30">
+                        <td className="py-2 px-2 text-slate-400 whitespace-nowrap">
+                          {new Date(log.createdAt).toLocaleString(zh ? "zh-CN" : "en-US", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                        </td>
+                        <td className="py-2 px-2 text-white">{log.sourceName}</td>
+                        <td className="py-2 px-2 text-green-400 font-medium">+{log.addedCount}</td>
+                        <td className="py-2 px-2 text-slate-400">{log.skippedCount}</td>
+                        <td className="py-2 px-2">
+                          <span className={`px-1.5 py-0.5 rounded ${STATUS_LOG_COLORS[log.status] ?? "bg-slate-700 text-slate-300"}`}>
+                            {log.status}
+                          </span>
+                        </td>
+                        <td className="py-2 px-2">
+                          <span className={`px-1.5 py-0.5 rounded ${log.isManual ? "bg-purple-900/60 text-purple-300" : "bg-slate-700 text-slate-400"}`}>
+                            {log.isManual ? (zh ? "手动" : "manual") : (zh ? "自动" : "auto")}
+                          </span>
+                        </td>
+                        <td className="py-2 px-2 text-red-400 max-w-xs truncate">{log.errorMessage ?? ""}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Add form */}
       {showAdd && (

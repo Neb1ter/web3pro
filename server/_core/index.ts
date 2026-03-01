@@ -21,6 +21,7 @@ import { ENV } from "./env";
 import { sdk } from "./sdk";
 import { upsertUser, getDb, seedCryptoToolsIfEmpty } from "../db";
 import { startRssScheduler } from "./rss";
+import { startWordUpdateScheduler } from "./sensitiveWordUpdater";
 import { getSessionCookieOptions } from "./cookies";
 import { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 import { migrate } from "drizzle-orm/mysql2/migrator";
@@ -216,6 +217,8 @@ async function startServer() {
     console.log(`Server running on http://localhost:${port}/`);
     // 启动 RSS 定时抓取（服务就绪后再启动，避免 DB 未连接）
     startRssScheduler();
+    // 启动敏感词库定时更新（延迟 60 秒，避免与 RSS 调度器竞争 DB 连接）
+    startWordUpdateScheduler();
   });
 }
 

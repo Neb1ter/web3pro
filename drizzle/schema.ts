@@ -390,3 +390,29 @@ export const sensitiveWords = mysqlTable("sensitive_words", {
 });
 export type SensitiveWord = typeof sensitiveWords.$inferSelect;
 export type InsertSensitiveWord = typeof sensitiveWords.$inferInsert;
+
+/**
+ * Sensitive word update logs — records each automatic/manual update run.
+ * source: which word list source was pulled
+ * status: "success" | "failed" | "partial"
+ */
+export const sensitiveWordUpdateLogs = mysqlTable("sensitive_word_update_logs", {
+  id: int("id").autoincrement().primaryKey(),
+  /** Update source identifier (e.g. "github_dfa", "github_stopwords", "ai_crypto", "manual") */
+  source: varchar("source", { length: 64 }).notNull(),
+  /** Human-readable source name */
+  sourceName: varchar("sourceName", { length: 128 }).notNull(),
+  /** Number of new words added in this run */
+  addedCount: int("addedCount").default(0).notNull(),
+  /** Number of words skipped (already exist) */
+  skippedCount: int("skippedCount").default(0).notNull(),
+  /** Run status */
+  status: mysqlEnum("status", ["success", "failed", "partial"]).default("success").notNull(),
+  /** Error message if failed */
+  errorMessage: text("errorMessage"),
+  /** Whether this was triggered manually by admin */
+  isManual: boolean("isManual").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type SensitiveWordUpdateLog = typeof sensitiveWordUpdateLogs.$inferSelect;
+export type InsertSensitiveWordUpdateLog = typeof sensitiveWordUpdateLogs.$inferInsert;

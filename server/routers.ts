@@ -762,6 +762,39 @@ export const appRouter = router({
       }),
   }),
 
+  /** Sensitive word library auto-update */
+  wordUpdate: router({
+    /** List all update logs */
+    logs: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+      const { getDb } = await import('./db');
+      const { sensitiveWordUpdateLogs } = await import('../drizzle/schema');
+      const { desc } = await import('drizzle-orm');
+      const db = await getDb();
+      if (!db) return [];
+      return db.select().from(sensitiveWordUpdateLogs)
+        .orderBy(desc(sensitiveWordUpdateLogs.createdAt))
+        .limit(100);
+    }),
+    /** Get all registered word sources */
+    sources: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+      const { getWordSources } = await import('./_core/sensitiveWordUpdater');
+      return getWordSources();
+    }),
+    /** Manually trigger update for all or specific sources */
+    run: protectedProcedure
+      .input(z.object({
+        sourceIds: z.array(z.string()).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+        const { runWordUpdate } = await import('./_core/sensitiveWordUpdater');
+        const result = await runWordUpdate(true, input.sourceIds);
+        return result;
+      }),
+  }),
+
   /** Media platforms management */
   platforms: router({
     list: protectedProcedure.query(async ({ ctx }) => {
