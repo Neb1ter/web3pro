@@ -189,6 +189,132 @@ class DouyinPublisher implements PlatformPublisher {
   }
 }
 
+// ─── Discord 实现（占位，待接入 Discord Webhook）────────────────────────────
+
+class DiscordPublisher implements PlatformPublisher {
+  readonly platformId = "discord";
+  readonly displayName = "Discord";
+
+  async publish(content: PublishContent, config: PlatformConfig): Promise<string> {
+    // channelId 存放 Webhook URL
+    const webhookUrl = config.channelId || config.apiKey;
+    if (!webhookUrl) {
+      throw new Error("Discord Webhook URL 未配置（填写到 Channel ID 字段）");
+    }
+    // TODO: 接入 Discord Webhook API
+    // POST {webhookUrl}
+    // body: { content: "...", embeds: [...] }
+    throw new Error("Discord 推送功能开发中，配置 Webhook URL 后可快速接入");
+  }
+}
+
+// ─── Slack 实现（占位，待接入 Slack Incoming Webhook）───────────────────────
+
+class SlackPublisher implements PlatformPublisher {
+  readonly platformId = "slack";
+  readonly displayName = "Slack";
+
+  async publish(content: PublishContent, config: PlatformConfig): Promise<string> {
+    const webhookUrl = config.channelId || config.apiKey;
+    if (!webhookUrl) {
+      throw new Error("Slack Incoming Webhook URL 未配置（填写到 Channel ID 字段）");
+    }
+    // TODO: 接入 Slack Incoming Webhook
+    // POST {webhookUrl}
+    // body: { text: "...", blocks: [...] }
+    throw new Error("Slack 推送功能开发中，配置 Webhook URL 后可快速接入");
+  }
+}
+
+// ─── Reddit 实现（占位，待接入 Reddit API）──────────────────────────────────
+
+class RedditPublisher implements PlatformPublisher {
+  readonly platformId = "reddit";
+  readonly displayName = "Reddit";
+
+  async publish(_content: PublishContent, config: PlatformConfig): Promise<string> {
+    if (!config.apiKey || !config.apiSecret) {
+      throw new Error("Reddit Client ID 或 Client Secret 未配置");
+    }
+    // TODO: 接入 Reddit API
+    // 1. POST https://www.reddit.com/api/v1/access_token 获取 token
+    // 2. POST https://oauth.reddit.com/api/submit 发帖
+    // channelId = 目标 subreddit（如 r/CryptoCurrency）
+    throw new Error("Reddit 推送功能开发中，配置 Client ID + Secret 后可快速接入");
+  }
+}
+
+// ─── LINE 实现（占位，待接入 LINE Notify / LINE Messaging API）──────────────
+
+class LinePublisher implements PlatformPublisher {
+  readonly platformId = "line";
+  readonly displayName = "LINE";
+
+  async publish(_content: PublishContent, config: PlatformConfig): Promise<string> {
+    if (!config.apiKey) {
+      throw new Error("LINE Channel Access Token 未配置");
+    }
+    // TODO: 接入 LINE Messaging API
+    // POST https://api.line.me/v2/bot/message/broadcast
+    // Header: Authorization: Bearer {channelAccessToken}
+    throw new Error("LINE 推送功能开发中，配置 Channel Access Token 后可快速接入");
+  }
+}
+
+// ─── Instagram 实现（占位，待接入 Meta Graph API）───────────────────────────
+
+class InstagramPublisher implements PlatformPublisher {
+  readonly platformId = "instagram";
+  readonly displayName = "Instagram";
+
+  async publish(_content: PublishContent, config: PlatformConfig): Promise<string> {
+    if (!config.apiKey) {
+      throw new Error("Instagram Access Token 未配置");
+    }
+    // TODO: 接入 Meta Graph API
+    // 1. POST /{ig-user-id}/media 创建媒体容器
+    // 2. POST /{ig-user-id}/media_publish 发布
+    // 注意：Instagram 仅支持图片/视频帖子，文字内容需搭配图片
+    throw new Error("Instagram 推送功能开发中，配置 Access Token 后可快速接入");
+  }
+}
+
+// ─── Facebook Page 实现（占位，待接入 Meta Graph API）───────────────────────
+
+class FacebookPublisher implements PlatformPublisher {
+  readonly platformId = "facebook";
+  readonly displayName = "Facebook Page";
+
+  async publish(_content: PublishContent, config: PlatformConfig): Promise<string> {
+    if (!config.apiKey) {
+      throw new Error("Facebook Page Access Token 未配置");
+    }
+    // TODO: 接入 Meta Graph API
+    // POST /{page-id}/feed
+    // body: { message: "...", link: "..." }
+    // channelId = Facebook Page ID
+    throw new Error("Facebook Page 推送功能开发中，配置 Page Access Token 后可快速接入");
+  }
+}
+
+// ─── Notion 实现（占位，待接入 Notion API）──────────────────────────────────
+
+class NotionPublisher implements PlatformPublisher {
+  readonly platformId = "notion";
+  readonly displayName = "Notion";
+
+  async publish(_content: PublishContent, config: PlatformConfig): Promise<string> {
+    if (!config.apiKey) {
+      throw new Error("Notion Integration Token 未配置");
+    }
+    // TODO: 接入 Notion API
+    // POST https://api.notion.com/v1/pages
+    // body: { parent: { database_id: channelId }, properties: {...}, children: [...] }
+    // channelId = 目标 Notion Database ID
+    throw new Error("Notion 推送功能开发中，配置 Integration Token + Database ID 后可快速接入");
+  }
+}
+
 // ─── 平台注册表 ───────────────────────────────────────────────────────────────
 
 /**
@@ -200,11 +326,21 @@ class DouyinPublisher implements PlatformPublisher {
  *  3. 在数据库 media_platforms 表插入对应配置行（可在后台管理页面操作）
  */
 const PLATFORM_REGISTRY: Map<string, PlatformPublisher> = new Map<string, PlatformPublisher>([
-  ["telegram", new TelegramPublisher() as PlatformPublisher],
-  ["wechat",   new WechatPublisher()   as PlatformPublisher],
-  ["weibo",    new WeiboPublisher()    as PlatformPublisher],
-  ["twitter",  new TwitterPublisher()  as PlatformPublisher],
-  ["douyin",   new DouyinPublisher()   as PlatformPublisher],
+  // ── 已完整实现 ──────────────────────────────────────────────────────────────
+  ["telegram",  new TelegramPublisher()  as PlatformPublisher],
+  // ── 中文社交媒体（占位，待接入） ────────────────────────────────────────────
+  ["wechat",    new WechatPublisher()    as PlatformPublisher],
+  ["weibo",     new WeiboPublisher()     as PlatformPublisher],
+  ["douyin",    new DouyinPublisher()    as PlatformPublisher],
+  // ── 国际社交媒体（占位，待接入） ────────────────────────────────────────────
+  ["twitter",   new TwitterPublisher()   as PlatformPublisher],
+  ["discord",   new DiscordPublisher()   as PlatformPublisher],
+  ["slack",     new SlackPublisher()     as PlatformPublisher],
+  ["reddit",    new RedditPublisher()    as PlatformPublisher],
+  ["line",      new LinePublisher()      as PlatformPublisher],
+  ["instagram", new InstagramPublisher() as PlatformPublisher],
+  ["facebook",  new FacebookPublisher()  as PlatformPublisher],
+  ["notion",    new NotionPublisher()    as PlatformPublisher],
 ]);
 
 // ─── 工具函数 ─────────────────────────────────────────────────────────────────

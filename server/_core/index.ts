@@ -19,7 +19,7 @@ import {
 } from "./security";
 import { ENV } from "./env";
 import { sdk } from "./sdk";
-import { upsertUser, getDb, seedCryptoToolsIfEmpty } from "../db";
+import { upsertUser, getDb, seedCryptoToolsIfEmpty, seedMediaPlatformsIfEmpty } from "../db";
 import { startRssScheduler } from "./rss";
 import { startWordUpdateScheduler } from "./sensitiveWordUpdater";
 import { getSessionCookieOptions } from "./cookies";
@@ -83,6 +83,7 @@ async function startServer() {
         console.log("[Database] Migrations completed successfully");
         // 初始化默认数据（如果表为空则插入种子数据）
         await seedCryptoToolsIfEmpty();
+        await seedMediaPlatformsIfEmpty();
         console.log("[Database] Seed data initialized");
       }
     } catch (error) {

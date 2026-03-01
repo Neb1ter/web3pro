@@ -11,6 +11,7 @@ import {
   exchangeFeatureSupport, ExchangeFeatureSupport, InsertExchangeFeatureSupport,
   cryptoTools, CryptoTool, InsertCryptoTool,
   systemSettings,
+  mediaPlatforms,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -717,3 +718,147 @@ export async function getAllSystemSettings(): Promise<Array<{ key: string; value
   return db.select().from(systemSettings).orderBy(systemSettings.key);
 }
 
+
+// ─── Media Platforms Seed ──────────────────────────────────────────────────────
+
+/**
+ * 所有平台的默认配置。
+ * 新增平台时在此数组中追加一条记录即可，启动时会自动写入数据库。
+ * 注意：已存在的平台不会被覆盖（onDuplicateKeyUpdate 仅更新 name/icon，不覆盖用户配置）。
+ */
+const DEFAULT_MEDIA_PLATFORMS = [
+  // ── 已完整实现 ──────────────────────────────────────────────────────────────
+  {
+    platform: "telegram",
+    name: "Telegram",
+    icon: "✈️",
+    isEnabled: false,
+    autoPublish: false,
+    autoPublishNews: false,
+    sensitiveStandard: "international",
+  },
+  // ── 中文社交媒体（占位，待接入）────────────────────────────────────────────
+  {
+    platform: "wechat",
+    name: "微信公众号",
+    icon: "💬",
+    isEnabled: false,
+    autoPublish: false,
+    autoPublishNews: false,
+    sensitiveStandard: "wechat",
+  },
+  {
+    platform: "weibo",
+    name: "微博",
+    icon: "🌐",
+    isEnabled: false,
+    autoPublish: false,
+    autoPublishNews: false,
+    sensitiveStandard: "weibo",
+  },
+  {
+    platform: "douyin",
+    name: "抖音",
+    icon: "🎵",
+    isEnabled: false,
+    autoPublish: false,
+    autoPublishNews: false,
+    sensitiveStandard: "douyin",
+  },
+  // ── 国际社交媒体（占位，待接入）────────────────────────────────────────────
+  {
+    platform: "twitter",
+    name: "Twitter / X",
+    icon: "🐦",
+    isEnabled: false,
+    autoPublish: false,
+    autoPublishNews: false,
+    sensitiveStandard: "international",
+  },
+  {
+    platform: "discord",
+    name: "Discord",
+    icon: "🎮",
+    isEnabled: false,
+    autoPublish: false,
+    autoPublishNews: false,
+    sensitiveStandard: "international",
+  },
+  {
+    platform: "slack",
+    name: "Slack",
+    icon: "💼",
+    isEnabled: false,
+    autoPublish: false,
+    autoPublishNews: false,
+    sensitiveStandard: "international",
+  },
+  {
+    platform: "reddit",
+    name: "Reddit",
+    icon: "🤖",
+    isEnabled: false,
+    autoPublish: false,
+    autoPublishNews: false,
+    sensitiveStandard: "international",
+  },
+  {
+    platform: "line",
+    name: "LINE",
+    icon: "💚",
+    isEnabled: false,
+    autoPublish: false,
+    autoPublishNews: false,
+    sensitiveStandard: "international",
+  },
+  {
+    platform: "instagram",
+    name: "Instagram",
+    icon: "📸",
+    isEnabled: false,
+    autoPublish: false,
+    autoPublishNews: false,
+    sensitiveStandard: "international",
+  },
+  {
+    platform: "facebook",
+    name: "Facebook Page",
+    icon: "👍",
+    isEnabled: false,
+    autoPublish: false,
+    autoPublishNews: false,
+    sensitiveStandard: "international",
+  },
+  {
+    platform: "notion",
+    name: "Notion",
+    icon: "📝",
+    isEnabled: false,
+    autoPublish: false,
+    autoPublishNews: false,
+    sensitiveStandard: "general",
+  },
+] as const;
+
+/**
+ * 初始化媒体平台数据（如果数据库中不存在则插入，已存在则仅更新 name/icon）。
+ * 在服务启动时调用，确保所有平台配置行都存在于数据库中。
+ */
+export async function seedMediaPlatformsIfEmpty(): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  try {
+    for (const p of DEFAULT_MEDIA_PLATFORMS) {
+      await db
+        .insert(mediaPlatforms)
+        .values(p)
+        .onDuplicateKeyUpdate({
+          // 已存在的平台只更新显示名称和图标，不覆盖用户配置的 apiKey/channelId 等
+          set: { name: p.name, icon: p.icon },
+        });
+    }
+    console.log(`[Database] Media platforms seeded: ${DEFAULT_MEDIA_PLATFORMS.length} platforms ready`);
+  } catch (error) {
+    console.error("[Database] Failed to seed media platforms:", error);
+  }
+}
