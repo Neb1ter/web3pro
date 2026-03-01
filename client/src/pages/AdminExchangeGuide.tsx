@@ -1,11 +1,15 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { ArticlesTab } from "./admin/AdminArticlesTab";
+import { SensitiveWordsTab } from "./admin/AdminSensitiveWordsTab";
+import { PlatformsTab } from "./admin/AdminPlatformsTab";
+import { PublishLogsTab } from "./admin/AdminPublishLogsTab";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
-type Tab = "exchanges" | "categories" | "featureSupport" | "contacts" | "tools" | "news" | "settings";
+type Tab = "exchanges" | "categories" | "featureSupport" | "contacts" | "tools" | "news" | "articles" | "sensitiveWords" | "platforms" | "publishLogs" | "settings";
 
 // ─── Shared UI helpers ─────────────────────────────────────────────────────────
 
@@ -957,6 +961,10 @@ export default function AdminExchangeGuide() {
     { id: "contacts", label: zh ? "📬 联系记录" : "📬 Contacts" },
     { id: "tools", label: zh ? "🛠️ 工具合集" : "🛠️ Tools" },
     { id: "news", label: zh ? "📰 快讯管理" : "📰 News" },
+    { id: "articles", label: zh ? "✍️ 文章管理" : "✍️ Articles" },
+    { id: "sensitiveWords", label: zh ? "🔍 敏感词库" : "🔍 Sensitive Words" },
+    { id: "platforms", label: zh ? "📡 媒体推送" : "📡 Platforms" },
+    { id: "publishLogs", label: zh ? "📋 推送日志" : "📋 Publish Logs" },
     { id: "settings", label: zh ? "⚙️ 系统设置" : "⚙️ Settings" },
   ];
 
@@ -1076,6 +1084,10 @@ export default function AdminExchangeGuide() {
             {tab === "tools" && <ToolsTab zh={zh} />}
             {tab === "news" && <NewsTab zh={zh} />}
             {tab === "settings" && <SettingsTab zh={zh} />}
+            {tab === "articles" && <ArticlesTab zh={zh} />}
+            {tab === "sensitiveWords" && <SensitiveWordsTab zh={zh} />}
+            {tab === "platforms" && <PlatformsTab zh={zh} />}
+            {tab === "publishLogs" && <PublishLogsTab zh={zh} />}
           </div>
         </div>
       </div>

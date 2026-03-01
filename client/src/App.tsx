@@ -32,6 +32,7 @@ const Exchanges       = lazy(() => import("./pages/Exchanges"));
 const Beginner        = lazy(() => import("./pages/Beginner"));
 const CryptoIntro     = lazy(() => import("./pages/CryptoIntro"));
 const CryptoNews      = lazy(() => import("./pages/CryptoNews"));
+const ArticleDetail   = lazy(() => import("./pages/ArticleDetail"));
 
 // Web3 入圈指南板块
 const Web3Guide           = lazy(() => import("./pages/Web3Guide"));
@@ -232,6 +233,7 @@ function Router() {
           <Route path="/beginner"      component={Beginner} />
           <Route path="/crypto-intro"  component={CryptoIntro} />
           <Route path="/crypto-news"   component={CryptoNews} />
+          <Route path="/article/:slug"  component={ArticleDetail} />
 
           {/* ── Web3 入圈指南板块 ── */}
           <Route path="/web3-guide"                         component={Web3Guide} />

@@ -414,6 +414,404 @@ export const appRouter = router({
         return { success: true };
       }),
   }),
+  /** Articles — public listing + admin CRUD + AI generation + sensitive word check */
+  articles: router({
+    /** Public: list published articles */
+    list: publicProcedure
+      .input(z.object({
+        limit: z.number().min(1).max(50).default(12),
+        offset: z.number().min(0).default(0),
+        category: z.string().optional(),
+      }))
+      .query(async ({ input }) => {
+        const { getPublishedArticles } = await import('./_core/articles');
+        return getPublishedArticles(input);
+      }),
+    /** Public: get single article by slug */
+    bySlug: publicProcedure
+      .input(z.object({ slug: z.string().min(1) }))
+      .query(async ({ input }) => {
+        const { getDb } = await import('./db');
+        const { articles } = await import('../drizzle/schema');
+        const { and, eq } = await import('drizzle-orm');
+        const db = await getDb();
+        if (!db) return null;
+        const [article] = await db.select().from(articles)
+          .where(and(eq(articles.slug, input.slug), eq(articles.isActive, true)))
+          .limit(1);
+        if (!article) return null;
+        const { incrementArticleView } = await import('./_core/articles');
+        incrementArticleView(article.id).catch(() => {});
+        return article;
+      }),
+    /** Admin: list all articles */
+    listAll: protectedProcedure
+      .input(z.object({
+        limit: z.number().min(1).max(100).default(20),
+        offset: z.number().min(0).default(0),
+        status: z.string().optional(),
+        category: z.string().optional(),
+      }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+        const { getDb } = await import('./db');
+        const { articles } = await import('../drizzle/schema');
+        const { desc, eq, and } = await import('drizzle-orm');
+        const db = await getDb();
+        if (!db) return [];
+        const conditions: ReturnType<typeof eq>[] = [];
+        if (input.status) conditions.push(eq(articles.status, input.status as 'draft'));
+        if (input.category) conditions.push(eq(articles.category, input.category));
+        return db.select().from(articles)
+          .where(conditions.length > 0 ? and(...conditions) : undefined)
+          .orderBy(desc(articles.updatedAt))
+          .limit(input.limit).offset(input.offset);
+      }),
+    /** Admin: create article */
+    create: protectedProcedure
+      .input(z.object({
+        title: z.string().min(1).max(256),
+        slug: z.string().max(256).optional(),
+        content: z.string().min(1),
+        excerpt: z.string().max(500).optional(),
+        coverImage: z.string().max(512).optional(),
+        category: z.enum(['analysis','tutorial','news_decode','project','promo','report']).default('analysis'),
+        tags: z.string().max(512).optional(),
+        author: z.string().max(64).default('Get8Pro编辑部'),
+        status: z.enum(['draft','pending_review','approved','published','rejected']).default('draft'),
+        perspective: z.string().max(32).optional(),
+        targetAudience: z.string().max(32).optional(),
+        contentStyle: z.string().max(32).optional(),
+        metaTitle: z.string().max(256).optional(),
+        metaDescription: z.string().max(512).optional(),
+        metaKeywords: z.string().max(512).optional(),
+        isPinned: z.boolean().default(false),
+        scheduledAt: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+        const { getDb } = await import('./db');
+        const { articles } = await import('../drizzle/schema');
+        const { generateSlug } = await import('./_core/articles');
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+        const slug = input.slug || generateSlug(input.title);
+        const publishedAt = input.status === 'published' ? new Date() : null;
+        await db.insert(articles).values({
+          ...input,
+          slug,
+          publishedAt,
+          scheduledAt: input.scheduledAt ? new Date(input.scheduledAt) : null,
+        });
+        return { success: true, slug };
+      }),
+    /** Admin: update article */
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number().int(),
+        title: z.string().max(256).optional(),
+        content: z.string().optional(),
+        excerpt: z.string().max(500).optional().nullable(),
+        coverImage: z.string().max(512).optional().nullable(),
+        category: z.string().max(32).optional(),
+        tags: z.string().max(512).optional().nullable(),
+        author: z.string().max(64).optional(),
+        status: z.enum(['draft','pending_review','approved','published','rejected']).optional(),
+        perspective: z.string().max(32).optional(),
+        targetAudience: z.string().max(32).optional(),
+        contentStyle: z.string().max(32).optional(),
+        sensitiveStatus: z.string().max(32).optional(),
+        sensitiveWords: z.string().optional().nullable(),
+        reviewNotes: z.string().optional().nullable(),
+        metaTitle: z.string().max(256).optional().nullable(),
+        metaDescription: z.string().max(512).optional().nullable(),
+        metaKeywords: z.string().max(512).optional().nullable(),
+        isPinned: z.boolean().optional(),
+        isActive: z.boolean().optional(),
+        scheduledAt: z.string().optional().nullable(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+        const { getDb } = await import('./db');
+        const { articles } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+        const { id, ...data } = input;
+        const updateData: Record<string, unknown> = { ...data };
+        if (data.status === 'published' && !updateData.publishedAt) updateData.publishedAt = new Date();
+        if (data.scheduledAt) updateData.scheduledAt = new Date(data.scheduledAt);
+        await db.update(articles).set(updateData).where(eq(articles.id, id));
+        return { success: true };
+      }),
+    /** Admin: delete article */
+    delete: protectedProcedure
+      .input(z.object({ id: z.number().int() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+        const { getDb } = await import('./db');
+        const { articles } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+        await db.delete(articles).where(eq(articles.id, input.id));
+        return { success: true };
+      }),
+    /** Admin: AI generate article */
+    aiGenerate: protectedProcedure
+      .input(z.object({
+        topic: z.string().min(1).max(200),
+        category: z.string().max(32).default('analysis'),
+        perspective: z.enum(['neutral','bullish','bearish','educational']).default('neutral'),
+        targetAudience: z.enum(['beginner','intermediate','professional','institutional']).default('beginner'),
+        contentStyle: z.enum(['formal','casual','marketing']).default('formal'),
+        keywords: z.array(z.string()).optional(),
+        wordCount: z.number().min(300).max(3000).default(800),
+        relatedNewsTitle: z.string().optional(),
+        autoSave: z.boolean().default(false),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+        const { generateArticleWithAI, checkSensitiveWords, generateSlug } = await import('./_core/articles');
+        const generated = await generateArticleWithAI(input);
+        const fullText = `${generated.title} ${generated.content}`;
+        const sensitiveResult = await checkSensitiveWords(fullText);
+        if (input.autoSave) {
+          const { getDb } = await import('./db');
+          const { articles } = await import('../drizzle/schema');
+          const db = await getDb();
+          if (db) {
+            const slug = generateSlug(generated.title);
+            await db.insert(articles).values({
+              title: generated.title,
+              slug,
+              content: generated.content,
+              excerpt: generated.excerpt || null,
+              category: input.category,
+              tags: generated.tags || null,
+              author: 'Get8Pro AI',
+              status: sensitiveResult.isClean ? 'pending_review' : 'draft',
+              perspective: input.perspective,
+              targetAudience: input.targetAudience,
+              contentStyle: input.contentStyle,
+              isAiGenerated: true,
+              aiPrompt: input.topic,
+              sensitiveStatus: sensitiveResult.isClean ? 'clean' : 'flagged',
+              sensitiveWords: JSON.stringify(sensitiveResult.flaggedWords),
+              metaTitle: generated.metaTitle || null,
+              metaDescription: generated.metaDescription || null,
+              metaKeywords: generated.metaKeywords || null,
+            });
+            return { success: true, generated, sensitiveResult, saved: true, slug };
+          }
+        }
+        return { success: true, generated, sensitiveResult, saved: false };
+      }),
+    /** Admin: check sensitive words */
+    checkSensitive: protectedProcedure
+      .input(z.object({
+        content: z.string().min(1),
+        platforms: z.array(z.string()).default(['all']),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+        const { checkSensitiveWords } = await import('./_core/articles');
+        return checkSensitiveWords(input.content, input.platforms);
+      }),
+    /** Admin: AI rewrite for compliance */
+    rewriteCompliance: protectedProcedure
+      .input(z.object({ id: z.number().int() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+        const { getDb } = await import('./db');
+        const { articles } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        const { checkSensitiveWords, rewriteForCompliance } = await import('./_core/articles');
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+        const [article] = await db.select().from(articles).where(eq(articles.id, input.id)).limit(1);
+        if (!article) throw new TRPCError({ code: 'NOT_FOUND' });
+        const rewritten = await rewriteForCompliance(article.content, JSON.parse(article.sensitiveWords || '[]'));
+        const newResult = await checkSensitiveWords(rewritten);
+        await db.update(articles).set({
+          content: rewritten,
+          sensitiveStatus: newResult.isClean ? 'clean' : 'flagged',
+          sensitiveWords: JSON.stringify(newResult.flaggedWords),
+        }).where(eq(articles.id, input.id));
+        return { success: true, isClean: newResult.isClean, flaggedCount: newResult.flaggedWords.length };
+      }),
+    /** Admin: publish article to platforms */
+    publish: protectedProcedure
+      .input(z.object({
+        id: z.number().int(),
+        platforms: z.array(z.string()).min(1),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+        const { getDb } = await import('./db');
+        const { articles } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        const { publishContent } = await import('./_core/publish');
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+        const [article] = await db.select().from(articles).where(eq(articles.id, input.id)).limit(1);
+        if (!article) throw new TRPCError({ code: 'NOT_FOUND' });
+        const articleUrl = `https://get8.pro/article/${article.slug}`;
+        const results = await publishContent(
+          { type: 'article', id: article.id, title: article.title, excerpt: article.excerpt, url: articleUrl },
+          input.platforms
+        );
+        return { success: true, results };
+      }),
+  }),
+
+  /** Sensitive words management */
+  sensitiveWords: router({
+    list: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+      const { getDb } = await import('./db');
+      const { sensitiveWords } = await import('../drizzle/schema');
+      const { asc } = await import('drizzle-orm');
+      const db = await getDb();
+      if (!db) return [];
+      return db.select().from(sensitiveWords).orderBy(asc(sensitiveWords.category), asc(sensitiveWords.word));
+    }),
+    add: protectedProcedure
+      .input(z.object({
+        word: z.string().min(1).max(128),
+        platforms: z.string().default('all'),
+        severity: z.enum(['block','warn','replace']).default('warn'),
+        replacement: z.string().max(128).optional(),
+        category: z.string().max(32).default('custom'),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+        const { getDb } = await import('./db');
+        const { sensitiveWords } = await import('../drizzle/schema');
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+        await db.insert(sensitiveWords).values(input);
+        return { success: true };
+      }),
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number().int(),
+        word: z.string().max(128).optional(),
+        platforms: z.string().optional(),
+        severity: z.enum(['block','warn','replace']).optional(),
+        replacement: z.string().max(128).optional().nullable(),
+        category: z.string().max(32).optional(),
+        isActive: z.boolean().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+        const { getDb } = await import('./db');
+        const { sensitiveWords } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+        const { id, ...data } = input;
+        await db.update(sensitiveWords).set(data).where(eq(sensitiveWords.id, id));
+        return { success: true };
+      }),
+    delete: protectedProcedure
+      .input(z.object({ id: z.number().int() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+        const { getDb } = await import('./db');
+        const { sensitiveWords } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+        await db.delete(sensitiveWords).where(eq(sensitiveWords.id, input.id));
+        return { success: true };
+      }),
+  }),
+
+  /** Media platforms management */
+  platforms: router({
+    list: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+      const { getDb } = await import('./db');
+      const { mediaPlatforms } = await import('../drizzle/schema');
+      const db = await getDb();
+      if (!db) return [];
+      return db.select().from(mediaPlatforms);
+    }),
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number().int(),
+        isEnabled: z.boolean().optional(),
+        apiKey: z.string().optional().nullable(),
+        apiSecret: z.string().optional().nullable(),
+        channelId: z.string().max(256).optional().nullable(),
+        extraConfig: z.string().optional().nullable(),
+        autoPublish: z.boolean().optional(),
+        autoPublishNews: z.boolean().optional(),
+        sensitiveStandard: z.string().max(32).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+        const { getDb } = await import('./db');
+        const { mediaPlatforms } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+        const { id, ...data } = input;
+        await db.update(mediaPlatforms).set(data).where(eq(mediaPlatforms.id, id));
+        return { success: true };
+      }),
+    test: protectedProcedure
+      .input(z.object({ platform: z.string().min(1) }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+        const { getDb } = await import('./db');
+        const { mediaPlatforms } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        const { ENV } = await import('./_core/env');
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+        const [config] = await db.select().from(mediaPlatforms).where(eq(mediaPlatforms.platform, input.platform)).limit(1);
+        if (!config) throw new TRPCError({ code: 'NOT_FOUND', message: '平台配置不存在' });
+        if (input.platform === 'telegram') {
+          const token = config.apiKey || ENV.telegramBotToken;
+          const channelId = config.channelId || ENV.telegramChannelId;
+          if (!token || !channelId) throw new TRPCError({ code: 'BAD_REQUEST', message: 'Token 或 Channel ID 未配置' });
+          const res = await fetch(`https://api.telegram.org/bot${token}/getChat?chat_id=${channelId}`);
+          const data = await res.json() as { ok: boolean; description?: string; result?: { title?: string } };
+          if (!data.ok) throw new TRPCError({ code: 'BAD_REQUEST', message: `Telegram 连接失败: ${data.description}` });
+          return { success: true, message: `Telegram 连接成功，频道: ${data.result?.title || channelId}` };
+        }
+        return { success: true, message: `${input.platform} 连接测试暂不支持，请手动验证` };
+      }),
+  }),
+
+  /** Publish logs */
+  publishLogs: router({
+    list: protectedProcedure
+      .input(z.object({
+        limit: z.number().min(1).max(100).default(50),
+        offset: z.number().min(0).default(0),
+        platform: z.string().optional(),
+        status: z.string().optional(),
+      }))
+      .query(async ({ ctx, input }) => {
+        if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+        const { getDb } = await import('./db');
+        const { publishLogs } = await import('../drizzle/schema');
+        const { desc, eq, and } = await import('drizzle-orm');
+        const db = await getDb();
+        if (!db) return [];
+        const conditions: ReturnType<typeof eq>[] = [];
+        if (input.platform) conditions.push(eq(publishLogs.platform, input.platform));
+        if (input.status) conditions.push(eq(publishLogs.status, input.status as 'pending'));
+        return db.select().from(publishLogs)
+          .where(conditions.length > 0 ? and(...conditions) : undefined)
+          .orderBy(desc(publishLogs.createdAt))
+          .limit(input.limit).offset(input.offset);
+      }),
+  }),
+
   settings: router({
     /** Admin: get all system settings */
     getAll: protectedProcedure.query(async () => {
