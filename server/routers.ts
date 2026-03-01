@@ -663,6 +663,40 @@ export const appRouter = router({
         );
         return { success: true, results };
       }),
+    /** Admin: Qwen AI content moderation */
+    qwenModerate: protectedProcedure
+      .input(z.object({
+        id: z.number().int().optional(),
+        title: z.string().optional(),
+        content: z.string().optional(),
+        platforms: z.array(z.string()).default(['wechat','weibo','douyin','telegram']),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+        const { moderateWithQwen } = await import('./_core/articles');
+        let title = input.title || '';
+        let content = input.content || '';
+        if (input.id) {
+          const { getDb } = await import('./db');
+          const { articles } = await import('../drizzle/schema');
+          const { eq } = await import('drizzle-orm');
+          const db = await getDb();
+          if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+          const [article] = await db.select().from(articles).where(eq(articles.id, input.id)).limit(1);
+          if (!article) throw new TRPCError({ code: 'NOT_FOUND' });
+          title = article.title;
+          content = article.content;
+          const result = await moderateWithQwen(title, content, input.platforms);
+          await db.update(articles).set({
+            sensitiveStatus: result.passed ? 'clean' : 'flagged',
+            sensitiveWords: JSON.stringify(result.issues || []),
+            status: result.passed ? 'pending_review' : 'draft',
+          }).where(eq(articles.id, input.id));
+          return { success: true, result };
+        }
+        const result = await moderateWithQwen(title, content, input.platforms);
+        return { success: true, result };
+      }),
   }),
 
   /** Sensitive words management */

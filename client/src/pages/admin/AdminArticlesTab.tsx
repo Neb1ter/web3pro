@@ -99,6 +99,19 @@ export function ArticlesTab({ zh }: { zh: boolean }) {
     },
     onError: (e) => toast.error(e.message),
   });
+  const qwenModerateMutation = trpc.articles.qwenModerate.useMutation({
+    onSuccess: (data) => {
+      const r = data.result;
+      if (r.passed) {
+        toast.success(zh ? `通义千问审核通过！合规评分：${r.score}/100` : `Qwen audit passed! Score: ${r.score}/100`);
+      } else {
+        toast.warning(zh ? `审核未通过，发现 ${r.issues?.length ?? 0} 个问题` : `Audit failed: ${r.issues?.length ?? 0} issues`);
+      }
+      setQwenResult(data.result);
+      listQuery.refetch();
+    },
+    onError: (e) => toast.error(e.message),
+  });
 
   const [editing, setEditing] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<Partial<Article>>({});
@@ -110,6 +123,12 @@ export function ArticlesTab({ zh }: { zh: boolean }) {
   });
   const [aiResult, setAiResult] = useState<AiGenerateResult | null>(null);
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [qwenResult, setQwenResult] = useState<{
+    passed: boolean; score: number; summary: string;
+    issues: Array<{ type: string; severity: string; description: string; suggestion: string }>;
+    platformSuggestions: Record<string, boolean>;
+  } | null>(null);
+  const [qwenTargetId, setQwenTargetId] = useState<number | null>(null);
 
   const articles = (listQuery.data ?? []) as Article[];
 
@@ -346,6 +365,16 @@ export function ArticlesTab({ zh }: { zh: boolean }) {
 
                   {/* Action buttons */}
                   <div className="flex gap-2 flex-wrap pt-1">
+                    {/* 通义千问 AI 审核按鈕 */}
+                    <button
+                      onClick={() => { setQwenTargetId(a.id); setQwenResult(null); qwenModerateMutation.mutate({ id: a.id }); }}
+                      disabled={qwenModerateMutation.isPending && qwenTargetId === a.id}
+                      className="admin-btn-ghost text-xs border border-orange-600/40 text-orange-300 hover:bg-orange-900/20"
+                    >
+                      {qwenModerateMutation.isPending && qwenTargetId === a.id
+                        ? (zh ? "审核中..." : "Auditing...")
+                        : (zh ? "🔍 千问审核" : "🔍 Qwen Audit")}
+                    </button>
                     {a.sensitiveStatus === "flagged" && (
                       <button
                         onClick={() => rewriteMutation.mutate({ id: a.id })}
@@ -365,6 +394,67 @@ export function ArticlesTab({ zh }: { zh: boolean }) {
                       </button>
                     )}
                   </div>
+
+                  {/* 通义千问审核结果展示 */}
+                  {qwenTargetId === a.id && qwenResult && (
+                    <div className={`mt-3 rounded-lg p-4 border ${
+                      qwenResult.passed
+                        ? "bg-green-900/20 border-green-700/40"
+                        : "bg-red-900/20 border-red-700/40"
+                    }`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-semibold text-white">
+                          {zh ? "🔍 通义千问审核结果" : "🔍 Qwen Moderation Result"}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-xs px-2 py-0.5 rounded font-medium ${
+                            qwenResult.passed ? "bg-green-700/60 text-green-200" : "bg-red-700/60 text-red-200"
+                          }`}>
+                            {qwenResult.passed ? (zh ? "✅ 通过" : "✅ Passed") : (zh ? "❌ 未通过" : "❌ Failed")}
+                          </span>
+                          <span className="text-xs text-slate-400">
+                            {zh ? "合规度" : "Score"}: <span className={`font-bold ${
+                              qwenResult.score >= 80 ? "text-green-400" : qwenResult.score >= 60 ? "text-yellow-400" : "text-red-400"
+                            }`}>{qwenResult.score}/100</span>
+                          </span>
+                        </div>
+                      </div>
+                      <p className="text-slate-300 text-xs mb-3">{qwenResult.summary}</p>
+                      {/* 平台可发布建议 */}
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {Object.entries(qwenResult.platformSuggestions).map(([p, ok]) => (
+                          <span key={p} className={`text-xs px-2 py-0.5 rounded border ${
+                            ok ? "border-green-700/40 text-green-300 bg-green-900/20" : "border-red-700/40 text-red-300 bg-red-900/20"
+                          }`}>
+                            {ok ? "✔" : "✖"} {p === "wechat" ? "微信" : p === "weibo" ? "微博" : p === "douyin" ? "抖音" : p}
+                          </span>
+                        ))}
+                      </div>
+                      {/* 问题列表 */}
+                      {qwenResult.issues.length > 0 && (
+                        <div className="space-y-2">
+                          {qwenResult.issues.map((issue, i) => (
+                            <div key={i} className={`text-xs p-2 rounded border ${
+                              issue.severity === "high" ? "border-red-700/40 bg-red-900/20" :
+                              issue.severity === "medium" ? "border-yellow-700/40 bg-yellow-900/20" :
+                              "border-slate-700/40 bg-slate-800/40"
+                            }`}>
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
+                                  issue.severity === "high" ? "bg-red-700/60 text-red-200" :
+                                  issue.severity === "medium" ? "bg-yellow-700/60 text-yellow-200" :
+                                  "bg-slate-700/60 text-slate-300"
+                                }`}>{issue.severity.toUpperCase()}</span>
+                                <span className="text-slate-400">[{issue.type}]</span>
+                              </div>
+                              <p className="text-slate-300">{issue.description}</p>
+                              <p className="text-slate-500 mt-1">{zh ? "建议：" : "Suggestion: "}{issue.suggestion}</p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

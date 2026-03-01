@@ -17,4 +17,7 @@ export const ENV = {
   // DeepSeek AI（文章生成、翻译）
   deepseekApiKey: process.env.DEEPSEEK_API_KEY ?? "",
   deepseekApiUrl: process.env.DEEPSEEK_API_URL ?? "https://api.deepseek.com/v1",
+  // 通义千问（阿里云百炼）内容审核
+  qwenApiKey: process.env.QWEN_API_KEY ?? "",
+  qwenApiUrl: process.env.QWEN_API_URL ?? "https://dashscope.aliyuncs.com/compatible-mode/v1",
 };

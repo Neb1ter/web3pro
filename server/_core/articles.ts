@@ -340,3 +340,138 @@ export async function incrementArticleView(id: number) {
   // Use raw SQL increment to avoid race conditions
   await db.execute(`UPDATE articles SET viewCount = viewCount + 1 WHERE id = ${id}`);
 }
+
+// ─── Qwen AI Content Moderation ──────────────────────────────────────────────
+
+export interface QwenModerationResult {
+  passed: boolean;          // 是否通过审核
+  score: number;            // 合规评分 0-100（100 为完全合规）
+  issues: Array<{
+    type: string;           // 问题类型：politics / finance / vulgar / spam / other
+    severity: "low" | "medium" | "high"; // 严重程度
+    description: string;    // 问题描述
+    suggestion: string;     // 修改建议
+  }>;
+  platformSuggestions: Record<string, boolean>; // 各平台是否可发布
+  summary: string;          // 审核总结
+}
+
+export async function moderateWithQwen(
+  title: string,
+  content: string,
+  platforms: string[] = ["wechat", "weibo", "douyin", "telegram"]
+): Promise<QwenModerationResult> {
+  const apiKey = ENV.qwenApiKey;
+  const baseUrl = (ENV.qwenApiUrl || "https://dashscope.aliyuncs.com/compatible-mode/v1").replace(/\/$/, "");
+  const apiUrl = `${baseUrl}/chat/completions`;
+
+  // 如果没有配置通义千问 Key，返回默认通过
+  if (!apiKey) {
+    return {
+      passed: true,
+      score: 80,
+      issues: [],
+      platformSuggestions: Object.fromEntries(platforms.map(p => [p, true])),
+      summary: "未配置通义千问 API Key，跳过 AI 审核，建议人工复核",
+    };
+  }
+
+  const platformNames: Record<string, string> = {
+    wechat: "微信公众号",
+    weibo: "微博",
+    douyin: "抖音",
+    telegram: "Telegram",
+    twitter: "Twitter/X",
+  };
+
+  const platformList = platforms.map(p => platformNames[p] || p).join("、");
+  const textToCheck = `标题：${title}\n\n正文：${content.slice(0, 3000)}`;
+
+  const systemPrompt = `你是一位专业的中国互联网内容合规审核专家，熟悉微信公众号、微博、抖音等平台的内容规范，以及中国金融监管对加密货币内容的要求。
+
+请对用户提交的文章进行全面合规审核，重点检查：
+1. 政治敏感内容（涉及党政领导人、政治事件、境外势力等）
+2. 金融违规（虚假收益承诺、诱导投资、内幕消息、保证盈利等）
+3. 违禁词汇（各平台敏感词、违禁词）
+4. 不实信息（夸大事实、虚假数据）
+5. 违规营销（诱导转发、虚假福利等）
+
+请严格按照以下 JSON 格式返回审核结果，不要添加任何其他内容：
+{
+  "passed": true/false,
+  "score": 0-100,
+  "issues": [
+    {
+      "type": "politics/finance/vulgar/spam/other",
+      "severity": "low/medium/high",
+      "description": "具体问题描述",
+      "suggestion": "修改建议"
+    }
+  ],
+  "platformSuggestions": {
+    "wechat": true/false,
+    "weibo": true/false,
+    "douyin": true/false,
+    "telegram": true/false
+  },
+  "summary": "总体审核结论（50字以内）"
+}`;
+
+  try {
+    const res = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`,
+        // 接入阿里云内容安全服务（CIP）
+        "X-DashScope-DataInspection": JSON.stringify({ input: "cip", output: "cip" }),
+      },
+      body: JSON.stringify({
+        model: "qwen-plus",  // 使用 qwen-plus（即 qwen3.5-plus）做审核
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: `请审核以下文章（目标发布平台：${platformList}）：\n\n${textToCheck}` },
+        ],
+        max_tokens: 1500,
+        temperature: 0.1,  // 低温度确保审核结果稳定
+      }),
+      signal: AbortSignal.timeout(30_000),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      // 如果内容安全拦截（400 data_inspection_failed），直接判定不通过
+      if (res.status === 400 && errText.includes("data_inspection_failed")) {
+        return {
+          passed: false,
+          score: 0,
+          issues: [{ type: "politics", severity: "high", description: "阿里云内容安全服务检测到违规内容", suggestion: "请删除或修改违规内容后重新提交" }],
+          platformSuggestions: Object.fromEntries(platforms.map(p => [p, false])),
+          summary: "内容安全检测不通过，存在违规内容",
+        };
+      }
+      throw new Error(`Qwen API 请求失败: ${res.status}`);
+    }
+
+    const data = await res.json() as { choices?: Array<{ message?: { content?: string } }> };
+    const raw = data?.choices?.[0]?.message?.content ?? "";
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error("无法解析审核结果");
+
+    const result = JSON.parse(jsonMatch[0]) as QwenModerationResult;
+    // 确保 passed 字段逻辑正确：有 high 级别问题则不通过
+    const hasHighIssue = result.issues?.some(i => i.severity === "high");
+    if (hasHighIssue) result.passed = false;
+    if (result.score === undefined) result.score = result.passed ? 85 : 30;
+    return result;
+  } catch (err) {
+    // 审核失败时，返回需人工审核的结果
+    return {
+      passed: false,
+      score: 50,
+      issues: [{ type: "other", severity: "low", description: `AI 审核服务暂时不可用: ${String(err).slice(0, 100)}`, suggestion: "请人工审核后决定是否发布" }],
+      platformSuggestions: Object.fromEntries(platforms.map(p => [p, false])),
+      summary: "AI 审核服务暂时不可用，请人工审核",
+    };
+  }
+}
