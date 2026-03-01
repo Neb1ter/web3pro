@@ -141,9 +141,13 @@ async function batchTranslateToZh(items: TranslateInput[]): Promise<TranslateOut
     return items.map(i => ({ title: i.title, summary: i.summary }));
   }
 
-  const apiUrl = ENV.forgeApiUrl
-    ? `${ENV.forgeApiUrl.replace(/\/$/, "")}/v1/chat/completions`
-    : "https://api.openai.com/v1/chat/completions";
+  // 构建 API URL：如果 forgeApiUrl 已包含 /v1 则不重复添加
+  const baseUrl = ENV.forgeApiUrl
+    ? ENV.forgeApiUrl.replace(/\/$/, "")
+    : "https://api.openai.com/v1";
+  const apiUrl = baseUrl.endsWith("/v1")
+    ? `${baseUrl}/chat/completions`
+    : `${baseUrl}/v1/chat/completions`;
 
   // 构建批量翻译 prompt，一次请求翻译多条，节约 API
   const numbered = items.map((item, idx) =>
