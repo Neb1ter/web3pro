@@ -170,7 +170,7 @@ ${numbered}`;
         "Authorization": `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4.1-nano",
+        model: "gpt-4o-mini",
         messages: [{ role: "user", content: prompt }],
         max_tokens: 1500,
         temperature: 0.3,
