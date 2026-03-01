@@ -1,8 +1,7 @@
--- 文章表
 CREATE TABLE IF NOT EXISTS `articles` (
-  `id` int AUTO_INCREMENT PRIMARY KEY,
+  `id` int AUTO_INCREMENT NOT NULL,
   `title` varchar(256) NOT NULL,
-  `slug` varchar(256) NOT NULL UNIQUE,
+  `slug` varchar(256) NOT NULL,
   `content` text NOT NULL,
   `excerpt` text,
   `coverImage` varchar(512),
@@ -26,14 +25,15 @@ CREATE TABLE IF NOT EXISTS `articles` (
   `isActive` boolean NOT NULL DEFAULT true,
   `scheduledAt` timestamp NULL,
   `publishedAt` timestamp NULL,
-  `createdAt` timestamp NOT NULL DEFAULT NOW(),
-  `updatedAt` timestamp NOT NULL DEFAULT NOW() ON UPDATE NOW()
+  `createdAt` timestamp NOT NULL DEFAULT (now()),
+  `updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT `articles_id` PRIMARY KEY(`id`),
+  CONSTRAINT `articles_slug_unique` UNIQUE(`slug`)
 );
-
--- 媒体平台配置表
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS `media_platforms` (
-  `id` int AUTO_INCREMENT PRIMARY KEY,
-  `platform` varchar(32) NOT NULL UNIQUE,
+  `id` int AUTO_INCREMENT NOT NULL,
+  `platform` varchar(32) NOT NULL,
   `name` varchar(64) NOT NULL,
   `icon` varchar(8) NOT NULL DEFAULT '📢',
   `isEnabled` boolean NOT NULL DEFAULT false,
@@ -44,13 +44,14 @@ CREATE TABLE IF NOT EXISTS `media_platforms` (
   `autoPublish` boolean NOT NULL DEFAULT false,
   `autoPublishNews` boolean NOT NULL DEFAULT false,
   `sensitiveStandard` varchar(32) DEFAULT 'general',
-  `createdAt` timestamp NOT NULL DEFAULT NOW(),
-  `updatedAt` timestamp NOT NULL DEFAULT NOW() ON UPDATE NOW()
+  `createdAt` timestamp NOT NULL DEFAULT (now()),
+  `updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT `media_platforms_id` PRIMARY KEY(`id`),
+  CONSTRAINT `media_platforms_platform_unique` UNIQUE(`platform`)
 );
-
--- 推送日志表
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS `publish_logs` (
-  `id` int AUTO_INCREMENT PRIMARY KEY,
+  `id` int AUTO_INCREMENT NOT NULL,
   `contentType` varchar(16) NOT NULL,
   `contentId` int NOT NULL,
   `contentTitle` varchar(256) NOT NULL,
@@ -58,31 +59,30 @@ CREATE TABLE IF NOT EXISTS `publish_logs` (
   `status` enum('pending','success','failed','skipped') NOT NULL DEFAULT 'pending',
   `response` text,
   `retryCount` int NOT NULL DEFAULT 0,
-  `createdAt` timestamp NOT NULL DEFAULT NOW(),
-  `updatedAt` timestamp NOT NULL DEFAULT NOW() ON UPDATE NOW()
+  `createdAt` timestamp NOT NULL DEFAULT (now()),
+  `updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT `publish_logs_id` PRIMARY KEY(`id`)
 );
-
--- 敏感词库表
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS `sensitive_words` (
-  `id` int AUTO_INCREMENT PRIMARY KEY,
+  `id` int AUTO_INCREMENT NOT NULL,
   `word` varchar(128) NOT NULL,
   `platforms` varchar(128) NOT NULL DEFAULT 'all',
   `severity` enum('block','warn','replace') NOT NULL DEFAULT 'warn',
   `replacement` varchar(128),
   `category` varchar(32) NOT NULL DEFAULT 'custom',
   `isActive` boolean NOT NULL DEFAULT true,
-  `createdAt` timestamp NOT NULL DEFAULT NOW()
+  `createdAt` timestamp NOT NULL DEFAULT (now()),
+  CONSTRAINT `sensitive_words_id` PRIMARY KEY(`id`)
 );
-
--- 初始化媒体平台数据
+--> statement-breakpoint
 INSERT IGNORE INTO `media_platforms` (`platform`, `name`, `icon`, `isEnabled`, `autoPublish`, `autoPublishNews`, `sensitiveStandard`) VALUES
 ('telegram', 'Telegram', '✈️', true, false, true, 'general'),
 ('wechat', '微信公众号', '💬', false, false, false, 'wechat'),
 ('weibo', '微博', '🔴', false, false, false, 'weibo'),
 ('twitter', 'Twitter/X', '🐦', false, false, false, 'general'),
 ('tiktok', '抖音', '🎵', false, false, false, 'tiktok');
-
--- 初始化常见敏感词（金融/加密货币合规相关）
+--> statement-breakpoint
 INSERT IGNORE INTO `sensitive_words` (`word`, `platforms`, `severity`, `replacement`, `category`) VALUES
 ('保证盈利', 'all', 'block', NULL, 'financial'),
 ('稳赚不赔', 'all', 'block', NULL, 'financial'),
