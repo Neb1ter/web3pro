@@ -265,6 +265,14 @@ export const appRouter = router({
         await db.delete(cryptoNews).where(eq(cryptoNews.id, input.id));
         return { success: true };
       }),
+    /** Admin: retranslate existing English news to Chinese */
+    retranslate: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+        const { retranslateEnglishNews } = await import('./_core/rss');
+        const updated = await retranslateEnglishNews();
+        return { success: true, updated };
+      }),
   }),
 
   /**

@@ -340,6 +340,48 @@ async function fetchAndIngest(source: typeof RSS_SOURCES[0]): Promise<number> {
   return inserted;
 }
 
+// ─── 导出：批量翻译数据库中已入库的英文快讯 ────────────────────────────────────
+export async function retranslateEnglishNews(): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+
+  // 查找标题为英文的快讯（最多处理 100 条）
+  const { eq } = await import("drizzle-orm");
+  const allNews = await db
+    .select({ id: cryptoNews.id, title: cryptoNews.title, summary: cryptoNews.summary })
+    .from(cryptoNews)
+    .orderBy(desc(cryptoNews.publishedAt))
+    .limit(100);
+
+  const englishNews = allNews.filter((n: { id: number; title: string; summary: string | null }) => isEnglish(n.title));
+  if (!englishNews.length) {
+    console.log("[RSS重译] 没有需要翻译的英文快讯");
+    return 0;
+  }
+
+  console.log(`[RSS重译] 发现 ${englishNews.length} 条英文快讯，开始翻译...`);
+
+  const BATCH_SIZE = 5;
+  let updated = 0;
+  for (let i = 0; i < englishNews.length; i += BATCH_SIZE) {
+    const batch = englishNews.slice(i, i + BATCH_SIZE);
+    const results = await batchTranslateToZh(batch);
+    for (let j = 0; j < results.length; j++) {
+      const r = results[j];
+      const orig = batch[j];
+      if (r.title !== orig.title || r.summary !== orig.summary) {
+        await db.update(cryptoNews)
+          .set({ title: r.title, summary: r.summary || orig.summary })
+          .where(eq(cryptoNews.id, orig.id));
+        updated++;
+      }
+    }
+  }
+
+  console.log(`[RSS重译] 完成，共更新 ${updated} 条快讯`);
+  return updated;
+}
+
 // ─── 启动定时任务（每 30 分钟抓取一次）────────────────────────────────────────
 export function startRssScheduler(): void {
   if (!ENV.rssEnabled) {
