@@ -156,7 +156,7 @@ export async function getContactSubmissions(
 const DEFAULT_EXCHANGE_LINKS: InsertExchangeLink[] = [
   { slug: 'gate', name: 'Gate.io', referralLink: 'https://www.gateport.business/share/GETITPRO', inviteCode: 'GETITPRO', rebateRate: '60%', sortOrder: 1 },
   { slug: 'okx', name: 'OKX', referralLink: 'https://www.vmutkhamuut.com/join/GETITPRO', inviteCode: 'GETITPRO', rebateRate: '20%', sortOrder: 2 },
-  { slug: 'binance', name: 'Binance', referralLink: 'https://www.gateport.company/share/GATEBITS', inviteCode: 'GETITPRO', rebateRate: '20%', sortOrder: 3 },
+  { slug: 'binance', name: 'Binance', referralLink: 'https://www.bsmkweb.cc/join?ref=GETITPRO', inviteCode: 'GETITPRO', rebateRate: '20%', sortOrder: 3 },
   { slug: 'bybit', name: 'Bybit', referralLink: 'https://partner.bybit.com/b/GETITPRO', inviteCode: 'GETITPRO', rebateRate: '30%', sortOrder: 4 },
   { slug: 'bitget', name: 'Bitget', referralLink: 'https://partner.hdmune.cn/bg/u9qqgq4u', inviteCode: 'GETITPRO', rebateRate: '50%', sortOrder: 5 },
 ];
