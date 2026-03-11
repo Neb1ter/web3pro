@@ -38,6 +38,10 @@ const INDEXABLE_ROUTES = [
  * @param key      IndexNow API Key
  */
 export async function submitIndexNow(siteUrl: string, key: string): Promise<void> {
+  if (!siteUrl) {
+    console.warn("[IndexNow] ⚠️ siteUrl is empty, skipping submission.");
+    return;
+  }
   const host = new URL(siteUrl).hostname; // "get8.pro"
   const urlList = INDEXABLE_ROUTES.map(path => `${siteUrl}${path}`);
 

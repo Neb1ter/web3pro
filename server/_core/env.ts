@@ -17,7 +17,7 @@ export const ENV = {
   isProduction: process.env.NODE_ENV === "production",
   forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? "",
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
-  siteUrl: process.env.SITE_URL ?? "",
+  siteUrl: process.env.SITE_URL || "https://get8.pro",
   // Telegram Bot 推送（可选）
   telegramBotToken: process.env.TELEGRAM_BOT_TOKEN ?? "",
   telegramChannelId: process.env.TELEGRAM_CHANNEL_ID ?? "",
