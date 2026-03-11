@@ -231,7 +231,17 @@ export default defineConfig({
               !id.includes('node_modules/react/') &&
               !id.includes('node_modules/react-dom/') &&
               !id.includes('node_modules/react-jsx-runtime') &&
-              !id.includes('node_modules/scheduler/')) {
+              !id.includes('node_modules/scheduler/') &&
+              !id.includes('node_modules/wouter') &&
+              !id.includes('node_modules/@radix-ui/') &&
+              !id.includes('node_modules/recharts') &&
+              !id.includes('node_modules/d3-') &&
+              !id.includes('node_modules/streamdown') &&
+              !id.includes('node_modules/@streamdown/') &&
+              !id.includes('node_modules/ai/') &&
+              !id.includes('node_modules/@ai-sdk/') &&
+              !id.includes('node_modules/@tanstack/') &&
+              !id.includes('node_modules/lucide-react')) {
             return 'vendor-misc';
           }
         },
