@@ -22,6 +22,7 @@ import { sdk } from "./sdk";
 import { upsertUser, getDb, seedCryptoToolsIfEmpty, seedMediaPlatformsIfEmpty } from "../db";
 import { startRssScheduler } from "./rss";
 import { startWordUpdateScheduler } from "./sensitiveWordUpdater";
+import { submitIndexNow } from "./indexNow";
 import { getSessionCookieOptions } from "./cookies";
 import { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 import { migrate } from "drizzle-orm/mysql2/migrator";
@@ -326,6 +327,13 @@ preferred_citation_format = "Source: [Get8 Pro](${base})"
 `);
   });
 
+  // ── IndexNow Key 文件（Bing 验证：/{key}.txt 返回 key 本身）────────────────
+  const INDEXNOW_KEY = process.env.INDEXNOW_KEY ?? "d2fb8cf8d6af4ab59ab338b8805c3a19";
+  app.get(`/${INDEXNOW_KEY}.txt`, (_req: Request, res: Response) => {
+    res.header("Content-Type", "text/plain; charset=utf-8");
+    res.send(INDEXNOW_KEY);
+  });
+
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);
@@ -346,6 +354,10 @@ preferred_citation_format = "Source: [Get8 Pro](${base})"
     startRssScheduler();
     // 启动敏感词库定时更新（延迟 60 秒，避免与 RSS 调度器竞争 DB 连接）
     startWordUpdateScheduler();
+    // 生产环境启动后延迟 30 秒提交 IndexNow（等待服务完全就绪）
+    if (process.env.NODE_ENV === "production") {
+      setTimeout(() => submitIndexNow(ENV.siteUrl ?? "https://get8.pro", INDEXNOW_KEY), 30_000);
+    }
   });
 }
 
