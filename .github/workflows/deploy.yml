@@ -7,10 +7,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
-    name: Deploy to Baidu Cloud Windows Server
+  build-and-deploy:
+    name: Build & Deploy to Baidu Cloud Windows Server
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Checkout code
@@ -28,33 +28,54 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build project
+      - name: Build frontend (Vite)
         run: pnpm run build
         env:
           NODE_ENV: production
 
-      - name: Deploy to server via SSH
+      - name: Build backend (esbuild)
+        run: npx esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+        env:
+          NODE_ENV: production
+
+      - name: Package dist for transfer
+        run: |
+          tar -czf dist.tar.gz dist/
+          echo "Package size: $(du -sh dist.tar.gz | cut -f1)"
+
+      - name: Upload dist to server via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: ${{ secrets.SERVER_PORT }}
+          source: "dist.tar.gz"
+          target: "C:/web3pro/"
+
+      - name: Deploy on server via SSH
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          port: 22
+          port: ${{ secrets.SERVER_PORT }}
+          script_stop: true
           script: |
             cd C:\web3pro
-            git pull origin main
-            pnpm install --frozen-lockfile
-            pnpm run build
-            pm2 restart web3pro --update-env
-            pm2 save
+            tar -xzf dist.tar.gz
+            del dist.tar.gz
+            npx pm2 restart ecosystem.config.cjs
+            npx pm2 save
 
       - name: Verify deployment
         run: |
-          sleep 15
+          sleep 20
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 15 "https://get8.pro/")
           echo "HTTP Status: $STATUS"
           if [ "$STATUS" = "200" ]; then
-            echo "Deployment successful"
+            echo "✅ Deployment successful!"
           else
-            echo "Deployment may have issues, status: $STATUS"
+            echo "⚠️ Deployment may have issues, status: $STATUS"
           fi
+
