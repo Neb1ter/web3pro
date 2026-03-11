@@ -275,12 +275,18 @@ async function fetchAndIngest(source: typeof RSS_SOURCES[0]): Promise<number> {
   if (!db) return 0;
 
   // 取最近 200 条标题用于去重
-  const existing = await db
-    .select({ title: cryptoNews.title })
-    .from(cryptoNews)
-    .orderBy(desc(cryptoNews.createdAt))
-    .limit(200);
-  const existingTitles = new Set(existing.map((r: { title: string }) => r.title));
+  let existingTitles: Set<string>;
+  try {
+    const existing = await db
+      .select({ title: cryptoNews.title })
+      .from(cryptoNews)
+      .orderBy(desc(cryptoNews.createdAt))
+      .limit(200);
+    existingTitles = new Set(existing.map((r: { title: string }) => r.title));
+  } catch (e) {
+    console.warn(`[RSS] ${source.name} 查询去重列表失败，跳过本轮:`, e);
+    return 0;
+  }
 
   // 筛选出新条目（最多取 20 条）
   const newItems = items.slice(0, 20).filter(item => !existingTitles.has(item.title));
@@ -393,25 +399,27 @@ export function startRssScheduler(): void {
   const INTERVAL_MS = 30 * 60 * 1000; // 30 分钟
 
   const run = async () => {
-    // 检查数据库中的 RSS 抓取开关
-    const rssEnabled = await getSystemSetting("rss_enabled", "true");
-    if (rssEnabled !== "true") {
-      console.log("[RSS] 已通过管理后台关闭，跳过本轮抓取");
-      return;
+    try {
+      // 检查数据库中的 RSS 抓取开关
+      const rssEnabled = await getSystemSetting("rss_enabled", "true");
+      if (rssEnabled !== "true") {
+        console.log("[RSS] 已通过管理后台关闭，跳过本轮抓取");
+        return;
+      }
+      console.log("[RSS] 开始抓取快讯...");
+      let total = 0;
+      for (const source of RSS_SOURCES) {
+        total += await fetchAndIngest(source);
+      }
+      console.log(`[RSS] 本轮共新增 ${total} 条快讯`);
+    } catch (e) {
+      console.error("[RSS] 本轮抓取出现未预期错误:", e);
     }
-
-    console.log("[RSS] 开始抓取快讯...");
-    let total = 0;
-    for (const source of RSS_SOURCES) {
-      total += await fetchAndIngest(source);
-    }
-    console.log(`[RSS] 本轮共新增 ${total} 条快讯`);
   };
-
   // 启动后延迟 15 秒首次执行（等待 DB 连接就绪）
   setTimeout(() => {
-    run();
-    setInterval(run, INTERVAL_MS);
+    run().catch(e => console.error("[RSS] 定时任务异常:", e));
+    setInterval(() => run().catch(e => console.error("[RSS] 定时任务异常:", e)), INTERVAL_MS);
   }, 15_000);
 
   console.log("[RSS] 定时抓取已启动，间隔 30 分钟，共 " + RSS_SOURCES.length + " 个源");

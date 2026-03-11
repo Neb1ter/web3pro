@@ -451,19 +451,23 @@ export function startWordUpdateScheduler(): void {
   const intervalMs = intervalHours * 60 * 60 * 1000;
 
   const run = async () => {
-    // 检查数据库中的词库自动更新开关
-    const enabled = await getSystemSetting("word_update_enabled", "true");
-    if (enabled !== "true") {
-      console.log("[词库更新] 已通过管理后台关闭，跳过本轮更新");
-      return;
+    try {
+      // 检查数据库中的词库自动更新开关
+      const enabled = await getSystemSetting("word_update_enabled", "true");
+      if (enabled !== "true") {
+        console.log("[词库更新] 已通过管理后台关闭，跳过本轮更新");
+        return;
+      }
+      await runWordUpdate(false);
+    } catch (e) {
+      console.error("[词库更新] 本轮更新出现未预期错误:", e);
     }
-    await runWordUpdate(false);
   };
 
   // 启动后延迟 60 秒首次执行
   setTimeout(() => {
-    run();
-    setInterval(run, intervalMs);
+    run().catch(e => console.error("[词库更新] 定时任务异常:", e));
+    setInterval(() => run().catch(e => console.error("[词库更新] 定时任务异常:", e)), intervalMs);
   }, 60_000);
 
   console.log(`[词库更新] 定时更新已启动，间隔 ${intervalHours} 小时，共 ${WORD_SOURCES.filter(s => s.enabled).length} 个启用来源`);
