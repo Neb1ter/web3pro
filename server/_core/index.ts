@@ -19,7 +19,7 @@ import {
 } from "./security";
 import { ENV } from "./env";
 import { sdk } from "./sdk";
-import { upsertUser, getDb, seedCryptoToolsIfEmpty, seedMediaPlatformsIfEmpty } from "../db";
+import { upsertUser, getDb, seedCryptoToolsIfEmpty, seedMediaPlatformsIfEmpty, getExchangeLinks } from "../db";
 import { startRssScheduler } from "./rss";
 import { startWordUpdateScheduler } from "./sensitiveWordUpdater";
 import { submitIndexNow } from "./indexNow";
