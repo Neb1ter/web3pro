@@ -106,7 +106,7 @@ export const REBATE_ROW = EXCHANGE_ORDER.map((slug) => {
 //
 // 修改邀请码或推荐链接时，只需更新此处，全站自动同步。
 // 变更历史：
-//   2026-02: Bybit inviteCode MMANUS → MANUS（与其他交易所统一）
+//   2026-02: Bybit inviteCode MMANUS → GETITPRO（与其他交易所统一）
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface ExchangeInviteData {
@@ -120,27 +120,27 @@ export interface ExchangeInviteData {
 
 export const INVITE_CODES: Record<ExchangeSlug, ExchangeInviteData> = {
   gate: {
-    inviteCode: "FORMANUS",
-    referralLink: "https://www.gateport.business/share/FORMANUS",
+    inviteCode: "GETITPRO",
+    referralLink: "https://www.gateport.business/share/GETITPRO",
     rebateRate: "60%",
   },
   okx: {
-    inviteCode: "MANUS",
-    referralLink: "https://www.vmutkhamuut.com/join/MANUS",
+    inviteCode: "GETITPRO",
+    referralLink: "https://www.vmutkhamuut.com/join/GETITPRO",
     rebateRate: "20%",
   },
   binance: {
-    inviteCode: "MANUS",
+    inviteCode: "GETITPRO",
     referralLink: "https://www.gateport.company/share/GATEBITS",
     rebateRate: "20%",
   },
   bybit: {
-    inviteCode: "MANUS",
-    referralLink: "https://partner.bybit.com/b/MANUS",
+    inviteCode: "GETITPRO",
+    referralLink: "https://partner.bybit.com/b/GETITPRO",
     rebateRate: "30%",
   },
   bitget: {
-    inviteCode: "MANUS",
+    inviteCode: "GETITPRO",
     referralLink: "https://partner.hdmune.cn/bg/u9qqgq4u",
     rebateRate: "50%",
   },
@@ -148,10 +148,10 @@ export const INVITE_CODES: Record<ExchangeSlug, ExchangeInviteData> = {
 
 /**
  * 快速获取邀请码（前端备用显示，当数据库查询失败时使用）
- * gate 使用独立邀请码 FORMANUS，其他交易所统一使用 MANUS
+ * gate 使用独立邀请码 GETITPRO，其他交易所统一使用 GETITPRO
  */
 export function getFallbackInviteCode(slug: string): string {
-  return INVITE_CODES[slug as ExchangeSlug]?.inviteCode ?? "MANUS";
+  return INVITE_CODES[slug as ExchangeSlug]?.inviteCode ?? "GETITPRO";
 }
 
 /**

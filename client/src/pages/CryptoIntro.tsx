@@ -748,7 +748,7 @@ export default function CryptoIntro() {
             </Button>
           </div>
           <p className="text-xs text-muted-foreground">
-            {zh ? "邀请码：FORMANUS（Gate.io）/ MANUS（其他交易所）" : "Invite code: FORMANUS (Gate.io) / MANUS (others)"}
+            {zh ? "邀请码：GETITPRO（全平台统一）" : "Invite code: GETITPRO (all exchanges)"}
           </p>
         </section>
 
