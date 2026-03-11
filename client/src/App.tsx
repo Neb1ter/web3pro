@@ -10,6 +10,7 @@ import { saveScrollPosition, getScrollPosition } from "@/hooks/useScrollMemory";
 import { useLearningPathSync } from "@/hooks/useLearningPathSync";
 import MobileFloatNav from "@/components/MobileFloatNav";
 import DesktopFloatNav from "@/components/DesktopFloatNav";
+import { SchemaManager } from "./components/SchemaManager";
 import { trpc } from "@/lib/trpc";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink } from "@trpc/client";
@@ -324,7 +325,8 @@ function AppInner() {
     <ErrorBoundary>
       <LanguageProvider>
         <ThemeProvider defaultTheme="dark">
-          <ExchangeLinksProvider>
+                <ExchangeLinksProvider>
+        <SchemaManager />
             <TooltipProvider>
               <Toaster />
               <Router />

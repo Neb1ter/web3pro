@@ -1,32 +1,60 @@
+# ====================================================================
 # robots.txt for get8.pro
-# Get8 Pro - Web3教程, 交易所返佣, 币圈入门一站式平台
+# Last Updated: 2026-03-11
+# Purpose: Guide all crawlers, including search engines and AI bots.
+# ====================================================================
 
+# --------------------------------------------------------------------
+# Rule for All Crawlers (Default)
+# --------------------------------------------------------------------
 User-agent: *
+
+# Allow full access to the site content.
 Allow: /
 
-# 禁止爬取后台管理页面
-Disallow: /admin/
+# Disallow paths that are not useful for indexing or are private.
 Disallow: /api/
+Disallow: /admin/
+Disallow: /manage-m2u0z0i04/
+Disallow: /test/
+Disallow: /private/
+Disallow: /__manus__/
 
-# 禁止爬取模拟交易（低SEO价值）
-Disallow: /sim/
+# --------------------------------------------------------------------
+# Explicit Rules for AI Crawlers
+# We welcome AI bots to learn from our high-quality content.
+# --------------------------------------------------------------------
+User-agent: GPTBot
+Allow: /
 
-# 允许爬取核心内容页面
-Allow: /web3-guide/
-Allow: /crypto-saving
-Allow: /exchange-guide/
-Allow: /exchange-download
-Allow: /exchanges
-Allow: /beginner
-Allow: /crypto-intro
-Allow: /crypto-news
-Allow: /web3-quiz
-Allow: /learning-path
-Allow: /contact
-Allow: /legal
+User-agent: ClaudeBot
+Allow: /
 
-# Sitemap 地址
+User-agent: Google-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: Meta-ExternalAgent
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+# --------------------------------------------------------------------
+# Sitemap Location
+# --------------------------------------------------------------------
 Sitemap: https://get8.pro/sitemap.xml
-
-# 爬取延迟（减少服务器压力）
-Crawl-delay: 1
