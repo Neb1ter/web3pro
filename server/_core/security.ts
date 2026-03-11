@@ -106,9 +106,9 @@ export function registerSecurityMiddleware(app: Express) {
       contentSecurityPolicy: {
         directives: {
           defaultSrc: ["'self'"],
-          // 生产环境去掉 unsafe-eval 和 unsafe-inline，开发环境保留供 Vite HMR 使用
+          // Vite 打包的模块脚本需要 unsafe-inline（内联 window.APP_VERSION 等）
           scriptSrc: isProd
-            ? ["'self'"]
+            ? ["'self'", "'unsafe-inline'"]
             : ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
           styleSrc: ["'self'", "'unsafe-inline'"],
           imgSrc: ["'self'", "data:", "https:"],
