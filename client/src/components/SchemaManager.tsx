@@ -12,8 +12,8 @@ const organizationSchema = {
   logo: `${BASE_URL}/logo.png`,
   contactPoint: {
     '@type': 'ContactPoint',
-    email: 'muzi2629265049@Gmail.com',
-    contactType: 'Customer Support',
+    email: 'mailto:muzi2629265049@gmail.com',
+    contactType: 'customer support',
   },
   sameAs: [
     // 在这里添加社交媒体链接
