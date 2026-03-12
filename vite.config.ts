@@ -183,70 +183,7 @@ export default defineConfig({
     modulePreload: {
       polyfill: true,
     },
-    rollupOptions: {
-      output: {
-        // 手动分包：将稳定的第三方库分离为独立 chunk，充分利用浏览器缓存
-        manualChunks(id) {
-          // React 核心 —— 最稳定，单独缓存
-          if (
-            id.includes('node_modules/react/') ||
-            id.includes('node_modules/react-dom/') ||
-            id.includes('node_modules/react-jsx-runtime') ||
-            id.includes('node_modules/scheduler/')
-          ) {
-            return 'vendor-react';
-          }
-          // 路由
-          if (id.includes('node_modules/wouter')) {
-            return 'vendor-router';
-          }
-          // Radix UI 组件库（体积较大，单独缓存）
-          if (id.includes('node_modules/@radix-ui/')) {
-            return 'vendor-radix';
-          }
-          // Recharts 图表库（按需加载页面才会触发）
-          if (id.includes('node_modules/recharts') || id.includes('node_modules/d3-')) {
-            return 'vendor-recharts';
-          }
-          // Streamdown / AI 相关（仅 AIChatBox 使用，懒加载后才触发）
-          if (
-            id.includes('node_modules/streamdown') ||
-            id.includes('node_modules/@streamdown/') ||
-            id.includes('node_modules/ai') ||
-            id.includes('node_modules/@ai-sdk/')
-          ) {
-            return 'vendor-ai';
-          }
-          // TanStack Query
-          if (id.includes('node_modules/@tanstack/')) {
-            return 'vendor-query';
-          }
-          // lucide-react 图标库（体积较大，单独缓存）
-          if (id.includes('node_modules/lucide-react')) {
-            return 'vendor-icons';
-          }
-          // 其余第三方库合并为一个 vendor chunk
-          // 注意：排除已单独分组的库，避免循环依赖
-          if (id.includes('node_modules/') &&
-              !id.includes('node_modules/react/') &&
-              !id.includes('node_modules/react-dom/') &&
-              !id.includes('node_modules/react-jsx-runtime') &&
-              !id.includes('node_modules/scheduler/') &&
-              !id.includes('node_modules/wouter') &&
-              !id.includes('node_modules/@radix-ui/') &&
-              !id.includes('node_modules/recharts') &&
-              !id.includes('node_modules/d3-') &&
-              !id.includes('node_modules/streamdown') &&
-              !id.includes('node_modules/@streamdown/') &&
-              !id.includes('node_modules/ai/') &&
-              !id.includes('node_modules/@ai-sdk/') &&
-              !id.includes('node_modules/@tanstack/') &&
-              !id.includes('node_modules/lucide-react')) {
-            return 'vendor-misc';
-          }
-        },
-      },
-    },
+
   },
   server: {
     host: true,
