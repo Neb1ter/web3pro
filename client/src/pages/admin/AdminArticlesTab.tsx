@@ -29,24 +29,6 @@ type Article = {
   reviewNotes?: string | null;
 };
 
-type AiGenerateResult = {
-  generated: {
-    title: string;
-    content: string;
-    excerpt?: string;
-    tags?: string;
-    metaTitle?: string;
-    metaDescription?: string;
-    metaKeywords?: string;
-  };
-  sensitiveResult: {
-    isClean: boolean;
-    flaggedWords: Array<{ word: string; positions: number[]; severity: string; replacement?: string | null }>;
-  };
-  saved: boolean;
-  slug?: string;
-};
-
 const STATUS_COLORS: Record<string, string> = {
   draft: "bg-slate-700 text-slate-300",
   pending_review: "bg-yellow-900/60 text-yellow-300",
@@ -63,6 +45,8 @@ const CATEGORY_LABELS: Record<string, Record<string, string>> = {
   en: { analysis: "Analysis", tutorial: "Tutorial", news_decode: "News Decode", project: "Project", promo: "Promo", report: "Report" },
 };
 
+const MEDIA_AUTO_URL = "https://media-auto-production.up.railway.app";
+
 export function ArticlesTab({ zh }: { zh: boolean }) {
   const lang = zh ? "zh" : "en";
   const listQuery = trpc.articles.listAll.useQuery({ limit: 50, offset: 0 });
@@ -74,24 +58,6 @@ export function ArticlesTab({ zh }: { zh: boolean }) {
     onSuccess: () => { toast.success(zh ? "已更新" : "Updated"); listQuery.refetch(); setEditing(null); },
     onError: () => toast.error(zh ? "更新失败" : "Update failed"),
   });
-  const aiGenMutation = trpc.articles.aiGenerate.useMutation({
-    onSuccess: (data) => {
-      const count = data.sensitiveResult.flaggedWords.length;
-      toast.success(zh ? `AI 生成成功！发现 ${count} 个敏感词` : `Generated! ${count} sensitive words`);
-      if (data.saved) listQuery.refetch();
-      setAiResult(data as AiGenerateResult);
-    },
-    onError: (e) => toast.error(e.message),
-  });
-  const rewriteMutation = trpc.articles.rewriteCompliance.useMutation({
-    onSuccess: (data) => {
-      toast.success(data.isClean
-        ? (zh ? "改写完成，内容合规" : "Rewritten, clean")
-        : (zh ? `改写完成，仍有 ${data.flaggedCount} 个敏感词` : `Rewritten, ${data.flaggedCount} remaining`));
-      listQuery.refetch();
-    },
-    onError: (e) => toast.error(e.message),
-  });
   const publishMutation = trpc.articles.publish.useMutation({
     onSuccess: (data) => {
       const ok = data.results.filter((r: { status: string }) => r.status === "success").length;
@@ -99,41 +65,13 @@ export function ArticlesTab({ zh }: { zh: boolean }) {
     },
     onError: (e) => toast.error(e.message),
   });
-  const qwenModerateMutation = trpc.articles.qwenModerate.useMutation({
-    onSuccess: (data) => {
-      const r = data.result;
-      if (r.passed) {
-        toast.success(zh ? `通义千问审核通过！合规评分：${r.score}/100` : `Qwen audit passed! Score: ${r.score}/100`);
-      } else {
-        toast.warning(zh ? `审核未通过，发现 ${r.issues?.length ?? 0} 个问题` : `Audit failed: ${r.issues?.length ?? 0} issues`);
-      }
-      setQwenResult(data.result);
-      listQuery.refetch();
-    },
-    onError: (e) => toast.error(e.message),
-  });
 
   const [editing, setEditing] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<Partial<Article>>({});
-  const [showAiForm, setShowAiForm] = useState(false);
-  const [aiForm, setAiForm] = useState({
-    topic: "", category: "analysis", perspective: "neutral" as const,
-    targetAudience: "beginner" as const, contentStyle: "formal" as const,
-    wordCount: 800, autoSave: true, keywords: [] as string[],
-  });
-  const [aiResult, setAiResult] = useState<AiGenerateResult | null>(null);
   const [expandedId, setExpandedId] = useState<number | null>(null);
-  const [qwenResult, setQwenResult] = useState<{
-    passed: boolean; score: number; summary: string;
-    issues: Array<{ type: string; severity: string; description: string; suggestion: string }>;
-    platformSuggestions: Record<string, boolean>;
-  } | null>(null);
-  const [qwenTargetId, setQwenTargetId] = useState<number | null>(null);
-  // 多平台推送面板：记录当前展开推送面板的文章 ID 和已选择的平台
   const [publishPanelId, setPublishPanelId] = useState<number | null>(null);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(["telegram"]);
 
-  // 所有已注册平台（与 publish.ts PLATFORM_REGISTRY 保持一致）
   const ALL_PLATFORMS = [
     { id: "telegram", label: "Telegram", icon: "✈️", ready: true },
     { id: "wechat",   label: "微信公众号", icon: "💬", ready: false },
@@ -161,12 +99,18 @@ export function ArticlesTab({ zh }: { zh: boolean }) {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h2 className="text-xl font-bold text-white">{zh ? "✍️ 文章管理" : "✍️ Articles"}</h2>
         <div className="flex gap-2">
-          <button
-            onClick={() => setShowAiForm(!showAiForm)}
-            className="admin-btn-primary text-sm"
+          {/* AI 创作跳转按钮 */}
+          <a
+            href={MEDIA_AUTO_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="admin-btn-primary text-sm flex items-center gap-1.5"
           >
-            {zh ? "🤖 AI 生成文章" : "🤖 AI Generate"}
-          </button>
+            🤖 {zh ? "AI 创作平台" : "AI Creator"}
+            <svg className="w-3 h-3 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </a>
           <a
             href="/admin/article/new"
             className="admin-btn-ghost text-sm"
@@ -176,120 +120,28 @@ export function ArticlesTab({ zh }: { zh: boolean }) {
         </div>
       </div>
 
-      {/* AI Generate Form */}
-      {showAiForm && (
-        <div className="bg-slate-800/60 border border-cyan-700/40 rounded-xl p-5 space-y-4">
-          <h3 className="text-cyan-300 font-semibold">{zh ? "🤖 AI 文章生成配置" : "🤖 AI Article Generator"}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="md:col-span-2">
-              <label className="block text-xs text-slate-400 mb-1">{zh ? "文章主题 / 关键词" : "Topic / Keywords"}</label>
-              <input
-                className="admin-input w-full"
-                placeholder={zh ? "例：比特币减半对市场的影响分析" : "e.g. Bitcoin halving market impact analysis"}
-                value={aiForm.topic}
-                onChange={e => setAiForm(f => ({ ...f, topic: e.target.value }))}
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-slate-400 mb-1">{zh ? "文章分类" : "Category"}</label>
-              <select className="admin-input w-full" value={aiForm.category} onChange={e => setAiForm(f => ({ ...f, category: e.target.value }))}>
-                {Object.entries(CATEGORY_LABELS.zh).map(([k, v]) => (
-                  <option key={k} value={k}>{v}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs text-slate-400 mb-1">{zh ? "观点角度" : "Perspective"}</label>
-              <select className="admin-input w-full" value={aiForm.perspective} onChange={e => setAiForm(f => ({ ...f, perspective: e.target.value as typeof aiForm.perspective }))}>
-                <option value="neutral">{zh ? "中立客观" : "Neutral"}</option>
-                <option value="bullish">{zh ? "看多/乐观" : "Bullish"}</option>
-                <option value="bearish">{zh ? "看空/谨慎" : "Bearish"}</option>
-                <option value="educational">{zh ? "科普教育" : "Educational"}</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs text-slate-400 mb-1">{zh ? "目标受众" : "Target Audience"}</label>
-              <select className="admin-input w-full" value={aiForm.targetAudience} onChange={e => setAiForm(f => ({ ...f, targetAudience: e.target.value as typeof aiForm.targetAudience }))}>
-                <option value="beginner">{zh ? "新手入门" : "Beginner"}</option>
-                <option value="intermediate">{zh ? "进阶用户" : "Intermediate"}</option>
-                <option value="professional">{zh ? "专业投资者" : "Professional"}</option>
-                <option value="institutional">{zh ? "机构用户" : "Institutional"}</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs text-slate-400 mb-1">{zh ? "内容风格" : "Content Style"}</label>
-              <select className="admin-input w-full" value={aiForm.contentStyle} onChange={e => setAiForm(f => ({ ...f, contentStyle: e.target.value as typeof aiForm.contentStyle }))}>
-                <option value="formal">{zh ? "严肃分析" : "Formal"}</option>
-                <option value="casual">{zh ? "轻松科普" : "Casual"}</option>
-                <option value="marketing">{zh ? "营销推广" : "Marketing"}</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs text-slate-400 mb-1">{zh ? "目标字数" : "Word Count"}</label>
-              <input
-                type="number" min={300} max={3000} step={100}
-                className="admin-input w-full"
-                value={aiForm.wordCount}
-                onChange={e => setAiForm(f => ({ ...f, wordCount: Number(e.target.value) }))}
-              />
-            </div>
-            <div className="flex items-center gap-2 mt-4">
-              <input
-                type="checkbox" id="autoSave"
-                checked={aiForm.autoSave}
-                onChange={e => setAiForm(f => ({ ...f, autoSave: e.target.checked }))}
-                className="w-4 h-4 accent-cyan-500"
-              />
-              <label htmlFor="autoSave" className="text-sm text-slate-300">
-                {zh ? "生成后自动保存到草稿" : "Auto-save as draft"}
-              </label>
-            </div>
-          </div>
-          <div className="flex gap-3">
-            <button
-              onClick={() => aiGenMutation.mutate(aiForm)}
-              disabled={!aiForm.topic || aiGenMutation.isPending}
-              className="admin-btn-primary"
-            >
-              {aiGenMutation.isPending ? (zh ? "生成中..." : "Generating...") : (zh ? "🚀 开始生成" : "🚀 Generate")}
-            </button>
-            <button onClick={() => setShowAiForm(false)} className="admin-btn-ghost">
-              {zh ? "取消" : "Cancel"}
-            </button>
-          </div>
-
-          {/* AI Result Preview */}
-          {aiResult && (
-            <div className="mt-4 bg-slate-900/60 border border-slate-600/40 rounded-lg p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <h4 className="text-white font-semibold">{zh ? "生成结果预览" : "Generated Preview"}</h4>
-                <span className={`text-xs px-2 py-0.5 rounded ${aiResult.sensitiveResult.isClean ? "bg-green-900/60 text-green-300" : "bg-red-900/60 text-red-300"}`}>
-                  {aiResult.sensitiveResult.isClean ? (zh ? "✅ 合规" : "✅ Clean") : (zh ? `⚠️ ${aiResult.sensitiveResult.flaggedWords.length} 个敏感词` : `⚠️ ${aiResult.sensitiveResult.flaggedWords.length} sensitive`)}
-                </span>
-              </div>
-              <p className="text-cyan-300 font-medium">{aiResult.generated.title}</p>
-              <p className="text-slate-400 text-sm line-clamp-3">{aiResult.generated.excerpt}</p>
-              {!aiResult.sensitiveResult.isClean && (
-                <div className="bg-red-900/20 border border-red-700/30 rounded p-3">
-                  <p className="text-red-300 text-xs font-medium mb-2">{zh ? "发现敏感词：" : "Sensitive words found:"}</p>
-                  <div className="flex flex-wrap gap-1">
-                    {aiResult.sensitiveResult.flaggedWords.map((w, i) => (
-                      <span key={i} className="text-xs bg-red-900/40 text-red-300 px-2 py-0.5 rounded border border-red-700/30">
-                        {w.word} ({w.severity})
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {aiResult.saved && aiResult.slug && (
-                <p className="text-green-400 text-sm">
-                  {zh ? "✅ 已保存为草稿" : "✅ Saved as draft"} — <a href={`/article/${aiResult.slug}`} target="_blank" className="underline hover:text-green-300">/article/{aiResult.slug}</a>
-                </p>
-              )}
-            </div>
-          )}
+      {/* AI 创作提示横幅 */}
+      <div className="bg-cyan-900/20 border border-cyan-700/30 rounded-xl p-4 flex items-center gap-3">
+        <span className="text-2xl">🤖</span>
+        <div className="flex-1">
+          <p className="text-cyan-300 font-medium text-sm">
+            {zh ? "使用 AI 创作平台生成文章" : "Use AI Creator to generate articles"}
+          </p>
+          <p className="text-slate-400 text-xs mt-0.5">
+            {zh
+              ? "点击上方「AI 创作平台」按钮，在自媒体运营自动化平台中生成文章后，手动复制内容到此处创建文章。"
+              : "Click \"AI Creator\" above to generate articles on the media automation platform, then paste the content here."}
+          </p>
         </div>
-      )}
+        <a
+          href={MEDIA_AUTO_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="admin-btn-primary text-xs flex-shrink-0"
+        >
+          {zh ? "前往创作 →" : "Go Create →"}
+        </a>
+      </div>
 
       {/* Article List */}
       {listQuery.isLoading ? (
@@ -311,7 +163,6 @@ export function ArticlesTab({ zh }: { zh: boolean }) {
                       {CATEGORY_LABELS[lang][a.category] ?? a.category}
                     </span>
                     {a.isAiGenerated && <span className="text-xs text-purple-400 bg-purple-900/30 px-2 py-0.5 rounded">🤖 AI</span>}
-                    {a.sensitiveStatus === "flagged" && <span className="text-xs text-red-400 bg-red-900/30 px-2 py-0.5 rounded">⚠️ 敏感词</span>}
                     {a.isPinned && <span className="text-xs text-yellow-400 bg-yellow-900/30 px-2 py-0.5 rounded">📌</span>}
                   </div>
                   <p className="text-white font-medium text-sm truncate">{a.title}</p>
@@ -372,36 +223,11 @@ export function ArticlesTab({ zh }: { zh: boolean }) {
                       <div><span className="text-slate-500">{zh ? "观点:" : "Perspective:"}</span> <span className="text-slate-300">{a.perspective ?? "-"}</span></div>
                       <div><span className="text-slate-500">{zh ? "受众:" : "Audience:"}</span> <span className="text-slate-300">{a.targetAudience ?? "-"}</span></div>
                       {a.metaTitle && <div className="col-span-2 md:col-span-3"><span className="text-slate-500">Meta Title:</span> <span className="text-slate-300">{a.metaTitle}</span></div>}
-                      {a.sensitiveWords && a.sensitiveWords !== "[]" && (
-                        <div className="col-span-2 md:col-span-3">
-                          <span className="text-red-400">{zh ? "敏感词:" : "Sensitive:"}</span>
-                          <span className="text-red-300 ml-1">{JSON.parse(a.sensitiveWords).map((w: { word: string }) => w.word).join(", ")}</span>
-                        </div>
-                      )}
                     </div>
                   )}
 
                   {/* Action buttons */}
                   <div className="flex gap-2 flex-wrap pt-1">
-                    {/* 通义千问 AI 审核按鈕 */}
-                    <button
-                      onClick={() => { setQwenTargetId(a.id); setQwenResult(null); qwenModerateMutation.mutate({ id: a.id }); }}
-                      disabled={qwenModerateMutation.isPending && qwenTargetId === a.id}
-                      className="admin-btn-ghost text-xs border border-orange-600/40 text-orange-300 hover:bg-orange-900/20"
-                    >
-                      {qwenModerateMutation.isPending && qwenTargetId === a.id
-                        ? (zh ? "审核中..." : "Auditing...")
-                        : (zh ? "🔍 千问审核" : "🔍 Qwen Audit")}
-                    </button>
-                    {a.sensitiveStatus === "flagged" && (
-                      <button
-                        onClick={() => rewriteMutation.mutate({ id: a.id })}
-                        disabled={rewriteMutation.isPending}
-                        className="admin-btn-primary text-xs"
-                      >
-                        {rewriteMutation.isPending ? (zh ? "改写中..." : "Rewriting...") : (zh ? "🔄 AI 合规改写" : "🔄 AI Rewrite")}
-                      </button>
-                    )}
                     {(a.status === "approved" || a.status === "published") && (
                       <button
                         onClick={() => setPublishPanelId(publishPanelId === a.id ? null : a.id)}
@@ -460,67 +286,6 @@ export function ArticlesTab({ zh }: { zh: boolean }) {
                           {zh ? "已选：" : "Selected: "}{selectedPlatforms.join(", ") || (zh ? "无" : "none")}
                         </span>
                       </div>
-                    </div>
-                  )}
-
-                  {/* 通义千问审核结果展示 */}
-                  {qwenTargetId === a.id && qwenResult && (
-                    <div className={`mt-3 rounded-lg p-4 border ${
-                      qwenResult.passed
-                        ? "bg-green-900/20 border-green-700/40"
-                        : "bg-red-900/20 border-red-700/40"
-                    }`}>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-semibold text-white">
-                          {zh ? "🔍 通义千问审核结果" : "🔍 Qwen Moderation Result"}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <span className={`text-xs px-2 py-0.5 rounded font-medium ${
-                            qwenResult.passed ? "bg-green-700/60 text-green-200" : "bg-red-700/60 text-red-200"
-                          }`}>
-                            {qwenResult.passed ? (zh ? "✅ 通过" : "✅ Passed") : (zh ? "❌ 未通过" : "❌ Failed")}
-                          </span>
-                          <span className="text-xs text-slate-400">
-                            {zh ? "合规度" : "Score"}: <span className={`font-bold ${
-                              qwenResult.score >= 80 ? "text-green-400" : qwenResult.score >= 60 ? "text-yellow-400" : "text-red-400"
-                            }`}>{qwenResult.score}/100</span>
-                          </span>
-                        </div>
-                      </div>
-                      <p className="text-slate-300 text-xs mb-3">{qwenResult.summary}</p>
-                      {/* 平台可发布建议 */}
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {Object.entries(qwenResult.platformSuggestions).map(([p, ok]) => (
-                          <span key={p} className={`text-xs px-2 py-0.5 rounded border ${
-                            ok ? "border-green-700/40 text-green-300 bg-green-900/20" : "border-red-700/40 text-red-300 bg-red-900/20"
-                          }`}>
-                            {ok ? "✔" : "✖"} {p === "wechat" ? "微信" : p === "weibo" ? "微博" : p === "douyin" ? "抖音" : p}
-                          </span>
-                        ))}
-                      </div>
-                      {/* 问题列表 */}
-                      {qwenResult.issues.length > 0 && (
-                        <div className="space-y-2">
-                          {qwenResult.issues.map((issue, i) => (
-                            <div key={i} className={`text-xs p-2 rounded border ${
-                              issue.severity === "high" ? "border-red-700/40 bg-red-900/20" :
-                              issue.severity === "medium" ? "border-yellow-700/40 bg-yellow-900/20" :
-                              "border-slate-700/40 bg-slate-800/40"
-                            }`}>
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
-                                  issue.severity === "high" ? "bg-red-700/60 text-red-200" :
-                                  issue.severity === "medium" ? "bg-yellow-700/60 text-yellow-200" :
-                                  "bg-slate-700/60 text-slate-300"
-                                }`}>{issue.severity.toUpperCase()}</span>
-                                <span className="text-slate-400">[{issue.type}]</span>
-                              </div>
-                              <p className="text-slate-300">{issue.description}</p>
-                              <p className="text-slate-500 mt-1">{zh ? "建议：" : "Suggestion: "}{issue.suggestion}</p>
-                            </div>
-                          ))}
-                        </div>
-                      )}
                     </div>
                   )}
                 </div>
