@@ -45,7 +45,7 @@ const CATEGORY_LABELS: Record<string, Record<string, string>> = {
   en: { analysis: "Analysis", tutorial: "Tutorial", news_decode: "News Decode", project: "Project", promo: "Promo", report: "Report" },
 };
 
-const MEDIA_AUTO_URL = "https://media-auto-production.up.railway.app";
+const MEDIA_AUTO_URL = "https://media.get8.pro";
 
 export function ArticlesTab({ zh }: { zh: boolean }) {
   const lang = zh ? "zh" : "en";
