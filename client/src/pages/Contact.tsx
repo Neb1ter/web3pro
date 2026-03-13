@@ -1,11 +1,87 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { useScrollMemory, goBack } from '@/hooks/useScrollMemory';
-import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
-import { Send, ArrowLeft, MessageCircle, Twitter, Phone, Mail } from 'lucide-react';
+import { ArrowLeft, MessageCircle, Twitter, Phone, Mail } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
+
+// 飞机发送动效按钮
+function SendButton({ isPending, label, pendingLabel }: { isPending: boolean; label: string; pendingLabel: string }) {
+  return (
+    <>
+      <style>{`
+        .send-btn {
+          font-family: inherit;
+          font-size: 16px;
+          font-weight: 600;
+          background: hsl(var(--accent));
+          color: hsl(var(--accent-foreground));
+          padding: 0.75em 1.5em 0.75em 1.2em;
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: none;
+          border-radius: 12px;
+          overflow: hidden;
+          transition: all 0.2s;
+          cursor: pointer;
+          min-height: 52px;
+        }
+        .send-btn:disabled {
+          opacity: 0.65;
+          cursor: not-allowed;
+        }
+        .send-btn .svg-wrapper {
+          display: flex;
+          align-items: center;
+        }
+        .send-btn span {
+          display: block;
+          margin-left: 0.45em;
+          transition: all 0.3s ease-in-out;
+        }
+        .send-btn svg {
+          display: block;
+          transform-origin: center center;
+          transition: transform 0.3s ease-in-out;
+        }
+        .send-btn:not(:disabled):hover .svg-wrapper {
+          animation: send-fly 0.6s ease-in-out infinite alternate;
+        }
+        .send-btn:not(:disabled):hover svg {
+          transform: translateX(1.2em) rotate(45deg) scale(1.1);
+        }
+        .send-btn:not(:disabled):hover span {
+          transform: translateX(5em);
+        }
+        .send-btn:not(:disabled):active {
+          transform: scale(0.95);
+        }
+        @keyframes send-fly {
+          from { transform: translateY(0.1em); }
+          to   { transform: translateY(-0.1em); }
+        }
+      `}</style>
+      <button type="submit" className="send-btn" disabled={isPending}>
+        {isPending ? (
+          <span>{pendingLabel}</span>
+        ) : (
+          <>
+            <div className="svg-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width={20} height={20}>
+                <path fill="none" d="M0 0h24v24H0z" />
+                <path fill="currentColor" d="M1.946 9.315c-.522-.174-.527-.455.01-.634l19.087-6.362c.529-.176.832.12.684.638l-5.454 19.086c-.15.529-.455.547-.679.045L12 14l6-8-8 6-8.054-2.685z" />
+              </svg>
+            </div>
+            <span>{label}</span>
+          </>
+        )}
+      </button>
+    </>
+  );
+}
 
 export default function Contact() {
   const { language, setLanguage } = useLanguage();
@@ -263,16 +339,11 @@ export default function Contact() {
                 className="w-full bg-card border border-border rounded-lg px-4 py-3 text-white placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent resize-none"
               />
             </div>
-            <Button
-              type="submit"
-              size="lg"
-              className="w-full bg-accent text-accent-foreground hover:bg-accent/90"
-              disabled={submitContact.isPending}
-            >
-              {submitContact.isPending ? t.form.submitting : (
-                <><Send className="mr-2" size={18} /> {t.form.submit}</>
-              )}
-            </Button>
+            <SendButton
+              isPending={submitContact.isPending}
+              label={t.form.submit}
+              pendingLabel={t.form.submitting}
+            />
             <p className="text-muted-foreground text-xs text-center">{t.form.privacy}</p>
           </form>
         </div>
