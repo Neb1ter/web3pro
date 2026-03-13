@@ -128,9 +128,7 @@ export default function ArticleDetail() {
         {/* Meta */}
         <div className="flex items-center gap-2 mb-3 flex-wrap">
           <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${catInfo.color}`}>{catLabel}</span>
-          {article.isAiGenerated && (
-            <span className="text-xs text-purple-400 bg-purple-900/30 px-2 py-0.5 rounded-full border border-purple-500/30">🤖 AI 生成</span>
-          )}
+
           {tags.map((tag: string) => (
             <span key={tag} className="text-xs text-gray-500 bg-gray-700/40 px-2 py-0.5 rounded-full">{tag}</span>
           ))}
@@ -211,8 +209,22 @@ export default function ArticleDetail() {
       </main>
 
       {/* Footer */}
-      <footer className="max-w-3xl mx-auto px-4 py-8 border-t border-gray-800/50 text-center">
-        <p className="text-xs text-gray-600">
+      <footer className="max-w-3xl mx-auto px-4 py-8 border-t border-gray-800/50">
+        <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mb-4">
+          <Link href="/about">
+            <span className="text-xs text-gray-500 hover:text-cyan-400 transition-colors cursor-pointer">{zh ? "关于我们" : "About Us"}</span>
+          </Link>
+          <Link href="/exchanges">
+            <span className="text-xs text-gray-500 hover:text-cyan-400 transition-colors cursor-pointer">{zh ? "交易所对比" : "Exchanges"}</span>
+          </Link>
+          <Link href="/articles">
+            <span className="text-xs text-gray-500 hover:text-cyan-400 transition-colors cursor-pointer">{zh ? "文章中心" : "Articles"}</span>
+          </Link>
+          <Link href="/contact">
+            <span className="text-xs text-gray-500 hover:text-cyan-400 transition-colors cursor-pointer">{zh ? "联系我们" : "Contact"}</span>
+          </Link>
+        </div>
+        <p className="text-xs text-gray-600 text-center">
           © 2026 Get8 Pro · {zh ? "专业 Web3 导航与资讯" : "Professional Web3 Navigator & News"}
         </p>
       </footer>
