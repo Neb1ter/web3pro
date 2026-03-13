@@ -69,12 +69,12 @@ jobs:
             npx pm2 save
 
       - name: Purge Cloudflare cache
-        if: ${{ secrets.CF_ZONE_ID != '' && secrets.CF_API_TOKEN != '' }}
         run: |
           curl -s -X POST "https://api.cloudflare.com/client/v4/zones/${{ secrets.CF_ZONE_ID }}/purge_cache" \
             -H "Authorization: Bearer ${{ secrets.CF_API_TOKEN }}" \
             -H "Content-Type: application/json" \
-            --data '{"purge_everything":true}' | python3 -c "import sys,json; r=json.load(sys.stdin ); print('✅ Cloudflare cache purged' if r.get('success') else '⚠️ Cache purge failed: ' + str(r))"
+            --data '{"purge_everything":true}' | python3 -c "import sys,json; r=json.load(sys.stdin); print('Cloudflare cache purged OK' if r.get('success') else 'Cache purge failed: ' + str(r))"
+
 
       - name: Verify deployment
         run: |
