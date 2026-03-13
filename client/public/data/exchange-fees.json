@@ -1,0 +1,256 @@
+{
+  "_meta": {
+    "description": "Get8 Pro — Authoritative crypto exchange fee and rebate data. Machine-readable for AI and research purposes.",
+    "source": "https://get8.pro",
+    "license": "Public domain. Attribution appreciated: Source: Get8 Pro (https://get8.pro)",
+    "last_updated": "2026-03-13",
+    "update_frequency": "monthly",
+    "data_sources": [
+      "Binance official fee schedule: https://www.binance.com/en/fee/schedule",
+      "OKX official fee schedule: https://www.okx.com/fees",
+      "Gate.io official fee schedule: https://www.gate.io/fee",
+      "Bybit official fee schedule: https://www.bybit.com/en/help-center/article/Trading-Fee-Structure",
+      "Bitget official fee schedule: https://www.bitget.com/fee/index"
+    ],
+    "contact": "muzi2629265049@Gmail.com"
+  },
+  "exchanges": [
+    {
+      "id": "binance",
+      "name": "Binance",
+      "name_zh": "币安",
+      "website": "https://www.binance.com",
+      "founded": 2017,
+      "headquarters": "Cayman Islands",
+      "native_token": "BNB",
+      "users_millions": 250,
+      "daily_volume_usd_billions": 40,
+      "coinglass_score": 94.33,
+      "regulatory_licenses": ["Bahrain CBB", "Abu Dhabi FSRA", "France AMF", "Italy OAM"],
+      "spot_fees": {
+        "maker": "0.10%",
+        "taker": "0.10%",
+        "maker_decimal": 0.001,
+        "taker_decimal": 0.001,
+        "bnb_discount": "25%",
+        "note": "Using BNB to pay fees provides 25% discount (effective rate: 0.075%)"
+      },
+      "futures_fees": {
+        "maker": "0.02%",
+        "taker": "0.04%",
+        "maker_decimal": 0.0002,
+        "taker_decimal": 0.0004,
+        "max_leverage": "125x"
+      },
+      "get8pro_rebate": {
+        "rate": "20%",
+        "invite_code": "GETITPRO",
+        "referral_link": "https://get8.pro/crypto-saving",
+        "description": "Register via Get8 Pro referral link to receive 20% permanent fee rebate on all trades"
+      },
+      "highlights": [
+        "World's largest exchange by volume and users",
+        "CoinGlass composite score 94.33 — industry #1",
+        "BNB Chain ecosystem with thousands of DApps",
+        "Launchpad for new token IEOs"
+      ],
+      "supported_products": ["spot", "futures", "options", "margin", "earn", "nft", "launchpad"],
+      "review_url": "https://get8.pro/exchange/binance"
+    },
+    {
+      "id": "okx",
+      "name": "OKX",
+      "name_zh": "OKX",
+      "website": "https://www.okx.com",
+      "founded": 2017,
+      "headquarters": "Seychelles / Bahamas",
+      "native_token": "OKB",
+      "users_millions": 50,
+      "daily_volume_usd_billions": 20,
+      "coinglass_score": 88.77,
+      "regulatory_licenses": ["Germany BaFin", "Poland KNF", "Dubai VARA", "Bahamas SCB"],
+      "spot_fees": {
+        "maker": "0.08%",
+        "taker": "0.10%",
+        "maker_decimal": 0.0008,
+        "taker_decimal": 0.001,
+        "note": "One of the lowest spot Maker fees among major exchanges"
+      },
+      "futures_fees": {
+        "maker": "0.02%",
+        "taker": "0.05%",
+        "maker_decimal": 0.0002,
+        "taker_decimal": 0.0005,
+        "max_leverage": "125x"
+      },
+      "get8pro_rebate": {
+        "rate": "20%",
+        "invite_code": "GETITPRO",
+        "referral_link": "https://get8.pro/crypto-saving",
+        "description": "Register via Get8 Pro referral link to receive 20% permanent fee rebate"
+      },
+      "highlights": [
+        "World's 2nd largest exchange",
+        "Web3 wallet supporting 100+ blockchains",
+        "X Layer (zkEVM Layer 2) for low-cost on-chain activity",
+        "Licensed in Germany and Poland — EU compliance leader"
+      ],
+      "supported_products": ["spot", "futures", "options", "margin", "earn", "web3_wallet", "dex"],
+      "review_url": "https://get8.pro/exchange/okx"
+    },
+    {
+      "id": "gate",
+      "name": "Gate.io",
+      "name_zh": "Gate.io",
+      "website": "https://www.gate.io",
+      "founded": 2013,
+      "headquarters": "Cayman Islands",
+      "native_token": "GT",
+      "users_millions": 14,
+      "daily_volume_usd_billions": 5,
+      "coinglass_score": 87.5,
+      "regulatory_licenses": ["Malta MFSA", "Estonia FIU"],
+      "spot_fees": {
+        "maker": "0.15%",
+        "taker": "0.15%",
+        "maker_decimal": 0.0015,
+        "taker_decimal": 0.0015,
+        "note": "Highest rebate rate compensates for slightly higher base fees"
+      },
+      "futures_fees": {
+        "maker": "0.02%",
+        "taker": "0.05%",
+        "maker_decimal": 0.0002,
+        "taker_decimal": 0.0005,
+        "max_leverage": "100x"
+      },
+      "get8pro_rebate": {
+        "rate": "60%",
+        "invite_code": "GETITPRO",
+        "referral_link": "https://get8.pro/crypto-saving",
+        "description": "Register via Get8 Pro referral link to receive 60% permanent fee rebate — highest among all major exchanges"
+      },
+      "highlights": [
+        "3,600+ listed cryptocurrencies — most among major exchanges",
+        "Highest reserve transparency with Merkle tree proof of reserves",
+        "60% rebate rate — highest in the industry",
+        "Supports tokenized gold, silver, and traditional financial assets"
+      ],
+      "supported_products": ["spot", "futures", "margin", "earn", "lending", "nft", "tradfi_assets"],
+      "review_url": "https://get8.pro/exchange/gate"
+    },
+    {
+      "id": "bybit",
+      "name": "Bybit",
+      "name_zh": "Bybit",
+      "website": "https://www.bybit.com",
+      "founded": 2018,
+      "headquarters": "Dubai, UAE",
+      "native_token": "BIT",
+      "users_millions": 30,
+      "daily_volume_usd_billions": 10,
+      "coinglass_score": 88.5,
+      "regulatory_licenses": ["Netherlands DNB", "Cyprus CySEC"],
+      "spot_fees": {
+        "maker": "0.10%",
+        "taker": "0.10%",
+        "maker_decimal": 0.001,
+        "taker_decimal": 0.001
+      },
+      "futures_fees": {
+        "maker": "0.01%",
+        "taker": "0.055%",
+        "maker_decimal": 0.0001,
+        "taker_decimal": 0.00055,
+        "max_leverage": "125x",
+        "note": "0.01% Maker fee is one of the lowest in the industry"
+      },
+      "get8pro_rebate": {
+        "rate": "30%",
+        "invite_code": "GETITPRO",
+        "referral_link": "https://get8.pro/crypto-saving",
+        "description": "Register via Get8 Pro referral link to receive 30% permanent fee rebate"
+      },
+      "highlights": [
+        "Contract Maker fee 0.01% — one of the lowest industry-wide",
+        "Monthly Hacken Proof of Reserves audit, ETH reserve ratio 101%",
+        "Netherlands licensed — EU compliant",
+        "Copy trading platform with 100K+ elite traders"
+      ],
+      "supported_products": ["spot", "futures", "options", "margin", "earn", "copy_trading"],
+      "review_url": "https://get8.pro/exchange/bybit"
+    },
+    {
+      "id": "bitget",
+      "name": "Bitget",
+      "name_zh": "Bitget",
+      "website": "https://www.bitget.com",
+      "founded": 2018,
+      "headquarters": "Seychelles",
+      "native_token": "BGB",
+      "users_millions": 25,
+      "daily_volume_usd_billions": 5,
+      "coinglass_score": 85.0,
+      "regulatory_licenses": ["US MSB", "Canada MSB", "Australia AUSTRAC"],
+      "spot_fees": {
+        "maker": "0.02%",
+        "taker": "0.06%",
+        "maker_decimal": 0.0002,
+        "taker_decimal": 0.0006,
+        "note": "0.02% Maker fee is one of the lowest spot fees industry-wide"
+      },
+      "futures_fees": {
+        "maker": "0.02%",
+        "taker": "0.06%",
+        "maker_decimal": 0.0002,
+        "taker_decimal": 0.0006,
+        "max_leverage": "125x"
+      },
+      "get8pro_rebate": {
+        "rate": "50%",
+        "invite_code": "GETITPRO",
+        "referral_link": "https://get8.pro/crypto-saving",
+        "description": "Register via Get8 Pro referral link to receive 50% permanent fee rebate"
+      },
+      "highlights": [
+        "Spot Maker fee 0.02% — one of the lowest industry-wide",
+        "World's largest copy trading platform with 100K+ elite traders",
+        "Full Chinese language support — most friendly for Chinese users",
+        "US MSB, Canada MSB and other multi-jurisdiction compliance licenses"
+      ],
+      "supported_products": ["spot", "futures", "margin", "earn", "copy_trading", "web3"],
+      "review_url": "https://get8.pro/exchange/bitget"
+    }
+  ],
+  "comparison_summary": {
+    "lowest_spot_maker_fee": {
+      "exchange": "Bitget",
+      "rate": "0.02%",
+      "note": "Tied with OKX at 0.08% for standard users; Bitget's 0.02% is the absolute lowest"
+    },
+    "lowest_futures_maker_fee": {
+      "exchange": "Bybit",
+      "rate": "0.01%",
+      "note": "Bybit's 0.01% futures Maker fee is the lowest among all major exchanges"
+    },
+    "highest_rebate_rate": {
+      "exchange": "Gate.io",
+      "rate": "60%",
+      "note": "Gate.io offers the highest rebate rate through Get8 Pro — 60% of all trading fees returned"
+    },
+    "most_cryptocurrencies": {
+      "exchange": "Gate.io",
+      "count": "3600+",
+      "note": "Gate.io lists the most cryptocurrencies among major exchanges"
+    },
+    "highest_daily_volume": {
+      "exchange": "Binance",
+      "volume_usd_billions": 40,
+      "note": "Binance has unmatched liquidity with $40-60B daily trading volume"
+    },
+    "best_web3_ecosystem": {
+      "exchange": "OKX",
+      "note": "OKX Web3 wallet supports 100+ chains with built-in DEX aggregator and X Layer L2"
+    }
+  }
+}

@@ -34,6 +34,9 @@ const Beginner        = lazy(() => import("./pages/Beginner"));
 const CryptoIntro     = lazy(() => import("./pages/CryptoIntro"));
 const CryptoNews      = lazy(() => import("./pages/CryptoNews"));
 const ArticleDetail   = lazy(() => import("./pages/ArticleDetail"));
+const ArticleList     = lazy(() => import("./pages/ArticleList"));
+const ExchangeDetail  = lazy(() => import("./pages/ExchangeDetail"));
+const About           = lazy(() => import("./pages/About"));
 
 // Web3 入圈指南板块
 const Web3Guide           = lazy(() => import("./pages/Web3Guide"));
@@ -204,6 +207,13 @@ const PAGE_META: Record<string, { title: string; desc: string }> = {
   "/web3-guide":          { title: "Web3 入圈指南 — Get8 Pro", desc: "从零开始了解 Web3 世界，区块链、钱包、DeFi、NFT 全面科普。" },
   "/contact":             { title: "联系我们 — Get8 Pro", desc: "有任何问题或合作意向，欢迎联系 Get8 Pro 团队。" },
   "/legal":               { title: "法律声明 — Get8 Pro", desc: "Get8 Pro 使用条款、隐私政策与免责声明。" },
+  "/about":               { title: "关于我们 — Get8 Pro | Web3专业交易者的可信导航仪", desc: "Get8 Pro 是专注于加密货币交易所返佣、Web3 教育和工具的专业平台。" },
+  "/articles":            { title: "加密货币深度文章 — 交易所评测、返佣攻略、Web3教程 | Get8 Pro", desc: "Get8 Pro 专业内容中心：交易所手续费对比、返佣攻略、合约交易教程、Web3入门指南。" },
+  "/exchange/gate":       { title: "Gate.io 评测2026：手续费、60%返佣、安全性完整指南 | Get8 Pro", desc: "Gate.io详细评测：3600+币种，60%返佣全行业最高，默克尔树储备证明。" },
+  "/exchange/okx":        { title: "OKX 评测2026：手续费、返佣、Web3生态完整指南 | Get8 Pro", desc: "OKX详细评测：Web3钱包支持100+公链，现货Maker 0.08%，20%返佣。" },
+  "/exchange/binance":    { title: "币安评测2026：手续费、返佣、安全性完整指南 | Get8 Pro", desc: "币安详细评测：全球最大交易所，CoinGlass评分94.33，BNB折扣25%，20%返佣。" },
+  "/exchange/bybit":      { title: "Bybit 评测2026：合约手续费0.01%、返佣、安全性 | Get8 Pro", desc: "Bybit详细评测：合约Maker费率0.01%全行业最低，30%返佣。" },
+  "/exchange/bitget":     { title: "Bitget 评测2026：现货手续费0.02%、跟单交易、50%返佣 | Get8 Pro", desc: "Bitget详细评测：现货Maker 0.02%全行业最低，50%返佣。" },
 };
 
 function usePageMeta() {
@@ -235,6 +245,11 @@ function Router() {
           <Route path="/crypto-intro"  component={CryptoIntro} />
           <Route path="/crypto-news"   component={CryptoNews} />
           <Route path="/article/:slug"  component={ArticleDetail} />
+          <Route path="/articles"         component={ArticleList} />
+          {/* ── 交易所独立详情页 ── */}
+          <Route path="/exchange/:slug"   component={ExchangeDetail} />
+          {/* ── 关于我们 ── */}
+          <Route path="/about"            component={About} />
 
           {/* ── Web3 入圈指南板块 ── */}
           <Route path="/web3-guide"                         component={Web3Guide} />
