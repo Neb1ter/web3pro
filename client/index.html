@@ -261,7 +261,43 @@
   </head>
 
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Static fallback content for search engine crawlers (no-JS) -->
+      <noscript>
+        <header>
+          <h1>Get8 Pro — Web3 专业交易者导航平台</h1>
+          <nav>
+            <a href="/">首页</a> |
+            <a href="/exchanges">交易所对比</a> |
+            <a href="/articles">文章中心</a> |
+            <a href="/about">关于我们</a>
+          </nav>
+        </header>
+        <main>
+          <h2>官方认证返佣 | 权威数据评测 | 独立交易所分析</h2>
+          <p>Get8 Pro 是 Web3 专业交易者的可信导航仪。提供官方认证的交易所返佣、基于权威数据的客观评测，助你降低交易成本，提升决策效率。</p>
+          <h3>支持的主流交易所</h3>
+          <ul>
+            <li><a href="/exchange/binance">币安 Binance — 全球最大加密货币交易所，享受最高20%手续费返佣</a></li>
+            <li><a href="/exchange/okx">OKX — 专业衍生品交易平台，享受最高20%手续费返佣</a></li>
+            <li><a href="/exchange/gate">Gate.io — 山寨币最全交易所，享受最高60%手续费返佣</a></li>
+            <li><a href="/exchange/bybit">Bybit — 合约交易首选平台，享受最高30%手续费返佣</a></li>
+            <li><a href="/exchange/bitget">Bitget — 跟单交易领先平台，享受最高50%手续费返佣</a></li>
+          </ul>
+          <h3>最新文章</h3>
+          <ul>
+            <li><a href="/articles">2026年币安手续费完整指南</a></li>
+            <li><a href="/articles">OKX vs 币安深度对比2026</a></li>
+            <li><a href="/articles">Gate.io 60%返佣怎么领</a></li>
+            <li><a href="/articles">2026年最佳加密货币交易所推荐</a></li>
+          </ul>
+          <p>请启用 JavaScript 以获得完整体验。</p>
+        </main>
+        <footer>
+          <p>&copy; 2026 Get8 Pro. 专业 Web3 交易导航平台.</p>
+        </footer>
+      </noscript>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
     <!-- Analytics: loads only when env vars are configured at build time -->
     <!-- To enable: set VITE_ANALYTICS_ENDPOINT and VITE_ANALYTICS_WEBSITE_ID in .env -->
