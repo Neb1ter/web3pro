@@ -15,8 +15,8 @@ function SendButton({ isPending, label, pendingLabel }: { isPending: boolean; la
           font-family: inherit;
           font-size: 16px;
           font-weight: 600;
-          background: hsl(var(--accent));
-          color: hsl(var(--accent-foreground));
+          background: #F5C518;
+          color: #0a0f1e;
           padding: 0.75em 1.5em 0.75em 1.2em;
           width: 100%;
           display: flex;
@@ -119,10 +119,10 @@ export default function Contact() {
       channels: {
         title: '联系方式',
         subtitle: '选择您最方便的方式联系我们',
-        telegram: { name: 'Telegram', handle: '@CryptoSaveGuide', desc: '响应最快，推荐使用' },
-        twitter: { name: 'X (Twitter)', handle: '@CryptoSaveGuide', desc: '发私信联系' },
-        wechat: { name: '微信', handle: 'CryptoSaveGuide', desc: '扫码添加好友' },
-        whatsapp: { name: 'WhatsApp', handle: '+1 234 567 8900', desc: '国际用户推荐' },
+        telegram: { name: 'Telegram', handle: '私信咨询', desc: '响应最快，推荐使用' },
+        twitter: { name: 'X (Twitter)', handle: '发私信联系', desc: '关注后发送私信' },
+        wechat: { name: '微信', handle: '扫码添加', desc: '添加后发送暗号「返佣」' },
+        whatsapp: { name: '邮件联系', handle: 'contact@get8.pro', desc: '工作日24小时内回复' },
       },
       form: {
         title: '提交您的信息',
@@ -166,10 +166,10 @@ export default function Contact() {
       channels: {
         title: 'Contact Methods',
         subtitle: 'Choose the most convenient way to reach us',
-        telegram: { name: 'Telegram', handle: '@CryptoSaveGuide', desc: 'Fastest response, recommended' },
-        twitter: { name: 'X (Twitter)', handle: '@CryptoSaveGuide', desc: 'Send a DM' },
-        wechat: { name: 'WeChat', handle: 'CryptoSaveGuide', desc: 'Scan QR to add friend' },
-        whatsapp: { name: 'WhatsApp', handle: '+1 234 567 8900', desc: 'Recommended for international users' },
+        telegram: { name: 'Telegram', handle: 'Send a DM', desc: 'Fastest response, recommended' },
+        twitter: { name: 'X (Twitter)', handle: 'Send a DM', desc: 'Follow us and send a message' },
+        wechat: { name: 'WeChat', handle: 'Scan QR Code', desc: 'Send keyword "rebate" after adding' },
+        whatsapp: { name: 'Email', handle: 'contact@get8.pro', desc: 'Reply within 24h on business days' },
       },
       form: {
         title: 'Submit Your Information',
@@ -260,7 +260,7 @@ export default function Contact() {
               { icon: <MessageCircle className="text-accent" size={32} />, ...t.channels.telegram, color: 'border-blue-500/30' },
               { icon: <Twitter className="text-accent" size={32} />, ...t.channels.twitter, color: 'border-gray-500/30' },
               { icon: <Phone className="text-accent" size={32} />, ...t.channels.wechat, color: 'border-green-500/30' },
-              { icon: <Mail className="text-accent" size={32} />, ...t.channels.whatsapp, color: 'border-green-400/30' },
+              { icon: <Mail className="text-accent" size={32} />, ...t.channels.whatsapp, color: 'border-accent/30' },
             ].map((ch, i) => (
               <div key={i} className={`bg-card p-6 rounded-xl border ${ch.color} text-center hover:border-accent transition`}>
                 <div className="flex justify-center mb-3">{ch.icon}</div>
@@ -354,6 +354,10 @@ export default function Contact() {
         <div className="container mx-auto text-center">
           <h3 className="text-2xl font-bold text-white mb-4">{t.footer.title}</h3>
           <p className="text-muted-foreground mb-4">{t.footer.subtitle}</p>
+          <a href="mailto:contact@get8.pro" className="inline-flex items-center gap-2 text-accent hover:text-accent/80 transition mb-6 text-sm">
+            <Mail size={14} /> contact@get8.pro
+          </a>
+          <br />
           <button onClick={goBack} className="text-accent hover:text-accent/80 transition flex items-center gap-2 mx-auto">
             <ArrowLeft size={16} /> {t.nav.back}
           </button>
