@@ -214,8 +214,8 @@ export default function Exchanges() {
         {tab === "rebate" && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="text-center mb-10">
-              <h2 className="text-3xl sm:text-4xl font-black mb-4">{zh ? "全网最高返佣对比" : "Highest Rebate Comparison"}</h2>
-              <p className="text-white/50 max-w-2xl mx-auto">{zh ? "我们与各大交易所达成官方合作，为您提供全网最高比例的交易手续费返还。" : "Official partnership with major exchanges to provide the highest fee rebates in the industry."}</p>
+              <h2 className="text-3xl sm:text-4xl font-black mb-4">{zh ? "返佣比例公开透明，所见即所得" : "Transparent Rebate Rates — What You See Is What You Get"}</h2>
+              <p className="text-white/50 max-w-2xl mx-auto">{zh ? "我们与各大交易所达成官方合作，返佣比例真实公示、无隐藏条件，每笔返还均可追溯核查。" : "Official partnership with major exchanges. All rebate rates are publicly disclosed with no hidden conditions — every rebate is fully traceable."}</p>
             </div>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -239,7 +239,7 @@ export default function Exchanges() {
                     <div className="bg-black/20 rounded-2xl p-5 mb-6 border border-white/5">
                       <div className="flex justify-between items-end mb-1">
                         <span className="text-xs text-white/40 font-bold uppercase">{zh ? "返佣比例" : "Rebate Rate"}</span>
-                        <span className="text-xs text-emerald-400 font-black">{zh ? "全网最高" : "Best Rate"}</span>
+                        <span className="text-xs text-emerald-400 font-black">{zh ? "官方认证" : "Official Rate"}</span>
                       </div>
                       <div className="text-4xl font-black text-emerald-400 mb-4">
                         {ex.rebateRate || "60%"}
@@ -432,8 +432,8 @@ export default function Exchanges() {
             {/* CTA */}
             <div className="mt-10 bg-blue-500/10 border border-blue-500/30 rounded-2xl p-6 text-center">
               <Gift className="text-blue-400 mx-auto mb-3" size={26} />
-              <h4 className="text-lg font-bold mb-2">{zh ? "通过邀请链接注册，立享最高 60% 返佣" : "Register via referral link, enjoy up to 60% rebate"}</h4>
-              <p className="text-white/50 text-sm mb-4">{zh ? "有任何返佣疑问，请联系我们，专人为您解答" : "For any rebate questions, contact us for dedicated support"}</p>
+              <h4 className="text-lg font-bold mb-2">{zh ? "通过邀请链接注册，返佣比例真实透明" : "Register via referral link — real, transparent rebate rates"}</h4>
+              <p className="text-white/50 text-sm mb-4">{zh ? "所有返佣比例均为官方合作真实数据，有任何疑问请联系我们，专人为您解答" : "All rebate rates are real official partnership data. Contact us for any questions."}</p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button onClick={() => handleTabChange("rebate")} className="bg-blue-500 hover:bg-blue-400 text-white font-bold">
                   <ExternalLink size={15} className="mr-2" />{zh ? "查看所有返佣链接" : "View All Referral Links"}

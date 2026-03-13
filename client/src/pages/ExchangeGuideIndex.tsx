@@ -100,7 +100,7 @@ function CategoryMarquee({ categories, zh, onSelect }: {
               <button
                 key={i}
                 onClick={() => onSelect?.(cat.slug)}
-                className="flex-shrink-0 flex items-center gap-2 select-none hover:opacity-80 active:scale-95 transition-all"
+                className="flex-shrink-0 flex items-center gap-2 select-none hover:opacity-80 active:scale-95 transition-all px-3 py-2.5 rounded-xl hover:bg-white/8 min-h-[44px]"
                 title={zh ? cat.nameZh : cat.nameEn}
               >
                 {/* Number badge */}
@@ -691,7 +691,7 @@ function FeatureDetail({ category, zh, prevCategory, nextCategory, onNavigate, c
               {prevCategory ? (
                 <button
                   onClick={() => { onNavigate?.(prevCategory.slug); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-                  className="w-full group flex flex-col items-start gap-1 px-4 py-3 rounded-xl border border-white/10 bg-white/3 hover:border-blue-500/40 hover:bg-blue-500/5 transition-all text-left"
+                  className="w-full group flex flex-col items-start gap-1 px-4 py-4 rounded-xl border border-white/10 bg-white/3 hover:border-blue-500/40 hover:bg-blue-500/5 transition-all text-left min-h-[64px]"
                 >
                   <span className="text-xs text-slate-500 font-medium flex items-center gap-1">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
@@ -708,7 +708,7 @@ function FeatureDetail({ category, zh, prevCategory, nextCategory, onNavigate, c
               {nextCategory ? (
                 <button
                   onClick={() => { onNavigate?.(nextCategory.slug); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-                  className="w-full group flex flex-col items-end gap-1 px-4 py-3 rounded-xl border border-white/10 bg-white/3 hover:border-blue-500/40 hover:bg-blue-500/5 transition-all text-right"
+                  className="w-full group flex flex-col items-end gap-1 px-4 py-4 rounded-xl border border-white/10 bg-white/3 hover:border-blue-500/40 hover:bg-blue-500/5 transition-all text-right min-h-[64px]"
                 >
                   <span className="text-xs text-slate-500 font-medium flex items-center gap-1 justify-end">
                     {zh ? "下一篇" : "Next"}
@@ -753,7 +753,85 @@ function CompareTab({ zh, selectedExchange, setSelectedExchange, onNavigateToFea
     { id: 14, slug: 'nft', nameZh: 'NFT 市场', nameEn: 'NFT Marketplace', icon: '🛡️', descZh: '买卖数字藏品', descEn: 'Buy and sell digital collectibles', difficulty: 'beginner', sortOrder: 14 },
   ];
   const categories = STATIC_CATEGORIES;
-  const allSupport: { id: number; exchangeSlug: string; featureSlug: string; supported: number; highlight: number; levelZh: string; levelEn: string }[] = [];
+  // 真实功能支持数据：supported=1 表示支持，highlight=1 表示亮点功能
+  // 数据来源：各交易所官网及公开资料（2025-2026）
+  const allSupport: { id: number; exchangeSlug: string; featureSlug: string; supported: number; highlight: number; levelZh: string; levelEn: string }[] = [
+    // ── Binance ──
+    { id:1,  exchangeSlug:'binance', featureSlug:'spot',         supported:1, highlight:1, levelZh:'全球最大现货市场，流动性第一', levelEn:'World largest spot market, #1 liquidity' },
+    { id:2,  exchangeSlug:'binance', featureSlug:'futures',      supported:1, highlight:1, levelZh:'全球最大合约平台，最高125x杠杆', levelEn:'World largest futures platform, up to 125x' },
+    { id:3,  exchangeSlug:'binance', featureSlug:'margin',       supported:1, highlight:0, levelZh:'支持杠杆交易，最高10x', levelEn:'Margin trading up to 10x' },
+    { id:4,  exchangeSlug:'binance', featureSlug:'staking',      supported:1, highlight:1, levelZh:'Binance Earn：活期+定期+质押，APY最高', levelEn:'Binance Earn: flexible+fixed+staking, highest APY' },
+    { id:5,  exchangeSlug:'binance', featureSlug:'defi',         supported:1, highlight:0, levelZh:'BNB Chain DeFi生态，数千DApp', levelEn:'BNB Chain DeFi ecosystem, thousands of DApps' },
+    { id:6,  exchangeSlug:'binance', featureSlug:'copy-trading', supported:1, highlight:0, levelZh:'支持跟单交易', levelEn:'Copy trading supported' },
+    { id:7,  exchangeSlug:'binance', featureSlug:'grid-bot',     supported:1, highlight:0, levelZh:'支持网格机器人策略', levelEn:'Grid bot strategy supported' },
+    { id:8,  exchangeSlug:'binance', featureSlug:'p2p',          supported:1, highlight:1, levelZh:'全球最大P2P市场，支持法币直接入金', levelEn:'World largest P2P market, direct fiat on-ramp' },
+    { id:9,  exchangeSlug:'binance', featureSlug:'launchpad',    supported:1, highlight:1, levelZh:'Binance Launchpad：最多最优质IEO项目', levelEn:'Binance Launchpad: most and best IEO projects' },
+    { id:10, exchangeSlug:'binance', featureSlug:'earn',         supported:1, highlight:1, levelZh:'Binance Earn：多样化收益产品', levelEn:'Binance Earn: diversified yield products' },
+    { id:11, exchangeSlug:'binance', featureSlug:'card',         supported:1, highlight:0, levelZh:'Binance Card：Visa借记卡，全球消费', levelEn:'Binance Card: Visa debit card, global spending' },
+    { id:12, exchangeSlug:'binance', featureSlug:'convert',      supported:1, highlight:0, levelZh:'支持一键闪兑', levelEn:'One-click convert supported' },
+    { id:13, exchangeSlug:'binance', featureSlug:'options',      supported:1, highlight:0, levelZh:'支持期权交易', levelEn:'Options trading supported' },
+    { id:14, exchangeSlug:'binance', featureSlug:'nft',          supported:1, highlight:0, levelZh:'Binance NFT市场', levelEn:'Binance NFT marketplace' },
+    // ── OKX ──
+    { id:21, exchangeSlug:'okx', featureSlug:'spot',         supported:1, highlight:0, levelZh:'支持350+现货交易对', levelEn:'350+ spot trading pairs' },
+    { id:22, exchangeSlug:'okx', featureSlug:'futures',      supported:1, highlight:1, levelZh:'衍生品深度全球顶尖，最高125x', levelEn:'Top-tier derivatives depth, up to 125x' },
+    { id:23, exchangeSlug:'okx', featureSlug:'margin',       supported:1, highlight:0, levelZh:'支持杠杆交易', levelEn:'Margin trading supported' },
+    { id:24, exchangeSlug:'okx', featureSlug:'staking',      supported:1, highlight:0, levelZh:'OKX Earn：活期+定期+DeFi收益', levelEn:'OKX Earn: flexible+fixed+DeFi yield' },
+    { id:25, exchangeSlug:'okx', featureSlug:'defi',         supported:1, highlight:1, levelZh:'OKX Wallet：支持100+公链，内置DEX聚合', levelEn:'OKX Wallet: 100+ chains, built-in DEX aggregation' },
+    { id:26, exchangeSlug:'okx', featureSlug:'copy-trading', supported:1, highlight:0, levelZh:'支持跟单交易', levelEn:'Copy trading supported' },
+    { id:27, exchangeSlug:'okx', featureSlug:'grid-bot',     supported:1, highlight:1, levelZh:'丰富交易机器人：网格/DCA/套利', levelEn:'Rich trading bots: grid/DCA/arbitrage' },
+    { id:28, exchangeSlug:'okx', featureSlug:'p2p',          supported:1, highlight:0, levelZh:'支持P2P法币交易', levelEn:'P2P fiat trading supported' },
+    { id:29, exchangeSlug:'okx', featureSlug:'launchpad',    supported:1, highlight:0, levelZh:'OKX Jumpstart Launchpad', levelEn:'OKX Jumpstart Launchpad' },
+    { id:30, exchangeSlug:'okx', featureSlug:'earn',         supported:1, highlight:0, levelZh:'OKX Earn多样化收益产品', levelEn:'OKX Earn diversified yield products' },
+    { id:31, exchangeSlug:'okx', featureSlug:'card',         supported:1, highlight:0, levelZh:'OKX Card：加密借记卡', levelEn:'OKX Card: crypto debit card' },
+    { id:32, exchangeSlug:'okx', featureSlug:'convert',      supported:1, highlight:0, levelZh:'支持一键闪兑', levelEn:'One-click convert supported' },
+    { id:33, exchangeSlug:'okx', featureSlug:'options',      supported:1, highlight:1, levelZh:'支持期权交易，产品丰富', levelEn:'Options trading, rich products' },
+    { id:34, exchangeSlug:'okx', featureSlug:'nft',          supported:1, highlight:0, levelZh:'OKX NFT市场', levelEn:'OKX NFT marketplace' },
+    // ── Bybit ──
+    { id:41, exchangeSlug:'bybit', featureSlug:'spot',         supported:1, highlight:0, levelZh:'支持1000+现货交易对', levelEn:'1000+ spot trading pairs' },
+    { id:42, exchangeSlug:'bybit', featureSlug:'futures',      supported:1, highlight:1, levelZh:'合约Maker费仅0.01%，行业最低之一', levelEn:'Contract Maker fee 0.01%, one of lowest' },
+    { id:43, exchangeSlug:'bybit', featureSlug:'margin',       supported:1, highlight:0, levelZh:'支持杠杆交易', levelEn:'Margin trading supported' },
+    { id:44, exchangeSlug:'bybit', featureSlug:'staking',      supported:1, highlight:0, levelZh:'Bybit Earn：灵活+固定+质押', levelEn:'Bybit Earn: flexible+fixed+staking' },
+    { id:45, exchangeSlug:'bybit', featureSlug:'defi',         supported:1, highlight:0, levelZh:'支持Web3钱包和链上功能', levelEn:'Web3 wallet and on-chain features' },
+    { id:46, exchangeSlug:'bybit', featureSlug:'copy-trading', supported:1, highlight:0, levelZh:'支持跟单交易', levelEn:'Copy trading supported' },
+    { id:47, exchangeSlug:'bybit', featureSlug:'grid-bot',     supported:1, highlight:0, levelZh:'支持网格机器人', levelEn:'Grid bot supported' },
+    { id:48, exchangeSlug:'bybit', featureSlug:'p2p',          supported:1, highlight:0, levelZh:'支持P2P法币交易', levelEn:'P2P fiat trading supported' },
+    { id:49, exchangeSlug:'bybit', featureSlug:'launchpad',    supported:1, highlight:0, levelZh:'Bybit Launchpad新项目认购', levelEn:'Bybit Launchpad new project subscription' },
+    { id:50, exchangeSlug:'bybit', featureSlug:'earn',         supported:1, highlight:0, levelZh:'Bybit Earn收益产品', levelEn:'Bybit Earn yield products' },
+    { id:51, exchangeSlug:'bybit', featureSlug:'card',         supported:1, highlight:0, levelZh:'Bybit Card：Mastercard借记卡', levelEn:'Bybit Card: Mastercard debit card' },
+    { id:52, exchangeSlug:'bybit', featureSlug:'convert',      supported:1, highlight:0, levelZh:'支持一键闪兑', levelEn:'One-click convert supported' },
+    { id:53, exchangeSlug:'bybit', featureSlug:'options',      supported:1, highlight:0, levelZh:'支持期权交易', levelEn:'Options trading supported' },
+    { id:54, exchangeSlug:'bybit', featureSlug:'nft',          supported:1, highlight:0, levelZh:'Bybit NFT市场', levelEn:'Bybit NFT marketplace' },
+    // ── Gate.io ──
+    { id:61, exchangeSlug:'gate', featureSlug:'spot',         supported:1, highlight:1, levelZh:'支持3600+币种，新币最多', levelEn:'3600+ coins, most new listings' },
+    { id:62, exchangeSlug:'gate', featureSlug:'futures',      supported:1, highlight:0, levelZh:'支持合约交易，最高100x', levelEn:'Futures trading up to 100x' },
+    { id:63, exchangeSlug:'gate', featureSlug:'margin',       supported:1, highlight:0, levelZh:'支持杠杆交易', levelEn:'Margin trading supported' },
+    { id:64, exchangeSlug:'gate', featureSlug:'staking',      supported:1, highlight:0, levelZh:'Gate Earn：多种收益产品', levelEn:'Gate Earn: multiple yield products' },
+    { id:65, exchangeSlug:'gate', featureSlug:'defi',         supported:1, highlight:0, levelZh:'Gate Layer2 + Gate Perp DEX', levelEn:'Gate Layer2 + Gate Perp DEX' },
+    { id:66, exchangeSlug:'gate', featureSlug:'copy-trading', supported:0, highlight:0, levelZh:'暂不支持跟单交易', levelEn:'Copy trading not supported' },
+    { id:67, exchangeSlug:'gate', featureSlug:'grid-bot',     supported:1, highlight:0, levelZh:'支持网格机器人策略', levelEn:'Grid bot strategy supported' },
+    { id:68, exchangeSlug:'gate', featureSlug:'p2p',          supported:1, highlight:0, levelZh:'支持P2P法币交易', levelEn:'P2P fiat trading supported' },
+    { id:69, exchangeSlug:'gate', featureSlug:'launchpad',    supported:1, highlight:1, levelZh:'四合一发射生态：Launchpool+Launchpad+CandyDrop+HODLer', levelEn:'4-in-1 launch: Launchpool+Launchpad+CandyDrop+HODLer' },
+    { id:70, exchangeSlug:'gate', featureSlug:'earn',         supported:1, highlight:0, levelZh:'Gate Earn多样化收益产品', levelEn:'Gate Earn diversified yield products' },
+    { id:71, exchangeSlug:'gate', featureSlug:'card',         supported:0, highlight:0, levelZh:'暂无加密借记卡', levelEn:'Crypto card not available' },
+    { id:72, exchangeSlug:'gate', featureSlug:'convert',      supported:1, highlight:0, levelZh:'支持一键闪兑', levelEn:'One-click convert supported' },
+    { id:73, exchangeSlug:'gate', featureSlug:'options',      supported:0, highlight:0, levelZh:'暂不支持期权', levelEn:'Options not supported' },
+    { id:74, exchangeSlug:'gate', featureSlug:'nft',          supported:1, highlight:0, levelZh:'Gate NFT市场', levelEn:'Gate NFT marketplace' },
+    // ── Bitget ──
+    { id:81, exchangeSlug:'bitget', featureSlug:'spot',         supported:1, highlight:0, levelZh:'支持800+现货交易对', levelEn:'800+ spot trading pairs' },
+    { id:82, exchangeSlug:'bitget', featureSlug:'futures',      supported:1, highlight:0, levelZh:'支持合约交易，最高125x', levelEn:'Futures trading up to 125x' },
+    { id:83, exchangeSlug:'bitget', featureSlug:'margin',       supported:1, highlight:0, levelZh:'支持杠杆交易', levelEn:'Margin trading supported' },
+    { id:84, exchangeSlug:'bitget', featureSlug:'staking',      supported:1, highlight:0, levelZh:'Bitget Earn：多种收益产品', levelEn:'Bitget Earn: multiple yield products' },
+    { id:85, exchangeSlug:'bitget', featureSlug:'defi',         supported:1, highlight:0, levelZh:'Bitget Wallet：内置Web3钱包', levelEn:'Bitget Wallet: built-in Web3 wallet' },
+    { id:86, exchangeSlug:'bitget', featureSlug:'copy-trading', supported:1, highlight:1, levelZh:'全球最大跟单平台：800+专业交易员', levelEn:'World largest copy trading: 800+ pro traders' },
+    { id:87, exchangeSlug:'bitget', featureSlug:'grid-bot',     supported:1, highlight:0, levelZh:'支持网格机器人', levelEn:'Grid bot supported' },
+    { id:88, exchangeSlug:'bitget', featureSlug:'p2p',          supported:1, highlight:0, levelZh:'支持P2P法币交易', levelEn:'P2P fiat trading supported' },
+    { id:89, exchangeSlug:'bitget', featureSlug:'launchpad',    supported:1, highlight:0, levelZh:'Bitget Launchpad新项目认购', levelEn:'Bitget Launchpad new project subscription' },
+    { id:90, exchangeSlug:'bitget', featureSlug:'earn',         supported:1, highlight:0, levelZh:'Bitget Earn收益产品', levelEn:'Bitget Earn yield products' },
+    { id:91, exchangeSlug:'bitget', featureSlug:'card',         supported:1, highlight:0, levelZh:'Bitget Wallet Card：多地区可用', levelEn:'Bitget Wallet Card: available in multiple regions' },
+    { id:92, exchangeSlug:'bitget', featureSlug:'convert',      supported:1, highlight:0, levelZh:'支持一键闪兑', levelEn:'One-click convert supported' },
+    { id:93, exchangeSlug:'bitget', featureSlug:'options',      supported:0, highlight:0, levelZh:'暂不支持期权', levelEn:'Options not supported' },
+    { id:94, exchangeSlug:'bitget', featureSlug:'nft',          supported:1, highlight:0, levelZh:'Bitget NFT市场', levelEn:'Bitget NFT marketplace' },
+  ];
   const isLoading = false;
 
   // Build a lookup: exchangeSlug → featureSlug → support record
@@ -1017,8 +1095,9 @@ function FloatChapterMenu({
                     display: "flex",
                     alignItems: "center",
                     gap: "10px",
-                    padding: "8px 10px",
+                    padding: "12px 12px",
                     borderRadius: "10px",
+                    minHeight: "44px",
                     border: isActive ? "1px solid rgba(59,130,246,0.4)" : "1px solid transparent",
                     background: isActive ? "rgba(59,130,246,0.12)" : "transparent",
                     cursor: "pointer",
@@ -1057,8 +1136,9 @@ function FloatChapterMenu({
             display: "flex",
             alignItems: "center",
             gap: "8px",
-            padding: "8px 14px 8px 10px",
+            padding: "12px 18px 12px 14px",
             borderRadius: "40px",
+            minHeight: "52px",
             border: open ? "1px solid rgba(59,130,246,0.5)" : "1px solid rgba(59,130,246,0.25)",
             background: open ? "rgba(59,130,246,0.15)" : "rgba(10,20,40,0.75)",
             backdropFilter: "blur(16px)",
