@@ -52,7 +52,7 @@ const PARTNERSHIPS = [
 
 const STATS = [
   { val: "5+", label: { zh: "官方合作交易所", en: "Official Partner Exchanges" } },
-  { val: "60%", label: { zh: "最高返佣比例", en: "Max Rebate Rate" } },
+  { val: "永久", label: { zh: "透明化永久返佣", en: "Lifetime Transparent Rebate" } },
   { val: "3,600+", label: { zh: "覆盖加密货币种类", en: "Cryptocurrencies Covered" } },
   { val: "24/7", label: { zh: "实时行情与快讯", en: "Real-time News & Prices" } },
 ];
@@ -256,12 +256,12 @@ export default function About() {
           <section>
             <h2 className="text-2xl font-black text-white mb-6">{zh ? "联系我们" : "Contact Us"}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <a href="mailto:muzi2629265049@Gmail.com"
+              <a href="mailto:contact@get8.pro"
                 className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl p-5 hover:bg-white/10 transition">
                 <Mail className="w-5 h-5 text-blue-400" />
                 <div>
                   <div className="font-semibold text-white text-sm">{zh ? "邮件联系" : "Email"}</div>
-                  <div className="text-slate-400 text-xs">muzi2629265049@Gmail.com</div>
+                  <div className="text-slate-400 text-xs">contact@get8.pro</div>
                 </div>
               </a>
               <Link href="/contact">

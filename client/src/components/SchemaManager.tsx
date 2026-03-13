@@ -12,7 +12,7 @@ const organizationSchema = {
   logo: `${BASE_URL}/logo.png`,
   contactPoint: {
     '@type': 'ContactPoint',
-    email: 'mailto:muzi2629265049@gmail.com',
+    email: 'mailto:contact@get8.pro',
     contactType: 'customer support',
   },
   sameAs: [
