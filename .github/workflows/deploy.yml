@@ -62,10 +62,9 @@ jobs:
           port: 22
           script_stop: true
           script: |
-            cd C:\web3pro
-            tar -xzf dist.tar.gz
-            del dist.tar.gz
-            npx pm2 restart ecosystem.config.cjs
+            tar -xzf C:\web3pro\dist.tar.gz -C C:\web3pro
+            del C:\web3pro\dist.tar.gz
+            npx pm2 restart C:\web3pro\ecosystem.config.cjs
             npx pm2 save
 
       - name: Purge Cloudflare cache
