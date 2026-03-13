@@ -130,7 +130,7 @@ export default function Contact() {
         twitter: { name: 'X (Twitter)', handle: '发私信联系', desc: '关注后发送私信' },
         wechat: { name: '微信', handle: '联系我们', desc: '添加后发送暗号「返佣」' },
         whatsapp: { name: '邮件联系', handle: 'contact@get8.pro', desc: '工作日24小时内回复' },
-        discord: { name: 'Discord 社群', handle: 'discord.gg/get8pro', desc: 'Alpha情报 · 撸毛教程 · VIP专属' },
+        discord: { name: 'Discord 社群', handle: 'discord.gg/wgvetpH6Un', desc: 'Alpha情报 · 撸毛教程 · VIP专属' },
       },
       form: {
         title: '提交您的信息',
@@ -178,7 +178,7 @@ export default function Contact() {
         twitter: { name: 'X (Twitter)', handle: 'Send a DM', desc: 'Follow us and send a message' },
         wechat: { name: 'WeChat', handle: 'Contact Us', desc: 'Send keyword "rebate" after adding' },
         whatsapp: { name: 'Email', handle: 'contact@get8.pro', desc: 'Reply within 24h on business days' },
-        discord: { name: 'Discord Community', handle: 'discord.gg/get8pro', desc: 'Alpha signals · Airdrop guides · VIP only' },
+        discord: { name: 'Discord Community', handle: 'discord.gg/wgvetpH6Un', desc: 'Alpha signals · Airdrop guides · VIP only' },
       },
       form: {
         title: 'Submit Your Information',
@@ -270,7 +270,7 @@ export default function Contact() {
               { icon: <Twitter className="text-accent" size={32} />, ...t.channels.twitter, color: 'border-gray-500/30', href: null },
               { icon: <Phone className="text-accent" size={32} />, ...t.channels.wechat, color: 'border-green-500/30', href: null },
               { icon: <Mail className="text-accent" size={32} />, ...t.channels.whatsapp, color: 'border-accent/30', href: null },
-              { icon: <DiscordIcon size={32} />, ...t.channels.discord, color: 'border-indigo-500/40', href: 'https://discord.gg/get8pro' },
+              { icon: <DiscordIcon size={32} />, ...t.channels.discord, color: 'border-indigo-500/40', href: 'https://discord.gg/wgvetpH6Un' },
             ].map((ch, i) => (
               ch.href ? (
                 <a key={i} href={ch.href} target="_blank" rel="noopener noreferrer"

@@ -938,7 +938,7 @@ export default function Home() {
           {/* Discord 社群入口 */}
           <div className="flex justify-center mb-10">
             <a
-              href="https://discord.gg/get8pro"
+              href="https://discord.gg/wgvetpH6Un"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3 rounded-2xl px-6 py-3.5 font-black text-white hover:scale-105 transition-all"
@@ -999,7 +999,7 @@ export default function Home() {
           {/* Discord 社群图标 */}
           <div className="flex justify-center mb-6">
             <a
-              href="https://discord.gg/get8pro"
+              href="https://discord.gg/wgvetpH6Un"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-all hover:scale-105"
