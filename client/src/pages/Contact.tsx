@@ -121,7 +121,7 @@ export default function Contact() {
         subtitle: '选择您最方便的方式联系我们',
         telegram: { name: 'Telegram', handle: '私信咨询', desc: '响应最快，推荐使用' },
         twitter: { name: 'X (Twitter)', handle: '发私信联系', desc: '关注后发送私信' },
-        wechat: { name: '微信', handle: '扫码添加', desc: '添加后发送暗号「返佣」' },
+        wechat: { name: '微信', handle: '联系我们', desc: '添加后发送暗号「返佣」' },
         whatsapp: { name: '邮件联系', handle: 'contact@get8.pro', desc: '工作日24小时内回复' },
       },
       form: {
@@ -168,7 +168,7 @@ export default function Contact() {
         subtitle: 'Choose the most convenient way to reach us',
         telegram: { name: 'Telegram', handle: 'Send a DM', desc: 'Fastest response, recommended' },
         twitter: { name: 'X (Twitter)', handle: 'Send a DM', desc: 'Follow us and send a message' },
-        wechat: { name: 'WeChat', handle: 'Scan QR Code', desc: 'Send keyword "rebate" after adding' },
+        wechat: { name: 'WeChat', handle: 'Contact Us', desc: 'Send keyword "rebate" after adding' },
         whatsapp: { name: 'Email', handle: 'contact@get8.pro', desc: 'Reply within 24h on business days' },
       },
       form: {
