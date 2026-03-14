@@ -1,5 +1,4 @@
 import express, { type Express } from "express";
-import compression from "compression";
 import fs from "fs";
 import { type Server } from "http";
 import { nanoid } from "nanoid";
@@ -60,17 +59,8 @@ export function serveStatic(app: Express) {
     console.log(`[Static] Serving static files from: ${distPath}`);
   }
 
-  // ── Gzip / Brotli 动态压缩（兜底：若预压缩文件不存在时生效）──────────────
-  app.use(compression({
-    level: 6,          // 压缩级别 1-9，6 是速度与体积的最佳平衡
-    threshold: 1024,   // 仅压缩 > 1KB 的响应
-    filter: (req, res) => {
-      if (req.headers['x-no-compression']) return false;
-      return compression.filter(req, res);
-    },
-  }));
-
   // ── 带 hash 的 JS/CSS 资源：长期缓存 1 年（内容变更时 hash 自动更新）──────
+  // 注意：Cloudflare 已提供 Gzip 压缩，无需在 Node.js 层再做压缩
   app.use('/assets', express.static(path.join(distPath, 'assets'), {
     maxAge: '1y',
     immutable: true,   // 告知浏览器文件内容永不改变
