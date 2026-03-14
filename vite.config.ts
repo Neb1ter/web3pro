@@ -195,22 +195,20 @@ export default defineConfig({
     cssCodeSplit: true,
     // 提高 chunk 警告阈值
     chunkSizeWarningLimit: 600,
-    // modulepreload 配置：排除重型懒加载 chunk，避免首页被迫下载
-    // vendor-markdown (11MB) 和 vendor-ai 仅在特定页面使用，不应预加载
-    modulePreload: {
-      polyfill: true,
-      resolveDependencies: (filename: string, deps: string[]) => {
-        return deps.filter((dep) => {
-          // 排除重型 chunk：不在首屏预加载，等到实际需要时再加载
-          if (dep.includes('vendor-markdown')) return false;
-          if (dep.includes('vendor-ai')) return false;
-          return true;
-        });
-      },
-    },
+    // ⚠️ modulePreload 必须设为 false！
+    // 当 modulePreload 启用时，Vite/Rollup 会生成 __vitePreload 函数，
+    // 并将其注入到模块图中的某个 chunk（如 vendor-markdown）并导出，
+    // 导致 index.js 必须静态 import vendor-markdown（11MB），造成首屏白屏。
+    // 禁用后，懒加载路由仍然正常工作，只是不会预加载相关 chunk（对首屏性能无影响）。
+    modulePreload: false,
     // 使用 esbuild 最小化（比 terser 更快，体积相近）
     minify: 'esbuild',
-    // Rollup 代码分割：将大型第三方库拆分为独立 chunk，利用浏览器缓存
+    // Rollup 代码分割
+    // ⚠️ 重要：manualChunks 只做最小化分割，避免循环依赖导致 vendor-markdown 被静态引入首屏
+    // 历史教训：将 streamdown/mermaid/shiki 强制分到 vendor-markdown 会造成循环依赖，
+    // 因为它们依赖 vendor-misc 中的包，而 vendor-misc 反过来依赖 vendor-markdown。
+    // 解决方案：不强制分割 markdown 相关包，让 Vite 自动处理（每个包独立 chunk）。
+    // 这样 __vite__mapDeps 函数会留在 index.js 中，而不会注入到某个大 chunk。
     rollupOptions: {
       output: {
         manualChunks: (id) => {
@@ -222,52 +220,12 @@ export default defineConfig({
           if (id.includes('node_modules/@radix-ui/')) {
             return 'vendor-radix';
           }
-          // 图表库（recharts 较大）
-          if (id.includes('node_modules/recharts') || id.includes('node_modules/d3-')) {
-            return 'vendor-charts';
-          }
           // tRPC + React Query
           if (id.includes('node_modules/@trpc/') || id.includes('node_modules/@tanstack/')) {
             return 'vendor-trpc';
           }
-          // lucide 图标库
-          if (id.includes('node_modules/lucide-react')) {
-            return 'vendor-icons';
-          }
-          // ❗ 核心修复：streamdown 及其巨型依赖（mermaid + shiki + katex）单独拆分
-          // 这些库合计 > 12MB，仅在文章详情页使用，不应影响其他页面
-          // 注意：pnpm 虚拟存储路径格式为 .pnpm/mermaid@x.x.x/node_modules/mermaid
-          // 所以使用更宽泛的关键词匹配，而不是精确路径匹配
-          if (
-            id.includes('/streamdown') ||
-            id.includes('/@streamdown') ||
-            id.includes('/mermaid') ||
-            id.includes('/@mermaid-js') ||
-            id.includes('/shiki') ||
-            id.includes('/@shikijs') ||
-            id.includes('/katex') ||
-            id.includes('/unified') ||
-            id.includes('/remark') ||
-            id.includes('/rehype') ||
-            id.includes('/hast') ||
-            id.includes('/marked') ||
-            id.includes('/micromark') ||
-            id.includes('/mdast') ||
-            id.includes('/unist')
-          ) {
-            return 'vendor-markdown';
-          }
-          // AI SDK（仅在 AI 对话功能使用）
-          if (
-            id.includes('/node_modules/ai/') ||
-            id.includes('/@ai-sdk/')
-          ) {
-            return 'vendor-ai';
-          }
-          // 其他第三方库（体积小，合并即可）
-          if (id.includes('node_modules/')) {
-            return 'vendor-misc';
-          }
+          // 其他所有第三方包：不强制分割，让 Vite 自动处理
+          // 这样可以避免手动分割导致的循环依赖问题
         },
         // 静态资源文件名加 hash，确保更新后缓存失效
         chunkFileNames: 'assets/js/[name]-[hash].js',
