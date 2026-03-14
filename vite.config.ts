@@ -212,21 +212,17 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // React 核心 — 几乎不变，长期缓存
-          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
+          // React 核心 + scheduler（react-dom 依赖 scheduler，必须放在同一 chunk 避免循环依赖）
+          // ⚠️ 必须包含 scheduler，否则 vendor-react 会 import vendor-misc 造成循环
+          if (
+            id.includes('node_modules/react/') ||
+            id.includes('node_modules/react-dom/') ||
+            id.includes('node_modules/scheduler/')
+          ) {
             return 'vendor-react';
           }
-          // Radix UI 组件库
-          if (id.includes('node_modules/@radix-ui/')) {
-            return 'vendor-radix';
-          }
-          // tRPC + React Query
-          if (id.includes('node_modules/@trpc/') || id.includes('node_modules/@tanstack/')) {
-            return 'vendor-trpc';
-          }
-          // 其他所有第三方包（包括 streamdown/mermaid/shiki/katex 等）全部并入 vendor-misc
-          // 这样可以避免手动分割导致的循环依赖问题
-          // 并且减少 chunk 数量（避免 Vite 自动分割产生 400+ 个文件）
+          // 其他所有第三方包全部并入 vendor-misc（避免循环依赖）
+          // 不再单独分割 radix-ui / trpc / tanstack，防止产生新的循环链
           if (id.includes('node_modules/')) {
             return 'vendor-misc';
           }
