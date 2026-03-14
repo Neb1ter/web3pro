@@ -195,9 +195,18 @@ export default defineConfig({
     cssCodeSplit: true,
     // 提高 chunk 警告阈值
     chunkSizeWarningLimit: 600,
-    // 启用 modulepreload polyfill
+    // modulepreload 配置：排除重型懒加载 chunk，避免首页被迫下载
+    // vendor-markdown (11MB) 和 vendor-ai 仅在特定页面使用，不应预加载
     modulePreload: {
       polyfill: true,
+      resolveDependencies: (filename: string, deps: string[]) => {
+        return deps.filter((dep) => {
+          // 排除重型 chunk：不在首屏预加载，等到实际需要时再加载
+          if (dep.includes('vendor-markdown')) return false;
+          if (dep.includes('vendor-ai')) return false;
+          return true;
+        });
+      },
     },
     // 使用 esbuild 最小化（比 terser 更快，体积相近）
     minify: 'esbuild',
