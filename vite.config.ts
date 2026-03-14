@@ -204,11 +204,11 @@ export default defineConfig({
     // 使用 esbuild 最小化（比 terser 更快，体积相近）
     minify: 'esbuild',
     // Rollup 代码分割
-    // ⚠️ 重要：manualChunks 只做最小化分割，避免循环依赖导致 vendor-markdown 被静态引入首屏
-    // 历史教训：将 streamdown/mermaid/shiki 强制分到 vendor-markdown 会造成循环依赖，
-    // 因为它们依赖 vendor-misc 中的包，而 vendor-misc 反过来依赖 vendor-markdown。
-    // 解决方案：不强制分割 markdown 相关包，让 Vite 自动处理（每个包独立 chunk）。
-    // 这样 __vite__mapDeps 函数会留在 index.js 中，而不会注入到某个大 chunk。
+    // ⚠️ 重要：manualChunks 策略说明：
+    // 1. 不将 streamdown/mermaid/shiki/katex 强制分到独立 chunk
+    //    原因：它们依赖 vendor-misc 中的包（clsx/vfile等），强制分割会造成循环依赖
+    //    导致 Rollup 将 __vite__mapDeps 注入到大 chunk 并导出，造成首屏白屏
+    // 2. 其他所有 node_modules 包入 vendor-misc，减少 chunk 数量（避免 400+ 个文件）
     rollupOptions: {
       output: {
         manualChunks: (id) => {
@@ -224,8 +224,12 @@ export default defineConfig({
           if (id.includes('node_modules/@trpc/') || id.includes('node_modules/@tanstack/')) {
             return 'vendor-trpc';
           }
-          // 其他所有第三方包：不强制分割，让 Vite 自动处理
+          // 其他所有第三方包（包括 streamdown/mermaid/shiki/katex 等）全部并入 vendor-misc
           // 这样可以避免手动分割导致的循环依赖问题
+          // 并且减少 chunk 数量（避免 Vite 自动分割产生 400+ 个文件）
+          if (id.includes('node_modules/')) {
+            return 'vendor-misc';
+          }
         },
         // 静态资源文件名加 hash，确保更新后缓存失效
         chunkFileNames: 'assets/js/[name]-[hash].js',
