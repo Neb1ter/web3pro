@@ -21,9 +21,15 @@
         })(window, document, "clarity", "script", "qf7m8p5v9x");
     </script>
 
-    <!-- ===== 性能优化：预连接 ===== -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <!-- ===== 性能优化：预连接 & DNS 预解析 ===== -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://www.clarity.ms" crossorigin />
     <link rel="dns-prefetch" href="https://get8.pro" />
+    <link rel="dns-prefetch" href="https://www.clarity.ms" />
+    <!-- 移动端性能：禁用 tap 延迟 -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
     <!-- ===== SEO Meta Tags (Default / Fallback) ===== -->
     <!-- Note: Dynamic per-page meta is managed by react-helmet-async in SeoManager.tsx -->

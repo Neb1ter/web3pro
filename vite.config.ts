@@ -1,4 +1,5 @@
 import { jsxLocPlugin } from "@builder.io/vite-plugin-jsx-loc";
+import viteCompression from "vite-plugin-compression";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import fs from "node:fs";
@@ -158,6 +159,21 @@ const plugins = [
   jsxLocPlugin(),
   ...(isDev ? [vitePluginManusRuntime()] : []),
   vitePluginManusDebugCollector(),
+  // 生产环境启用 Gzip 压缩，减少传输体积约 60-70%
+  ...(!isDev ? [
+    viteCompression({
+      algorithm: 'gzip',
+      ext: '.gz',
+      threshold: 1024, // 仅压缩 > 1KB 的文件
+      deleteOriginFile: false,
+    }),
+    viteCompression({
+      algorithm: 'brotliCompress',
+      ext: '.br',
+      threshold: 1024,
+      deleteOriginFile: false,
+    }),
+  ] : []),
 ];
 
 export default defineConfig({
@@ -177,13 +193,49 @@ export default defineConfig({
     emptyOutDir: true,
     // 启用 CSS 代码分割
     cssCodeSplit: true,
-    // 提高 chunk 警告阈值（单个 chunk 超过此值时警告）
-    chunkSizeWarningLimit: 500,
-    // 启用 modulepreload polyfill，确保旧浏览器也能预加载 chunk
+    // 提高 chunk 警告阈值
+    chunkSizeWarningLimit: 600,
+    // 启用 modulepreload polyfill
     modulePreload: {
       polyfill: true,
     },
-
+    // 使用 esbuild 最小化（比 terser 更快，体积相近）
+    minify: 'esbuild',
+    // Rollup 代码分割：将大型第三方库拆分为独立 chunk，利用浏览器缓存
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          // React 核心 — 几乎不变，长期缓存
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
+            return 'vendor-react';
+          }
+          // Radix UI 组件库
+          if (id.includes('node_modules/@radix-ui/')) {
+            return 'vendor-radix';
+          }
+          // 图表库（recharts 较大）
+          if (id.includes('node_modules/recharts') || id.includes('node_modules/d3-')) {
+            return 'vendor-charts';
+          }
+          // tRPC + React Query
+          if (id.includes('node_modules/@trpc/') || id.includes('node_modules/@tanstack/')) {
+            return 'vendor-trpc';
+          }
+          // lucide 图标库
+          if (id.includes('node_modules/lucide-react')) {
+            return 'vendor-icons';
+          }
+          // 其他第三方库
+          if (id.includes('node_modules/')) {
+            return 'vendor-misc';
+          }
+        },
+        // 静态资源文件名加 hash，确保更新后缓存失效
+        chunkFileNames: 'assets/js/[name]-[hash].js',
+        entryFileNames: 'assets/js/[name]-[hash].js',
+        assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
+      },
+    },
   },
   server: {
     host: true,

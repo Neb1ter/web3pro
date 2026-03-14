@@ -8,8 +8,9 @@ import { ExchangeLinksProvider } from "./contexts/ExchangeLinksContext";
 import { useEffect, useRef, useState, lazy, Suspense, Component, useMemo } from "react";
 import { saveScrollPosition, getScrollPosition } from "@/hooks/useScrollMemory";
 import { useLearningPathSync } from "@/hooks/useLearningPathSync";
-import MobileFloatNav from "@/components/MobileFloatNav";
-import DesktopFloatNav from "@/components/DesktopFloatNav";
+// 导航组件懒加载：体积较大（MobileFloatNav 756行，DesktopFloatNav 555行），首屏不需要立即渲染
+const MobileFloatNav = lazy(() => import("@/components/MobileFloatNav"));
+const DesktopFloatNav = lazy(() => import("@/components/DesktopFloatNav"));
 import { SchemaManager } from "./components/SchemaManager";
 import { trpc } from "@/lib/trpc";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -345,8 +346,10 @@ function AppInner() {
             <TooltipProvider>
               <Toaster />
               <Router />
-              <MobileFloatNav />
-              <DesktopFloatNav />
+              <Suspense fallback={null}>
+                <MobileFloatNav />
+                <DesktopFloatNav />
+              </Suspense>
               <GlobalSwipeBlocker />
             </TooltipProvider>
           </ExchangeLinksProvider>
