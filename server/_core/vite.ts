@@ -1,50 +1,55 @@
 import express, { type Express } from "express";
 import fs from "fs";
 import { type Server } from "http";
-import { nanoid } from "nanoid";
 import path from "path";
-import { createServer as createViteServer } from "vite";
-import viteConfig from "../../vite.config";
 
+// setupVite 仅在开发环境使用，生产环境不会调用此函数
+// 通过动态导入避免 Vite 插件被 esbuild 打包进生产构建
 export async function setupVite(app: Express, server: Server) {
-  const serverOptions = {
-    middlewareMode: true,
-    hmr: { server },
-    allowedHosts: true as const,
-  };
+  // 延迟导入，esbuild 不会静态分析动态 import() 的路径
+  const vite = await (async () => {
+    const { nanoid } = await import("nanoid");
+    const { createServer: createViteServer } = await import("vite");
 
-  const vite = await createViteServer({
-    ...viteConfig,
-    configFile: false,
-    server: serverOptions,
-    appType: "custom",
-  });
+    const serverOptions = {
+      middlewareMode: true as const,
+      hmr: { server },
+      allowedHosts: true as const,
+    };
 
-  app.use(vite.middlewares);
-  app.use("*", async (req, res, next) => {
-    const url = req.originalUrl;
+    const instance = await createViteServer({
+      configFile: path.resolve(import.meta.dirname, "../../vite.config.ts"),
+      server: serverOptions,
+      appType: "custom",
+    });
 
-    try {
-      const clientTemplate = path.resolve(
-        import.meta.dirname,
-        "../..",
-        "client",
-        "index.html"
-      );
+    app.use(instance.middlewares);
+    app.use("*", async (req, res, next) => {
+      const url = req.originalUrl;
+      try {
+        const clientTemplate = path.resolve(
+          import.meta.dirname,
+          "../..",
+          "client",
+          "index.html"
+        );
+        let template = await fs.promises.readFile(clientTemplate, "utf-8");
+        template = template.replace(
+          `src="/src/main.tsx"`,
+          `src="/src/main.tsx?v=${nanoid()}"`
+        );
+        const page = await instance.transformIndexHtml(url, template);
+        res.status(200).set({ "Content-Type": "text/html" }).end(page);
+      } catch (e) {
+        instance.ssrFixStacktrace(e as Error);
+        next(e);
+      }
+    });
 
-      // always reload the index.html file from disk incase it changes
-      let template = await fs.promises.readFile(clientTemplate, "utf-8");
-      template = template.replace(
-        `src="/src/main.tsx"`,
-        `src="/src/main.tsx?v=${nanoid()}"`
-      );
-      const page = await vite.transformIndexHtml(url, template);
-      res.status(200).set({ "Content-Type": "text/html" }).end(page);
-    } catch (e) {
-      vite.ssrFixStacktrace(e as Error);
-      next(e);
-    }
-  });
+    return instance;
+  })();
+
+  return vite;
 }
 
 export function serveStatic(app: Express) {
@@ -63,15 +68,15 @@ export function serveStatic(app: Express) {
   // 注意：Cloudflare 已提供 Gzip 压缩，无需在 Node.js 层再做压缩
   app.use('/assets', express.static(path.join(distPath, 'assets'), {
     maxAge: '1y',
-    immutable: true,   // 告知浏览器文件内容永不改变
-    etag: false,       // hash 已保证唯一性，无需 ETag
+    immutable: true,
+    etag: false,
   }));
 
   // ── 其他静态文件（favicon、robots.txt 等）缓存 1 天 ──────────────────────
   app.use(express.static(distPath, {
     maxAge: '1d',
     etag: true,
-    index: false,      // 不自动返回 index.html，由下方路由处理
+    index: false,
   }));
 
   // ── index.html：禁用缓存，确保 SPA 路由始终获取最新版本 ──────────────────
