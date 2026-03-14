@@ -225,7 +225,37 @@ export default defineConfig({
           if (id.includes('node_modules/lucide-react')) {
             return 'vendor-icons';
           }
-          // 其他第三方库
+          // ❗ 核心修复：streamdown 及其巨型依赖（mermaid + shiki + katex）单独拆分
+          // 这些库合计 > 12MB，仅在文章详情页使用，不应影响其他页面
+          // 注意：pnpm 虚拟存储路径格式为 .pnpm/mermaid@x.x.x/node_modules/mermaid
+          // 所以使用更宽泛的关键词匹配，而不是精确路径匹配
+          if (
+            id.includes('/streamdown') ||
+            id.includes('/@streamdown') ||
+            id.includes('/mermaid') ||
+            id.includes('/@mermaid-js') ||
+            id.includes('/shiki') ||
+            id.includes('/@shikijs') ||
+            id.includes('/katex') ||
+            id.includes('/unified') ||
+            id.includes('/remark') ||
+            id.includes('/rehype') ||
+            id.includes('/hast') ||
+            id.includes('/marked') ||
+            id.includes('/micromark') ||
+            id.includes('/mdast') ||
+            id.includes('/unist')
+          ) {
+            return 'vendor-markdown';
+          }
+          // AI SDK（仅在 AI 对话功能使用）
+          if (
+            id.includes('/node_modules/ai/') ||
+            id.includes('/@ai-sdk/')
+          ) {
+            return 'vendor-ai';
+          }
+          // 其他第三方库（体积小，合并即可）
           if (id.includes('node_modules/')) {
             return 'vendor-misc';
           }
