@@ -362,7 +362,16 @@ function AppInner() {
 function App() {
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
-      queries: { staleTime: 1000 * 60 * 5, retry: 1 },
+      queries: {
+        // 5分钟内不重新请求（加密资讯等数据更新频率不高）
+        staleTime: 1000 * 60 * 5,
+        // 缓存保留 30 分钟，切换页面后返回无需重新加载
+        gcTime: 1000 * 60 * 30,
+        // 失败重试 1 次即可
+        retry: 1,
+        // 切换标签页时不自动重新请求（减少不必要的网络请求）
+        refetchOnWindowFocus: false,
+      },
     },
   }));
   const trpcClient = useMemo(() => trpc.createClient({

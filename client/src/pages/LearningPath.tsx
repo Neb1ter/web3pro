@@ -4,6 +4,7 @@ import { useScrollMemory } from "@/hooks/useScrollMemory";
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
 import { LEARNING_PATH_KEY, QUIZ_STORAGE_KEY } from "@/lib/quizConst";
 import type { LearningStep } from "@/lib/quizConst";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface PathState {
   steps: LearningStep[];
@@ -11,15 +12,23 @@ interface PathState {
   completedSteps: string[];
 }
 
-const DIFFICULTY_MAP = {
+const DIFFICULTY_MAP_ZH = {
   beginner: { label: "入门", color: "#4ade80", bg: "rgba(74,222,128,0.1)", border: "rgba(74,222,128,0.25)" },
   intermediate: { label: "进阶", color: "#06b6d4", bg: "rgba(6,182,212,0.1)", border: "rgba(6,182,212,0.25)" },
   advanced: { label: "高级", color: "#a855f7", bg: "rgba(168,85,247,0.1)", border: "rgba(168,85,247,0.25)" },
+};
+const DIFFICULTY_MAP_EN = {
+  beginner: { label: "Beginner", color: "#4ade80", bg: "rgba(74,222,128,0.1)", border: "rgba(74,222,128,0.25)" },
+  intermediate: { label: "Intermediate", color: "#06b6d4", bg: "rgba(6,182,212,0.1)", border: "rgba(6,182,212,0.25)" },
+  advanced: { label: "Advanced", color: "#a855f7", bg: "rgba(168,85,247,0.1)", border: "rgba(168,85,247,0.25)" },
 };
 
 export default function LearningPath() {
   useScrollMemory();
   const [, navigate] = useLocation();
+  const { language } = useLanguage();
+  const zh = language === "zh";
+  const DIFFICULTY_MAP = zh ? DIFFICULTY_MAP_ZH : DIFFICULTY_MAP_EN;
   const [pathState, setPathState] = useState<PathState | null>(null);
   const [animatingId, setAnimatingId] = useState<string | null>(null);
 
@@ -67,10 +76,10 @@ export default function LearningPath() {
         <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link href="/" className="text-sm text-slate-500 hover:text-white transition-colors flex items-center gap-1.5">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-            首页
+            {zh ? "首页" : "Home"}
           </Link>
-          <span className="text-xs font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">我的学习路径</span>
-          <button onClick={handleReset} className="text-xs text-slate-600 hover:text-red-400 transition-colors">重新测评</button>
+          <span className="text-xs font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">{zh ? "我的学习路径" : "My Learning Path"}</span>
+          <button onClick={handleReset} className="text-xs text-slate-600 hover:text-red-400 transition-colors">{zh ? "重新测评" : "Retake Quiz"}</button>
         </div>
       </nav>
 
@@ -79,14 +88,14 @@ export default function LearningPath() {
           <div className="text-center mb-10">
             <span className="text-4xl mb-4 block">🗺️</span>
             <h1 className="text-2xl sm:text-3xl font-black mb-3 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-              你的专属学习路径
+              {zh ? "你的专属学习路径" : "Your Personalized Learning Path"}
             </h1>
-            <p className="text-slate-500 text-sm">根据你的测评结果精心定制，按顺序学习效果最佳</p>
+            <p className="text-slate-500 text-sm">{zh ? "根据你的测评结果精心定制，按顺序学习效果最佳" : "Tailored to your quiz results — follow the order for best results"}</p>
           </div>
 
           <div className="max-w-sm mx-auto mb-10 px-2">
             <div className="flex justify-between items-center mb-2">
-              <span className="text-xs font-bold text-slate-500">学习进度</span>
+              <span className="text-xs font-bold text-slate-500">{zh ? "学习进度" : "Progress"}</span>
               <span className="text-xs font-bold text-cyan-400">{completedSteps.length} / {steps.length}</span>
             </div>
             <div className="h-2 bg-white/5 rounded-full overflow-hidden">
@@ -102,7 +111,7 @@ export default function LearningPath() {
             </div>
             {allDone && (
               <div className="text-center mt-3">
-                <span className="text-xs font-bold text-emerald-400">🎉 恭喜你完成了所有学习！</span>
+                <span className="text-xs font-bold text-emerald-400">{zh ? "🎉 恭喜你完成了所有学习！" : "🎉 Congratulations! You've completed all steps!"}</span>
               </div>
             )}
           </div>
@@ -167,7 +176,7 @@ export default function LearningPath() {
                         <span className="text-2xl shrink-0">{step.icon}</span>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1 flex-wrap">
-                            <h3 className={`font-black text-sm ${done ? "text-slate-500 line-through" : "text-white"}`}>{step.title}</h3>
+                            <h3 className={`font-black text-sm ${done ? "text-slate-500 line-through" : "text-white"}`}>{zh ? step.title : (step.titleEn || step.title)}</h3>
                             <span
                               className="px-2 py-0.5 rounded-full text-[10px] font-bold"
                               style={{ background: diff.bg, color: diff.color, border: `1px solid ${diff.border}` }}
@@ -176,20 +185,20 @@ export default function LearningPath() {
                             </span>
                             {isCurrent && (
                               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/15 text-cyan-400 border border-cyan-500/25 animate-pulse">
-                                当前
+                                {zh ? "当前" : "Current"}
                               </span>
                             )}
                           </div>
-                          <p className={`text-xs leading-relaxed mb-2 ${done ? "text-slate-600" : "text-slate-400"}`}>{step.description}</p>
+                          <p className={`text-xs leading-relaxed mb-2 ${done ? "text-slate-600" : "text-slate-400"}`}>{zh ? step.description : (step.descriptionEn || step.description)}</p>
                           <div className="flex items-center gap-3">
                             <span className="text-[10px] text-slate-600 flex items-center gap-1">
-                              ⏱ {step.duration}
+                              ⏱ {zh ? step.duration : (step.durationEn || step.duration)}
                             </span>
                             <Link
                               href={step.path}
                               className="text-[10px] font-bold text-cyan-400 hover:text-cyan-300 transition-colors"
                             >
-                              {done ? "再次查看 →" : "开始学习 →"}
+                              {done ? (zh ? "再次查看 →" : "Review →") : (zh ? "开始学习 →" : "Start →")}
                             </Link>
                           </div>
                         </div>
@@ -211,7 +220,7 @@ export default function LearningPath() {
                   boxShadow: "0 4px 24px rgba(74,222,128,0.3)",
                 }}
               >
-                查看完成总结 🎉
+                {zh ? "查看完成总结 🎉" : "View Completion Summary 🎉"}
               </button>
             </div>
           )}
@@ -225,11 +234,11 @@ export default function LearningPath() {
           <div className="text-center mb-10">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold mb-4"
               style={{ background: "rgba(6,182,212,0.1)", border: "1px solid rgba(6,182,212,0.2)", color: "#06b6d4" }}>
-              💡 使用技巧
+              {zh ? "💡 使用技巧" : "💡 Tips"}
             </div>
-            <h2 className="text-2xl font-black text-white mb-3">用导航球快速跳转学习</h2>
+            <h2 className="text-2xl font-black text-white mb-3">{zh ? "用导航球快速跳转学习" : "Quick Navigation with the Float Button"}</h2>
             <p className="text-slate-400 text-sm leading-relaxed">
-              页面底部居中的导航球是您的学习助手，随时掌握进度并一键直达任意学习步骤
+              {zh ? "页面底部居中的导航球是您的学习助手，随时掌握进度并一键直达任意学习步骤" : "The floating button at the bottom center is your learning assistant — track progress and jump to any step instantly"}
             </p>
           </div>
 
@@ -247,10 +256,9 @@ export default function LearningPath() {
                 <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs font-black text-white"
                   style={{ background: "linear-gradient(135deg,#06b6d4,#8b5cf6)" }}>1</div>
               </div>
-              <h3 className="font-black text-white text-sm mb-2">找到底部导航球</h3>
+              <h3 className="font-black text-white text-sm mb-2">{zh ? "找到底部导航球" : "Find the Float Button"}</h3>
               <p className="text-slate-400 text-xs leading-relaxed">
-                在页面<span className="text-cyan-400 font-bold">底部正中央</span>找到悬浮导航球，
-                它会显示当前所在页面的图标。学习路径未完成时会有<span className="text-cyan-400 font-bold">蓝色小点</span>提示。
+                {zh ? <>在页面<span className="text-cyan-400 font-bold">底部正中央</span>找到悬浮导航球，它会显示当前所在页面的图标。学习路径未完成时会有<span className="text-cyan-400 font-bold">蓝色小点</span>提示。</> : <>Find the floating button at the <span className="text-cyan-400 font-bold">bottom center</span> of the page. It shows the current page icon. A <span className="text-cyan-400 font-bold">blue dot</span> appears when you have incomplete steps.</>}
               </p>
             </div>
 
@@ -273,10 +281,9 @@ export default function LearningPath() {
                 <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs font-black text-white"
                   style={{ background: "linear-gradient(135deg,#06b6d4,#8b5cf6)" }}>2</div>
               </div>
-              <h3 className="font-black text-white text-sm mb-2">点击展开导航菜单</h3>
+              <h3 className="font-black text-white text-sm mb-2">{zh ? "点击展开导航菜单" : "Tap to Expand Navigation"}</h3>
               <p className="text-slate-400 text-xs leading-relaxed">
-                单击导航球，菜单<span className="text-purple-400 font-bold">向上弹出</span>五个图文按钮，
-                悬停时显示页面名称。点击<span className="text-cyan-400 font-bold">🧭 学习</span>按钮进入学习路径面板。
+                {zh ? <>单击导航球，菜单<span className="text-purple-400 font-bold">向上弹出</span>五个图文按鈕，悬停时显示页面名称。点击<span className="text-cyan-400 font-bold">🧭 学习</span>按鈕进入学习路径面板。</> : <>Tap the float button to <span className="text-purple-400 font-bold">pop up</span> five icon buttons. Hover to see page names. Tap <span className="text-cyan-400 font-bold">🧭 Learn</span> to open the learning panel.</>}
               </p>
             </div>
 
@@ -287,27 +294,25 @@ export default function LearningPath() {
                 {/* 示意图：步骤列表 */}
                 <div className="w-32 rounded-xl overflow-hidden" style={{ border: "1px solid rgba(6,182,212,0.2)", background: "rgba(10,15,28,0.95)" }}>
                   <div className="px-2 py-1.5" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                    <div className="text-[9px] font-bold text-cyan-400 mb-1">学习路径</div>
+                    <div className="text-[9px] font-bold text-cyan-400 mb-1">{zh ? "学习路径" : "Learning Path"}</div>
                     <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
                       <div className="h-full w-2/5 rounded-full" style={{ background: "linear-gradient(90deg,#06b6d4,#8b5cf6)" }} />
                     </div>
                   </div>
-                  {[{icon:"🔗",label:"区块链基础",done:true},{icon:"💰",label:"DeFi入门",done:false,next:true},{icon:"🔐",label:"钱包安全",done:false}].map((s,i) => (
-                    <div key={i} className="flex items-center gap-1.5 px-2 py-1.5" style={{ background: s.next ? "rgba(6,182,212,0.08)" : "transparent", borderLeft: s.next ? "2px solid #06b6d4" : "2px solid transparent" }}>
-                      <span className="text-[10px]">{s.done ? "✅" : s.next ? "🔵" : "⚪"}</span>
-                      <span className="text-[9px]" style={{ color: s.done ? "rgba(255,255,255,0.3)" : s.next ? "#06b6d4" : "rgba(255,255,255,0.6)" }}>{s.label}</span>
-                      {s.next && <span className="ml-auto text-[8px] text-cyan-400 font-bold">下一步</span>}
+                  {(zh ? [{icon:"🔗",label:"区块链基础",done:true},{icon:"💰",label:"DeFi入门",done:false,next:true},{icon:"🔐",label:"钱包安全",done:false}] : [{icon:"🔗",label:"Blockchain",done:true},{icon:"💰",label:"DeFi Intro",done:false,next:true},{icon:"🔐",label:"Wallet Safety",done:false}]).map((s,i) => (
+                    <div key={i} className="flex items-center gap-1.5 px-2 py-1.5" style={{ background: (s as {next?:boolean}).next ? "rgba(6,182,212,0.08)" : "transparent", borderLeft: (s as {next?:boolean}).next ? "2px solid #06b6d4" : "2px solid transparent" }}>
+                      <span className="text-[10px]">{s.done ? "✅" : (s as {next?:boolean}).next ? "🔵" : "⚪"}</span>
+                      <span className="text-[9px]" style={{ color: s.done ? "rgba(255,255,255,0.3)" : (s as {next?:boolean}).next ? "#06b6d4" : "rgba(255,255,255,0.6)" }}>{s.label}</span>
+                      {(s as {next?:boolean}).next && <span className="ml-auto text-[8px] text-cyan-400 font-bold">{zh ? "下一步" : "Next"}</span>}
                     </div>
                   ))}
                 </div>
                 <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs font-black text-white"
                   style={{ background: "linear-gradient(135deg,#06b6d4,#8b5cf6)" }}>3</div>
               </div>
-              <h3 className="font-black text-white text-sm mb-2">一键跳转任意步骤</h3>
+              <h3 className="font-black text-white text-sm mb-2">{zh ? "一键跳转任意步骤" : "Jump to Any Step Instantly"}</h3>
               <p className="text-slate-400 text-xs leading-relaxed">
-                学习面板显示<span className="text-green-400 font-bold">进度条</span>和每步状态，
-                ✅ 已完成 · 🔵 下一步 · ⚪ 待学习。
-                点击任意步骤即可<span className="text-cyan-400 font-bold">直接跳转</span>，无需返回本页。
+                {zh ? <>学习面板显示<span className="text-green-400 font-bold">进度条</span>和每步状态，✅ 已完成 · 🔵 下一步 · ⚪ 待学习。点击任意步骤即可<span className="text-cyan-400 font-bold">直接跳转</span>，无需返回本页。</> : <>The panel shows a <span className="text-green-400 font-bold">progress bar</span> and step status: ✅ Done · 🔵 Next · ⚪ Pending. Tap any step to <span className="text-cyan-400 font-bold">jump directly</span> without returning here.</>}
               </p>
             </div>
           </div>
@@ -317,16 +322,23 @@ export default function LearningPath() {
             style={{ background: "linear-gradient(135deg, rgba(6,182,212,0.08), rgba(139,92,246,0.08))", border: "1px solid rgba(6,182,212,0.2)" }}>
             <div className="text-3xl shrink-0 mt-0.5">⌨️</div>
             <div>
-              <h4 className="font-black text-white text-sm mb-1.5">快捷操作提示</h4>
+              <h4 className="font-black text-white text-sm mb-1.5">{zh ? "快捷操作提示" : "Quick Tips"}</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-6">
-                {[
+                {(zh ? [
                   { icon: "👆", text: "单击导航球 → 展开/收起菜单" },
                   { icon: "🧭", text: "点击学习图标 → 打开步骤面板" },
                   { icon: "📍", text: "蓝色高亮 → 当前所在步骤" },
                   { icon: "🔵", text: "蓝点提示 → 有未完成的学习步骤" },
                   { icon: "✅", text: "绿色对勾 → 已完成的步骤" },
                   { icon: "🎓", text: "全部完成 → 查看学习总结" },
-                ].map((tip, i) => (
+                ] : [
+                  { icon: "👆", text: "Tap float button → Expand/collapse menu" },
+                  { icon: "🧭", text: "Tap learn icon → Open step panel" },
+                  { icon: "📍", text: "Blue highlight → Current step" },
+                  { icon: "🔵", text: "Blue dot → Incomplete steps remaining" },
+                  { icon: "✅", text: "Green check → Completed step" },
+                  { icon: "🎓", text: "All done → View learning summary" },
+                ]).map((tip, i) => (
                   <div key={i} className="flex items-center gap-2 text-xs text-slate-400">
                     <span>{tip.icon}</span>
                     <span>{tip.text}</span>

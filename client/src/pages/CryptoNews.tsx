@@ -60,7 +60,7 @@ function formatDate(date: Date | string, lang: string): string {
 // ─── Flash News (实时快讯) ─────────────────────────────────────────────────────
 function FlashNewsPanel({ zh, language }: { zh: boolean; language: string }) {
   const [activeFilter, setActiveFilter] = useState<FlashFilter>("all");
-  const { data: newsItems = [], isLoading } = trpc.news.list.useQuery({ limit: 80 });
+  const { data: newsItems = [], isLoading, isError } = trpc.news.list.useQuery({ limit: 100 });
 
   const filtered = activeFilter === "all" ? newsItems : newsItems.filter(n => n.category === activeFilter);
 
@@ -114,6 +114,11 @@ function FlashNewsPanel({ zh, language }: { zh: boolean; language: string }) {
               <div className="h-14 bg-gray-800 rounded-xl" />
             </div>
           ))}
+        </div>
+      ) : isError ? (
+        <div className="text-center py-12 text-gray-500">
+          <div className="text-4xl mb-3">⚠️</div>
+          <p className="text-sm">{zh ? "资讯加载失败，请刷新重试" : "Failed to load news, please refresh"}</p>
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-12 text-gray-500">

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useLocation } from "wouter";
 import { useScrollMemory } from "@/hooks/useScrollMemory";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // 从独立常量文件导入，避免其他组件静态引用本页面
 import { QUIZ_STORAGE_KEY, LEARNING_PATH_KEY, ALL_STEPS } from "@/lib/quizConst";
@@ -10,8 +11,10 @@ interface QuizQuestion {
   id: string;
   icon: string;
   title: string;
+  titleEn: string;
   subtitle: string;
-  options: { id: string; icon: string; label: string; desc: string; tags: string[]; weight: number }[];
+  subtitleEn: string;
+  options: { id: string; icon: string; label: string; labelEn: string; desc: string; descEn: string; tags: string[]; weight: number }[];
 }
 
 const QUESTIONS: QuizQuestion[] = [
@@ -19,58 +22,68 @@ const QUESTIONS: QuizQuestion[] = [
     id: "knowledge",
     icon: "🧠",
     title: "你对 Web3 / 区块链的了解程度？",
+    titleEn: "How familiar are you with Web3 / Blockchain?",
     subtitle: "选择最符合你当前状态的选项",
+    subtitleEn: "Choose the option that best describes you",
     options: [
-      { id: "zero", icon: "🌱", label: "完全零基础", desc: "听说过比特币但不太清楚什么是区块链", tags: ["beginner", "basics"], weight: 0 },
-      { id: "basic", icon: "📖", label: "有基础了解", desc: "知道区块链、钱包等概念，但没实际操作过", tags: ["beginner", "practice"], weight: 1 },
-      { id: "user", icon: "💻", label: "有使用经验", desc: "用过交易所买卖过加密货币", tags: ["intermediate", "trading"], weight: 2 },
-      { id: "experienced", icon: "🔥", label: "经验丰富", desc: "熟悉 DeFi、NFT 等领域，有链上操作经验", tags: ["advanced", "defi"], weight: 3 },
+      { id: "zero", icon: "🌱", label: "完全零基础", labelEn: "Complete Beginner", desc: "听说过比特币但不太清楚什么是区块链", descEn: "Heard of Bitcoin but not sure what blockchain is", tags: ["beginner", "basics"], weight: 0 },
+      { id: "basic", icon: "📖", label: "有基础了解", labelEn: "Basic Knowledge", desc: "知道区块链、钱包等概念，但没实际操作过", descEn: "Know concepts like blockchain and wallets, but no hands-on experience", tags: ["beginner", "practice"], weight: 1 },
+      { id: "user", icon: "💻", label: "有使用经验", labelEn: "Some Experience", desc: "用过交易所买卖过加密货币", descEn: "Used exchanges to buy and sell crypto", tags: ["intermediate", "trading"], weight: 2 },
+      { id: "experienced", icon: "🔥", label: "经验丰富", labelEn: "Experienced", desc: "熟悉 DeFi、NFT 等领域，有链上操作经验", descEn: "Familiar with DeFi, NFT, and on-chain operations", tags: ["advanced", "defi"], weight: 3 },
     ],
   },
   {
     id: "interest",
     icon: "🎯",
     title: "你最感兴趣的 Web3 方向是？",
+    titleEn: "Which Web3 area interests you most?",
     subtitle: "选择你最想深入了解的领域",
+    subtitleEn: "Choose the area you want to explore most",
     options: [
-      { id: "invest", icon: "📈", label: "投资理财", desc: "学习如何在加密市场中获取收益", tags: ["trading", "investment"], weight: 1 },
-      { id: "tech", icon: "⛓️", label: "技术原理", desc: "深入理解区块链、智能合约等底层技术", tags: ["basics", "blockchain"], weight: 1 },
-      { id: "defi", icon: "🏦", label: "DeFi 去中心化金融", desc: "借贷、流动性挖矿、收益农场等", tags: ["defi", "advanced"], weight: 2 },
-      { id: "save", icon: "💰", label: "省钱省手续费", desc: "通过返佣等方式降低交易成本", tags: ["saving", "exchange"], weight: 1 },
+      { id: "invest", icon: "📈", label: "投资理财", labelEn: "Investment", desc: "学习如何在加密市场中获取收益", descEn: "Learn how to earn returns in the crypto market", tags: ["trading", "investment"], weight: 1 },
+      { id: "tech", icon: "⛓️", label: "技术原理", labelEn: "Technology", desc: "深入理解区块链、智能合约等底层技术", descEn: "Deep dive into blockchain and smart contract technology", tags: ["basics", "blockchain"], weight: 1 },
+      { id: "defi", icon: "🏦", label: "DeFi 去中心化金融", labelEn: "DeFi", desc: "借贷、流动性挖矿、收益农场等", descEn: "Lending, liquidity mining, yield farming, and more", tags: ["defi", "advanced"], weight: 2 },
+      { id: "save", icon: "💰", label: "省钱省手续费", labelEn: "Save on Fees", desc: "通过返佣等方式降低交易成本", descEn: "Reduce trading costs through referral rebates", tags: ["saving", "exchange"], weight: 1 },
     ],
   },
   {
     id: "goal",
     icon: "🚀",
     title: "你学习 Web3 的主要目标是？",
+    titleEn: "What is your main goal for learning Web3?",
     subtitle: "你希望通过学习达成什么",
+    subtitleEn: "What do you want to achieve through learning",
     options: [
-      { id: "understand", icon: "💡", label: "了解趋势", desc: "跟上时代不掉队，建立基本认知", tags: ["basics", "overview"], weight: 0 },
-      { id: "trade", icon: "📊", label: "开始交易", desc: "学会在交易所进行买卖操作", tags: ["trading", "exchange", "practice"], weight: 1 },
-      { id: "earn", icon: "🌾", label: "获取被动收益", desc: "通过质押、DeFi 等方式赚取收益", tags: ["defi", "investment", "advanced"], weight: 2 },
-      { id: "build", icon: "🔨", label: "参与生态建设", desc: "成为 Web3 建设者或深度参与者", tags: ["advanced", "blockchain", "defi"], weight: 3 },
+      { id: "understand", icon: "💡", label: "了解趋势", labelEn: "Stay Informed", desc: "跟上时代不掉队，建立基本认知", descEn: "Keep up with the times and build basic awareness", tags: ["basics", "overview"], weight: 0 },
+      { id: "trade", icon: "📊", label: "开始交易", labelEn: "Start Trading", desc: "学会在交易所进行买卖操作", descEn: "Learn to buy and sell on exchanges", tags: ["trading", "exchange", "practice"], weight: 1 },
+      { id: "earn", icon: "🌾", label: "获取被动收益", labelEn: "Earn Passive Income", desc: "通过质押、DeFi 等方式赚取收益", descEn: "Earn returns through staking, DeFi, and more", tags: ["defi", "investment", "advanced"], weight: 2 },
+      { id: "build", icon: "🔨", label: "参与生态建设", labelEn: "Build & Contribute", desc: "成为 Web3 建设者或深度参与者", descEn: "Become a Web3 builder or deep contributor", tags: ["advanced", "blockchain", "defi"], weight: 3 },
     ],
   },
   {
     id: "risk",
     icon: "🛡️",
     title: "你对风险的态度是？",
+    titleEn: "What is your attitude toward risk?",
     subtitle: "投资涉及风险，了解自己的偏好很重要",
+    subtitleEn: "Investment involves risk — knowing your preference matters",
     options: [
-      { id: "conservative", icon: "🔒", label: "非常保守", desc: "不想承担任何损失风险", tags: ["saving", "basics"], weight: 0 },
-      { id: "moderate", icon: "⚖️", label: "适度承受", desc: "可以接受小幅波动，追求稳健收益", tags: ["trading", "investment"], weight: 1 },
-      { id: "aggressive", icon: "🎲", label: "愿意冒险", desc: "高风险高回报，愿意尝试新机会", tags: ["defi", "advanced"], weight: 2 },
+      { id: "conservative", icon: "🔒", label: "非常保守", labelEn: "Very Conservative", desc: "不想承担任何损失风险", descEn: "Don't want to bear any loss risk", tags: ["saving", "basics"], weight: 0 },
+      { id: "moderate", icon: "⚖️", label: "适度承受", labelEn: "Moderate", desc: "可以接受小幅波动，追求稳健收益", descEn: "Accept small fluctuations for steady returns", tags: ["trading", "investment"], weight: 1 },
+      { id: "aggressive", icon: "🎲", label: "愿意冒险", labelEn: "Risk Taker", desc: "高风险高回报，愿意尝试新机会", descEn: "High risk, high reward — willing to try new opportunities", tags: ["defi", "advanced"], weight: 2 },
     ],
   },
   {
     id: "time",
     icon: "⏰",
     title: "你每天能投入多少时间学习？",
+    titleEn: "How much time can you dedicate daily?",
     subtitle: "我们会根据你的时间安排学习节奏",
+    subtitleEn: "We'll tailor the learning pace to your schedule",
     options: [
-      { id: "little", icon: "☕", label: "10 分钟", desc: "碎片化时间，快速浏览", tags: ["quick"], weight: 0 },
-      { id: "some", icon: "📚", label: "30 分钟", desc: "每天花半小时系统学习", tags: ["systematic"], weight: 1 },
-      { id: "lots", icon: "🔥", label: "1 小时以上", desc: "集中精力深度学习", tags: ["deep"], weight: 2 },
+      { id: "little", icon: "☕", label: "10 分钟", labelEn: "10 minutes", desc: "碎片化时间，快速浏览", descEn: "Quick browse in spare moments", tags: ["quick"], weight: 0 },
+      { id: "some", icon: "📚", label: "30 分钟", labelEn: "30 minutes", desc: "每天花半小时系统学习", descEn: "Half an hour of structured daily study", tags: ["systematic"], weight: 1 },
+      { id: "lots", icon: "🔥", label: "1 小时以上", labelEn: "1+ hour", desc: "集中精力深度学习", descEn: "Focused, deep learning sessions", tags: ["deep"], weight: 2 },
     ],
   },
 ];
@@ -133,6 +146,8 @@ function ProgressBar({ current, total }: { current: number; total: number }) {
 export default function Web3Quiz() {
   useScrollMemory();
   const [, navigate] = useLocation();
+  const { language } = useLanguage();
+  const zh = language === "zh";
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<QuizAnswer[]>([]);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
@@ -225,26 +240,26 @@ export default function Web3Quiz() {
               <div className="relative text-7xl mb-6 animate-bounce" style={{ animationDuration: "2s" }}>🧭</div>
             </div>
             <h1 className="text-3xl sm:text-4xl font-black mb-4 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-              发现你的 Web3 之旅
+              {zh ? "发现你的 Web3 之旅" : "Discover Your Web3 Journey"}
             </h1>
             <p className="text-slate-400 text-base sm:text-lg leading-relaxed mb-3">
-              回答几个简单的问题，让我们了解你的背景和兴趣
+              {zh ? "回答几个简单的问题，让我们了解你的背景和兴趣" : "Answer a few simple questions so we can understand your background and interests"}
             </p>
             <p className="text-slate-500 text-sm mb-10">
-              我们将为你定制专属的学习路径，帮你高效入门 Web3 世界
+              {zh ? "我们将为你定制专属的学习路径，帮你高效入门 Web3 世界" : "We'll create a personalized learning path to help you enter the Web3 world efficiently"}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center items-center mb-8">
               <div className="flex items-center gap-2 text-xs text-slate-500">
                 <span className="w-5 h-5 rounded-full bg-cyan-500/20 flex items-center justify-center text-cyan-400">✓</span>
-                仅需 2 分钟
+                {zh ? "仅需 2 分钟" : "Only 2 minutes"}
               </div>
               <div className="flex items-center gap-2 text-xs text-slate-500">
                 <span className="w-5 h-5 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400">✓</span>
-                {QUESTIONS.length} 道问题
+                {QUESTIONS.length} {zh ? "道问题" : "questions"}
               </div>
               <div className="flex items-center gap-2 text-xs text-slate-500">
                 <span className="w-5 h-5 rounded-full bg-pink-500/20 flex items-center justify-center text-pink-400">✓</span>
-                个性化路径
+                {zh ? "个性化路径" : "Personalized path"}
               </div>
             </div>
             <button
@@ -255,14 +270,14 @@ export default function Web3Quiz() {
                 boxShadow: "0 4px 24px rgba(6,182,212,0.35), 0 0 0 1px rgba(139,92,246,0.2)",
               }}
             >
-              开始测评 →
+              {zh ? "开始测评 →" : "Start Quiz →"}
             </button>
             <div className="mt-6">
               <button
                 onClick={() => navigate("/")}
                 className="text-sm text-slate-600 hover:text-slate-400 transition-colors"
               >
-                暂时跳过，直接浏览
+                {zh ? "暂时跳过，直接浏览" : "Skip for now"}
               </button>
             </div>
           </div>
@@ -277,9 +292,9 @@ export default function Web3Quiz() {
         <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
           <button onClick={() => navigate("/")} className="text-sm text-slate-500 hover:text-white transition-colors flex items-center gap-1.5">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-            返回
+            {zh ? "返回" : "Back"}
           </button>
-          <span className="text-xs font-bold text-slate-600">Web3 知识测评</span>
+          <span className="text-xs font-bold text-slate-600">{zh ? "Web3 知识测评" : "Web3 Knowledge Quiz"}</span>
           <span className="text-xs text-slate-600">{step + 1}/{QUESTIONS.length}</span>
         </div>
       </nav>
@@ -290,8 +305,8 @@ export default function Web3Quiz() {
 
           <div className="text-center mb-8">
             <span className="text-4xl mb-3 block">{currentQuestion.icon}</span>
-            <h2 className="text-xl sm:text-2xl font-black text-white mb-2">{currentQuestion.title}</h2>
-            <p className="text-sm text-slate-500">{currentQuestion.subtitle}</p>
+            <h2 className="text-xl sm:text-2xl font-black text-white mb-2">{zh ? currentQuestion.title : currentQuestion.titleEn}</h2>
+            <p className="text-sm text-slate-500">{zh ? currentQuestion.subtitle : currentQuestion.subtitleEn}</p>
           </div>
 
           <div className="space-y-3 mb-8">
@@ -313,8 +328,8 @@ export default function Web3Quiz() {
                   <div className="flex items-start gap-3">
                     <span className="text-2xl mt-0.5">{option.icon}</span>
                     <div className="flex-1 min-w-0">
-                      <h3 className={`font-bold text-sm mb-1 ${isSelected ? "text-cyan-300" : "text-white"}`}>{option.label}</h3>
-                      <p className="text-xs text-slate-500 leading-relaxed">{option.desc}</p>
+                      <h3 className={`font-bold text-sm mb-1 ${isSelected ? "text-cyan-300" : "text-white"}`}>{zh ? option.label : option.labelEn}</h3>
+                      <p className="text-xs text-slate-500 leading-relaxed">{zh ? option.desc : option.descEn}</p>
                     </div>
                     <div
                       className="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-1 transition-all"
@@ -337,7 +352,7 @@ export default function Web3Quiz() {
               disabled={step === 0}
               className="px-5 py-2.5 text-sm font-bold rounded-xl border border-white/8 text-slate-500 hover:text-white hover:border-white/20 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
             >
-              上一步
+              {zh ? "上一步" : "Back"}
             </button>
             <button
               onClick={handleNext}
@@ -348,7 +363,7 @@ export default function Web3Quiz() {
                 boxShadow: selectedOption ? "0 4px 16px rgba(6,182,212,0.3)" : "none",
               }}
             >
-              {step === QUESTIONS.length - 1 ? "生成学习路径 ✨" : "下一步 →"}
+              {step === QUESTIONS.length - 1 ? (zh ? "生成学习路径 ✨" : "Generate Path ✨") : (zh ? "下一步 →" : "Next →")}
             </button>
           </div>
         </div>

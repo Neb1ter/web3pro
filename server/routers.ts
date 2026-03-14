@@ -185,7 +185,7 @@ export const appRouter = router({
   /** Crypto news timeline */
   news: router({
     list: publicProcedure
-      .input(z.object({ limit: z.number().min(1).max(50).optional().default(20) }))
+      .input(z.object({ limit: z.number().min(1).max(100).optional().default(20) }))
       .query(async ({ input }) => getCryptoNews(input.limit)),
     /** Admin: list all news (including inactive) */
     listAll: protectedProcedure
