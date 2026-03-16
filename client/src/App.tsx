@@ -9,6 +9,7 @@ import { useEffect, useRef, useState, lazy, Suspense, Component, useMemo } from 
 import { saveScrollPosition, getScrollPosition } from "@/hooks/useScrollMemory";
 import { useLearningPathSync } from "@/hooks/useLearningPathSync";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { preloadRoutes, scheduleIdle } from "@/lib/routePreload";
 // 瀵艰埅缁勪欢鎳掑姞杞斤細浣撶Н杈冨ぇ锛圡obileFloatNav 756琛岋紝DesktopFloatNav 555琛岋級锛岄灞忎笉闇€瑕佺珛鍗虫覆鏌?const MobileFloatNav = lazy(() => import("@/components/MobileFloatNav"));
 const DesktopFloatNav = lazy(() => import("@/components/DesktopFloatNav"));
 import { SchemaManager } from "./components/SchemaManager";
@@ -355,6 +356,15 @@ function GlobalSwipeBlocker() {
 }
 
 function AppInner() {
+  const [showFloatNav, setShowFloatNav] = useState(false);
+
+  useEffect(() => {
+    return scheduleIdle(() => {
+      setShowFloatNav(true);
+      preloadRoutes(["/crypto-saving", "/exchanges", "/web3-guide", "/crypto-news"]);
+    }, 1500);
+  }, []);
+
   return (
     <ErrorBoundary>
       <LanguageProvider>
@@ -364,10 +374,12 @@ function AppInner() {
             <TooltipProvider>
               <Toaster />
               <Router />
-              <Suspense fallback={null}>
-                <MobileFloatNav />
-                <DesktopFloatNav />
-              </Suspense>
+              {showFloatNav ? (
+                <Suspense fallback={null}>
+                  <MobileFloatNav />
+                  <DesktopFloatNav />
+                </Suspense>
+              ) : null}
               <GlobalSwipeBlocker />
             </TooltipProvider>
           </ExchangeLinksProvider>

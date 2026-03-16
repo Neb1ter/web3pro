@@ -21,7 +21,7 @@
  *  3. 在数据库 media_platforms 表中插入对应配置行
  */
 
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { getDb } from "../db";
 import { mediaPlatforms, publishLogs, articles } from "../../drizzle/schema";
 import { ENV } from "./env";
@@ -448,7 +448,10 @@ export async function autoPublishArticle(articleId: number, articleUrl: string):
   const enabledPlatforms = await db
     .select()
     .from(mediaPlatforms)
-    .where(eq(mediaPlatforms.autoPublish, true));
+    .where(and(
+      eq(mediaPlatforms.autoPublish, true),
+      eq(mediaPlatforms.isEnabled, true),
+    ));
 
   if (!enabledPlatforms.length) return;
 

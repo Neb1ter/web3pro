@@ -4,6 +4,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { ChevronDown, ChevronUp, Search, BookOpen, Newspaper, ArrowLeft } from 'lucide-react';
 import { useScrollMemory, goBack } from '@/hooks/useScrollMemory';
 import { trpc } from '@/lib/trpc';
+import { preloadRoute } from '@/lib/routePreload';
 
 const CATEGORY_MAP: Record<string, { zh: string; en: string }> = {
   basic:    { zh: '区块链基础', en: 'Blockchain Basics' },
@@ -220,8 +221,12 @@ export default function Beginner() {
         </div>
 
         {/* News CTA banner */}
-        <Link href="/crypto-news">
-          <div className="group cursor-pointer rounded-2xl border border-yellow-500/30 bg-gradient-to-r from-yellow-500/10 via-yellow-500/5 to-transparent p-4 sm:p-5 hover:border-yellow-500/60 hover:shadow-[0_0_24px_rgba(255,215,0,0.08)] transition-all duration-300">
+        <Link
+          href="/crypto-news"
+          className="tap-target group block rounded-2xl border border-yellow-500/30 bg-gradient-to-r from-yellow-500/10 via-yellow-500/5 to-transparent p-4 sm:p-5 hover:border-yellow-500/60 hover:shadow-[0_0_24px_rgba(255,215,0,0.08)] transition-all duration-300"
+          onMouseEnter={() => preloadRoute('/crypto-news')}
+          onTouchStart={() => preloadRoute('/crypto-news')}
+        >
             <div className="flex items-center gap-4">
               <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-yellow-500/15 border border-yellow-500/30 flex items-center justify-center group-hover:bg-yellow-500/25 transition-colors">
                 <Newspaper className="text-yellow-400" size={22} />
@@ -238,15 +243,14 @@ export default function Beginner() {
               </div>
               <span className="flex-shrink-0 text-yellow-400 text-lg group-hover:translate-x-1 transition-transform">→</span>
             </div>
-          </div>
         </Link>
 
         {/* Exchange CTA */}
         <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <Link href="/contact" className="w-full py-3 px-4 rounded-xl bg-yellow-500 text-gray-900 text-sm font-bold hover:bg-yellow-400 transition-colors">
+          <Link href="/contact" className="tap-target w-full py-3 px-4 rounded-xl bg-yellow-500 text-gray-900 text-sm font-bold hover:bg-yellow-400 transition-colors" onMouseEnter={() => preloadRoute('/contact')} onTouchStart={() => preloadRoute('/contact')}>
               {zh ? '联系我们获取返佣' : 'Contact Us for Rebates'}
           </Link>
-          <Link href="/exchanges" className="w-full py-3 px-4 rounded-xl border border-yellow-500/40 text-yellow-400 text-sm font-medium hover:bg-yellow-500/10 transition-colors">
+          <Link href="/exchanges" className="tap-target w-full py-3 px-4 rounded-xl border border-yellow-500/40 text-yellow-400 text-sm font-medium hover:bg-yellow-500/10 transition-colors" onMouseEnter={() => preloadRoute('/exchanges')} onTouchStart={() => preloadRoute('/exchanges')}>
               {zh ? '查看交易所对比' : 'Compare Exchanges'}
           </Link>
         </div>
