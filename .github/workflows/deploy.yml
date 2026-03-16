@@ -44,6 +44,11 @@ jobs:
           tar -czf dist.tar.gz dist/
           echo "Package size: $(du -sh dist.tar.gz | cut -f1)"
 
+      - name: Prepare runtime override env
+        run: |
+          printf '%s\n' "${{ secrets.SERVER_ENV_OVERRIDE }}" > runtime.override.env
+          echo "Runtime override env prepared"
+
       - name: Upload dist to server via SCP
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -51,7 +56,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
-          source: "dist.tar.gz"
+          source: "dist.tar.gz,runtime.override.env"
           target: "C:/web3pro/"
 
       - name: Deploy on server via SSH
@@ -62,7 +67,7 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
           script_stop: true
-          script: cd C:\web3pro && tar -xzf dist.tar.gz && del dist.tar.gz && npx pm2 restart ecosystem.config.cjs && npx pm2 save
+          script: cd C:\web3pro && tar -xzf dist.tar.gz && del dist.tar.gz && if exist runtime.override.env copy /Y runtime.override.env .env.runtime >nul && npx pm2 restart ecosystem.config.cjs --update-env && npx pm2 save
 
       - name: Purge Cloudflare cache
         run: |
