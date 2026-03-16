@@ -22,6 +22,7 @@ import { sdk } from "./sdk";
 import { upsertUser, getDb, seedCryptoToolsIfEmpty, seedMediaPlatformsIfEmpty, getExchangeLinks } from "../db";
 import { startRssScheduler } from "./rss";
 import { startWordUpdateScheduler } from "./sensitiveWordUpdater";
+import { startDailyContentScheduler } from "./dailyContent";
 import { submitIndexNow } from "./indexNow";
 import { getSessionCookieOptions } from "./cookies";
 import { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
@@ -166,11 +167,9 @@ async function startServer() {
       router: appRouter,
       createContext,
     })
-  );
-
-  // ── Sitemap（SEO：自动生成站点地图）──────────────────────────────────────
-  app.get("/sitemap.xml", (_req: Request, res: Response) => {
-    const base = ENV.siteUrl ?? "https://web3pro.com";
+  );  // ── Sitemap（SEO：自动生成站点地图，动态包含所有已发布文章）─────────────────────────
+  app.get("/sitemap.xml", async (_req: Request, res: Response) => {
+    const base = ENV.siteUrl ?? "https://get8.pro";
     const staticRoutes = [
       { path: "/",                  priority: "1.0", changefreq: "daily"   },
       { path: "/exchanges",         priority: "0.9", changefreq: "weekly"  },
@@ -181,16 +180,39 @@ async function startServer() {
       { path: "/contact",           priority: "0.5", changefreq: "monthly" },
     ];
     const now = new Date().toISOString().split("T")[0];
-    const urls = staticRoutes.map(r => `
+    const staticUrls = staticRoutes.map(r => `
   <url>
     <loc>${base}${r.path}</loc>
     <lastmod>${now}</lastmod>
     <changefreq>${r.changefreq}</changefreq>
     <priority>${r.priority}</priority>
   </url>`).join("");
+
+    // 动态文章页：从数据库读取所有已发布文章，加入 Sitemap
+    let articleUrls = "";
+    try {
+      const { getPublishedArticles } = await import("./articles");
+      const publishedArticles = await getPublishedArticles({ limit: 500 });
+      articleUrls = publishedArticles.map((a: { slug: string; publishedAt: Date | null }) => {
+        const lastmod = a.publishedAt
+          ? new Date(a.publishedAt).toISOString().split("T")[0]
+          : now;
+        return `
+  <url>
+    <loc>${base}/articles/${a.slug}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>`;
+      }).join("");
+    } catch (e) {
+      console.error("[Sitemap] 获取文章列表失败:", e);
+    }
+
     res.header("Content-Type", "application/xml");
+    res.header("Cache-Control", "public, max-age=3600"); // 缓存 1 小时
     res.send(`<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls}
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${staticUrls}${articleUrls}
 </urlset>`);
   });
 
@@ -436,6 +458,8 @@ preferred_citation_format = "Source: [Get8 Pro](${base})"
     startRssScheduler();
     // 启动敏感词库定时更新（延迟 60 秒，避免与 RSS 调度器竞争 DB 连接）
     startWordUpdateScheduler();
+    // 启动每日内容自动化：快讯补充（每日 5-10 条）+ 文章生成（每日 1-3 篇）
+    startDailyContentScheduler();
     // 生产环境启动后延迟 30 秒提交 IndexNow（等待服务完全就绪）
     if (process.env.NODE_ENV === "production") {
       setTimeout(() => submitIndexNow(ENV.siteUrl ?? "https://get8.pro", INDEXNOW_KEY), 30_000);

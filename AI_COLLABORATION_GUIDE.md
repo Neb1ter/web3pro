@@ -98,3 +98,14 @@ web3pro/
 
 ---
 *此文档由 Manus AI 自动生成并维护，旨在提高 AI 协作效率。*
+
+### 3.6 每日内容自动化与 SEO 优化
+**功能描述**：为提升网站 SEO 权重，系统引入了每日内容自动化机制（`server/_core/dailyContent.ts`）。
+**核心机制**：
+- **快讯补充**：每天定时检查，若当日抓取的快讯不足 5 条，则通过 AI（DeepSeek/GPT）基于热点话题自动生成补充至 8 条。
+- **文章生成**：每天定时检查，若当日发布的文章不足 2 篇，则从预设的选题库（涵盖 Web3 基础、市场分析、全球经济等）中随机选取话题，自动生成 1-3 篇文章并直接发布。
+- **SEO 动态 Sitemap**：`server/_core/index.ts` 中的 `/sitemap.xml` 路由已升级，会动态读取数据库中所有已发布的文章并生成对应的 URL 节点，确保 Google 等搜索引擎能及时抓取新内容。
+**注意事项**：
+- 该机制依赖 `DEEPSEEK_API_KEY` 或 `BUILT_IN_FORGE_API_KEY` 环境变量。
+- 自动化任务通过 `setTimeout` 延迟 60 秒启动，以避免与服务器启动时的 RSS 抓取任务竞争数据库连接。
+- 如果需要修改生成频率或数量，请直接调整 `dailyContent.ts` 中的 `TARGET_DAILY_NEWS` 和 `TARGET_DAILY_ARTICLES` 常量。
