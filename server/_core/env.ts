@@ -1,3 +1,5 @@
+import "./loadEnv";
+
 function normalizeEnvString(value: string | undefined): string {
   if (!value) return "";
 
