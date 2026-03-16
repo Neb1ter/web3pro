@@ -71,7 +71,8 @@ const BotSim     = lazy(() => import("./pages/sim/BotSim"));
 // 甯佸湀宸ュ叿鍚堥泦
 const CryptoTools    = lazy(() => import("./pages/CryptoTools"));
 
-// 娴嬭瘎涓庡涔犺矾寰?const Web3Quiz       = lazy(() => import("./pages/Web3Quiz"));
+// 娴嬭瘎涓庡涔犺矾寰?
+const Web3Quiz       = lazy(() => import("./pages/Web3Quiz"));
 const LearningPath   = lazy(() => import("./pages/LearningPath"));
 const LearningComplete = lazy(() => import("./pages/LearningComplete"));
 const Legal          = lazy(() => import("./pages/Legal"));
@@ -193,26 +194,22 @@ function PageTransition({ children }: { children: React.ReactNode }) {
 }
 
 // ============================================================
-// 鍔ㄦ€?Meta锛氭牴鎹矾鐢辨洿鏂?title 鍜?description锛圫EO锛?// ============================================================
+// Dynamic route meta kept in ASCII-safe literals to avoid encoding-related build failures.
+// ============================================================
 const PAGE_META: Record<string, { title: string; desc: string }> = {
-  "/":                    { title: "Get8 Pro 鈥?瀹樻柟璁よ瘉杩斾剑 | Web3 涓撲笟浜ゆ槗鑰呭鑸钩鍙?, desc: "Get8 Pro 鎻愪緵瀹樻柟璁よ瘉鐨勪氦鏄撴墍杩斾剑銆佹潈濞佹暟鎹垎鏋愪笌鐙珛璇勬祴锛屽姪浣犻檷浣庝氦鏄撴垚鏈紝鎻愬崌鍐崇瓥鏁堢巼銆? },
-  "/portal":              { title: "Get8 Pro 鈥?瀹樻柟璁よ瘉杩斾剑 | Web3 涓撲笟浜ゆ槗鑰呭鑸钩鍙?, desc: "Get8 Pro 鎻愪緵瀹樻柟璁よ瘉鐨勪氦鏄撴墍杩斾剑銆佹潈濞佹暟鎹垎鏋愪笌鐙珛璇勬祴锛屽姪浣犻檷浣庝氦鏄撴垚鏈紝鎻愬崌鍐崇瓥鏁堢巼銆? },
-  "/crypto-saving":       { title: "甯佸湀鐪侀挶鎸囧崡 鈥?Get8 Pro", desc: "鏈€鍏ㄤ氦鏄撴墍杩斾剑鏀荤暐锛孊inance銆丱KX銆丟ate.io 瀹樻柟璁よ瘉杩斾剑锛屾渶楂樿妭鐪?60% 鎵嬬画璐广€? },
-  "/exchanges":           { title: "浜ゆ槗鎵€瀵规瘮 鈥?Get8 Pro", desc: "瀹㈣瀵规瘮涓绘祦鍔犲瘑璐у竵浜ゆ槗鎵€鐨勬墜缁垂銆佸畨鍏ㄦ€с€佸姛鑳戒笌杩斾剑姣斾緥锛屾壘鍒版渶閫傚悎浣犵殑骞冲彴銆? },
-  "/exchange-guide":      { title: "浜ゆ槗鎵€鍔熻兘鎸囧崡 鈥?Get8 Pro", desc: "娣卞害瑙ｆ瀽鍚勫ぇ浜ゆ槗鎵€鍔熻兘宸紓锛岀幇璐с€佸悎绾︺€佹潬鏉嗐€佺悊璐竴缃戞墦灏姐€? },
-  "/beginner":            { title: "鏂版墜闂瓟 鈥?Get8 Pro", desc: "甯佸湀鍩虹鐭ヨ瘑 Q&A锛屼粠鍖哄潡閾惧師鐞嗗埌浜ゆ槗鎶€宸э紝闆跺熀纭€鍏ラ棬鍔犲瘑璐у竵銆? },
-  "/crypto-intro":        { title: "鍔犲瘑璐у竵鍏ラ棬 鈥?Get8 Pro", desc: "绯荤粺瀛︿範鍔犲瘑璐у竵鍩虹鐭ヨ瘑锛屼簡瑙ｆ瘮鐗瑰竵銆佷互澶潑銆丏eFi 鍜?NFT 鐨勬牳蹇冩蹇点€? },
-  "/crypto-news":         { title: "鍔犲瘑蹇 鈥?Get8 Pro", desc: "瀹炴椂杩借釜鍔犲瘑璐у竵甯傚満鍔ㄦ€併€佹斂绛栨硶瑙勩€佷氦鏄撴墍鍏憡锛屾帉鎻℃渶鏂拌鎯呰祫璁€? },
-  "/web3-guide":          { title: "Web3 鍏ュ湀鎸囧崡 鈥?Get8 Pro", desc: "浠庨浂寮€濮嬩簡瑙?Web3 涓栫晫锛屽尯鍧楅摼銆侀挶鍖呫€丏eFi銆丯FT 鍏ㄩ潰绉戞櫘銆? },
-  "/contact":             { title: "鑱旂郴鎴戜滑 鈥?Get8 Pro", desc: "鏈変换浣曢棶棰樻垨鍚堜綔鎰忓悜锛屾杩庤仈绯?Get8 Pro 鍥㈤槦銆? },
-  "/legal":               { title: "娉曞緥澹版槑 鈥?Get8 Pro", desc: "Get8 Pro 浣跨敤鏉℃銆侀殣绉佹斂绛栦笌鍏嶈矗澹版槑銆? },
-  "/about":               { title: "鍏充簬鎴戜滑 鈥?Get8 Pro | Web3涓撲笟浜ゆ槗鑰呯殑鍙俊瀵艰埅浠?, desc: "Get8 Pro 鏄笓娉ㄤ簬鍔犲瘑璐у竵浜ゆ槗鎵€杩斾剑銆乄eb3 鏁欒偛鍜屽伐鍏风殑涓撲笟骞冲彴銆? },
-  "/articles":            { title: "鍔犲瘑璐у竵娣卞害鏂囩珷 鈥?浜ゆ槗鎵€璇勬祴銆佽繑浣ｆ敾鐣ャ€乄eb3鏁欑▼ | Get8 Pro", desc: "Get8 Pro 涓撲笟鍐呭涓績锛氫氦鏄撴墍鎵嬬画璐瑰姣斻€佽繑浣ｆ敾鐣ャ€佸悎绾︿氦鏄撴暀绋嬨€乄eb3鍏ラ棬鎸囧崡銆? },
-  "/exchange/gate":       { title: "Gate.io 璇勬祴2026锛氭墜缁垂銆?0%杩斾剑銆佸畨鍏ㄦ€у畬鏁存寚鍗?| Get8 Pro", desc: "Gate.io璇︾粏璇勬祴锛?600+甯佺锛?0%杩斾剑鍏ㄨ涓氭渶楂橈紝榛樺厠灏旀爲鍌ㄥ璇佹槑銆? },
-  "/exchange/okx":        { title: "OKX 璇勬祴2026锛氭墜缁垂銆佽繑浣ｃ€乄eb3鐢熸€佸畬鏁存寚鍗?| Get8 Pro", desc: "OKX璇︾粏璇勬祴锛歐eb3閽卞寘鏀寔100+鍏摼锛岀幇璐aker 0.08%锛?0%杩斾剑銆? },
-  "/exchange/binance":    { title: "甯佸畨璇勬祴2026锛氭墜缁垂銆佽繑浣ｃ€佸畨鍏ㄦ€у畬鏁存寚鍗?| Get8 Pro", desc: "甯佸畨璇︾粏璇勬祴锛氬叏鐞冩渶澶т氦鏄撴墍锛孋oinGlass璇勫垎94.33锛孊NB鎶樻墸25%锛?0%杩斾剑銆? },
-  "/exchange/bybit":      { title: "Bybit 璇勬祴2026锛氬悎绾︽墜缁垂0.01%銆佽繑浣ｃ€佸畨鍏ㄦ€?| Get8 Pro", desc: "Bybit璇︾粏璇勬祴锛氬悎绾aker璐圭巼0.01%鍏ㄨ涓氭渶浣庯紝30%杩斾剑銆? },
-  "/exchange/bitget":     { title: "Bitget 璇勬祴2026锛氱幇璐ф墜缁垂0.02%銆佽窡鍗曚氦鏄撱€?0%杩斾剑 | Get8 Pro", desc: "Bitget璇︾粏璇勬祴锛氱幇璐aker 0.02%鍏ㄨ涓氭渶浣庯紝50%杩斾剑銆? },
+  "/": { title: "Get8 Pro | Web3 Trading Navigation Platform", desc: "Get8 Pro provides exchange comparison, rebate guides, Web3 education, and tools to help users lower trading costs." },
+  "/portal": { title: "Get8 Pro | Web3 Trading Navigation Platform", desc: "Get8 Pro provides exchange comparison, rebate guides, Web3 education, and tools to help users lower trading costs." },
+  "/crypto-saving": { title: "Crypto Saving Guide | Get8 Pro", desc: "Compare exchange fees, rebate options, and onboarding paths for lower-cost trading." },
+  "/exchanges": { title: "Exchange Comparison | Get8 Pro", desc: "Compare major crypto exchanges across fees, security, liquidity, and feature coverage." },
+  "/exchange-guide": { title: "Exchange Guide | Get8 Pro", desc: "Explore exchange features, product differences, and beginner-friendly trading guidance." },
+  "/beginner": { title: "Beginner Guide | Get8 Pro", desc: "Learn crypto basics, trading concepts, safety tips, and common beginner questions." },
+  "/crypto-intro": { title: "Crypto Intro | Get8 Pro", desc: "A practical introduction to crypto, Bitcoin, Ethereum, DeFi, and on-chain concepts." },
+  "/crypto-news": { title: "Crypto News Hub | Get8 Pro", desc: "Track crypto news, market updates, exchange announcements, and policy developments." },
+  "/web3-guide": { title: "Web3 Guide | Get8 Pro", desc: "Understand Web3 fundamentals, wallets, DeFi, and the broader on-chain ecosystem." },
+  "/contact": { title: "Contact | Get8 Pro", desc: "Contact the Get8 Pro team for support, cooperation, and rebate-related questions." },
+  "/legal": { title: "Legal | Get8 Pro", desc: "Read the terms, privacy information, and risk disclosures for Get8 Pro." },
+  "/about": { title: "About | Get8 Pro", desc: "Learn more about Get8 Pro and its focus on exchange guidance, Web3 education, and tools." },
+  "/articles": { title: "Articles | Get8 Pro", desc: "Browse in-depth articles, exchange reviews, rebate strategy guides, and Web3 tutorials." },
 };
 
 function usePageMeta() {
