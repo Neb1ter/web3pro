@@ -12,6 +12,12 @@ const routeImporters: Record<string, () => Promise<unknown>> = {
   "/exchange-download": () => import("@/pages/ExchangeDownload"),
   "/tools": () => import("@/pages/CryptoTools"),
   "/web3-quiz": () => import("@/pages/Web3Quiz"),
+  "/sim/spot": () => import("@/pages/sim/SpotSim"),
+  "/sim/futures": () => import("@/pages/sim/FuturesSim"),
+  "/sim/tradfi": () => import("@/pages/sim/TradFiSim"),
+  "/sim/margin": () => import("@/pages/sim/MarginSim"),
+  "/sim/options": () => import("@/pages/sim/OptionsSim"),
+  "/sim/bot": () => import("@/pages/sim/BotSim"),
 };
 
 const preloadedRoutes = new Set<string>();

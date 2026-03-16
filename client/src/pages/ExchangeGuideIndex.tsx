@@ -4,6 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { ChevronRight, ArrowLeft, BookOpen, TrendingUp, Zap, Shield, Coins, Globe, BarChart2, Bot, Users, Repeat, Star, Layers, Gift, Gamepad2, CreditCard, Shuffle } from "lucide-react";
 import { useScrollMemory } from "@/hooks/useScrollMemory";
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
+import { preloadRoute } from "@/lib/routePreload";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -405,6 +406,45 @@ function DesktopMarqueeRow({ categories, zh, onSelect }: {
   );
 }
 
+function MobileCategoryGrid({
+  categories,
+  activeSlug,
+  zh,
+  onSelect,
+}: {
+  categories: MarqueeCat[];
+  activeSlug: string;
+  zh: boolean;
+  onSelect: (slug: string) => void;
+}) {
+  return (
+    <div className="grid grid-cols-2 gap-2">
+      {categories.map((cat) => {
+        const isActive = cat.slug === activeSlug;
+        return (
+          <button
+            key={cat.slug}
+            type="button"
+            onClick={() => onSelect(cat.slug)}
+            className={`min-h-[52px] rounded-xl border px-3 py-3 text-left transition-all touch-manipulation ${
+              isActive
+                ? "border-blue-500/50 bg-blue-500/15 text-blue-200"
+                : "border-white/10 bg-white/4 text-slate-300 hover:border-blue-500/25 hover:bg-white/8"
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-lg leading-none">{cat.icon}</span>
+              <span className="text-sm font-semibold leading-tight">
+                {zh ? cat.nameZh : cat.nameEn}
+              </span>
+            </div>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 // ─── Features Tab ─────────────────────────────────────────────────────────────
 
 function FeaturesTab({ categories, isLoading, zh, activeCategory, setActiveCategory }: {
@@ -443,6 +483,12 @@ function FeaturesTab({ categories, isLoading, zh, activeCategory, setActiveCateg
           zh={zh}
           onSelect={(slug) => setActiveCategory(slug)}
         />
+        <MobileCategoryGrid
+          categories={categories}
+          activeSlug={selected?.slug ?? categories[0]?.slug ?? ""}
+          zh={zh}
+          onSelect={setActiveCategory}
+        />
       </div>
 
       {/* Desktop: Left Sidebar Menu */}
@@ -455,6 +501,7 @@ function FeaturesTab({ categories, isLoading, zh, activeCategory, setActiveCateg
             {categories.map((cat) => (
               <button
                 key={cat.slug}
+                type="button"
                 onClick={() => setActiveCategory(cat.slug)}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all w-full ${
                   (activeCategory ?? categories[0]?.slug) === cat.slug
@@ -573,6 +620,7 @@ function FeatureDetail({ category, zh, prevCategory, nextCategory, onNavigate, c
             {FEATURE_CONTENT.quiz.options.map((opt) => (
               <button
                 key={opt.value}
+                type="button"
                 disabled={quizSubmitted}
                 onClick={() => { setQuizAnswer(opt.value); setQuizSubmitted(true); }}
                 className={`w-full text-left px-4 py-3 rounded-xl border text-sm font-medium transition-all ${
@@ -645,6 +693,8 @@ function FeatureDetail({ category, zh, prevCategory, nextCategory, onNavigate, c
               </div>
               <Link
                 href={sim.path}
+                onMouseEnter={() => preloadRoute(sim.path)}
+                onTouchStart={() => preloadRoute(sim.path)}
                 className={`w-full sm:w-auto px-6 py-3 rounded-xl font-black text-sm transition-all hover:scale-105 active:scale-95 border ${sim.borderColor} ${sim.bgColor} ${sim.color} hover:brightness-125 flex items-center justify-center gap-2 whitespace-nowrap no-underline`}
               >
                 <Gamepad2 className="w-4 h-4" />
@@ -690,6 +740,7 @@ function FeatureDetail({ category, zh, prevCategory, nextCategory, onNavigate, c
             <div>
               {prevCategory ? (
                 <button
+                  type="button"
                   onClick={() => { onNavigate?.(prevCategory.slug); window.scrollTo({ top: 0, behavior: "smooth" }); }}
                   className="w-full group flex flex-col items-start gap-1 px-4 py-4 rounded-xl border border-white/10 bg-white/3 hover:border-blue-500/40 hover:bg-blue-500/5 transition-all text-left min-h-[64px]"
                 >
@@ -707,6 +758,7 @@ function FeatureDetail({ category, zh, prevCategory, nextCategory, onNavigate, c
             <div>
               {nextCategory ? (
                 <button
+                  type="button"
                   onClick={() => { onNavigate?.(nextCategory.slug); window.scrollTo({ top: 0, behavior: "smooth" }); }}
                   className="w-full group flex flex-col items-end gap-1 px-4 py-4 rounded-xl border border-white/10 bg-white/3 hover:border-blue-500/40 hover:bg-blue-500/5 transition-all text-right min-h-[64px]"
                 >

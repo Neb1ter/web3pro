@@ -254,6 +254,34 @@ export const appRouter = router({
         });
         return { success: true };
       }),
+    /** Admin: publish a news item to platforms */
+    publish: protectedProcedure
+      .input(z.object({
+        id: z.number().int(),
+        platforms: z.array(z.string()).min(1),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+        const { getDb } = await import('./db');
+        const { cryptoNews } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        const { publishContent } = await import('./_core/publish');
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+        const [news] = await db.select().from(cryptoNews).where(eq(cryptoNews.id, input.id)).limit(1);
+        if (!news) throw new TRPCError({ code: 'NOT_FOUND' });
+        const results = await publishContent(
+          {
+            type: 'news',
+            id: news.id,
+            title: news.title,
+            url: news.url,
+            source: news.source,
+          },
+          input.platforms
+        );
+        return { success: true, results };
+      }),
     /** Admin: update a news item */
     update: protectedProcedure
       .input(z.object({

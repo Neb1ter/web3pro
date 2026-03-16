@@ -7,27 +7,32 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
   const [, navigate] = useLocation();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     if (!password.trim()) {
       setError("请输入管理员密码");
       return;
     }
+
     setLoading(true);
     setError("");
+
     try {
-      const res = await fetch("/api/admin-login", {
+      const response = await fetch("/api/admin-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ password }),
       });
-      const data = await res.json();
-      if (res.ok && data.success) {
+
+      const payload = await response.json();
+      if (response.ok && payload.success) {
         navigate("/admin/exchange-guide");
-      } else {
-        setError(data.error || "登录失败，请检查密码");
+        return;
       }
+
+      setError(payload.error || "登录失败，请检查密码");
     } catch {
       setError("网络错误，请稍后重试");
     } finally {
@@ -37,7 +42,7 @@ export default function AdminLogin() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center"
+      className="min-h-screen flex items-center justify-center px-4"
       style={{ background: "#0A192F" }}
     >
       <div
@@ -45,7 +50,7 @@ export default function AdminLogin() {
         style={{ background: "#112240", border: "1px solid #1E3A5F" }}
       >
         <div className="text-center mb-8">
-          <div className="text-5xl mb-3">🔐</div>
+          <div className="text-5xl mb-3">Admin</div>
           <h1 className="text-2xl font-bold text-white">管理员登录</h1>
           <p className="text-slate-400 text-sm mt-2">Get8 Pro 后台管理系统</p>
         </div>
@@ -58,9 +63,10 @@ export default function AdminLogin() {
             <input
               type="password"
               value={password}
-              onChange={e => setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="请输入管理员密码"
               autoFocus
+              autoComplete="current-password"
               className="w-full px-4 py-3 rounded-lg text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-blue-500 transition"
               style={{ background: "#0A192F", border: "1px solid #1E3A5F" }}
             />

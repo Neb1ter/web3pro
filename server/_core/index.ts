@@ -34,8 +34,10 @@ const ADMIN_SESSION_MS = 1000 * 60 * 60 * 8;
 /** 防时序攻击的密码比较 */
 function safeComparePassword(input: string, expected: string): boolean {
   try {
-    const a = Buffer.from(input);
-    const b = Buffer.from(expected);
+    const normalizedInput = input.trim();
+    const normalizedExpected = expected.trim();
+    const a = Buffer.from(normalizedInput);
+    const b = Buffer.from(normalizedExpected);
     if (a.length !== b.length) {
       // 长度不同时仍执行一次比较，避免时序泄露
       timingSafeEqual(Buffer.alloc(b.length), b);
@@ -111,11 +113,12 @@ async function startServer() {
   app.use("/api/admin-login", authLimiter);
   app.post("/api/admin-login", async (req: Request, res: Response) => {
     const { password } = req.body as { password?: string };
+    const normalizedPassword = password?.trim() ?? "";
     if (!ENV.adminPassword) {
       res.status(503).json({ error: "管理员密码登录未配置，请设置 ADMIN_PASSWORD 环境变量" });
       return;
     }
-    if (!password || !safeComparePassword(password, ENV.adminPassword)) {
+    if (!normalizedPassword || !safeComparePassword(normalizedPassword, ENV.adminPassword)) {
       res.status(401).json({ error: "密码错误" });
       return;
     }
