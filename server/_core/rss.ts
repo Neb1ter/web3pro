@@ -16,8 +16,8 @@
 
 import { ENV } from "./env";
 import { getDb, getSystemSetting } from "../db";
-import { cryptoNews } from "../../drizzle/schema";
-import { desc } from "drizzle-orm";
+import { cryptoNews, mediaPlatforms } from "../../drizzle/schema";
+import { desc, eq } from "drizzle-orm";
 
 // ─── RSS 源配置 ────────────────────────────────────────────────────────────────
 // needsTranslation: true 表示该源为英文，需要翻译成中文
@@ -212,9 +212,29 @@ ${numbered}`;
 // ─── Telegram 推送 ─────────────────────────────────────────────────────────────
 async function sendTelegram(text: string): Promise<void> {
   if (!ENV.telegramBotToken || !ENV.telegramChannelId) return;
-  // 检查数据库中的 Telegram 推送开关
+
+  const db = await getDb();
+  if (db) {
+    const [telegramPlatform] = await db
+      .select({
+        isEnabled: mediaPlatforms.isEnabled,
+        autoPublishNews: mediaPlatforms.autoPublishNews,
+      })
+      .from(mediaPlatforms)
+      .where(eq(mediaPlatforms.platform, "telegram"))
+      .limit(1);
+
+    if (telegramPlatform) {
+      if (!telegramPlatform.isEnabled || !telegramPlatform.autoPublishNews) {
+        return;
+      }
+    }
+  }
+
+  // 保留系统级总开关，只有平台开关与系统开关都开启时才允许发送
   const telegramEnabled = await getSystemSetting("telegram_enabled", "true");
   if (telegramEnabled !== "true") return;
+
   try {
     const url = `https://api.telegram.org/bot${ENV.telegramBotToken}/sendMessage`;
     await fetch(url, {

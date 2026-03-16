@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { useScrollMemory } from '@/hooks/useScrollMemory';
 import OnboardingPrompt from "@/components/OnboardingPrompt";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { preloadRoute, preloadRoutes } from "@/lib/routePreload";
 
 // ============================================================
 // 多语言文案
@@ -304,9 +305,13 @@ function QuizBanner({ lang }: { lang: string }) {
   const zh = lang === "zh";
   return (
     <div className="mb-8">
-      <Link href="/web3-quiz">
-        <div className="group mx-auto max-w-xl rounded-2xl border border-cyan-500/15 p-4 flex items-center gap-4 cursor-pointer hover:border-cyan-500/35 transition-all"
-          style={{ background: "linear-gradient(135deg, rgba(6,182,212,0.04), rgba(139,92,246,0.02))" }}>
+      <Link
+        href="/web3-quiz"
+        className="tap-target group mx-auto flex max-w-xl items-center gap-4 rounded-2xl border border-cyan-500/15 p-4 hover:border-cyan-500/35 transition-all"
+        onMouseEnter={() => preloadRoute("/web3-quiz")}
+        onTouchStart={() => preloadRoute("/web3-quiz")}
+        style={{ background: "linear-gradient(135deg, rgba(6,182,212,0.04), rgba(139,92,246,0.02))" }}
+      >
           <span className="text-3xl shrink-0" style={{ animation: "float 3s ease-in-out infinite" }}>🧭</span>
           <div className="flex-1 min-w-0">
             <h4 className="text-sm font-bold text-white group-hover:text-cyan-300 transition-colors">
@@ -317,7 +322,6 @@ function QuizBanner({ lang }: { lang: string }) {
           <svg className="w-5 h-5 text-slate-600 group-hover:text-cyan-400 transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
-        </div>
       </Link>
       <style>{`
         @keyframes float {
@@ -437,6 +441,7 @@ export default function Portal() {
 
   useEffect(() => {
     setMounted(true);
+    preloadRoutes(["/crypto-saving", "/exchanges", "/web3-guide", "/crypto-news"]);
   }, []);
 
   return (
@@ -531,23 +536,31 @@ export default function Portal() {
             {t.modules.map((mod, index) => {
               const colors = moduleColors[index];
               return (
-                <Link key={index} href={colors.href}>
+                <Link
+                  key={index}
+                  href={colors.href}
+                  className={`
+                    tap-target group relative block rounded-2xl border ${colors.borderColor}
+                    bg-gradient-to-br ${colors.accentColor}
+                    backdrop-blur-sm overflow-hidden
+                    transition-all duration-300
+                    hover:scale-[1.02] hover:shadow-2xl
+                    ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}
+                  `}
+                  onMouseEnter={() => preloadRoute(colors.href)}
+                  onTouchStart={() => preloadRoute(colors.href)}
+                  style={{
+                    transitionDelay: `${index * 100}ms`,
+                    background: "rgba(10, 25, 47, 0.7)",
+                  }}
+                >
                   <div
                     className={`
-                      group relative rounded-2xl border ${colors.borderColor}
-                      bg-gradient-to-br ${colors.accentColor}
-                      backdrop-blur-sm overflow-hidden
-                      transition-all duration-300 cursor-pointer
-                      hover:scale-[1.02] hover:shadow-2xl
-                      ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}
+                      absolute inset-0 bg-gradient-to-br ${colors.accentColor}
+                      opacity-0 group-hover:opacity-100 transition-opacity duration-300
                     `}
-                    style={{
-                      transitionDelay: `${index * 100}ms`,
-                      background: "rgba(10, 25, 47, 0.7)",
-                    }}
-                  >
-                    <div className={`absolute inset-0 bg-gradient-to-br ${colors.accentColor} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
-                    <div className="relative p-6 sm:p-8">
+                  />
+                  <div className="relative p-6 sm:p-8">
                       <div className="flex items-start justify-between mb-6">
                         <div className="w-16 h-16 sm:w-20 sm:h-20">{colors.icon}</div>
                         <div className="flex flex-col items-end gap-2">
@@ -574,10 +587,9 @@ export default function Portal() {
                           </div>
                         ))}
                       </div>
-                      <button className={`w-full ${colors.ctaColor} font-bold py-3 px-6 rounded-xl transition-all duration-200 text-sm sm:text-base group-hover:shadow-lg`}>
+                      <span className={`block w-full ${colors.ctaColor} font-bold py-3 px-6 rounded-xl transition-all duration-200 text-sm sm:text-base group-hover:shadow-lg text-center`}>
                         {mod.cta}
-                      </button>
-                    </div>
+                      </span>
                   </div>
                 </Link>
               );

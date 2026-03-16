@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { goBack } from "@/hooks/useScrollMemory";
 import { trpc } from "@/lib/trpc";
 import { Markdown } from "@/components/Markdown";
+import { preloadRoute } from "@/lib/routePreload";
 
 const ARTICLE_CATEGORY_LABELS: Record<string, { zh: string; en: string; color: string }> = {
   analysis:    { zh: "市场分析", en: "Analysis",    color: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30" },
@@ -90,8 +91,13 @@ export default function ArticleDetail() {
       <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ background: "linear-gradient(135deg, #0A192F 0%, #0d2137 50%, #0A192F 100%)" }}>
         <div className="text-5xl">📄</div>
         <p className="text-gray-400">{zh ? "文章不存在或已下架" : "Article not found"}</p>
-        <Link href="/crypto-news">
-          <span className="text-cyan-400 hover:text-cyan-300 text-sm cursor-pointer">← {zh ? "返回资讯中心" : "Back to News Hub"}</span>
+        <Link
+          href="/crypto-news"
+          className="tap-target text-cyan-400 hover:text-cyan-300 text-sm"
+          onMouseEnter={() => preloadRoute("/crypto-news")}
+          onTouchStart={() => preloadRoute("/crypto-news")}
+        >
+          ← {zh ? "返回资讯中心" : "Back to News Hub"}
         </Link>
       </div>
     );
@@ -110,8 +116,13 @@ export default function ArticleDetail() {
             <ArrowLeft size={15} />
             <span>{zh ? "返回资讯" : "Back"}</span>
           </button>
-          <Link href="/crypto-news">
-            <span className="text-xs text-gray-500 hover:text-cyan-400 transition-colors cursor-pointer">📡 {zh ? "资讯中心" : "News Hub"}</span>
+          <Link
+            href="/crypto-news"
+            className="tap-target text-xs text-gray-500 hover:text-cyan-400 transition-colors"
+            onMouseEnter={() => preloadRoute("/crypto-news")}
+            onTouchStart={() => preloadRoute("/crypto-news")}
+          >
+            📡 {zh ? "资讯中心" : "News Hub"}
           </Link>
         </div>
       </header>
@@ -194,15 +205,21 @@ export default function ArticleDetail() {
             {zh ? "查看专业交易所对比、工具推荐，助您在 Web3 世界中游刃有余。" : "Check out exchange comparisons and tool recommendations for your Web3 journey."}
           </p>
           <div className="flex gap-3 justify-center flex-wrap">
-            <Link href="/exchanges">
-              <span className="inline-block px-5 py-2 rounded-lg bg-yellow-500 text-gray-900 text-sm font-bold hover:bg-yellow-400 transition-colors cursor-pointer">
-                {zh ? "交易所对比" : "Exchanges"}
-              </span>
+            <Link
+              href="/exchanges"
+              className="tap-target inline-block rounded-lg bg-yellow-500 px-5 py-2 text-sm font-bold text-gray-900 transition-colors hover:bg-yellow-400"
+              onMouseEnter={() => preloadRoute("/exchanges")}
+              onTouchStart={() => preloadRoute("/exchanges")}
+            >
+              {zh ? "交易所对比" : "Exchanges"}
             </Link>
-            <Link href="/crypto-news">
-              <span className="inline-block px-5 py-2 rounded-lg border border-cyan-500/40 text-cyan-400 text-sm font-medium hover:bg-cyan-500/10 transition-colors cursor-pointer">
-                {zh ? "更多资讯" : "More News"}
-              </span>
+            <Link
+              href="/crypto-news"
+              className="tap-target inline-block rounded-lg border border-cyan-500/40 px-5 py-2 text-sm font-medium text-cyan-400 transition-colors hover:bg-cyan-500/10"
+              onMouseEnter={() => preloadRoute("/crypto-news")}
+              onTouchStart={() => preloadRoute("/crypto-news")}
+            >
+              {zh ? "更多资讯" : "More News"}
             </Link>
           </div>
         </div>
@@ -211,18 +228,10 @@ export default function ArticleDetail() {
       {/* Footer */}
       <footer className="max-w-3xl mx-auto px-4 py-8 border-t border-gray-800/50">
         <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mb-4">
-          <Link href="/about">
-            <span className="text-xs text-gray-500 hover:text-cyan-400 transition-colors cursor-pointer">{zh ? "关于我们" : "About Us"}</span>
-          </Link>
-          <Link href="/exchanges">
-            <span className="text-xs text-gray-500 hover:text-cyan-400 transition-colors cursor-pointer">{zh ? "交易所对比" : "Exchanges"}</span>
-          </Link>
-          <Link href="/articles">
-            <span className="text-xs text-gray-500 hover:text-cyan-400 transition-colors cursor-pointer">{zh ? "文章中心" : "Articles"}</span>
-          </Link>
-          <Link href="/contact">
-            <span className="text-xs text-gray-500 hover:text-cyan-400 transition-colors cursor-pointer">{zh ? "联系我们" : "Contact"}</span>
-          </Link>
+          <Link href="/about" className="tap-target text-xs text-gray-500 hover:text-cyan-400 transition-colors" onMouseEnter={() => preloadRoute("/about")} onTouchStart={() => preloadRoute("/about")}>{zh ? "关于我们" : "About Us"}</Link>
+          <Link href="/exchanges" className="tap-target text-xs text-gray-500 hover:text-cyan-400 transition-colors" onMouseEnter={() => preloadRoute("/exchanges")} onTouchStart={() => preloadRoute("/exchanges")}>{zh ? "交易所对比" : "Exchanges"}</Link>
+          <Link href="/articles" className="tap-target text-xs text-gray-500 hover:text-cyan-400 transition-colors" onMouseEnter={() => preloadRoute("/articles")} onTouchStart={() => preloadRoute("/articles")}>{zh ? "文章中心" : "Articles"}</Link>
+          <Link href="/contact" className="tap-target text-xs text-gray-500 hover:text-cyan-400 transition-colors" onMouseEnter={() => preloadRoute("/contact")} onTouchStart={() => preloadRoute("/contact")}>{zh ? "联系我们" : "Contact"}</Link>
         </div>
         <p className="text-xs text-gray-600 text-center">
           © 2026 Get8 Pro · {zh ? "专业 Web3 导航与资讯" : "Professional Web3 Navigator & News"}

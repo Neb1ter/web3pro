@@ -4,6 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { ArrowLeft } from "lucide-react";
 import { useScrollMemory, goBack } from "@/hooks/useScrollMemory";
 import { trpc } from "@/lib/trpc";
+import { preloadRoute } from "@/lib/routePreload";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type NewsView = "flash" | "articles";
@@ -372,10 +373,13 @@ export default function CryptoNews() {
           <p className="text-xs text-gray-500 mb-4">
             {zh ? "使用我们的邀请码注册交易所，享受永久手续费返佣。" : "Register with our referral codes for lifetime fee rebates."}
           </p>
-          <Link href="/exchanges">
-            <span className="inline-block px-6 py-2 rounded-lg bg-yellow-500 text-gray-900 text-sm font-bold hover:bg-yellow-400 transition-colors cursor-pointer">
-              {zh ? "查看交易所对比" : "Compare Exchanges"}
-            </span>
+          <Link
+            href="/exchanges"
+            className="tap-target inline-block rounded-lg bg-yellow-500 px-6 py-2 text-sm font-bold text-gray-900 transition-colors hover:bg-yellow-400"
+            onMouseEnter={() => preloadRoute("/exchanges")}
+            onTouchStart={() => preloadRoute("/exchanges")}
+          >
+            {zh ? "查看交易所对比" : "Compare Exchanges"}
           </Link>
         </div>
       </main>
