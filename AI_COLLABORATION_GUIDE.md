@@ -44,6 +44,20 @@ Web3Pro 是一个为 Web3 专业交易者提供的导航平台，提供官方认
 - 任何面向用户的文本，都必须通过 `useLanguage` hook 判断当前语言（`const { language } = useLanguage(); const zh = language === "zh";`）进行渲染。
 - 数据结构（如数组、常量）必须包含中英文字段（如 `title` 和 `titleEn`）。
 
+### ⚠️ 3.4 Content Security Policy (CSP) 阻止外部脚本加载
+**问题描述**：浏览器控制台报错 `violates the following Content Security Policy directive: "script-src 'self' 'unsafe-inline'"`，导致 Microsoft Clarity 和 Cloudflare Web Analytics 脚本被拦截。
+**根本原因**：后端 `server/_core/security.ts` 中的 Helmet CSP 配置过于严格，没有将这些第三方分析工具的域名加入 `scriptSrc` 白名单。
+**解决规则**：
+- 引入任何新的外部脚本（如在 `index.html` 中添加 `<script src="https://example.com/...">`）时，**必须**同步更新 `server/_core/security.ts` 中的 `helmet` CSP 配置，将该域名（如 `example.com`）加入 `scriptSrc` 数组。
+
+### ⚠️ 3.5 首屏加载极慢（vendor-misc 体积过大）
+**问题描述**：网站所有页面加载都需要等待 2-3 秒以上，网络面板显示 `vendor-misc-xxx.js` 文件体积高达 13MB。
+**根本原因**：`streamdown`（44MB 源码）、`mermaid`（69MB 源码）等超大型库被静态 `import` 到了组件中，且 `vite.config.ts` 的 `manualChunks` 将所有 `node_modules` 强制归入了 `vendor-misc`。导致即使用户访问不需要这些库的首页，也被迫下载它们。
+**解决规则**：
+1. **组件层**：对于重型库（如 markdown 渲染、图表、代码高亮），**必须**使用 `React.lazy` 和动态 `import()` 进行懒加载，绝不能在顶层静态 `import`。
+2. **构建层**：在 `vite.config.ts` 的 `manualChunks` 中，**必须**将这些大型库排除在 `vendor-misc` 的匹配规则之外（返回 `undefined`），让 Rollup 根据动态 import 自动为它们生成独立的懒加载 chunk。
+3. **后端层**：高频但低变化的 API（如 `exchanges.list`、`news.list`），应使用 `server/_core/cache.ts` 中的 `withCache` 进行内存缓存，减少数据库查询时间。
+
 ## 4. 目录结构说明
 
 ```text

@@ -221,6 +221,18 @@ export default defineConfig({
           ) {
             return 'vendor-react';
           }
+          // ⚠️ 性能关键：将超大型库排除在 vendor-misc 之外，让它们成为独立的懒加载 chunk
+          // streamdown 源码 44MB + mermaid 69MB + shiki/shikijs 是首屏加载最大瓶颈
+          // 它们已通过 Markdown.tsx 和 AIChatBox.tsx 中的动态 import() 引入
+          // 返回 undefined 让 Rollup 根据动态 import 自动分配 chunk
+          if (
+            id.includes('node_modules/streamdown') ||
+            id.includes('node_modules/mermaid') ||
+            id.includes('node_modules/shiki') ||
+            id.includes('node_modules/@shikijs')
+          ) {
+            return undefined; // 交给 Rollup 自动处理，将随动态 import 形成独立 chunk
+          }
           // 其他所有第三方包全部并入 vendor-misc（避免循环依赖）
           // 不再单独分割 radix-ui / trpc / tanstack，防止产生新的循环链
           if (id.includes('node_modules/')) {

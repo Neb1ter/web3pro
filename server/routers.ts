@@ -6,6 +6,7 @@ import { z } from "zod";
 import { submitContactForm, getContactSubmissions, getExchangeLinks, updateExchangeLink, getFaqs, getCryptoNews, getExchangeFeatureCategories, getExchangeFeatureSupport, getAllExchangeFeatureSupport, getExchangeAllFeatures, createFeatureCategory, updateFeatureCategory, deleteFeatureCategory, upsertFeatureSupport, deleteFeatureSupport, getCryptoTools, getAllCryptoTools, upsertCryptoTool, deleteCryptoTool, getSystemSetting, setSystemSetting, getAllSystemSettings } from "./db";
 import { TRPCError } from "@trpc/server";
 import { and, eq, asc } from "drizzle-orm";
+import { withCache, invalidateCache } from "./_core/cache";
 
 export const appRouter = router({
   system: systemRouter,
@@ -58,7 +59,10 @@ export const appRouter = router({
   }),
 
   exchanges: router({
-    list: publicProcedure.query(async () => getExchangeLinks()),
+    // 缓存 10 分钟，交易所链接极少变化
+    list: publicProcedure.query(async () =>
+      withCache('exchanges:list', () => getExchangeLinks(), 10 * 60 * 1000)
+    ),
     update: protectedProcedure
       .input(z.object({
         slug: z.string().min(1),
@@ -71,6 +75,8 @@ export const appRouter = router({
         if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN', message: '仅管理员可修改返佣链接' });
         const { slug, ...data } = input;
         await updateExchangeLink(slug, data);
+        // 写操作后清除缓存，确保下次请求获取最新数据
+        invalidateCache('exchanges:list');
         return { success: true } as const;
       }),
   }),
@@ -79,20 +85,36 @@ export const appRouter = router({
   faq: router({
     list: publicProcedure
       .input(z.object({ search: z.string().max(100).optional() }))
-      .query(async ({ input }) => getFaqs(input.search)),
+      // 无搜索词时缓存 15 分钟，有搜索词时不缓存
+      .query(async ({ input }) => {
+        if (input.search) return getFaqs(input.search);
+        return withCache('faq:list', () => getFaqs(undefined), 15 * 60 * 1000);
+      }),
   }),
 
   /** Exchange Feature Guide — 交易所扫盲指南 */
   exchangeGuide: router({
-    categories: publicProcedure.query(async () => getExchangeFeatureCategories()),
+    // 分类列表极少变化，缓存 30 分钟
+    categories: publicProcedure.query(async () =>
+      withCache('exchangeGuide:categories', () => getExchangeFeatureCategories(), 30 * 60 * 1000)
+    ),
+    // 各功能支持情况，缓存 10 分钟
     featureSupport: publicProcedure
       .input(z.object({ featureSlug: z.string().min(1) }))
-      .query(async ({ input }) => getExchangeFeatureSupport(input.featureSlug)),
+      .query(async ({ input }) =>
+        withCache(`exchangeGuide:feature:${input.featureSlug}`, () => getExchangeFeatureSupport(input.featureSlug), 10 * 60 * 1000)
+      ),
+    // 全量功能支持数据，缓存 10 分钟
     allFeatureSupport: publicProcedure
-      .query(async () => getAllExchangeFeatureSupport()),
+      .query(async () =>
+        withCache('exchangeGuide:allFeatureSupport', () => getAllExchangeFeatureSupport(), 10 * 60 * 1000)
+      ),
+    // 单交易所所有功能，缓存 10 分钟
     exchangeFeatures: publicProcedure
       .input(z.object({ exchangeSlug: z.string().min(1) }))
-      .query(async ({ input }) => getExchangeAllFeatures(input.exchangeSlug)),
+      .query(async ({ input }) =>
+        withCache(`exchangeGuide:exchange:${input.exchangeSlug}`, () => getExchangeAllFeatures(input.exchangeSlug), 10 * 60 * 1000)
+      ),
   }),
 
   /** Admin: Exchange Guide CRUD (admin only) */
@@ -186,7 +208,10 @@ export const appRouter = router({
   news: router({
     list: publicProcedure
       .input(z.object({ limit: z.number().min(1).max(100).optional().default(20) }))
-      .query(async ({ input }) => getCryptoNews(input.limit)),
+      // 新闻缓存 5 分钟，平衡实时性与性能
+      .query(async ({ input }) =>
+        withCache(`news:list:${input.limit}`, () => getCryptoNews(input.limit), 5 * 60 * 1000)
+      ),
     /** Admin: list all news (including inactive) */
     listAll: protectedProcedure
       .input(z.object({ limit: z.number().min(1).max(200).default(100), offset: z.number().min(0).default(0) }))

@@ -107,9 +107,12 @@ export function registerSecurityMiddleware(app: Express) {
         directives: {
           defaultSrc: ["'self'"],
           // Vite 打包的模块脚本需要 unsafe-inline（内联 window.APP_VERSION 等）
+          // ⚠️ 必须包含第三方分析脚本域名，否则 CSP 会阻止其加载导致页面渲染异常：
+          //   - www.clarity.ms       : Microsoft Clarity 用户行为分析（index.html 中内联注入）
+          //   - static.cloudflareinsights.com : Cloudflare Web Analytics（Cloudflare 自动注入）
           scriptSrc: isProd
-            ? ["'self'", "'unsafe-inline'"]
-            : ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+            ? ["'self'", "'unsafe-inline'", "https://www.clarity.ms", "https://static.cloudflareinsights.com"]
+            : ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://www.clarity.ms", "https://static.cloudflareinsights.com"],
           styleSrc: ["'self'", "'unsafe-inline'"],
           imgSrc: ["'self'", "data:", "https:"],
           connectSrc: ["'self'", "https:", "wss:"],
