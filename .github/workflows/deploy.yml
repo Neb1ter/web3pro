@@ -1,0 +1,84 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    name: Build & Deploy to Baidu Cloud Windows Server
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build frontend (Vite)
+        run: pnpm run build
+        env:
+          NODE_ENV: production
+
+      - name: Build backend (esbuild)
+        run: npx esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+        env:
+          NODE_ENV: production
+
+      - name: Package dist for transfer
+        run: |
+          tar -czf dist.tar.gz dist/
+          echo "Package size: $(du -sh dist.tar.gz | cut -f1)"
+
+      - name: Upload dist to server via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          source: "dist.tar.gz"
+          target: "C:/web3pro/"
+
+      - name: Deploy on server via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          script_stop: true
+          script: cd C:\web3pro && tar -xzf dist.tar.gz && del dist.tar.gz && npx pm2 restart ecosystem.config.cjs && npx pm2 save
+
+      - name: Purge Cloudflare cache
+        run: |
+          curl -s -X POST "https://api.cloudflare.com/client/v4/zones/${{ secrets.CF_ZONE_ID }}/purge_cache" \
+            -H "Authorization: Bearer ${{ secrets.CF_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            --data '{"purge_everything":true}' | python3 -c "import sys,json; r=json.load(sys.stdin ); print('Cloudflare cache purged OK' if r.get('success') else 'Cache purge failed: ' + str(r))"
+
+      - name: Verify deployment
+        run: |
+          sleep 25
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 15 "https://get8.pro/" )
+          echo "HTTP Status: $STATUS"
+          ONLINE_REACT=$(curl -s https://get8.pro/ | grep -oP 'vendor-react-[a-zA-Z0-9_-]+\.js' | head -1 )
+          echo "Online vendor-react: $ONLINE_REACT"
+          if [ "$STATUS" = "200" ]; then
+            echo "✅ Deployment successful!"
+          else
+            echo "⚠️ Deployment may have issues, status: $STATUS"
+          fi

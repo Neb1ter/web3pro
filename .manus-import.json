@@ -1,0 +1,69 @@
+{
+  "version": "1",
+  "template": "web-db-user",
+  "project": {
+    "name": "gatetoweb3",
+    "title": "币圈省钱指南",
+    "defaultTheme": "light"
+  },
+  "import": {
+    "description": "此文件描述哪些目录/文件需要从 GitHub 复制到 Manus 项目，哪些由 Manus 框架提供。导入时只需复制 userFiles 列出的内容，跳过 frameworkFiles。",
+    "userFiles": [
+      "drizzle/schema.ts",
+      "drizzle/relations.ts",
+      "drizzle/0000_messy_scourge.sql",
+      "drizzle/0001_curious_devos.sql",
+      "drizzle/0002_round_guardian.sql",
+      "drizzle/0003_nasty_chat.sql",
+      "drizzle/meta/",
+      "server/db.ts",
+      "server/routers.ts",
+      "server/storage.ts",
+      "server/*.test.ts",
+      "client/index.html",
+      "client/src/index.css",
+      "client/src/const.ts",
+      "client/src/main.tsx",
+      "client/src/App.tsx",
+      "client/src/lib/i18n.ts",
+      "client/src/lib/utils.ts",
+      "client/src/lib/trpc.ts",
+      "client/src/contexts/",
+      "client/src/hooks/",
+      "client/src/components/",
+      "client/src/pages/",
+      "shared/const.ts",
+      "shared/types.ts"
+    ],
+    "frameworkFiles": [
+      "server/_core/",
+      "client/src/_core/",
+      "shared/_core/",
+      "patches/",
+      "tsconfig.json",
+      "vite.config.ts",
+      "vitest.config.ts",
+      "drizzle.config.ts",
+      "components.json"
+    ],
+    "mergeFiles": [
+      {
+        "file": "package.json",
+        "strategy": "merge-deps",
+        "note": "将 userFiles 的 dependencies 合并到 Manus 模板 package.json，保留 Manus 新增的 AI SDK 等依赖"
+      }
+    ],
+    "skipFiles": [
+      "Dockerfile",
+      "docker-compose.yml",
+      "nginx/",
+      "deploy.sh",
+      "DEPLOY.md",
+      "notes.md",
+      "pnpm-lock.yaml"
+    ]
+  },
+  "database": {
+    "note": "迁移后执行 pnpm db:push，若出现 table already exists 错误，需手动在 __drizzle_migrations 表中插入对应迁移记录"
+  }
+}

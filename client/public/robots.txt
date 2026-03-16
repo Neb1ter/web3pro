@@ -1,0 +1,60 @@
+# ====================================================================
+# robots.txt for get8.pro
+# Last Updated: 2026-03-11
+# Purpose: Guide all crawlers, including search engines and AI bots.
+# ====================================================================
+
+# --------------------------------------------------------------------
+# Rule for All Crawlers (Default)
+# --------------------------------------------------------------------
+User-agent: *
+
+# Allow full access to the site content.
+Allow: /
+
+# Disallow paths that are not useful for indexing or are private.
+Disallow: /api/
+Disallow: /admin/
+Disallow: /manage-m2u0z0i04/
+Disallow: /test/
+Disallow: /private/
+Disallow: /__manus__/
+
+# --------------------------------------------------------------------
+# Explicit Rules for AI Crawlers
+# We welcome AI bots to learn from our high-quality content.
+# --------------------------------------------------------------------
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: Meta-ExternalAgent
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+# --------------------------------------------------------------------
+# Sitemap Location
+# --------------------------------------------------------------------
+Sitemap: https://get8.pro/sitemap.xml
