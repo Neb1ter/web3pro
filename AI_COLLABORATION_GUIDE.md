@@ -109,3 +109,29 @@ web3pro/
 - 该机制依赖 `DEEPSEEK_API_KEY` 或 `BUILT_IN_FORGE_API_KEY` 环境变量。
 - 自动化任务通过 `setTimeout` 延迟 60 秒启动，以避免与服务器启动时的 RSS 抓取任务竞争数据库连接。
 - 如果需要修改生成频率或数量，请直接调整 `dailyContent.ts` 中的 `TARGET_DAILY_NEWS` 和 `TARGET_DAILY_ARTICLES` 常量。
+
+### 3.7 废弃文件清理记录（2026-03-16）
+
+以下文件已于 2026-03-16 从项目中永久删除，**请勿重新创建**：
+
+| 删除文件 | 原因 |
+|----------|------|
+| `client/src/pages/BrokerProgram.tsx` | 代理商页面，从未注册路由，功能未上线 |
+| `client/src/pages/SeoGuide.tsx` | SEO 指南页面，从未注册路由，功能未上线 |
+| `client/src/pages/ComponentShowcase.tsx` | UI 组件展示页（57KB），仅用于开发调试，从未注册路由 |
+| `client/src/components/Map.tsx` | 地图组件，无任何页面引用 |
+| `server/_core/imageGeneration.ts` | 图片生成工具，无任何调用入口 |
+| `server/_core/dataApi.ts` | 数据 API 工具，无任何调用入口 |
+| `server/_core/voiceTranscription.ts` | 语音转文字工具，无任何调用入口 |
+| `server/_core/map.ts` | 地图工具，无任何调用入口 |
+| `backend/` 整个目录 | 遗留的独立 Strapi 后端项目，与主项目完全独立 |
+| `vercel.json` | Vercel 部署配置，项目部署在百度云，此文件无用 |
+
+**保留的相关文件（请勿删除）：**
+
+以下文件虽然看起来与"已删除功能"相关，但仍在运行中，删除会导致服务启动报错：
+
+- `server/_core/sensitiveWordUpdater.ts`：仍被 `index.ts` 的 `startWordUpdateScheduler()` 调用
+- `client/src/pages/admin/AdminSensitiveWordsTab.tsx`：被 `AdminExchangeGuide.tsx` 的管理后台引用
+- `server/_core/publish.ts`：被 `routers.ts` 中的 `articles.publish` 路由调用
+- `server/_core/notification.ts`：被 `systemRouter.ts` 引用
