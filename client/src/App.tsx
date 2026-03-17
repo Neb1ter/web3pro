@@ -50,6 +50,7 @@ const DefiDeep            = lazy(() => import("./pages/web3/DefiDeep"));
 const ExchangeGuideDeep   = lazy(() => import("./pages/web3/ExchangeGuide"));
 const InvestmentGateway   = lazy(() => import("./pages/web3/InvestmentGateway"));
 const EconomicOpportunity = lazy(() => import("./pages/web3/EconomicOpportunity"));
+const KycFlow             = lazy(() => import("./pages/web3/KycFlow"));
 
 // 浜ゆ槗鎵€鎸囧崡
 const ExchangeGuideIndex   = lazy(() => import("./pages/ExchangeGuideIndex"));
@@ -278,6 +279,7 @@ const PAGE_META: Record<string, { title: string; desc: string }> = {
   "/crypto-intro": { title: "Crypto Intro | Get8 Pro", desc: "A practical introduction to crypto, Bitcoin, Ethereum, DeFi, and on-chain concepts." },
   "/crypto-news": { title: "Crypto News Hub | Get8 Pro", desc: "Track crypto news, market updates, exchange announcements, and policy developments." },
   "/web3-guide": { title: "Web3 Guide | Get8 Pro", desc: "Understand Web3 fundamentals, wallets, DeFi, and the broader on-chain ecosystem." },
+  "/web3-guide/kyc-flow": { title: "KYC Flow | Get8 Pro", desc: "Learn the KYC verification process, required materials, review steps, and common pitfalls for exchange onboarding." },
   "/contact": { title: "Contact | Get8 Pro", desc: "Contact the Get8 Pro team for support, cooperation, and rebate-related questions." },
   "/legal": { title: "Legal | Get8 Pro", desc: "Read the terms, privacy information, and risk disclosures for Get8 Pro." },
   "/about": { title: "About | Get8 Pro", desc: "Learn more about Get8 Pro and its focus on exchange guidance, Web3 education, and tools." },
@@ -351,6 +353,7 @@ function Router() {
           <Route path="/web3-guide/exchange-guide"          component={ExchangeGuideDeep} />
           <Route path="/web3-guide/investment-gateway"      component={InvestmentGateway} />
           <Route path="/web3-guide/economic-opportunity"    component={EconomicOpportunity} />
+          <Route path="/web3-guide/kyc-flow"                component={KycFlow} />
 
           {/* 鈹€鈹€ 浜ゆ槗鎵€鎸囧崡 鈹€鈹€ */}
           <Route path="/exchange-guide"              component={ExchangeGuideIndex} />

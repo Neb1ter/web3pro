@@ -296,6 +296,11 @@ export default function ExchangeGuideDeep() {
               </div>
             ))}
           </div>
+          <div className="mt-4 flex justify-end">
+            <Link href="/web3-guide/kyc-flow" className="tap-target rounded-xl border border-cyan-500/40 px-4 py-2 text-sm font-bold text-cyan-400 transition-all hover:bg-cyan-500/10">
+              {zh ? "🪪 单独查看 KYC 实名流程 →" : "🪪 Open the KYC walkthrough →"}
+            </Link>
+          </div>
         </FadeIn>
 
         {/* 自然引流 CTA */}

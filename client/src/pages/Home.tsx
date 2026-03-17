@@ -1007,6 +1007,7 @@ export default function Home() {
             <button onClick={() => navigate('/exchanges')} className="text-slate-500 hover:text-amber-400 transition font-medium">{texts.nav.exchanges}</button>
             <button onClick={() => navigate('/exchange-download')} className="text-slate-500 hover:text-amber-400 transition font-medium">{zh ? '下载指南' : 'Download Guide'}</button>
             <button onClick={() => navigate('/exchange-guide')} className="text-slate-500 hover:text-amber-400 transition font-medium">{zh ? '交易所扫盲' : 'Exchange Guide'}</button>
+            <button onClick={() => navigate('/web3-guide/kyc-flow')} className="text-slate-500 hover:text-amber-400 transition font-medium">{zh ? 'KYC实名流程' : 'KYC Verification Flow'}</button>
             <button onClick={() => navigate('/contact')} className="text-slate-500 hover:text-amber-400 transition font-medium">{texts.nav.contact}</button>
             <button onClick={() => navigate('/beginner')} className="text-slate-500 hover:text-amber-400 transition font-medium">{texts.nav.beginnerGuide}</button>
           </div>

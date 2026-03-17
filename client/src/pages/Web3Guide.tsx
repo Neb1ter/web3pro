@@ -166,7 +166,7 @@ const startSteps = [
     title: "完成 KYC 实名认证",
     desc: "上传身份证件完成实名认证，这是合规要求，也是保护你账户安全的必要步骤。认证后才能使用法币入金和提现功能。整个过程通常 5-10 分钟完成。",
     action: "了解 KYC 流程",
-    href: "/exchange-guide",
+    href: "/web3-guide/kyc-flow",
     color: "text-blue-400",
     borderColor: "border-blue-500/40",
     bgColor: "bg-blue-500/10",
