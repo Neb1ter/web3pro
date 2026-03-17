@@ -391,15 +391,15 @@ export default function BlockchainBasics() {
         {/* 下一章 */}
         <FadeIn>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Link href="/web3-guide/wallet-keys">
-              <div className="rounded-2xl border border-violet-500/20 bg-violet-500/5 p-5 hover:bg-violet-500/10 transition-colors cursor-pointer">
+            <Link href="/web3-guide/wallet-keys" className="tap-target block">
+              <div className="rounded-2xl border border-violet-500/20 bg-violet-500/5 p-5 hover:bg-violet-500/10 transition-colors">
                 <div className="text-xs text-slate-500 mb-1">下一章</div>
                 <h3 className="font-black text-white text-base">🔐 钱包与私钥</h3>
                 <p className="text-slate-400 text-xs mt-1">了解如何安全管理你的 Web3 资产</p>
               </div>
             </Link>
-            <Link href="/web3-guide/defi-deep">
-              <div className="rounded-2xl border border-yellow-500/20 bg-yellow-500/5 p-5 hover:bg-yellow-500/10 transition-colors cursor-pointer">
+            <Link href="/web3-guide/defi-deep" className="tap-target block">
+              <div className="rounded-2xl border border-yellow-500/20 bg-yellow-500/5 p-5 hover:bg-yellow-500/10 transition-colors">
                 <div className="text-xs text-slate-500 mb-1">跳至</div>
                 <h3 className="font-black text-white text-base">💰 DeFi 深度解析</h3>
                 <p className="text-slate-400 text-xs mt-1">去中心化金融的完整使用指南</p>

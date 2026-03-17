@@ -157,8 +157,8 @@ export default function ArticleList() {
                 const catInfo = CATEGORY_MAP[article.category] ?? CATEGORY_MAP.analysis;
                 const readTime = estimateReadTime(article.content);
                 return (
-                  <Link key={article.id} href={`/article/${article.slug}`}>
-                    <article className="group bg-white/5 border border-white/10 rounded-xl p-5 hover:bg-white/8 hover:border-white/20 transition cursor-pointer h-full flex flex-col">
+                  <Link key={article.id} href={`/article/${article.slug}`} className="tap-target block h-full">
+                    <article className="group bg-white/5 border border-white/10 rounded-xl p-5 hover:bg-white/8 hover:border-white/20 transition h-full flex flex-col">
                       {/* 分类标签 */}
                       <div className="flex items-center gap-2 mb-3">
                         <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${catInfo.color}`}>
@@ -210,8 +210,8 @@ export default function ArticleList() {
           {/* ── 底部导航 ── */}
           <div className="mt-12 border-t border-white/10 pt-8">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <Link href="/exchanges">
-                <div className="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition cursor-pointer">
+              <Link href="/exchanges" className="tap-target block">
+                <div className="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition">
                   <div>
                     <div className="font-semibold text-white text-sm">{zh ? "交易所对比" : "Exchange Comparison"}</div>
                     <div className="text-xs text-slate-400">{zh ? "5大交易所费率对比" : "5 major exchange fee comparison"}</div>
@@ -219,8 +219,8 @@ export default function ArticleList() {
                   <ChevronRight className="w-4 h-4 text-slate-400" />
                 </div>
               </Link>
-              <Link href="/crypto-saving">
-                <div className="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition cursor-pointer">
+              <Link href="/crypto-saving" className="tap-target block">
+                <div className="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition">
                   <div>
                     <div className="font-semibold text-white text-sm">{zh ? "返佣指南" : "Rebate Guide"}</div>
                     <div className="text-xs text-slate-400">{zh ? "最高60%手续费返佣" : "Up to 60% fee rebate"}</div>
@@ -228,8 +228,8 @@ export default function ArticleList() {
                   <ChevronRight className="w-4 h-4 text-slate-400" />
                 </div>
               </Link>
-              <Link href="/web3-guide">
-                <div className="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition cursor-pointer">
+              <Link href="/web3-guide" className="tap-target block">
+                <div className="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition">
                   <div>
                     <div className="font-semibold text-white text-sm">{zh ? "Web3 教程" : "Web3 Guide"}</div>
                     <div className="text-xs text-slate-400">{zh ? "从零入门 Web3 世界" : "Start your Web3 journey"}</div>

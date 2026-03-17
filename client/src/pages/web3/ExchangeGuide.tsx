@@ -204,8 +204,20 @@ export default function ExchangeGuideDeep() {
           <h2 className="text-2xl font-black text-white mb-5">🏆 主流交易所对比</h2>
           <div className="space-y-4">
             {exchanges.map((ex, i) => (
-              <div key={i} onClick={() => setExpandedExchange(expandedExchange === i ? null : i)}
-                className={`rounded-2xl border ${ex.border} ${ex.bg} p-5 cursor-pointer transition-all hover:scale-[1.005]`}>
+              <div
+                key={i}
+                role="button"
+                tabIndex={0}
+                aria-expanded={expandedExchange === i}
+                onClick={() => setExpandedExchange(expandedExchange === i ? null : i)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    setExpandedExchange(expandedExchange === i ? null : i);
+                  }
+                }}
+                className={`tap-target rounded-2xl border ${ex.border} ${ex.bg} p-5 cursor-pointer transition-all hover:scale-[1.005]`}
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <span className="text-3xl">{ex.icon}</span>

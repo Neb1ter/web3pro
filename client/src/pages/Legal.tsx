@@ -245,8 +245,8 @@ export default function Legal() {
         </p>
 
         <div className="mt-10 flex justify-center">
-          <Link href="/contact">
-            <span className="text-sm font-bold text-amber-400 hover:text-amber-300 transition-colors cursor-pointer">
+          <Link href="/contact" className="tap-target text-sm font-bold text-amber-400 hover:text-amber-300 transition-colors">
+            <span>
               {language === "zh" ? "联系我们" : "Contact Us"} →
             </span>
           </Link>

@@ -196,8 +196,8 @@ export default function About() {
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {PARTNERSHIPS.map((p, i) => (
-                <Link key={i} href={p.href}>
-                  <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 hover:border-white/20 transition cursor-pointer">
+                <Link key={i} href={p.href} className="tap-target block">
+                  <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 hover:border-white/20 transition">
                     <span className="text-2xl">{p.emoji}</span>
                     <div>
                       <div className="font-bold text-white">{p.name}</div>
@@ -264,8 +264,8 @@ export default function About() {
                   <div className="text-slate-400 text-xs">contact@get8.pro</div>
                 </div>
               </a>
-              <Link href="/contact">
-                <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl p-5 hover:bg-white/10 transition cursor-pointer">
+              <Link href="/contact" className="tap-target block">
+                <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl p-5 hover:bg-white/10 transition">
                   <MessageSquare className="w-5 h-5 text-emerald-400" />
                   <div>
                     <div className="font-semibold text-white text-sm">{zh ? "在线联系表单" : "Online Contact Form"}</div>

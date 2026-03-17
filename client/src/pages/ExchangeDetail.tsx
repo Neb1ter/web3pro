@@ -382,13 +382,13 @@ export default function ExchangeDetail() {
 
             {/* CTA 按钮 */}
             <div className="flex flex-col sm:flex-row gap-3">
-              <a href={invite.referralLink} target="_blank" rel="noopener noreferrer" className="flex-1">
-                <Button className={`w-full font-black text-base py-5 bg-gradient-to-r from-current/80 to-current/60 hover:opacity-90 ${data.accentCls}`}
-                  style={{ background: `linear-gradient(135deg, ${data.color}33, ${data.color}22)`, border: `1px solid ${data.color}66`, color: data.color }}>
+              <Button asChild className={`w-full font-black text-base py-5 bg-gradient-to-r from-current/80 to-current/60 hover:opacity-90 ${data.accentCls}`}
+                style={{ background: `linear-gradient(135deg, ${data.color}33, ${data.color}22)`, border: `1px solid ${data.color}66`, color: data.color }}>
+                <a href={invite.referralLink} target="_blank" rel="noopener noreferrer" className="tap-target flex-1">
                   {zh ? `注册 ${data.name} 享 ${fees.rebateRate} 返佣` : `Register ${data.nameEn} — ${fees.rebateRate} Rebate`}
                   <ExternalLink className="w-4 h-4 ml-2" />
-                </Button>
-              </a>
+                </a>
+              </Button>
               <Link href="/exchange-download" className="sm:w-auto">
                 <Button variant="outline" className="w-full border-white/20 text-white hover:bg-white/10 py-5">
                   <Download className="w-4 h-4 mr-2" />
@@ -518,13 +518,13 @@ export default function ExchangeDetail() {
             <p className="text-slate-400 text-sm mb-4">
               {zh ? `通过 Get8 Pro 官方邀请码注册，每笔交易自动返佣，终身有效。` : `Register via Get8 Pro's official referral code. Auto rebate on every trade, lifetime valid.`}
             </p>
-            <a href={invite.referralLink} target="_blank" rel="noopener noreferrer">
-              <Button className="font-black px-8 py-5 text-base"
-                style={{ background: `linear-gradient(135deg, ${data.color}44, ${data.color}22)`, border: `1px solid ${data.color}66`, color: data.color }}>
+            <Button asChild className="font-black px-8 py-5 text-base"
+              style={{ background: `linear-gradient(135deg, ${data.color}44, ${data.color}22)`, border: `1px solid ${data.color}66`, color: data.color }}>
+              <a href={invite.referralLink} target="_blank" rel="noopener noreferrer" className="tap-target">
                 {zh ? `注册 ${data.name}` : `Register ${data.nameEn}`}
                 <ExternalLink className="w-4 h-4 ml-2" />
-              </Button>
-            </a>
+              </a>
+            </Button>
           </div>
 
           {/* ── 相关链接 ── */}

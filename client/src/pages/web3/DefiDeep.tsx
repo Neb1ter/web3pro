@@ -296,15 +296,15 @@ export default function DefiDeep() {
         {/* 下一章 */}
         <FadeIn>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Link href="/web3-guide/economic-opportunity">
-              <div className="rounded-2xl border border-orange-500/20 bg-orange-500/5 p-5 hover:bg-orange-500/10 transition-colors cursor-pointer">
+            <Link href="/web3-guide/economic-opportunity" className="tap-target block">
+              <div className="rounded-2xl border border-orange-500/20 bg-orange-500/5 p-5 hover:bg-orange-500/10 transition-colors">
                 <div className="text-xs text-slate-500 mb-1">下一章</div>
                 <h3 className="font-black text-white text-base">📈 第五章：经济形势与 Web3 机遇</h3>
                 <p className="text-slate-400 text-xs mt-1">现实经济压力与 Web3 的破局机遇</p>
               </div>
             </Link>
-            <Link href="/web3-guide">
-              <div className="rounded-2xl border border-slate-700 bg-slate-800/30 p-5 hover:bg-slate-800/50 transition-colors cursor-pointer">
+            <Link href="/web3-guide" className="tap-target block">
+              <div className="rounded-2xl border border-slate-700 bg-slate-800/30 p-5 hover:bg-slate-800/50 transition-colors">
                 <div className="text-xs text-slate-500 mb-1">返回</div>
                 <h3 className="font-black text-white text-base">📖 Web3 入圈指南总览</h3>
                 <p className="text-slate-400 text-xs mt-1">回到主页面查看完整学习路径</p>

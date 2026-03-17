@@ -141,8 +141,20 @@ function WalletTypeSelector() {
   return (
     <div className="space-y-3">
       {wallets.map((w, i) => (
-        <div key={i} onClick={() => setSelected(selected === i ? null : i)}
-          className={`rounded-xl border ${w.border} ${w.bg} p-4 cursor-pointer transition-all hover:scale-[1.01]`}>
+        <div
+          key={i}
+          role="button"
+          tabIndex={0}
+          aria-expanded={selected === i}
+          onClick={() => setSelected(selected === i ? null : i)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              setSelected(selected === i ? null : i);
+            }
+          }}
+          className={`tap-target rounded-xl border ${w.border} ${w.bg} p-4 cursor-pointer transition-all hover:scale-[1.01]`}
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <span className="text-2xl">{w.icon}</span>
@@ -287,15 +299,15 @@ export default function WalletKeys() {
         {/* 下一章 */}
         <FadeIn>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Link href="/web3-guide/defi-deep">
-              <div className="rounded-2xl border border-yellow-500/20 bg-yellow-500/5 p-5 hover:bg-yellow-500/10 transition-colors cursor-pointer">
+            <Link href="/web3-guide/defi-deep" className="tap-target block">
+              <div className="rounded-2xl border border-yellow-500/20 bg-yellow-500/5 p-5 hover:bg-yellow-500/10 transition-colors">
                 <div className="text-xs text-slate-500 mb-1">下一章</div>
                 <h3 className="font-black text-white text-base">💰 DeFi 深度解析</h3>
                 <p className="text-slate-400 text-xs mt-1">去中心化金融的完整使用指南</p>
               </div>
             </Link>
-            <Link href="/web3-guide/exchange-guide">
-              <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5 hover:bg-emerald-500/10 transition-colors cursor-pointer">
+            <Link href="/web3-guide/exchange-guide" className="tap-target block">
+              <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5 hover:bg-emerald-500/10 transition-colors">
                 <div className="text-xs text-slate-500 mb-1">跳至</div>
                 <h3 className="font-black text-white text-base">🏦 交易所入门指南</h3>
                 <p className="text-slate-400 text-xs mt-1">新手最安全的 Web3 入门路径</p>

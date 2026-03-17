@@ -266,11 +266,11 @@ export default function Exchanges() {
                     </div>
 
                     <div className="flex gap-3">
-                      <a href={ex.referralLink} target="_blank" rel="noopener noreferrer" className="flex-1">
-                        <Button className="w-full bg-white text-black hover:bg-white/90 font-black rounded-xl h-12">
+                      <Button asChild className="w-full bg-white text-black hover:bg-white/90 font-black rounded-xl h-12">
+                        <a href={ex.referralLink} target="_blank" rel="noopener noreferrer" className="tap-target flex-1">
                           {zh ? "立即注册" : "Register Now"}
-                        </Button>
-                      </a>
+                        </a>
+                      </Button>
                       <Button variant="outline" onClick={() => { setTab("detail"); setExpanded(ex.slug); }} className="border-white/10 hover:bg-white/5 rounded-xl h-12 px-4">
                         <ChevronRight size={20} />
                       </Button>
@@ -310,11 +310,11 @@ export default function Exchanges() {
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <a href={link} target="_blank" rel="noopener noreferrer">
-                          <Button className="bg-white text-black hover:bg-white/90 font-black rounded-xl">
+                        <Button asChild className="bg-white text-black hover:bg-white/90 font-black rounded-xl">
+                          <a href={link} target="_blank" rel="noopener noreferrer" className="tap-target">
                             {zh ? "前往注册" : "Go Register"}
-                          </Button>
-                        </a>
+                          </a>
+                        </Button>
                       </div>
                     </div>
 

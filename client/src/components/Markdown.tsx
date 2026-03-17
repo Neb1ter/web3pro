@@ -90,7 +90,7 @@ const components = {
     <td className="border border-border px-4 py-2">{children}</td>
   ),
   img: ({ src, alt }: { src?: string; alt?: string }) => (
-    <img src={src} alt={alt || ""} className="max-w-full h-auto rounded-lg my-4" loading="lazy" />
+    <img src={src} alt={alt || ""} className="max-w-full h-auto rounded-lg my-4" loading="lazy" decoding="async" />
   ),
 };
 
@@ -100,12 +100,51 @@ const components = {
 
 type StreamdownModule = typeof import("streamdown");
 type StreamdownProps = ComponentProps<StreamdownModule["Streamdown"]>;
+type MarkdownControls = StreamdownProps["controls"];
 
 type MarkdownProps = Omit<StreamdownProps, "components"> & {
   components?: Partial<typeof components>;
   enableCode?: boolean;
   enableMermaid?: boolean;
 };
+
+const MERMAID_FENCE_RE = /(?:^|\n)(```|~~~)\s*mermaid\b[^\n]*\n/i;
+const CODE_FENCE_RE = /(?:^|\n)(```|~~~)(?!\s*mermaid\b)[^\n]*\n/i;
+
+function detectMarkdownFeatureFlags(children: ReactNode) {
+  if (typeof children !== "string") {
+    return null;
+  }
+
+  return {
+    hasCodeFence: CODE_FENCE_RE.test(children),
+    hasMermaidFence: MERMAID_FENCE_RE.test(children),
+  };
+}
+
+function resolveControlsConfig(
+  controls: MarkdownControls | undefined,
+  shouldEnableCode: boolean,
+  shouldEnableMermaid: boolean,
+): MarkdownControls {
+  if (controls === false) {
+    return false;
+  }
+
+  if (controls === true || controls == null) {
+    return {
+      table: true,
+      code: shouldEnableCode,
+      mermaid: shouldEnableMermaid,
+    };
+  }
+
+  return {
+    table: controls.table ?? true,
+    code: shouldEnableCode ? (controls.code ?? true) : false,
+    mermaid: shouldEnableMermaid ? (controls.mermaid ?? true) : false,
+  };
+}
 
 // ============================================================================
 // MARKDOWN COMPONENT（懒加载版本）
@@ -121,13 +160,20 @@ export const Markdown = memo(function Markdown({
   className,
   children,
   components: customComponents,
+  mode = "static",
+  parseIncompleteMarkdown = false,
   shikiTheme = ["github-light", "github-dark"],
-  controls = true,
-  enableCode = true,
-  enableMermaid = true,
+  controls,
+  mermaid,
+  enableCode,
+  enableMermaid,
   ...props
 }: MarkdownProps) {
   const [StreamdownComp, setStreamdownComp] = useState<StreamdownModule["Streamdown"] | null>(null);
+  const featureFlags = detectMarkdownFeatureFlags(children);
+  const shouldEnableCode = enableCode ?? featureFlags?.hasCodeFence ?? true;
+  const shouldEnableMermaid = enableMermaid ?? featureFlags?.hasMermaidFence ?? true;
+  const resolvedControls = resolveControlsConfig(controls, shouldEnableCode, shouldEnableMermaid);
 
   useEffect(() => {
     // 动态加载 streamdown，只在组件挂载时触发一次
@@ -152,8 +198,11 @@ export const Markdown = memo(function Markdown({
     <StreamdownComp
       className={cn("text-foreground leading-relaxed", className)}
       components={{ ...components, ...customComponents }}
-      shikiTheme={shikiTheme}
-      controls={controls}
+      mode={mode}
+      parseIncompleteMarkdown={parseIncompleteMarkdown}
+      shikiTheme={shouldEnableCode ? shikiTheme : undefined}
+      mermaid={shouldEnableMermaid ? mermaid : undefined}
+      controls={resolvedControls}
       {...props}
     >
       {children}

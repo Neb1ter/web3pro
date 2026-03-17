@@ -618,8 +618,8 @@ export default function Portal() {
                   <ul className="space-y-3">
                     {col.links.map((link, j) => (
                       <li key={j}>
-                        <Link href={link.href}>
-                          <span className="text-sm text-slate-400 hover:text-yellow-400 transition-colors cursor-pointer">
+                        <Link href={link.href} className="tap-target text-sm text-slate-400 hover:text-yellow-400 transition-colors">
+                          <span>
                             {link.label}
                           </span>
                         </Link>

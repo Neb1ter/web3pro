@@ -106,13 +106,14 @@ export default function ArticleDetail() {
   const catInfo = ARTICLE_CATEGORY_LABELS[article.category] ?? ARTICLE_CATEGORY_LABELS.analysis;
   const catLabel = zh ? catInfo.zh : catInfo.en;
   const tags = article.tags ? article.tags.split(",").map((t: string) => t.trim()).filter(Boolean) : [];
+  const articleContent = article.content || "";
 
   return (
     <div className="min-h-screen" style={{ background: "linear-gradient(135deg, #0A192F 0%, #0d2137 50%, #0A192F 100%)" }}>
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-cyan-500/20 backdrop-blur-md" style={{ background: "rgba(10,25,47,0.92)" }}>
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
-          <button onClick={goBack} className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-cyan-400 transition-colors">
+          <button onClick={goBack} className="tap-target flex items-center gap-1.5 text-sm text-gray-400 hover:text-cyan-400 transition-colors">
             <ArrowLeft size={15} />
             <span>{zh ? "返回资讯" : "Back"}</span>
           </button>
@@ -138,6 +139,7 @@ export default function ArticleDetail() {
               className="w-full h-full object-cover"
               decoding="async"
               fetchPriority="high"
+              sizes="(max-width: 640px) 100vw, 768px"
             />
           </div>
         )}
@@ -187,7 +189,7 @@ export default function ArticleDetail() {
             prose-table:text-gray-300
             prose-th:text-white prose-th:bg-gray-800
             prose-td:border-gray-700">
-          <Markdown>{article.content || ""}</Markdown>
+          <Markdown mode="static" parseIncompleteMarkdown={false}>{articleContent}</Markdown>
         </div>
 
         {/* Tags footer */}
@@ -196,7 +198,7 @@ export default function ArticleDetail() {
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-xs text-gray-500">{zh ? "标签：" : "Tags:"}</span>
               {tags.map((tag: string) => (
-                <span key={tag} className="text-xs text-cyan-400 bg-cyan-900/20 px-3 py-1 rounded-full border border-cyan-500/20 hover:border-cyan-500/50 transition-colors cursor-pointer">
+                <span key={tag} className="text-xs text-cyan-400 bg-cyan-900/20 px-3 py-1 rounded-full border border-cyan-500/20 hover:border-cyan-500/50 transition-colors">
                   #{tag}
                 </span>
               ))}

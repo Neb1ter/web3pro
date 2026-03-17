@@ -244,8 +244,8 @@ function ArticlesPanel({ zh }: { zh: boolean }) {
             const catLabel = zh ? catInfo.zh : catInfo.en;
             const tags = article.tags ? article.tags.split(",").map(t => t.trim()).filter(Boolean) : [];
             return (
-              <Link key={article.id} href={`/article/${article.slug}`}>
-                <div className="group rounded-xl border border-gray-700/60 bg-gray-800/40 hover:border-cyan-500/40 hover:shadow-[0_0_20px_rgba(6,182,212,0.06)] transition-all duration-200 cursor-pointer overflow-hidden">
+              <Link key={article.id} href={`/article/${article.slug}`} className="tap-target block">
+                <div className="group rounded-xl border border-gray-700/60 bg-gray-800/40 hover:border-cyan-500/40 hover:shadow-[0_0_20px_rgba(6,182,212,0.06)] transition-all duration-200 overflow-hidden">
                   {article.coverImage && (
                     <div className="h-36 overflow-hidden">
                       <img
@@ -255,6 +255,7 @@ function ArticlesPanel({ zh }: { zh: boolean }) {
                         loading={index < 2 ? "eager" : "lazy"}
                         decoding="async"
                         fetchPriority={index === 0 ? "high" : "auto"}
+                        sizes="(max-width: 768px) 100vw, 480px"
                       />
                     </div>
                   )}
