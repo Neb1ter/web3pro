@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { WEB3_CHAPTERS, tWeb3 } from "@/lib/web3I18n";
@@ -61,22 +61,26 @@ export default function Web3ChapterNav({ currentChapterId }: Web3ChapterNavProps
   const zh = language === "zh";
 
   useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+    if (!isOpen) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };
-    if (isOpen) document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, [isOpen]);
 
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setIsOpen(false);
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsOpen(false);
     };
+
+    document.addEventListener("pointerdown", handlePointerDown);
     document.addEventListener("keydown", handleKey);
-    return () => document.removeEventListener("keydown", handleKey);
-  }, []);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKey);
+    };
+  }, [isOpen]);
 
   const currentChapter = WEB3_CHAPTERS.find((chapter) => chapter.id === currentChapterId);
   const currentIndex = WEB3_CHAPTERS.findIndex((chapter) => chapter.id === currentChapterId);
@@ -86,8 +90,9 @@ export default function Web3ChapterNav({ currentChapterId }: Web3ChapterNavProps
       <button
         type="button"
         onClick={() => setIsOpen((value) => !value)}
-        className="flex flex-col items-center gap-0.5 focus:outline-none"
+        className="tap-target flex touch-manipulation flex-col items-center gap-0.5 focus:outline-none"
         aria-label={zh ? "章节导航" : "Chapter navigation"}
+        aria-expanded={isOpen}
       >
         <TriggerIcon isOpen={isOpen} />
       </button>
@@ -110,7 +115,7 @@ export default function Web3ChapterNav({ currentChapterId }: Web3ChapterNavProps
           <div className="flex items-center gap-2">
             <div className="h-1.5 w-1.5 rounded-full bg-indigo-400 animate-pulse" />
             <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
-              {zh ? "Web3 入圈指南 · 章节导航" : "Web3 Guide · Chapters"}
+              {zh ? "Web3 章节导航" : "Web3 Guide Chapters"}
             </span>
           </div>
           {currentChapter && (
@@ -125,7 +130,7 @@ export default function Web3ChapterNav({ currentChapterId }: Web3ChapterNavProps
         <div className="max-h-[60vh] overflow-y-auto p-2">
           {WEB3_CHAPTERS.map((chapter, index) => {
             const isCurrent = chapter.id === currentChapterId;
-            const isPrev = index < currentIndex;
+            const isPrev = currentIndex >= 0 && index < currentIndex;
 
             return (
               <Link
@@ -196,7 +201,7 @@ export default function Web3ChapterNav({ currentChapterId }: Web3ChapterNavProps
                 🧭 {zh ? "指南总览" : "Guide Overview"}
               </div>
               <div className="text-[10px] text-slate-600">
-                {zh ? "返回 Web3 入圈指南首页" : "Back to the main Web3 guide"}
+                {zh ? "返回 Web3 入口指南首页" : "Back to the main Web3 guide"}
               </div>
             </div>
           </Link>
@@ -207,7 +212,7 @@ export default function Web3ChapterNav({ currentChapterId }: Web3ChapterNavProps
             className="group flex cursor-pointer items-center gap-3 rounded-xl border border-transparent px-3 py-2.5 transition-all hover:border-yellow-500/20 hover:bg-yellow-500/8"
           >
             <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-yellow-500/20 bg-yellow-500/10">
-              <span className="text-sm">💵</span>
+              <span className="text-sm">💰</span>
             </div>
             <div className="flex-1">
               <div className="text-sm font-bold text-yellow-500/80 transition-colors group-hover:text-yellow-400">
@@ -225,12 +230,10 @@ export default function Web3ChapterNav({ currentChapterId }: Web3ChapterNavProps
 
         <div className="px-4 py-2 text-center" style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
           <span className="text-[9px] uppercase tracking-widest text-slate-700">
-            {zh ? "Web3 入圈指南 · 7 个章节" : "Web3 Guide · 7 Chapters"}
+            {zh ? `Web3 指南 · ${WEB3_CHAPTERS.length} 章` : `Web3 Guide · ${WEB3_CHAPTERS.length} Chapters`}
           </span>
         </div>
       </div>
-
-      {isOpen && <div className="fixed inset-0 -z-10" onClick={() => setIsOpen(false)} />}
     </div>
   );
 }

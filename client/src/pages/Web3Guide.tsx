@@ -234,9 +234,8 @@ function FloatChapterMenu({ activeId }: { activeId: string }) {
   };
 
   // 鼠标拖拽
-  const onMouseDown = (e: React.MouseEvent) => {
-    dragRef.current = { startX: e.clientX, startY: e.clientY, origX: offset.x, origY: offset.y, moved: false };
-    e.preventDefault();
+  const onMouseDown = () => {
+    dragRef.current = null;
   };
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
@@ -252,9 +251,8 @@ function FloatChapterMenu({ activeId }: { activeId: string }) {
     return () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
   }, []);
   // 触控拖拽
-  const onTouchStart = (e: React.TouchEvent) => {
-    const t = e.touches[0];
-    dragRef.current = { startX: t.clientX, startY: t.clientY, origX: offset.x, origY: offset.y, moved: false };
+  const onTouchStart = () => {
+    dragRef.current = null;
   };
   useEffect(() => {
     const onMove = (e: TouchEvent) => {
@@ -344,13 +342,13 @@ function FloatChapterMenu({ activeId }: { activeId: string }) {
               touchAction: 'manipulation',
               WebkitTapHighlightColor: 'transparent',
             }}
-            title={zh ? "拖动可移位，点击切换章节" : "Drag to move, tap to switch sections"}
+            title={zh ? "???????????" : "Pinned menu, tap to switch sections"}
           >
             <span className="text-lg">{active.icon}</span>
             <div className="hidden sm:block">
               <p className="text-xs font-black text-emerald-400 leading-none mb-0.5">{active.label}</p>
               <p className="text-[10px] leading-none text-slate-500">
-                {zh ? "拖动可移位，点击切换" : "Drag to move, tap to switch"}
+                {zh ? "???????????" : "Pinned menu, tap to open"}
               </p>
             </div>
             <span className="text-slate-500">
@@ -1582,8 +1580,8 @@ export default function Web3Guide() {
                 <Link href="/web3-guide/investment-gateway" className="tap-target flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-400 text-black text-sm font-black transition-all whitespace-nowrap">
                     {zh ? "🚪 第六章：参与 Web3 的门户 →" : "🚪 Chapter 6: Your Gateway to Web3 →"}
                 </Link>
-                <Link href="/web3-guide/exchange-guide" className="tap-target flex items-center gap-2 px-4 py-2 rounded-xl border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 text-sm font-bold transition-all whitespace-nowrap">
-                    {zh ? "🏦 交易所入门指南 →" : "🏦 Exchange Starter Guide →"}
+                <Link href="/web3-guide/kyc-flow" className="tap-target flex items-center gap-2 px-4 py-2 rounded-xl border border-cyan-500/40 text-cyan-400 hover:bg-cyan-500/10 text-sm font-bold transition-all whitespace-nowrap">
+                    {zh ? "?? ????KYC???? ?" : "?? Chapter 7: KYC Flow ?"}
                 </Link>
               </div>
             </div>
@@ -1593,9 +1591,9 @@ export default function Web3Guide() {
         {/* ===== Section 6: 如何开始 ===== */}
         <SectionTitle
           id="start"
-          icon="🚀"
-          title={zh ? "如何迈出第一步" : "How to Take the First Step"}
-          subtitle={zh ? "从零开始的 Web3 入门行动指南（第七章）" : "A step-by-step action guide for getting started with Web3"}
+          icon="??"
+          title={zh ? "???????" : "Exchange Starter Path"}
+          subtitle={zh ? "?? KYC ???????????????????" : "What to do after KYC, from registration to your first trade"}
         />
 
         <div className="space-y-4 mb-12">

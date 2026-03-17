@@ -119,9 +119,9 @@ export default function KycFlow() {
           </button>
           <div className="flex items-center gap-2">
             <span className="hidden rounded-full border border-cyan-500/30 bg-cyan-500/20 px-2.5 py-1 text-xs text-cyan-400 sm:inline-flex">
-              {zh ? "实操补充 · KYC" : "Hands-on extra · KYC"}
+              {zh ? "?? ? ? 07 ?" : "Hands-on ? Chapter 07"}
             </span>
-            <Web3ChapterNav currentChapterId="exchange-guide" />
+            <Web3ChapterNav currentChapterId="kyc-flow" />
           </div>
         </div>
       </nav>

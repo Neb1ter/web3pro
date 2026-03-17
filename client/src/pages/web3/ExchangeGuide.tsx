@@ -152,7 +152,7 @@ export default function ExchangeGuideDeep() {
           </button>
           <div className="flex items-center gap-2">
             <span className="hidden rounded-full border border-teal-500/30 bg-teal-500/20 px-2.5 py-1 text-xs text-teal-400 sm:inline-flex">
-              {zh ? "实操 · 章节 07" : "Hands-on · Chapter 07"}
+              {zh ? "?? ? ? 08 ?" : "Hands-on ? Chapter 08"}
             </span>
             <Web3ChapterNav currentChapterId="exchange-guide" />
           </div>
@@ -162,7 +162,7 @@ export default function ExchangeGuideDeep() {
       <div className="max-w-4xl mx-auto px-4 py-12 pb-20">
         <FadeIn className="mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs mb-5">
-            {zh ? "🏦 第七章：交易所入门" : "🏦 Chapter 7: Exchange starter guide"}
+            {zh ? "?? ?????????" : "?? Chapter 8: Exchange starter guide"}
           </div>
           <h1 className="text-4xl sm:text-5xl font-black mb-4 leading-tight">
             <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">

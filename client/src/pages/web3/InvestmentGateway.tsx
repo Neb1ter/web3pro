@@ -629,12 +629,12 @@ export default function InvestmentGateway() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
               <div className="rounded-xl border border-emerald-500/20 bg-black/20 p-4 text-center">
-                <div className="text-2xl mb-2">📚</div>
+                <div className="text-2xl mb-2">??</div>
                 <h4 className="mb-1 text-sm font-bold text-white">
-                  {zh ? "第七章：交易所入门指南" : "Chapter 7: Exchange starter guide"}
+                  {zh ? "????KYC????" : "Chapter 7: KYC verification flow"}
                 </h4>
-                <p className="text-slate-400 text-xs mb-3">详细了解各大交易所的对比、注册步骤和安全使用指南</p>
-                <Link href="/web3-guide/exchange-guide" className="w-full py-2 rounded-lg border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 text-xs font-bold transition-all">
+                <p className="text-slate-400 text-xs mb-3">KYC?????????????????????????</p>
+                <Link href="/web3-guide/kyc-flow" className="w-full py-2 rounded-lg border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 text-xs font-bold transition-all">
                     {zh ? "继续学习 →" : "Continue →"}
                 </Link>
               </div>
