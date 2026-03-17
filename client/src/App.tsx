@@ -55,6 +55,7 @@ const EconomicOpportunity = lazy(() => import("./pages/web3/EconomicOpportunity"
 const ExchangeGuideIndex   = lazy(() => import("./pages/ExchangeGuideIndex"));
 const ExchangeDownload     = lazy(() => import("./pages/ExchangeDownload"));
 const ExchangeFeatureDetail = lazy(() => import("./pages/ExchangeFeatureDetail"));
+const AdminArticleRedirect = lazy(() => import("./pages/admin/AdminArticleRedirect"));
 
 // 鍚庡彴绠＄悊锛堜粎鍐呴儴浣跨敤锛屾噿鍔犺浇鏇村悎閫傦級
 const AdminExchangeGuide = lazy(() => import("./pages/AdminExchangeGuide"));
@@ -142,6 +143,77 @@ function PageSkeleton() {
       </div>
     </div>
   );
+}
+
+function SimulatorLoadingScreen() {
+  const [progress, setProgress] = useState(14);
+
+  useEffect(() => {
+    const checkpoints = [28, 43, 57, 72, 84, 92];
+    let index = 0;
+    const timer = window.setInterval(() => {
+      setProgress((current) => {
+        if (index >= checkpoints.length) {
+          window.clearInterval(timer);
+          return current;
+        }
+        const next = checkpoints[index];
+        index += 1;
+        return current < next ? next : current;
+      });
+    }, 180);
+
+    return () => window.clearInterval(timer);
+  }, []);
+
+  return (
+    <div
+      className="min-h-screen flex items-center justify-center px-6"
+      style={{ background: "linear-gradient(180deg, #07111f 0%, #0a192f 100%)" }}
+    >
+      <div className="w-full max-w-md rounded-3xl border border-cyan-500/20 bg-slate-950/55 p-7 shadow-2xl shadow-cyan-950/40 backdrop-blur-xl">
+        <div className="mb-5 flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-500/12 text-2xl">
+            Game
+          </div>
+          <div>
+            <p className="text-sm font-black uppercase tracking-[0.18em] text-cyan-300">Simulation Loading</p>
+            <h2 className="text-xl font-black text-white">Preparing your simulator</h2>
+          </div>
+        </div>
+
+        <div className="mb-3 h-2 overflow-hidden rounded-full bg-white/8">
+          <div
+            className="h-full rounded-full transition-[width] duration-300 ease-out"
+            style={{
+              width: `${progress}%`,
+              background: "linear-gradient(90deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%)",
+            }}
+          />
+        </div>
+
+        <div className="mb-4 flex items-center justify-between text-xs font-semibold">
+          <span className="text-slate-400">Loading chart engine, game state, and tutorial assets</span>
+          <span className="text-cyan-300">{progress}%</span>
+        </div>
+
+        <div className="space-y-2 rounded-2xl border border-white/8 bg-white/4 p-4 text-sm text-slate-300">
+          <p>Charts and interaction modules are loading in the background.</p>
+          <p>Please keep this page open. We will enter the simulator automatically.</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RouteFallback() {
+  const [location] = useLocation();
+
+  if (location.startsWith("/sim/")) {
+    return <SimulatorLoadingScreen />;
+  }
+
+  return <PageSkeleton />;
 }
 
 // ============================================================
@@ -249,7 +321,7 @@ function usePageMeta() {
 function Router() {
   return (
     <ChunkErrorBoundary>
-    <Suspense fallback={<PageSkeleton />}>
+    <Suspense fallback={<RouteFallback />}>
       <PageTransition>
         <Switch>
           {/* 鈹€鈹€ 棣栧睆鍚屾璺敱 鈹€鈹€ */}
@@ -288,6 +360,7 @@ function Router() {
           {/* 鈹€鈹€ 鍚庡彴绠＄悊 鈹€鈹€ */}
           <Route path="/manage-m2u0z0i04"    component={AdminLogin} />
           <Route path="/admin/exchange-guide" component={AdminExchangeGuide} />
+          <Route path="/admin/article/new" component={AdminArticleRedirect} />
 
           {/* 鈹€鈹€ 甯佸湀宸ュ叿鍚堥泦 鈹€鈹€ */}
           <Route path="/tools" component={CryptoTools} />
@@ -355,6 +428,17 @@ function GlobalSwipeBlocker() {
 
 function AppInner() {
   const [showFloatNav, setShowFloatNav] = useState(false);
+  const [location] = useLocation();
+  const hideFloatNav =
+    location.startsWith("/sim/") ||
+    location === "/crypto-intro" ||
+    location === "/web3-quiz" ||
+    location === "/learning-path" ||
+    location === "/learning-complete" ||
+    location === "/exchange-guide" ||
+    location.startsWith("/exchange-guide/") ||
+    location.startsWith("/admin/") ||
+    location.startsWith("/manage-");
 
   useEffect(() => {
     return scheduleIdle(() => {
@@ -372,7 +456,7 @@ function AppInner() {
             <TooltipProvider>
               <Toaster />
               <Router />
-              {showFloatNav ? (
+              {showFloatNav && !hideFloatNav ? (
                 <Suspense fallback={null}>
                   <MobileFloatNav />
                   <DesktopFloatNav />

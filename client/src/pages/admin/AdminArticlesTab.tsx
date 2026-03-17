@@ -112,7 +112,9 @@ export function ArticlesTab({ zh }: { zh: boolean }) {
             </svg>
           </a>
           <a
-            href="/admin/article/new"
+            href={MEDIA_AUTO_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             className="admin-btn-ghost text-sm"
           >
             {zh ? "✏️ 手动创建" : "✏️ Manual Create"}

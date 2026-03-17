@@ -483,12 +483,6 @@ function FeaturesTab({ categories, isLoading, zh, activeCategory, setActiveCateg
           zh={zh}
           onSelect={(slug) => setActiveCategory(slug)}
         />
-        <MobileCategoryGrid
-          categories={categories}
-          activeSlug={selected?.slug ?? categories[0]?.slug ?? ""}
-          zh={zh}
-          onSelect={setActiveCategory}
-        />
       </div>
 
       {/* Desktop: Left Sidebar Menu */}
@@ -565,6 +559,21 @@ function FeatureDetail({ category, zh, prevCategory, nextCategory, onNavigate, c
   useEffect(() => {
     setQuizAnswer(null);
     setQuizSubmitted(false);
+  }, [category.slug]);
+
+  useEffect(() => {
+    const simPath =
+      category.slug === "spot" ? "/sim/spot" :
+      category.slug === "futures" ? "/sim/futures" :
+      category.slug === "tradfi" ? "/sim/tradfi" :
+      category.slug === "margin" ? "/sim/margin" :
+      category.slug === "options" ? "/sim/options" :
+      category.slug === "grid-bot" ? "/sim/bot" :
+      null;
+
+    if (simPath) {
+      preloadRoute(simPath);
+    }
   }, [category.slug]);
 
   const FEATURE_CONTENT = getFeatureContent(category.slug, zh);
@@ -694,7 +703,9 @@ function FeatureDetail({ category, zh, prevCategory, nextCategory, onNavigate, c
               <Link
                 href={sim.path}
                 onMouseEnter={() => preloadRoute(sim.path)}
+                onPointerDown={() => preloadRoute(sim.path)}
                 onTouchStart={() => preloadRoute(sim.path)}
+                onFocus={() => preloadRoute(sim.path)}
                 className={`w-full sm:w-auto px-6 py-3 rounded-xl font-black text-sm transition-all hover:scale-105 active:scale-95 border ${sim.borderColor} ${sim.bgColor} ${sim.color} hover:brightness-125 flex items-center justify-center gap-2 whitespace-nowrap no-underline`}
               >
                 <Gamepad2 className="w-4 h-4" />
@@ -1101,13 +1112,14 @@ function FloatChapterMenu({
       <div
         style={{
           position: "fixed",
-          bottom: "24px",
+          bottom: "calc(24px + env(safe-area-inset-bottom))",
           left: "24px",
-          zIndex: 45,
+          zIndex: 60,
           display: "flex",
           flexDirection: "column",
           alignItems: "flex-start",
           gap: "8px",
+          pointerEvents: "none",
         }}
       >
         {/* Expanded menu panel */}
@@ -1128,6 +1140,7 @@ function FloatChapterMenu({
             maxHeight: "60vh",
             overflowY: "auto",
             boxShadow: "0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(59,130,246,0.1), inset 0 1px 0 rgba(255,255,255,0.05)",
+            touchAction: "manipulation",
           }}
         >
           <div style={{ padding: "4px 8px 10px", borderBottom: "1px solid rgba(255,255,255,0.08)", marginBottom: "8px" }}>
@@ -1182,6 +1195,7 @@ function FloatChapterMenu({
 
         {/* Trigger button */}
         <button
+          type="button"
           onClick={onToggle}
           aria-label={zh ? "打开章节菜单" : "Open chapter menu"}
           style={{
@@ -1201,6 +1215,9 @@ function FloatChapterMenu({
               ? "0 0 0 3px rgba(59,130,246,0.15), 0 4px 16px rgba(0,0,0,0.4)"
               : "0 0 0 1px rgba(59,130,246,0.08), 0 4px 16px rgba(0,0,0,0.4)",
             maxWidth: "200px",
+            pointerEvents: "auto",
+            touchAction: "manipulation",
+            WebkitTapHighlightColor: "transparent",
           }}
         >
           <span style={{ fontSize: "20px", lineHeight: 1, flexShrink: 0 }}>{active?.icon}</span>
