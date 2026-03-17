@@ -4,7 +4,7 @@ import { useScrollMemory } from '@/hooks/useScrollMemory';
 import OnboardingPrompt from "@/components/OnboardingPrompt";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { preloadRoute, preloadRoutes } from "@/lib/routePreload";
-import { BadgeCheck, Compass, ShieldCheck, Sparkles } from "lucide-react";
+import { Compass, ShieldCheck, Sparkles } from "lucide-react";
 
 // ============================================================
 // 多语言文案
@@ -215,7 +215,7 @@ function QuickStartPaths({ lang }: { lang: string }) {
         {
           title: "我已经会交易，只想省手续费",
           desc: "直接看返佣规则、合作交易所和下载页，先把默认 20% 拿到手，再决定要不要升级。",
-          href: "/crypto-saving",
+          href: "/crypto-saving?path=trader#action",
           label: "直接看返佣路径",
           icon: <Sparkles className="w-5 h-5" />,
           tone: "border-amber-500/25 bg-amber-500/10 text-amber-300",
@@ -223,7 +223,7 @@ function QuickStartPaths({ lang }: { lang: string }) {
         {
           title: "我是老用户，想知道还能不能绑定",
           desc: "老账户通常无法补绑返佣，这里会先告诉你限制，再给你新的开户与联系路径。",
-          href: "/crypto-saving#action",
+          href: "/crypto-saving?path=old#how-to-get",
           label: "先看老用户方案",
           icon: <ShieldCheck className="w-5 h-5" />,
           tone: "border-emerald-500/25 bg-emerald-500/10 text-emerald-300",
@@ -241,7 +241,7 @@ function QuickStartPaths({ lang }: { lang: string }) {
         {
           title: "I already trade and just want lower fees",
           desc: "Go straight to rebates, supported exchanges, and the download flow to lock in the default 20% first.",
-          href: "/crypto-saving",
+          href: "/crypto-saving?path=trader#action",
           label: "See the rebate path",
           icon: <Sparkles className="w-5 h-5" />,
           tone: "border-amber-500/25 bg-amber-500/10 text-amber-300",
@@ -249,7 +249,7 @@ function QuickStartPaths({ lang }: { lang: string }) {
         {
           title: "I already have an account",
           desc: "Existing accounts usually cannot be retrofitted, so we explain the limit first and then show your next move.",
-          href: "/crypto-saving#action",
+          href: "/crypto-saving?path=old#how-to-get",
           label: "See existing-user options",
           icon: <ShieldCheck className="w-5 h-5" />,
           tone: "border-emerald-500/25 bg-emerald-500/10 text-emerald-300",
@@ -284,45 +284,6 @@ function QuickStartPaths({ lang }: { lang: string }) {
               <span className="text-sm font-bold">{path.label} →</span>
             </div>
           </Link>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function TrustSignals({ lang }: { lang: string }) {
-  const zh = lang === "zh";
-  const items = zh
-    ? [
-        { title: "路径先讲清，再谈转化", desc: "新用户、老用户、已有交易经验的人，看到的是更贴近自己需求的入口。" },
-        { title: "返佣规则不再含糊", desc: "默认 20%、老账户通常不能补绑、其他平台可联系你，这些规则前置展示。" },
-        { title: "内容与风险同时出现", desc: "教程、工具、快讯和免责声明一起出现，专业感会比单纯营销更强。" },
-      ]
-    : [
-        { title: "Paths first, conversion second", desc: "New users, existing users, and experienced traders get clearer entry points." },
-        { title: "Rebate rules are stated upfront", desc: "Default 20%, existing-account limits, and custom-contact options are shown clearly." },
-        { title: "Education and risk shown together", desc: "Guides, tools, news, and disclaimers appear together to build credibility." },
-      ];
-
-  return (
-    <section className="mb-12 rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
-      <div className="mb-6 flex items-center gap-3">
-        <BadgeCheck className="h-6 w-6 text-emerald-400" />
-        <div>
-          <h3 className="text-xl font-black text-white">
-            {zh ? "为什么这个站点更像专业工具，而不是普通导流页" : "Why This Feels Like a Professional Product"}
-          </h3>
-          <p className="mt-1 text-sm text-slate-400">
-            {zh ? "用户会留下来，往往不是因为标题更夸张，而是因为路径更稳、解释更清楚。" : "Users stay when the path is clear and the explanations are stable."}
-          </p>
-        </div>
-      </div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        {items.map((item) => (
-          <div key={item.title} className="rounded-2xl border border-white/10 bg-black/20 p-5">
-            <h4 className="mb-2 text-base font-black text-white">{item.title}</h4>
-            <p className="text-sm leading-6 text-slate-400">{item.desc}</p>
-          </div>
         ))}
       </div>
     </section>
@@ -658,7 +619,6 @@ export default function Portal() {
         <LogoMarquee label={t.bannerLabel} />
 
         <div className="pb-16">
-          <TrustSignals lang={lang} />
           <div className="text-center mb-10">
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">{t.sectionTitle}</h2>
             <p className="text-slate-400">{t.sectionSub}</p>

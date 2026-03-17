@@ -358,6 +358,8 @@ export default function Home() {
     try { return !localStorage.getItem('crypto_guide_seen'); } catch { return true; }
   });
   const [selectedGuideType, setSelectedGuideType] = useState<'new' | 'old' | null>(null);
+  const initialRouteHandledRef = useRef(false);
+  const initialHashJumpDoneRef = useRef(false);
 
   // 滚动感知：当前章节
   const [activeChapter, setActiveChapter] = useState(CHAPTERS[0].id);
@@ -382,11 +384,52 @@ export default function Home() {
     return () => window.removeEventListener('scroll', handler);
   }, []);
 
+  useEffect(() => {
+    if (initialRouteHandledRef.current || typeof window === 'undefined') return;
+    initialRouteHandledRef.current = true;
+
+    const url = new URL(window.location.href);
+    const pathHint = url.searchParams.get('path');
+    const hash = url.hash.replace('#', '');
+
+    if (!pathHint && !hash) return;
+
+    setShowGuide(false);
+    try { localStorage.setItem('crypto_guide_seen', '1'); } catch {}
+
+    if (pathHint === 'old') {
+      setSelectedGuideType('old');
+      return;
+    }
+
+    if (pathHint === 'new' || pathHint === 'trader') {
+      setSelectedGuideType('new');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (initialHashJumpDoneRef.current || showGuide || typeof window === 'undefined') return;
+
+    const url = new URL(window.location.href);
+    const pathHint = url.searchParams.get('path');
+    const hash = url.hash.replace('#', '');
+    const targetId = hash || (pathHint === 'old' || pathHint === 'new' || pathHint === 'trader' ? 'how-to-get' : '');
+
+    if (!targetId) return;
+
+    const timer = window.setTimeout(() => {
+      document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      initialHashJumpDoneRef.current = true;
+    }, 180);
+
+    return () => window.clearTimeout(timer);
+  }, [showGuide]);
+
   const handleGuideSelection = (type: 'new' | 'old') => {
     setSelectedGuideType(type);
     setShowGuide(false);
     try { localStorage.setItem('crypto_guide_seen', '1'); } catch {}
-    const targetId = type === 'new' ? 'how-to-get' : 'action';
+    const targetId = 'how-to-get';
     setTimeout(() => document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' }), 100);
   };
 
