@@ -299,6 +299,9 @@ export default function ExchangeDetail() {
   const data = EXCHANGE_DATA[slug];
   const fees = EXCHANGE_FEES[slug];
   const invite = INVITE_CODES[slug];
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   if (!data || !fees || !invite) {
     return (
@@ -403,10 +406,44 @@ export default function ExchangeDetail() {
               <code className="font-mono font-black text-white bg-white/10 px-2 py-0.5 rounded">{invite.inviteCode}</code>
               <span className="text-xs">({zh ? "注册时填写" : "enter during registration"})</span>
             </div>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {[
+                {
+                  title: zh ? "先注册拿返佣" : "Register for rebate",
+                  desc: zh ? `${fees.rebateRate} 的入口就在这里。` : `${fees.rebateRate} starts here.`,
+                  onClick: () => window.open(invite.referralLink, "_blank", "noopener,noreferrer"),
+                },
+                {
+                  title: zh ? "先看怎么下载" : "See download steps",
+                  desc: zh ? "App、官网和下载入口都在这里。" : "Jump to app and official download links.",
+                  onClick: () => scrollTo("download-links"),
+                },
+                {
+                  title: zh ? "先看常见问题" : "Read the FAQ first",
+                  desc: zh ? "安全、费率和地区限制都在这里。" : "Safety, fees, and region limits are here.",
+                  onClick: () => scrollTo("faq"),
+                },
+                {
+                  title: zh ? "不确定选哪家" : "Still comparing?",
+                  desc: zh ? "回到总对比页再决定也可以。" : "Go back to the comparison page first.",
+                  onClick: () => (window.location.href = "/exchanges"),
+                },
+              ].map((item) => (
+                <button
+                  key={item.title}
+                  type="button"
+                  onClick={item.onClick}
+                  className="tap-target rounded-2xl border border-white/10 bg-black/20 p-4 text-left transition hover:border-white/20 hover:bg-white/10"
+                >
+                  <p className="mb-1 text-sm font-black text-white">{item.title}</p>
+                  <p className="text-xs leading-6 text-slate-400">{item.desc}</p>
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* ── 详细介绍 ── */}
-          <section>
+          <section id="about-exchange">
             <h2 className="text-xl font-black text-white mb-4">{zh ? `${data.name} 详细介绍` : `About ${data.nameEn}`}</h2>
             <div className="bg-white/5 rounded-xl border border-white/10 p-5">
               {(zh ? data.descLong.zh : data.descLong.en).split("\n\n").map((para, i) => (
@@ -416,7 +453,7 @@ export default function ExchangeDetail() {
           </section>
 
           {/* ── 核心亮点 ── */}
-          <section>
+          <section id="highlights">
             <h2 className="text-xl font-black text-white mb-4">{zh ? "核心亮点" : "Key Highlights"}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {data.highlights.map((h, i) => (
@@ -429,7 +466,7 @@ export default function ExchangeDetail() {
           </section>
 
           {/* ── 主要功能 ── */}
-          <section>
+          <section id="features">
             <h2 className="text-xl font-black text-white mb-4">{zh ? "主要功能" : "Key Features"}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {data.features.map((f, i) => (
@@ -445,7 +482,7 @@ export default function ExchangeDetail() {
           </section>
 
           {/* ── 优缺点 ── */}
-          <section>
+          <section id="pros-cons">
             <h2 className="text-xl font-black text-white mb-4">{zh ? "优缺点分析" : "Pros & Cons"}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="bg-emerald-950/30 border border-emerald-500/30 rounded-xl p-4">
@@ -482,7 +519,7 @@ export default function ExchangeDetail() {
           </section>
 
           {/* ── FAQ ── */}
-          <section>
+          <section id="faq">
             <h2 className="text-xl font-black text-white mb-4">{zh ? "常见问题" : "FAQ"}</h2>
             <div className="space-y-3">
               {data.faqs.map((faq, i) => (
@@ -495,7 +532,7 @@ export default function ExchangeDetail() {
           </section>
 
           {/* ── 下载链接 ── */}
-          <section>
+          <section id="download-links">
             <h2 className="text-xl font-black text-white mb-4">{zh ? `下载 ${data.name}` : `Download ${data.nameEn}`}</h2>
             <div className="flex flex-wrap gap-3">
               {data.downloadLinks.map((dl, i) => (

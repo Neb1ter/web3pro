@@ -294,6 +294,56 @@ function FeeCalculator({ zh }: { zh: boolean }) {
   );
 }
 
+function IntentShortcuts({
+  zh,
+  navigate,
+}: {
+  zh: boolean;
+  navigate: (href: string) => void;
+}) {
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const items: Array<{ title: string; desc: string; action: () => void }> = zh
+    ? [
+        { title: '新用户先看这里', desc: '先看默认 20% 怎么拿，再决定去哪家交易所。', action: () => scrollTo('how-to-get') },
+        { title: '老用户先看限制', desc: '老账户通常不能补绑，先看限制和下一步。', action: () => scrollTo('action') },
+        { title: '先看五家下载入口', desc: '直接去下载页，按平台进入官方入口。', action: () => navigate('/exchange-download') },
+        { title: '直接看交易所对比', desc: '已经有经验的话，这一步最快。', action: () => navigate('/exchanges') },
+      ]
+    : [
+        { title: 'New user: start here', desc: 'See how the default 20% works before picking an exchange.', action: () => scrollTo('how-to-get') },
+        { title: 'Existing user: check limits', desc: 'Existing accounts usually cannot be retrofitted.', action: () => scrollTo('action') },
+        { title: 'Go straight to downloads', desc: 'Open the official exchange download routes first.', action: () => navigate('/exchange-download') },
+        { title: 'Compare exchanges first', desc: 'This is the fastest route for experienced users.', action: () => navigate('/exchanges') },
+      ];
+
+  return (
+    <div className="mx-auto mt-8 max-w-4xl rounded-3xl border border-amber-500/20 bg-black/20 p-4 sm:p-5">
+      <div className="mb-4 flex items-center gap-2">
+        <Zap className="h-4 w-4 text-amber-400" />
+        <p className="text-sm font-black text-amber-300">
+          {zh ? '高意图用户快捷入口' : 'High-intent shortcuts'}
+        </p>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {items.map((item) => (
+          <button
+            key={item.title}
+            type="button"
+            onClick={item.action}
+            className="tap-target rounded-2xl border border-white/10 bg-white/5 p-4 text-left transition hover:border-amber-500/30 hover:bg-white/10"
+          >
+            <p className="mb-1 text-sm font-black text-white">{item.title}</p>
+            <p className="text-xs leading-6 text-slate-400">{item.desc}</p>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── 主组件 ───────────────────────────────────────────────────────────────────
 export default function Home() {
   useScrollMemory();
@@ -462,6 +512,7 @@ export default function Home() {
               </div>
             </div>
           </div>
+          <IntentShortcuts zh={zh} navigate={navigate} />
           <div className="mt-14 animate-bounce">
             <ChevronDown className="text-amber-400/60 mx-auto" size={28} />
           </div>

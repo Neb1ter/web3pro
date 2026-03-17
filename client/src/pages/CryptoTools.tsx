@@ -141,6 +141,52 @@ function FeeCalculator({ zh }: { zh: boolean }) {
   );
 }
 
+function QuickToolRoutes({
+  zh,
+  onChoose,
+}: {
+  zh: boolean;
+  onChoose: (next: { category?: string; vpn?: "all" | "no-vpn" | "vpn"; search?: string }) => void;
+}) {
+  const items = zh
+    ? [
+        { title: "先看无需 VPN 的工具", desc: "适合直接发给客户，打开就能用。", action: () => onChoose({ vpn: "no-vpn", category: "all", search: "" }) },
+        { title: "只看行情和价格", desc: "把资讯噪音先去掉，只留价格工具。", action: () => onChoose({ category: "price", vpn: "all", search: "" }) },
+        { title: "只看链上工具", desc: "快速看地址、资金流和链上数据。", action: () => onChoose({ category: "onchain", vpn: "all", search: "" }) },
+        { title: "只看安全工具", desc: "适合注册、提币和风控前检查。", action: () => onChoose({ category: "security", vpn: "all", search: "" }) },
+      ]
+    : [
+        { title: "Start with no-VPN tools", desc: "Best when you want tools that open directly.", action: () => onChoose({ vpn: "no-vpn", category: "all", search: "" }) },
+        { title: "Only price tools", desc: "Remove the noise and keep market tracking tools.", action: () => onChoose({ category: "price", vpn: "all", search: "" }) },
+        { title: "Only on-chain tools", desc: "Go straight to addresses, flows, and on-chain data.", action: () => onChoose({ category: "onchain", vpn: "all", search: "" }) },
+        { title: "Only security tools", desc: "Useful before signup, withdrawals, and verification steps.", action: () => onChoose({ category: "security", vpn: "all", search: "" }) },
+      ];
+
+  return (
+    <section className="mb-8 rounded-3xl border border-yellow-500/20 bg-yellow-500/5 p-5">
+      <div className="mb-4 flex items-center gap-2">
+        <Shield className="h-4 w-4 text-yellow-400" />
+        <p className="text-sm font-black text-yellow-300">
+          {zh ? "高意图用户快捷入口" : "High-intent shortcuts"}
+        </p>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {items.map((item) => (
+          <button
+            key={item.title}
+            type="button"
+            onClick={item.action}
+            className="tap-target rounded-2xl border border-slate-700/50 bg-slate-900/40 p-4 text-left transition hover:border-yellow-500/40 hover:bg-slate-800/70"
+          >
+            <p className="mb-1 text-sm font-black text-white">{item.title}</p>
+            <p className="text-xs leading-6 text-slate-400">{item.desc}</p>
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 // ─── 主页面 ──────────────────────────────────────────────────────────────────
 export default function CryptoTools() {
   const { language, setLanguage } = useLanguage();
@@ -151,8 +197,11 @@ export default function CryptoTools() {
   const [search, setSearch] = useState("");
   const [vpnFilter, setVpnFilter] = useState<"all" | "no-vpn" | "vpn">("all");
 
-  // 从数据库加载真实工具数据
   const { data: dbTools = [], isLoading } = trpc.tools.list.useQuery();
+  const directCount = useMemo(
+    () => dbTools.filter((tool) => !resolveToolNeedVpn(tool as typeof tool & { needVpn?: boolean | null })).length,
+    [dbTools]
+  );
 
   const filtered = useMemo(() => {
     return dbTools.filter(t => {
@@ -176,6 +225,12 @@ export default function CryptoTools() {
       return matchCat && matchVpn && matchSearch;
     });
   }, [dbTools, activeCategory, search, vpnFilter, zh]);
+
+  const applyQuickRoute = ({ category, vpn, search: nextSearch }: { category?: string; vpn?: "all" | "no-vpn" | "vpn"; search?: string }) => {
+    if (category) setActiveCategory(category);
+    if (vpn) setVpnFilter(vpn);
+    if (typeof nextSearch === "string") setSearch(nextSearch);
+  };
 
   return (
     <div className="min-h-screen bg-[#0a0f1e] text-white">
@@ -224,6 +279,10 @@ export default function CryptoTools() {
         </div>
 
         {/* ── 社交媒体入口 ── */}
+        <p className="mb-8 -mt-4 text-center text-xs text-slate-500">
+          {zh ? `当前共收录 ${dbTools.length} 个工具，其中 ${directCount} 个可直接访问。` : `${dbTools.length} tools listed, ${directCount} currently open without VPN.`}
+        </p>
+        <QuickToolRoutes zh={zh} onChoose={applyQuickRoute} />
         <SocialBar zh={zh} />
 
         {/* ── 谷歌验证器提示 ── */}
