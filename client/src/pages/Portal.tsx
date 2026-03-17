@@ -4,6 +4,7 @@ import { useScrollMemory } from '@/hooks/useScrollMemory';
 import OnboardingPrompt from "@/components/OnboardingPrompt";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { preloadRoute, preloadRoutes } from "@/lib/routePreload";
+import { BadgeCheck, Compass, ShieldCheck, Sparkles } from "lucide-react";
 
 // ============================================================
 // 多语言文案
@@ -198,6 +199,135 @@ const PLATFORM_LOGOS = [
 ];
 
 const ALL_LOGOS = [...PLATFORM_LOGOS, ...PLATFORM_LOGOS];
+
+function QuickStartPaths({ lang }: { lang: string }) {
+  const zh = lang === "zh";
+  const paths = zh
+    ? [
+        {
+          title: "我是第一次接触币圈",
+          desc: "先做测评，再按 Web3 基础、KYC、交易所下载这条线慢慢走，最不容易迷路。",
+          href: "/web3-quiz",
+          label: "先做 2 分钟测评",
+          icon: <Compass className="w-5 h-5" />,
+          tone: "border-cyan-500/25 bg-cyan-500/10 text-cyan-300",
+        },
+        {
+          title: "我已经会交易，只想省手续费",
+          desc: "直接看返佣规则、合作交易所和下载页，先把默认 20% 拿到手，再决定要不要升级。",
+          href: "/crypto-saving",
+          label: "直接看返佣路径",
+          icon: <Sparkles className="w-5 h-5" />,
+          tone: "border-amber-500/25 bg-amber-500/10 text-amber-300",
+        },
+        {
+          title: "我是老用户，想知道还能不能绑定",
+          desc: "老账户通常无法补绑返佣，这里会先告诉你限制，再给你新的开户与联系路径。",
+          href: "/crypto-saving#action",
+          label: "先看老用户方案",
+          icon: <ShieldCheck className="w-5 h-5" />,
+          tone: "border-emerald-500/25 bg-emerald-500/10 text-emerald-300",
+        },
+      ]
+    : [
+        {
+          title: "I'm brand new to crypto",
+          desc: "Start with the quiz, then follow the basics -> KYC -> exchange setup path.",
+          href: "/web3-quiz",
+          label: "Take the 2-minute quiz",
+          icon: <Compass className="w-5 h-5" />,
+          tone: "border-cyan-500/25 bg-cyan-500/10 text-cyan-300",
+        },
+        {
+          title: "I already trade and just want lower fees",
+          desc: "Go straight to rebates, supported exchanges, and the download flow to lock in the default 20% first.",
+          href: "/crypto-saving",
+          label: "See the rebate path",
+          icon: <Sparkles className="w-5 h-5" />,
+          tone: "border-amber-500/25 bg-amber-500/10 text-amber-300",
+        },
+        {
+          title: "I already have an account",
+          desc: "Existing accounts usually cannot be retrofitted, so we explain the limit first and then show your next move.",
+          href: "/crypto-saving#action",
+          label: "See existing-user options",
+          icon: <ShieldCheck className="w-5 h-5" />,
+          tone: "border-emerald-500/25 bg-emerald-500/10 text-emerald-300",
+        },
+      ];
+
+  return (
+    <section className="mb-10">
+      <div className="mb-5 text-center">
+        <h2 className="text-2xl sm:text-3xl font-bold text-white">
+          {zh ? "先按你的情况进入" : "Start With Your Situation"}
+        </h2>
+        <p className="mt-2 text-slate-400">
+          {zh ? "不同人看到同一个网站，想找的不是同一件事。这里先帮你缩短决策路径。" : "Different visitors want different things. This section shortens the path."}
+        </p>
+      </div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {paths.map((path) => (
+          <Link
+            key={path.href}
+            href={path.href}
+            className="tap-target block"
+            onMouseEnter={() => preloadRoute(path.href.split('#')[0])}
+            onTouchStart={() => preloadRoute(path.href.split('#')[0])}
+          >
+            <div className={`h-full rounded-2xl border p-5 transition-all hover:-translate-y-0.5 hover:border-white/20 ${path.tone}`}>
+              <div className="mb-4 inline-flex rounded-xl border border-white/10 bg-black/20 p-2">
+                {path.icon}
+              </div>
+              <h3 className="mb-2 text-lg font-black text-white">{path.title}</h3>
+              <p className="mb-4 text-sm leading-6 text-slate-200/90">{path.desc}</p>
+              <span className="text-sm font-bold">{path.label} →</span>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function TrustSignals({ lang }: { lang: string }) {
+  const zh = lang === "zh";
+  const items = zh
+    ? [
+        { title: "路径先讲清，再谈转化", desc: "新用户、老用户、已有交易经验的人，看到的是更贴近自己需求的入口。" },
+        { title: "返佣规则不再含糊", desc: "默认 20%、老账户通常不能补绑、其他平台可联系你，这些规则前置展示。" },
+        { title: "内容与风险同时出现", desc: "教程、工具、快讯和免责声明一起出现，专业感会比单纯营销更强。" },
+      ]
+    : [
+        { title: "Paths first, conversion second", desc: "New users, existing users, and experienced traders get clearer entry points." },
+        { title: "Rebate rules are stated upfront", desc: "Default 20%, existing-account limits, and custom-contact options are shown clearly." },
+        { title: "Education and risk shown together", desc: "Guides, tools, news, and disclaimers appear together to build credibility." },
+      ];
+
+  return (
+    <section className="mb-12 rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
+      <div className="mb-6 flex items-center gap-3">
+        <BadgeCheck className="h-6 w-6 text-emerald-400" />
+        <div>
+          <h3 className="text-xl font-black text-white">
+            {zh ? "为什么这个站点更像专业工具，而不是普通导流页" : "Why This Feels Like a Professional Product"}
+          </h3>
+          <p className="mt-1 text-sm text-slate-400">
+            {zh ? "用户会留下来，往往不是因为标题更夸张，而是因为路径更稳、解释更清楚。" : "Users stay when the path is clear and the explanations are stable."}
+          </p>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {items.map((item) => (
+          <div key={item.title} className="rounded-2xl border border-white/10 bg-black/20 p-5">
+            <h4 className="mb-2 text-base font-black text-white">{item.title}</h4>
+            <p className="text-sm leading-6 text-slate-400">{item.desc}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
 
 // ============================================================
 // 背景动画
@@ -524,9 +654,11 @@ export default function Portal() {
         </div>
 
         <QuizBanner lang={lang} />
+        <QuickStartPaths lang={lang} />
         <LogoMarquee label={t.bannerLabel} />
 
         <div className="pb-16">
+          <TrustSignals lang={lang} />
           <div className="text-center mb-10">
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">{t.sectionTitle}</h2>
             <p className="text-slate-400">{t.sectionSub}</p>
