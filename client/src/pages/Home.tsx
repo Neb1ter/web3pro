@@ -191,7 +191,7 @@ function FloatChapterMenu({ activeId, zh }: { activeId: string; zh: boolean }) {
 function FeeCalculator({ zh }: { zh: boolean }) {
   const [volume, setVolume] = useState(100000);
   const [feeRate, setFeeRate] = useState(0.1);
-  const [rebateRate, setRebateRate] = useState(60);
+  const [rebateRate, setRebateRate] = useState(20);
 
   const fee = volume * (feeRate / 100);
   const rebate = fee * (rebateRate / 100);
@@ -260,14 +260,14 @@ function FeeCalculator({ zh }: { zh: boolean }) {
             <span className="text-sm font-black" style={{ color: '#FFD700' }}>{rebateRate}%</span>
           </div>
           <input
-            type="range" min={10} max={70} step={5}
+            type="range" min={20} max={50} step={5}
             value={rebateRate}
             onChange={e => setRebateRate(Number(e.target.value))}
             className="w-full h-2 rounded-full appearance-none cursor-pointer"
             style={{ accentColor: '#FFD700' }}
           />
           <div className="flex justify-between text-xs text-slate-600 mt-1">
-            <span>10%</span><span>40%</span><span>70%</span>
+            <span>20%</span><span>35%</span><span>50%</span>
           </div>
         </div>
       </div>
@@ -307,6 +307,7 @@ export default function Home() {
   const [showGuide, setShowGuide] = useState(() => {
     try { return !localStorage.getItem('crypto_guide_seen'); } catch { return true; }
   });
+  const [selectedGuideType, setSelectedGuideType] = useState<'new' | 'old' | null>(null);
 
   // 滚动感知：当前章节
   const [activeChapter, setActiveChapter] = useState(CHAPTERS[0].id);
@@ -332,9 +333,10 @@ export default function Home() {
   }, []);
 
   const handleGuideSelection = (type: 'new' | 'old') => {
+    setSelectedGuideType(type);
     setShowGuide(false);
     try { localStorage.setItem('crypto_guide_seen', '1'); } catch {}
-    const targetId = type === 'new' ? 'how-to-get' : 'how-to-get';
+    const targetId = type === 'new' ? 'how-to-get' : 'action';
     setTimeout(() => document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' }), 100);
   };
 
@@ -446,6 +448,19 @@ export default function Home() {
             >
               {zh ? '新手不知道怎么下载？' : 'How to Download an Exchange?'}
             </Button>
+          </div>
+          <div className="mx-auto mt-6 max-w-3xl rounded-2xl border border-amber-500/25 bg-amber-500/10 p-4 text-left">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-300" />
+              <div className="space-y-2 text-sm leading-6 text-amber-100">
+                <p className="font-bold text-amber-300">
+                  {zh ? '先说清楚规则：新用户默认 20% 返佣。' : 'Important first: new users start with a default 20% rebate.'}
+                </p>
+                <p>
+                  {zh ? '老账户通常没法补绑返佣；如果你需要更高额度，或者五家交易所里没有你想要的平台，直接联系我。' : 'Existing accounts usually cannot be retrofitted. Contact me if you need a higher rate or a different exchange.'}
+                </p>
+              </div>
+            </div>
           </div>
           <div className="mt-14 animate-bounce">
             <ChevronDown className="text-amber-400/60 mx-auto" size={28} />
@@ -799,7 +814,7 @@ export default function Home() {
 
           <div className="grid sm:grid-cols-2 gap-5 mb-10">
             {/* 新用户 */}
-            <div className="bg-white/3 p-6 rounded-2xl border" style={{ borderColor: 'rgba(255,215,0,0.35)', boxShadow: '0 4px 24px rgba(255,215,0,0.06)' }}>
+            <div className="bg-white/3 p-6 rounded-2xl border" style={{ borderColor: selectedGuideType === 'new' ? 'rgba(255,215,0,0.55)' : 'rgba(255,215,0,0.35)', boxShadow: '0 4px 24px rgba(255,215,0,0.06)' }}>
               <div className="text-3xl mb-3">👤</div>
               <h3 className="text-lg font-black mb-5" style={{ color: '#FFD700' }}>{texts.comparison.newUser}</h3>
               {[texts.comparison.step1New, texts.comparison.step2New, texts.comparison.step3New].map((step, i) => (
@@ -818,7 +833,7 @@ export default function Home() {
             </div>
 
             {/* 老用户 */}
-            <div className="bg-white/3 p-6 rounded-2xl border border-white/10">
+            <div className="bg-white/3 p-6 rounded-2xl border" style={{ borderColor: selectedGuideType === 'old' ? 'rgba(245,158,11,0.5)' : 'rgba(255,255,255,0.1)' }}>
               <div className="text-3xl mb-3">👥</div>
               <h3 className="text-lg font-black text-slate-300 mb-5">{texts.comparison.oldUser}</h3>
               {[texts.comparison.step1Old, texts.comparison.step2Old, texts.comparison.step3Old].map((step, i) => (
@@ -863,11 +878,9 @@ export default function Home() {
                   >
                     <div className="text-3xl group-hover:scale-110 transition-transform">{meta.emoji}</div>
                     <span className="text-xs font-black text-white capitalize">{ex.name}</span>
-                    {ex.rebateRate && (
-                      <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(255,215,0,0.12)', color: '#FFD700', border: '1px solid rgba(255,215,0,0.2)' }}>
-                        {ex.rebateRate}
-                      </span>
-                    )}
+                    <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(255,215,0,0.12)', color: '#FFD700', border: '1px solid rgba(255,215,0,0.2)' }}>
+                      {zh ? '默认 20%' : 'Default 20%'}
+                    </span>
                     <span className="text-xs font-semibold" style={{ color: '#FFA500' }}>
                       {texts.exchangeDownload.download} ↗
                     </span>

@@ -172,6 +172,14 @@ export default function ExchangeDownload() {
               ? "从下载 App 到填写邀请码，全程图文说明，5 分钟完成注册，立即享受返佣福利。"
               : "From downloading the app to entering the referral code — step-by-step guide, complete registration in 5 minutes and start earning rebates."}
           </p>
+          <div className="mx-auto mt-6 max-w-2xl rounded-2xl border border-amber-500/25 bg-amber-500/10 p-4 text-left text-sm leading-6 text-amber-100">
+            <p className="font-bold text-amber-300">
+              {zh ? '新用户默认 20% 返佣，想要更高额度请直接联系我。' : 'New users start with a default 20% rebate. Contact me if you need a higher rate.'}
+            </p>
+            <p className="mt-2">
+              {zh ? '老账户通常无法补绑返佣；目前优先支持 5 家交易所，如果你需要其他平台，也可以直接联系我。' : 'Existing accounts usually cannot be retrofitted. We currently support 5 exchanges, and you can contact me if you need another platform.'}
+            </p>
+          </div>
         </div>
 
         {/* ── Exchange Selector ── */}

@@ -91,32 +91,56 @@ const QUESTIONS: QuizQuestion[] = [
 // UserProfile, LearningStep, QuizAnswer, ALL_STEPS 均从 @/lib/quizConst 导入
 
 export function generateLearningPath(profile: UserProfile): LearningStep[] {
-  const tagScores = new Map<string, number>();
-  for (const answer of profile.answers) {
-    for (const tag of answer.tags) {
-      tagScores.set(tag, (tagScores.get(tag) || 0) + answer.weight + 1);
+  const stepsById = new Map(ALL_STEPS.map((step) => [step.id, step]));
+  const selected: LearningStep[] = [];
+  const picked = new Set<string>();
+  const tags = new Set(profile.answers.flatMap((answer) => answer.tags));
+
+  const pushUnique = (...ids: string[]) => {
+    for (const id of ids) {
+      if (picked.has(id)) continue;
+      const step = stepsById.get(id);
+      if (!step) continue;
+      selected.push(step);
+      picked.add(id);
     }
+  };
+
+  const beginnerCore = ['what-is-web3', 'blockchain-basics', 'wallet-keys', 'kyc-flow'];
+  const tradingCore = ['exchange-download', 'exchange-guide', 'crypto-saving', 'sim-spot'];
+  const investmentCore = ['investment-gateway', 'economic-opportunity'];
+  const defiCore = ['defi-deep', 'exchange-guide-deep', 'sim-futures'];
+
+  if (profile.level === 'beginner') {
+    pushUnique(...beginnerCore);
+    if (tags.has('exchange') || tags.has('saving') || tags.has('trading')) {
+      pushUnique('exchange-download', 'exchange-guide', 'crypto-saving', 'sim-spot');
+    } else if (tags.has('investment')) {
+      pushUnique('investment-gateway', 'exchange-download', 'crypto-saving', 'sim-spot');
+    } else if (tags.has('defi') || tags.has('advanced')) {
+      pushUnique('investment-gateway', 'exchange-download', 'exchange-guide', 'defi-deep');
+    } else {
+      pushUnique('exchange-download', 'exchange-guide', 'crypto-saving', 'investment-gateway');
+    }
+  } else if (profile.level === 'intermediate') {
+    pushUnique('what-is-web3', 'wallet-keys', 'kyc-flow');
+    if (tags.has('saving')) pushUnique('crypto-saving');
+    if (tags.has('exchange') || tags.has('trading')) pushUnique(...tradingCore);
+    if (tags.has('investment')) pushUnique(...investmentCore);
+    if (tags.has('defi') || tags.has('advanced')) pushUnique('defi-deep', 'sim-futures');
+    pushUnique('exchange-download', 'exchange-guide', 'sim-spot', 'investment-gateway');
+  } else {
+    pushUnique('wallet-keys', 'kyc-flow');
+    if (tags.has('defi') || tags.has('advanced')) pushUnique(...defiCore);
+    if (tags.has('exchange') || tags.has('trading')) pushUnique('exchange-guide-deep', 'sim-futures', 'exchange-guide', 'sim-spot');
+    if (tags.has('investment')) pushUnique(...investmentCore);
+    if (tags.has('saving')) pushUnique('crypto-saving', 'exchange-download');
+    pushUnique('economic-opportunity', 'investment-gateway', 'exchange-guide', 'crypto-saving');
   }
 
-  const scored = ALL_STEPS.map(step => {
-    let score = 0;
-    for (const tag of step.tags) {
-      score += tagScores.get(tag) || 0;
-    }
-    if (step.difficulty === profile.level) score += 3;
-    if (step.difficulty === "beginner" && profile.level === "intermediate") score += 1;
-    if (step.difficulty === "intermediate" && profile.level === "advanced") score += 1;
-    if (step.difficulty === "advanced" && profile.level === "beginner") score -= 2;
-    return { step, score };
-  });
+  pushUnique(...beginnerCore, ...tradingCore, ...investmentCore, ...defiCore);
 
-  scored.sort((a, b) => b.score - a.score);
-
-  const difficultyOrder = { beginner: 0, intermediate: 1, advanced: 2 };
-  const selected = scored.slice(0, 8).map(s => s.step);
-  selected.sort((a, b) => difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty]);
-
-  return selected;
+  return selected.slice(0, 8);
 }
 
 function ProgressBar({ current, total }: { current: number; total: number }) {
