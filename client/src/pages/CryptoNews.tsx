@@ -239,7 +239,7 @@ function ArticlesPanel({ zh }: { zh: boolean }) {
             category: string; author: string; viewCount?: number | null;
             publishedAt?: string | null; isAiGenerated?: boolean | null;
             coverImage?: string | null; tags?: string | null;
-          }) => {
+          }, index: number) => {
             const catInfo = ARTICLE_CATEGORY_LABELS[article.category] ?? ARTICLE_CATEGORY_LABELS.analysis;
             const catLabel = zh ? catInfo.zh : catInfo.en;
             const tags = article.tags ? article.tags.split(",").map(t => t.trim()).filter(Boolean) : [];
@@ -248,7 +248,14 @@ function ArticlesPanel({ zh }: { zh: boolean }) {
                 <div className="group rounded-xl border border-gray-700/60 bg-gray-800/40 hover:border-cyan-500/40 hover:shadow-[0_0_20px_rgba(6,182,212,0.06)] transition-all duration-200 cursor-pointer overflow-hidden">
                   {article.coverImage && (
                     <div className="h-36 overflow-hidden">
-                      <img src={article.coverImage} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <img
+                        src={article.coverImage}
+                        alt={article.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading={index < 2 ? "eager" : "lazy"}
+                        decoding="async"
+                        fetchPriority={index === 0 ? "high" : "auto"}
+                      />
                     </div>
                   )}
                   <div className="p-4">

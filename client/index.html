@@ -1,312 +1,141 @@
 <!doctype html>
 <html lang="zh-CN">
-
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=5" />
-    <title>Get8 Pro — 官方认证返佣 | Web3 专业交易者导航平台</title>
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5" />
+    <title>Get8 Pro | Web3 Trading Navigation Platform</title>
     <script>window.APP_VERSION = "1.0.6";</script>
 
-    <!-- ===== Microsoft Clarity Analytics (Low-cost, High-return) ===== -->
     <script type="text/javascript">
-        (function(c,l,a,r,i,t,y){
-            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-        })(window, document, "clarity", "script", "qf7m8p5v9x");
+      (function(c, l, a, r, i, t, y) {
+        c[a] = c[a] || function() { (c[a].q = c[a].q || []).push(arguments); };
+        t = l.createElement(r);
+        t.async = 1;
+        t.src = "https://www.clarity.ms/tag/" + i;
+        y = l.getElementsByTagName(r)[0];
+        y.parentNode.insertBefore(t, y);
+      })(window, document, "clarity", "script", "qf7m8p5v9x");
     </script>
 
-    <!-- ===== 性能优化：预连接 & DNS 预解析 ===== -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
     <link rel="preconnect" href="https://www.clarity.ms" crossorigin />
     <link rel="dns-prefetch" href="https://get8.pro" />
     <link rel="dns-prefetch" href="https://www.clarity.ms" />
-    <!-- 移动端性能：禁用 tap 延迟 -->
+
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-    <!-- ===== SEO Meta Tags (Default / Fallback) ===== -->
-    <!-- Note: Dynamic per-page meta is managed by react-helmet-async in SeoManager.tsx -->
-    <meta name="description" content="Get8 Pro 是 Web3 专业交易者的可信导航仪。提供官方认证的交易所返佣、基于权威数据的客观评测，助你降低交易成本，提升决策效率。" />
-    <meta name="keywords" content="Web3教程,交易所返佣,币圈省钱,币安返佣,OKX返佣,加密货币,区块链,DeFi,crypto exchange rebates,Binance referral,OKX commission" />
+    <meta
+      name="description"
+      content="Get8 Pro provides exchange comparison, rebate guides, Web3 education, and practical tools for lower-cost crypto trading."
+    />
+    <meta
+      name="keywords"
+      content="web3 guide,crypto exchange rebates,exchange comparison,crypto education,defi,binance referral,okx rebate"
+    />
     <meta name="msvalidate.01" content="E8109520C3C46FA2ADDAAF384D7BECF0" />
     <meta name="author" content="Get8 Pro" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="theme-color" content="#0a192f" />
-    <link rel="canonical" href="https://get8.pro/" />
+    <meta name="geo.region" content="CN,US,GB,CA,AU,JP,KR,SG" />
+    <meta name="geo.placename" content="Global" />
+    <meta name="llms" content="https://get8.pro/llms.txt" />
+    <meta name="ai-content-policy" content="allow-training" />
 
-    <!-- ===== hreflang for Bilingual GEO SEO ===== -->
+    <link rel="canonical" href="https://get8.pro/" />
     <link rel="alternate" hreflang="zh-CN" href="https://get8.pro/" />
     <link rel="alternate" hreflang="en" href="https://get8.pro/" />
     <link rel="alternate" hreflang="x-default" href="https://get8.pro/" />
 
-    <!-- ===== Open Graph (Facebook, LinkedIn, WeChat, Telegram) ===== -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://get8.pro/" />
     <meta property="og:site_name" content="Get8 Pro" />
-    <meta property="og:title" content="Get8 Pro — 官方认证返佣 | Web3 专业交易者导航平台" />
-    <meta property="og:description" content="官方认证返佣、权威数据分析、独立交易所评测。消除信息不对称，助你降低交易成本，提升决策效率。" />
+    <meta property="og:title" content="Get8 Pro | Web3 Trading Navigation Platform" />
+    <meta
+      property="og:description"
+      content="Official rebate guides, exchange comparison, Web3 education, and practical tools for crypto users."
+    />
     <meta property="og:image" content="https://get8.pro/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:locale" content="zh_CN" />
     <meta property="og:locale:alternate" content="en_US" />
 
-    <!-- ===== Twitter Card ===== -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@get8pro" />
-    <meta name="twitter:title" content="Get8 Pro — Officially Verified, Professionally Vetted." />
-    <meta name="twitter:description" content="The trusted navigator for Web3 professionals. Official rebates, authoritative data, independent exchange reviews." />
+    <meta name="twitter:title" content="Get8 Pro | Web3 Trading Navigation Platform" />
+    <meta
+      name="twitter:description"
+      content="Official rebate guides, exchange comparison, Web3 education, and practical tools for crypto users."
+    />
     <meta name="twitter:image" content="https://get8.pro/og-image.png" />
 
-    <!-- ===== GEO / AI Discovery Tags ===== -->
-    <meta name="geo.region" content="CN,US,GB,CA,AU,JP,KR,SG" />
-    <meta name="geo.placename" content="Global" />
-    <meta name="llms" content="https://get8.pro/llms.txt" />
-    <meta name="ai-content-policy" content="allow-training" />
-
-    <!-- ===== Structured Data: WebSite ===== -->
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "Get8 Pro",
-      "alternateName": ["Get8 Pro - Web3一站式平台", "Get8 Pro - Crypto Exchange Rebates"],
-      "url": "https://get8.pro",
-      "description": "Get8 Pro 是 Web3 专业交易者的可信导航仪。提供官方认证的交易所返佣、基于权威数据的客观评测，助你降低交易成本，提升决策效率。",
-      "inLanguage": ["zh-CN", "en"],
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://get8.pro/?q={search_term_string}",
-        "query-input": "required name=search_term_string"
-      },
-      "publisher": {
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Get8 Pro",
+        "alternateName": ["Get8 Pro - Web3 Platform", "Get8 Pro - Crypto Exchange Rebates"],
+        "url": "https://get8.pro",
+        "description": "Get8 Pro provides exchange comparison, rebate guides, Web3 education, and practical tools for lower-cost crypto trading.",
+        "inLanguage": ["zh-CN", "en"],
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://get8.pro/?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
         "@type": "Organization",
         "name": "Get8 Pro",
         "url": "https://get8.pro",
-        "logo": {
-          "@type": "ImageObject",
-          "url": "https://get8.pro/logo.png"
+        "logo": "https://get8.pro/logo.png",
+        "description": "Get8 Pro is a Web3 navigation platform focused on exchange guides, rebate information, and education.",
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "email": "mailto:muzi2629265049@gmail.com",
+          "contactType": "customer support",
+          "availableLanguage": ["Chinese", "English"]
         }
       }
-    }
     </script>
 
-    <!-- ===== Structured Data: Organization ===== -->
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "Get8 Pro",
-      "url": "https://get8.pro",
-      "logo": "https://get8.pro/logo.png",
-      "description": "Web3 专业交易者的可信导航仪，提供官方认证的交易所返佣和 Web3 教育内容。",
-      "contactPoint": {
-        "@type": "ContactPoint",
-      "email": "mailto:muzi2629265049@gmail.com",
-      "contactType": "customer support",
-        "availableLanguage": ["Chinese", "English"]
-      },
-      "knowsAbout": [
-        "Web3",
-        "Cryptocurrency Exchange Rebates",
-        "Blockchain Technology",
-        "DeFi",
-        "Binance",
-        "OKX",
-        "Gate.io",
-        "Bybit",
-        "Bitget"
-      ]
-    }
-    </script>
-
-    <!-- ===== Structured Data: Service ===== -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Service",
-      "serviceType": "Cryptocurrency Exchange Rebate Service",
-      "name": "交易所手续费返佣服务",
-      "provider": {
-        "@type": "Organization",
-        "name": "Get8 Pro",
-        "url": "https://get8.pro"
-      },
-      "areaServed": {
-        "@type": "Place",
-        "name": "Global"
-      },
-      "description": "通过 Get8 Pro 官方合作的专属邀请码，永久降低主流交易所（币安、OKX、Gate.io 等）的交易手续费，返佣比例公开透明，笔笔可查。",
-      "offers": {
-        "@type": "Offer",
-        "description": "免费使用，通过官方合作邀请码享受永久手续费返佣",
-        "price": "0",
-        "priceCurrency": "USD"
-      }
-    }
-    </script>
-
-    <!-- ===== Structured Data: FAQPage ===== -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "什么是交易所返佣？",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "交易所返佣是平台将一部分交易手续费返还给用户或推广者的激励机制。通过使用特定的邀请码注册，您可以永久性地降低每笔交易的成本，最高可节省 60% 的手续费。"
-          }
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "serviceType": "Cryptocurrency Exchange Rebate Service",
+        "name": "Crypto Exchange Rebate Service",
+        "provider": {
+          "@type": "Organization",
+          "name": "Get8 Pro",
+          "url": "https://get8.pro"
         },
-        {
-          "@type": "Question",
-          "name": "使用返佣码安全吗？",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "非常安全。返佣是通过交易所官方后台实现的，只影响您的费率设置，不涉及账户权限或资金安全。Get8 Pro 提供的都是官方合作渠道，返佣由交易所系统自动结算。"
-          }
+        "areaServed": {
+          "@type": "Place",
+          "name": "Global"
         },
-        {
-          "@type": "Question",
-          "name": "哪些交易所支持返佣？",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Get8 Pro 与币安（Binance）、OKX、Gate.io、Bybit、Bitget 等主流交易所均有官方合作，提供专属邀请码，返佣比例从 20% 到 60% 不等。"
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "What are crypto exchange rebates?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Crypto exchange rebates are an incentive mechanism where the platform returns a portion of the trading fees to users or promoters. By registering with a specific referral code from Get8 Pro, you can permanently reduce the cost of every trade, saving up to 60% on fees."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "如何下载币安（Binance）并获得返佣？",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "访问 binance.com 下载应用，或在 App Store / Google Play 搜索「Binance」。注册时在邀请码栏填写 Get8 Pro 邀请码，即可永久享受 20% 手续费返佣。最新邀请码请查阅：https://get8.pro/exchanges.json"
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "如何下载 OKX 并获得返佣？",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "OKX 在部分地区 App Store 下架，可切换海外 Apple ID 或直接下载 APK。注册时填写 Get8 Pro 邀请码，可享受 20% 手续费返佣。完整下载指南：https://get8.pro/exchange-download"
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "如何下载 Gate.io 并获得返佣？",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "App Store / Google Play 搜索「Gate.io」即可下载。注册时填写邀请码 GETITPRO，可享受高达 60% 的手续费返佣，是所有主流交易所中返佣比例最高的。完整指南：https://get8.pro/exchange-download"
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "如何下载 Bybit 并获得返佣？",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "App Store / Google Play 搜索「Bybit」即可下载。注册时填写 Get8 Pro 邀请码，可享受 30% 手续费返佣。Bybit 合约 Maker 费为全网最低 0.01%。完整指南：https://get8.pro/exchange-download"
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "如何下载 Bitget 并获得返佣？",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "App Store / Google Play 搜索「Bitget」即可下载，支持中文界面。注册时填写 Get8 Pro 邀请码，可享受 50% 手续费返佣。Bitget 是跨单交易领先平台。完整指南：https://get8.pro/exchange-download"
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "How to download Binance and get rebate?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Visit binance.com to download the app, or search 'Binance' on App Store / Google Play. Enter the Get8 Pro referral code during registration to enjoy 20% fee rebate permanently. Latest referral code: https://get8.pro/exchanges.json"
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "How to download Gate.io and get the highest rebate?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Search 'Gate.io' on App Store or Google Play. Enter referral code GETITPRO during registration to enjoy up to 60% fee rebate — the highest among all major exchanges. Full guide: https://get8.pro/exchange-download"
-          }
+        "description": "Get8 Pro helps users access official exchange rebates, compare platforms, and reduce trading costs with transparent guidance.",
+        "offers": {
+          "@type": "Offer",
+          "description": "Free to use with official partner rebate links and practical onboarding guidance.",
+          "price": "0",
+          "priceCurrency": "USD"
         }
-      ]
-    }
-    </script>
-
-    <!-- ===== Structured Data: BreadcrumbList ===== -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Web3入圈指南", "item": "https://get8.pro/web3-guide" },
-        { "@type": "ListItem", "position": 2, "name": "币圈省钱指南", "item": "https://get8.pro/crypto-saving" },
-        { "@type": "ListItem", "position": 3, "name": "交易所对比", "item": "https://get8.pro/exchanges" },
-        { "@type": "ListItem", "position": 4, "name": "交易所扫盲指南", "item": "https://get8.pro/exchange-guide" }
-      ]
-    }
+      }
     </script>
   </head>
 
   <body>
     <div id="root">
-      <!-- Static fallback content for search engine crawlers (no-JS) -->
       <noscript>
-        <header>
-          <h1>Get8 Pro — Web3 专业交易者导航平台</h1>
-          <nav>
-            <a href="/">首页</a> |
-            <a href="/exchanges">交易所对比</a> |
-            <a href="/articles">文章中心</a> |
-            <a href="/about">关于我们</a>
-          </nav>
-        </header>
-        <main>
-          <h2>官方认证返佣 | 权威数据评测 | 独立交易所分析</h2>
-          <p>Get8 Pro 是 Web3 专业交易者的可信导航仪。提供官方认证的交易所返佣、基于权威数据的客观评测，助你降低交易成本，提升决策效率。</p>
-          <h3>支持的主流交易所</h3>
-          <ul>
-            <li><a href="/exchange/binance">币安 Binance — 全球最大加密货币交易所，享受最高20%手续费返佣</a></li>
-            <li><a href="/exchange/okx">OKX — 专业衍生品交易平台，享受最高20%手续费返佣</a></li>
-            <li><a href="/exchange/gate">Gate.io — 山寨币最全交易所，享受最高60%手续费返佣</a></li>
-            <li><a href="/exchange/bybit">Bybit — 合约交易首选平台，享受最高30%手续费返佣</a></li>
-            <li><a href="/exchange/bitget">Bitget — 跟单交易领先平台，享受最高50%手续费返佣</a></li>
-          </ul>
-          <h3>最新文章</h3>
-          <ul>
-            <li><a href="/articles">2026年币安手续费完整指南</a></li>
-            <li><a href="/articles">OKX vs 币安深度对比2026</a></li>
-            <li><a href="/articles">Gate.io 60%返佣怎么领</a></li>
-            <li><a href="/articles">2026年最佳加密货币交易所推荐</a></li>
-          </ul>
-          <p>请启用 JavaScript 以获得完整体验。</p>
-        </main>
-        <footer>
-          <p>&copy; 2026 Get8 Pro. 专业 Web3 交易导航平台.</p>
-        </footer>
+        <p>Get8 Pro requires JavaScript to load the full experience.</p>
       </noscript>
     </div>
     <script type="module" src="/src/main.tsx"></script>
-    <!-- Analytics: loads only when env vars are configured at build time -->
-    <!-- To enable: set VITE_ANALYTICS_ENDPOINT and VITE_ANALYTICS_WEBSITE_ID in .env -->
   </body>
-
 </html>

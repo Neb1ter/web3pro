@@ -128,6 +128,20 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
+function getNodeModulePackageName(id: string): string | null {
+  const normalized = id.replaceAll("\\", "/");
+  const marker = "/node_modules/";
+  const markerIndex = normalized.lastIndexOf(marker);
+  if (markerIndex === -1) return null;
+
+  const segments = normalized.slice(markerIndex + marker.length).split("/");
+  if (segments[0]?.startsWith("@") && segments[1]) {
+    return `${segments[0]}/${segments[1]}`;
+  }
+
+  return segments[0] ?? null;
+}
+
 const isDev = process.env.NODE_ENV !== "production";
 const plugins = [
   react(),
@@ -154,31 +168,76 @@ export default defineConfig({
     emptyOutDir: true,
     cssCodeSplit: true,
     chunkSizeWarningLimit: 600,
-    modulePreload: false,
     minify: "esbuild",
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          if (
-            id.includes("node_modules/react/") ||
-            id.includes("node_modules/react-dom/") ||
-            id.includes("node_modules/scheduler/")
-          ) {
+          const pkg = getNodeModulePackageName(id);
+          if (!pkg) return;
+
+          if (["react", "react-dom", "scheduler"].includes(pkg)) {
             return "vendor-react";
           }
 
           if (
-            id.includes("node_modules/streamdown") ||
-            id.includes("node_modules/mermaid") ||
-            id.includes("node_modules/shiki") ||
-            id.includes("node_modules/@shikijs")
+            [
+              "@tanstack/react-query",
+              "@trpc/client",
+              "@trpc/react-query",
+              "superjson",
+              "wouter",
+              "zod",
+            ].includes(pkg)
           ) {
-            return undefined;
+            return "vendor-data";
           }
 
-          if (id.includes("node_modules/")) {
-            return "vendor-misc";
+          if (
+            [
+              "@radix-ui/react-accordion",
+              "@radix-ui/react-alert-dialog",
+              "@radix-ui/react-aspect-ratio",
+              "@radix-ui/react-avatar",
+              "@radix-ui/react-checkbox",
+              "@radix-ui/react-collapsible",
+              "@radix-ui/react-context-menu",
+              "@radix-ui/react-dialog",
+              "@radix-ui/react-dropdown-menu",
+              "@radix-ui/react-hover-card",
+              "@radix-ui/react-label",
+              "@radix-ui/react-menubar",
+              "@radix-ui/react-navigation-menu",
+              "@radix-ui/react-popover",
+              "@radix-ui/react-progress",
+              "@radix-ui/react-radio-group",
+              "@radix-ui/react-scroll-area",
+              "@radix-ui/react-select",
+              "@radix-ui/react-separator",
+              "@radix-ui/react-slider",
+              "@radix-ui/react-slot",
+              "@radix-ui/react-switch",
+              "@radix-ui/react-tabs",
+              "@radix-ui/react-toggle",
+              "@radix-ui/react-toggle-group",
+              "@radix-ui/react-tooltip",
+              "cmdk",
+              "embla-carousel-react",
+              "input-otp",
+              "next-themes",
+              "sonner",
+              "vaul",
+            ].includes(pkg)
+          ) {
+            return "vendor-ui";
           }
+
+          if (pkg === "lucide-react") return "vendor-icons";
+
+          if (["react-hook-form", "@hookform/resolvers", "date-fns"].includes(pkg)) {
+            return "vendor-forms";
+          }
+
+          return undefined;
         },
         chunkFileNames: "assets/js/[name]-[hash].js",
         entryFileNames: "assets/js/[name]-[hash].js",

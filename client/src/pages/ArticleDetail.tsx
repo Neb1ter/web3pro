@@ -132,7 +132,13 @@ export default function ArticleDetail() {
         {/* Cover image */}
         {article.coverImage && (
           <div className="rounded-2xl overflow-hidden mb-6 h-48 sm:h-64">
-            <img src={article.coverImage} alt={article.title} className="w-full h-full object-cover" />
+            <img
+              src={article.coverImage}
+              alt={article.title}
+              className="w-full h-full object-cover"
+              decoding="async"
+              fetchPriority="high"
+            />
           </div>
         )}
 

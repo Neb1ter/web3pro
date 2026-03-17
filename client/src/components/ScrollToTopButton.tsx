@@ -65,11 +65,17 @@ export function ScrollToTopButton({
   const cfg = colorConfig[color];
 
   useEffect(() => {
+    let ticking = false;
     const onScroll = () => {
-      const scrollY = window.scrollY;
-      const docH = document.documentElement.scrollHeight - window.innerHeight;
-      setVisible(scrollY > threshold);
-      setProgress(docH > 0 ? Math.min(scrollY / docH, 1) : 0);
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const scrollY = window.scrollY;
+        const docH = document.documentElement.scrollHeight - window.innerHeight;
+        setVisible(scrollY > threshold);
+        setProgress(docH > 0 ? Math.min(scrollY / docH, 1) : 0);
+        ticking = false;
+      });
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
