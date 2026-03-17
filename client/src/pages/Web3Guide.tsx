@@ -216,6 +216,7 @@ const startSteps = [
 // ============================================================
 function FloatChapterMenu({ activeId }: { activeId: string }) {
   const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const { language } = useLanguage();
   const zh = language === "zh";
   const navSections = WEB3_GUIDE_SECTIONS.map((section) => ({
@@ -223,147 +224,107 @@ function FloatChapterMenu({ activeId }: { activeId: string }) {
     icon: section.icon,
     label: tWeb3(section.label, language),
   }));
-  const active = navSections.find(s => s.id === activeId) ?? navSections[0];
-  // 拖拽偏移量
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const dragRef = useRef<{ startX: number; startY: number; origX: number; origY: number; moved: boolean } | null>(null);
+  const active = navSections.find((section) => section.id === activeId) ?? navSections[0];
 
   const scrollTo = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
     setOpen(false);
   };
 
-  // 鼠标拖拽
-  const onMouseDown = () => {
-    dragRef.current = null;
-  };
   useEffect(() => {
-    const onMove = (e: MouseEvent) => {
-      if (!dragRef.current) return;
-      const dx = e.clientX - dragRef.current.startX;
-      const dy = e.clientY - dragRef.current.startY;
-      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragRef.current.moved = true;
-      setOffset({ x: dragRef.current.origX + dx, y: dragRef.current.origY + dy });
-    };
-    const onUp = () => { dragRef.current = null; };
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onUp);
-    return () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
-  }, []);
-  // 触控拖拽
-  const onTouchStart = () => {
-    dragRef.current = null;
-  };
-  useEffect(() => {
-    const onMove = (e: TouchEvent) => {
-      if (!dragRef.current) return;
-      const t = e.touches[0];
-      const dx = t.clientX - dragRef.current.startX;
-      const dy = t.clientY - dragRef.current.startY;
-      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
-        dragRef.current.moved = true;
-        setOffset({ x: dragRef.current.origX + dx, y: dragRef.current.origY + dy });
-        e.preventDefault();
+    if (!open) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpen(false);
       }
     };
-    const onEnd = () => { dragRef.current = null; };
-    window.addEventListener('touchmove', onMove, { passive: false });
-    window.addEventListener('touchend', onEnd);
-    return () => { window.removeEventListener('touchmove', onMove); window.removeEventListener('touchend', onEnd); };
-  }, []);
 
-  const containerStyle: React.CSSProperties = {
-    position: 'fixed',
-    left: `calc(1rem + ${offset.x}px)`,
-    bottom: `calc(1rem + env(safe-area-inset-bottom, 0px) - ${offset.y}px)`,
-    zIndex: 50,
-    userSelect: 'none',
-    pointerEvents: 'none',
-  };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open]);
 
   return (
-    <>
-      {open && <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />}
-      <div style={containerStyle}>
-        {open && (
-          <div
-            className="mb-3 rounded-2xl border border-emerald-500/25 overflow-hidden"
-            style={{
-              background: 'rgba(5,13,26,0.95)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(16,185,129,0.08)',
-              width: '220px',
-              pointerEvents: 'auto',
-              touchAction: 'manipulation',
-            }}
-          >
-            <div className="px-4 py-3 border-b border-emerald-500/15">
-              <p className="text-xs font-black uppercase tracking-widest text-emerald-400">
-                {zh ? "章节导航" : "Section menu"}
-              </p>
-            </div>
-            <div className="py-2">
-              {navSections.map(sec => (
-                <button
-                  key={sec.id}
-                  type="button"
-                  onClick={() => scrollTo(sec.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-all ${
-                    sec.id === activeId
-                      ? 'bg-emerald-500/12 text-emerald-300'
-                      : 'text-slate-400 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  <span className="text-base shrink-0 w-6 text-center">{sec.icon}</span>
-                  <span className="text-sm font-semibold truncate">{sec.label}</span>
-                  {sec.id === activeId && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+    <div
+      ref={menuRef}
+      className="fixed left-4 z-50 select-none"
+      style={{ bottom: "calc(1rem + env(safe-area-inset-bottom, 0px))" }}
+    >
+      {open && (
         <div
-          onMouseDown={onMouseDown}
-          onTouchStart={onTouchStart}
-          className="cursor-grab active:cursor-grabbing"
-          style={{ pointerEvents: 'auto' }}
+          className="mb-3 overflow-hidden rounded-2xl border border-emerald-500/25"
+          style={{
+            background: "rgba(5,13,26,0.95)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(16,185,129,0.08)",
+            width: "220px",
+          }}
         >
-          <button
-            type="button"
-            onClick={() => { if (!dragRef.current?.moved) setOpen(v => !v); }}
-            className="flex items-center gap-2.5 rounded-2xl border border-emerald-500/30 px-3.5 py-2.5 transition-all hover:border-emerald-500/60"
-            style={{
-              background: 'rgba(5,13,26,0.92)',
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.4), 0 0 12px rgba(16,185,129,0.08)',
-              pointerEvents: 'auto',
-              touchAction: 'manipulation',
-              WebkitTapHighlightColor: 'transparent',
-            }}
-            title={zh ? "???????????" : "Pinned menu, tap to switch sections"}
-          >
-            <span className="text-lg">{active.icon}</span>
-            <div className="hidden sm:block">
-              <p className="text-xs font-black text-emerald-400 leading-none mb-0.5">{active.label}</p>
-              <p className="text-[10px] leading-none text-slate-500">
-                {zh ? "???????????" : "Pinned menu, tap to open"}
-              </p>
-            </div>
-            <span className="text-slate-500">
-              {open ? <X className="w-3.5 h-3.5" /> : <Menu className="w-3.5 h-3.5" />}
-            </span>
-          </button>
+          <div className="border-b border-emerald-500/15 px-4 py-3">
+            <p className="text-xs font-black uppercase tracking-widest text-emerald-400">
+              {zh ? "章节导航" : "Section menu"}
+            </p>
+          </div>
+          <div className="py-2">
+            {navSections.map((section) => (
+              <button
+                key={section.id}
+                type="button"
+                onClick={() => scrollTo(section.id)}
+                className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-all ${
+                  section.id === activeId
+                    ? "bg-emerald-500/12 text-emerald-300"
+                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <span className="w-6 shrink-0 text-center text-base">{section.icon}</span>
+                <span className="truncate text-sm font-semibold">{section.label}</span>
+                {section.id === activeId && <span className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400" />}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
-    </>
+      )}
+
+      <button
+        type="button"
+        onClick={() => setOpen((value) => !value)}
+        className="tap-target flex touch-manipulation items-center gap-2.5 rounded-2xl border border-emerald-500/30 px-3.5 py-2.5 transition-all hover:border-emerald-500/60"
+        style={{
+          background: "rgba(5,13,26,0.92)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.4), 0 0 12px rgba(16,185,129,0.08)",
+          WebkitTapHighlightColor: "transparent",
+        }}
+        title={zh ? "固定菜单，点击切换章节" : "Pinned menu, tap to switch sections"}
+        aria-expanded={open}
+      >
+        <span className="text-lg">{active.icon}</span>
+        <div className="hidden sm:block">
+          <p className="mb-0.5 text-xs font-black leading-none text-emerald-400">{active.label}</p>
+          <p className="text-[10px] leading-none text-slate-500">
+            {zh ? "固定菜单，点按即可展开" : "Pinned menu, tap to open"}
+          </p>
+        </div>
+        <span className="text-slate-500">
+          {open ? <X className="h-3.5 w-3.5" /> : <Menu className="h-3.5 w-3.5" />}
+        </span>
+      </button>
+    </div>
   );
 }
 
-// ============================================================
-// 工具 Hook：滚动进入视野触发动画
-// ============================================================
 function useInView(threshold = 0.15) {
   const ref = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
@@ -1022,6 +983,7 @@ export default function Web3Guide() {
                   { label: "DeFi", color: "bg-yellow-500/20 text-yellow-400" },
                   { label: zh ? "经济形势" : "Macro", color: "bg-orange-500/20 text-orange-400" },
                   { label: zh ? "投资门户" : "Gateway", color: "bg-orange-500/20 text-orange-400" },
+                  { label: zh ? "KYC流程" : "KYC Flow", color: "bg-cyan-500/20 text-cyan-300" },
                   { label: zh ? "交易所" : "Exchanges", color: "bg-emerald-500/20 text-emerald-400" },
                 ].map((tag) => (
                   <span key={tag.label} className={`hidden sm:inline text-xs px-2 py-0.5 rounded-full ${tag.color}`}>{tag.label}</span>
@@ -1574,14 +1536,79 @@ export default function Web3Guide() {
             </p>
             <div className="mt-5 pt-5 border-t border-yellow-500/20 flex flex-col sm:flex-row items-center justify-between gap-3">
               <p className="text-slate-500 text-xs">
-                {zh ? "想深度了解 CEX vs DEX vs 链上的全面对比、质押收益计算器？" : "Want the full CEX vs DEX vs on-chain comparison and deeper staking guidance?"}
+                {zh ? "看完第六章的入门思路后，下一步建议先补齐 KYC 实名流程，再进入交易所注册、入金和首单交易。" : "After Chapter 6, the clean next step is to understand KYC first, then move on to exchange signup, funding, and the first trade."}
               </p>
               <div className="flex gap-2 flex-wrap">
                 <Link href="/web3-guide/investment-gateway" className="tap-target flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-400 text-black text-sm font-black transition-all whitespace-nowrap">
                     {zh ? "🚪 第六章：参与 Web3 的门户 →" : "🚪 Chapter 6: Your Gateway to Web3 →"}
                 </Link>
                 <Link href="/web3-guide/kyc-flow" className="tap-target flex items-center gap-2 px-4 py-2 rounded-xl border border-cyan-500/40 text-cyan-400 hover:bg-cyan-500/10 text-sm font-bold transition-all whitespace-nowrap">
-                    {zh ? "?? ????KYC???? ?" : "?? Chapter 7: KYC Flow ?"}
+                    {zh ? "🪪 第七章：KYC 实名流程 →" : "🪪 Chapter 7: KYC Flow →"}
+                </Link>
+              </div>
+            </div>
+          </div>
+        </FadeIn>
+
+        <FadeIn className="mb-10">
+          <SectionTitle
+            id="kyc"
+            icon="🪪"
+            title={zh ? "KYC 实名流程" : "KYC Verification Flow"}
+            subtitle={zh ? "先看懂资料准备和审核逻辑，再去提交会更顺，也更不容易被退回。" : "Preview the verification logic here, then open the full walkthrough for details."}
+          />
+
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.3fr_0.7fr] mb-12">
+            <div className="rounded-2xl border border-cyan-500/30 bg-gradient-to-br from-cyan-500/10 to-sky-500/5 p-6 sm:p-7">
+              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3 py-1 text-xs font-bold text-cyan-300 mb-4">
+                {zh ? "第七章 · 提前准备" : "Chapter 7 · Verification prep"}
+              </div>
+
+              <h3 className="text-xl sm:text-2xl font-black text-white mb-3">
+                {zh ? "主页先给你一张总览图，深入页再拆开讲准备、提交、审核和常见退回原因。" : "Start with the overview here, then open the detailed chapter for prep, submission, review, and the most common rejection reasons."}
+              </h3>
+
+              <p className="text-slate-300 text-sm leading-relaxed mb-5">
+                {zh
+                  ? "这一块先帮你建立顺序感：先准备证件和环境，再按平台提示上传、做人脸核验、等待审核。等你知道每一步在查什么，真正提交时就会快很多。"
+                  : "This preview keeps the big picture short: document prep, photo rules, liveness checks, rejection reasons, and safety reminders. Once it makes sense, open the full page for the detailed walkthrough."}
+              </p>
+
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {[
+                  { zh: "证件准备", en: "Documents" },
+                  { zh: "拍摄规范", en: "Photo rules" },
+                  { zh: "人脸核验", en: "Liveness" },
+                  { zh: "退回原因", en: "Rejections" },
+                ].map((item) => (
+                  <div key={item.en} className="rounded-xl border border-white/8 bg-black/20 p-3 text-center">
+                    <div className="text-sm font-bold text-cyan-300">{zh ? item.zh : item.en}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-white/8 bg-black/20 p-6">
+              <h3 className="text-base font-black text-white mb-4">
+                {zh ? "接下来怎么学" : "Go deeper from here"}
+              </h3>
+
+              <div className="space-y-3">
+                <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-4">
+                  <div className="text-sm font-bold text-cyan-300 mb-1">
+                    {zh ? "适合谁看" : "Best for"}
+                  </div>
+                  <p className="text-xs leading-relaxed text-slate-400">
+                    {zh ? "准备第一次注册交易所、第一次做实名认证、或者之前总被退回的人。" : "Beginners preparing for their first exchange registration and KYC review."}
+                  </p>
+                </div>
+
+                <Link href="/web3-guide/kyc-flow" className="tap-target block rounded-xl border border-cyan-500/30 px-4 py-3 text-sm font-bold text-cyan-300 transition-all hover:bg-cyan-500/10">
+                  {zh ? "进入第七章，查看完整 KYC 流程" : "Open Chapter 7: Explore the KYC flow"}
+                </Link>
+
+                <Link href="/web3-guide/exchange-guide" className="tap-target block rounded-xl border border-emerald-500/30 px-4 py-3 text-sm font-bold text-emerald-300 transition-all hover:bg-emerald-500/10">
+                  {zh ? "继续到第八章：交易所入门路径" : "Continue to Chapter 8: Exchange starter guide"}
                 </Link>
               </div>
             </div>
@@ -1591,9 +1618,9 @@ export default function Web3Guide() {
         {/* ===== Section 6: 如何开始 ===== */}
         <SectionTitle
           id="start"
-          icon="??"
-          title={zh ? "???????" : "Exchange Starter Path"}
-          subtitle={zh ? "?? KYC ???????????????????" : "What to do after KYC, from registration to your first trade"}
+          icon="🏦"
+          title={zh ? "交易所入门路径" : "Exchange Starter Path"}
+          subtitle={zh ? "看完 KYC 之后，再继续注册、入金和第一次买币会更顺。" : "Continue here after KYC for registration, funding, and the first trade."}
         />
 
         <div className="space-y-4 mb-12">
