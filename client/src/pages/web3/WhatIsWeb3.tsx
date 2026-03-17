@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import Web3ChapterNav from "@/components/Web3ChapterNav";
 import { useScrollMemory } from '@/hooks/useScrollMemory';
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 function FadeIn({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -152,6 +153,8 @@ function DataOwnershipDemo() {
 
 export default function WhatIsWeb3() {
   useScrollMemory();
+  const { language } = useLanguage();
+  const zh = language === "zh";
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setTimeout(() => setMounted(true), 50); }, []);
 
@@ -173,10 +176,12 @@ export default function WhatIsWeb3() {
         <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
           <button onClick={() => window.history.back()} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-            返回上一页
+            {zh ? "返回上一页" : "Back"}
           </button>
           <div className="flex items-center gap-2">
-            <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hidden sm:inline-flex">入门 · 章节 01</span>
+            <span className="hidden rounded-full border border-emerald-500/30 bg-emerald-500/20 px-2.5 py-1 text-xs text-emerald-400 sm:inline-flex">
+              {zh ? "入门 · 章节 01" : "Basics · Chapter 01"}
+            </span>
             <Web3ChapterNav currentChapterId="what-is-web3" />
           </div>
         </div>
@@ -186,29 +191,41 @@ export default function WhatIsWeb3() {
         {/* 标题 */}
         <FadeIn className="mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs mb-5">
-            🌐 第一章：Web3 基础
+            {zh ? "🌐 第一章：Web3 基础" : "🌐 Chapter 1: Web3 Basics"}
           </div>
           <h1 className="text-4xl sm:text-5xl font-black mb-4 leading-tight">
-            什么是 <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">Web3</span>？
+            {zh ? "什么是 " : "What is "}
+            <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">Web3</span>
+            {zh ? "？" : "?"}
           </h1>
           <p className="text-slate-400 text-lg leading-relaxed max-w-2xl">
-            互联网已经经历了三次进化。理解这三个时代的本质区别，是进入 Web3 世界的第一步。
+            {zh
+              ? "互联网已经经历了三次进化。理解这三个时代的本质区别，是进入 Web3 世界的第一步。"
+              : "The internet has already gone through three major eras. Understanding their core differences is the first step into Web3."}
           </p>
         </FadeIn>
 
         {/* 核心概念 */}
         <FadeIn className="mb-10">
           <div className="rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 p-6 sm:p-8">
-            <h2 className="text-xl font-black text-emerald-400 mb-4">💡 一句话理解 Web3</h2>
+            <h2 className="mb-4 text-xl font-black text-emerald-400">
+              {zh ? "💡 一句话理解 Web3" : "💡 Web3 in one sentence"}
+            </h2>
             <p className="text-slate-200 text-lg leading-relaxed mb-4">
               如果说 <strong className="text-blue-300">Web1</strong> 是「只能看」，<strong className="text-purple-300">Web2</strong> 是「可以发帖但数据属于平台」，
               那么 <strong className="text-emerald-300">Web3</strong> 就是「你的数据、资产、身份真正属于你自己」。
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5">
               {[
-                { era: "Web 1.0", icon: "📖", desc: "只读。你是观众，内容由网站提供，你无法互动。", color: "border-blue-500/30 bg-blue-500/5 text-blue-300" },
-                { era: "Web 2.0", icon: "✍️", desc: "读写。你可以创作，但平台拥有你的数据和账号。", color: "border-purple-500/30 bg-purple-500/5 text-purple-300" },
-                { era: "Web 3.0", icon: "🔑", desc: "读写拥有。你的资产存在区块链上，完全属于你。", color: "border-emerald-500/30 bg-emerald-500/5 text-emerald-300" },
+                zh
+                  ? { era: "Web 1.0", icon: "📖", desc: "只读。你是观众，内容由网站提供，你无法互动。", color: "border-blue-500/30 bg-blue-500/5 text-blue-300" }
+                  : { era: "Web 1.0", icon: "📖", desc: "Read-only. You can consume content, but you cannot participate.", color: "border-blue-500/30 bg-blue-500/5 text-blue-300" },
+                zh
+                  ? { era: "Web 2.0", icon: "✍️", desc: "读写。你可以创作，但平台拥有你的数据和账号。", color: "border-purple-500/30 bg-purple-500/5 text-purple-300" }
+                  : { era: "Web 2.0", icon: "✍️", desc: "Read and write. You can create, but the platform still owns your account and data.", color: "border-purple-500/30 bg-purple-500/5 text-purple-300" },
+                zh
+                  ? { era: "Web 3.0", icon: "🔑", desc: "读写拥有。你的资产存在区块链上，完全属于你。", color: "border-emerald-500/30 bg-emerald-500/5 text-emerald-300" }
+                  : { era: "Web 3.0", icon: "🔑", desc: "Read, write, and own. Your assets live on-chain and stay under your control.", color: "border-emerald-500/30 bg-emerald-500/5 text-emerald-300" },
               ].map((item, i) => (
                 <div key={i} className={`p-4 rounded-xl border ${item.color}`}>
                   <div className="text-2xl mb-2">{item.icon}</div>
@@ -226,8 +243,12 @@ export default function WhatIsWeb3() {
             <div className="px-5 py-4 border-b border-slate-700/60 flex items-center gap-3">
               <span className="text-xl">🎯</span>
               <div>
-                <h3 className="font-black text-white text-sm">互动测验：判断互联网时代</h3>
-                <p className="text-slate-500 text-xs">根据描述，判断属于哪个 Web 时代</p>
+                <h3 className="text-sm font-black text-white">
+                  {zh ? "互动测验：判断互联网时代" : "Interactive quiz: identify the internet era"}
+                </h3>
+                <p className="text-xs text-slate-500">
+                  {zh ? "根据描述，判断属于哪个 Web 时代" : "Choose whether the example belongs to Web1, Web2, or Web3"}
+                </p>
               </div>
             </div>
             <Web3Quiz />
@@ -236,7 +257,9 @@ export default function WhatIsWeb3() {
 
         {/* 数据所有权互动演示 */}
         <FadeIn className="mb-10">
-          <h2 className="text-2xl font-black text-white mb-4">🔑 数据所有权：最核心的区别</h2>
+          <h2 className="mb-4 text-2xl font-black text-white">
+            {zh ? "🔑 数据所有权：最核心的区别" : "🔑 Data ownership: the most important difference"}
+          </h2>
           <p className="text-slate-400 mb-5 leading-relaxed">
             Web2 和 Web3 最根本的区别，不是技术，而是<strong className="text-white">数据所有权</strong>。
             在 Web2，你是产品；在 Web3，你是所有者。
@@ -246,7 +269,9 @@ export default function WhatIsWeb3() {
 
         {/* 互联网发展时间轴 */}
         <FadeIn className="mb-10">
-          <h2 className="text-2xl font-black text-white mb-6">📅 互联网进化时间轴</h2>
+          <h2 className="mb-6 text-2xl font-black text-white">
+            {zh ? "📅 互联网进化时间轴" : "📅 Timeline of internet evolution"}
+          </h2>
           <div className="relative">
             {/* 竖线 */}
             <div className="absolute left-5 sm:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-blue-500/50 via-emerald-500/50 to-purple-500/50" />
@@ -273,7 +298,9 @@ export default function WhatIsWeb3() {
 
         {/* Web3 的三大支柱 */}
         <FadeIn className="mb-10">
-          <h2 className="text-2xl font-black text-white mb-5">🏛️ Web3 的三大支柱</h2>
+          <h2 className="mb-5 text-2xl font-black text-white">
+            {zh ? "🏛️ Web3 的三大支柱" : "🏛️ The three pillars of Web3"}
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
               { icon: "⛓️", title: "区块链", desc: "去中心化的分布式账本，所有数据公开透明、不可篡改。没有单一控制中心，全球节点共同维护。", link: "/web3-guide/blockchain-basics", linkText: "深入了解区块链 →", color: "border-blue-500/30 bg-blue-500/5" },
@@ -292,7 +319,9 @@ export default function WhatIsWeb3() {
 
         {/* Web3 的应用场景 */}
         <FadeIn className="mb-10">
-          <h2 className="text-2xl font-black text-white mb-5">🌍 Web3 正在改变哪些领域？</h2>
+          <h2 className="mb-5 text-2xl font-black text-white">
+            {zh ? "🌍 Web3 正在改变哪些领域？" : "🌍 Which fields is Web3 changing?"}
+          </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {[
               { icon: "💰", title: "去中心化金融", desc: "DeFi 协议提供借贷、交易、理财服务，无需银行" },
@@ -315,12 +344,16 @@ export default function WhatIsWeb3() {
         <FadeIn>
           <div className="rounded-2xl border border-blue-500/20 bg-blue-500/5 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
-              <div className="text-xs text-slate-500 mb-1">下一章</div>
-              <h3 className="font-black text-white text-lg">⛓️ 区块链技术基础</h3>
-              <p className="text-slate-400 text-sm">深入了解支撑 Web3 的底层技术原理</p>
+              <div className="mb-1 text-xs text-slate-500">{zh ? "下一章" : "Next chapter"}</div>
+              <h3 className="text-lg font-black text-white">
+                {zh ? "⛓️ 区块链技术基础" : "⛓️ Blockchain foundations"}
+              </h3>
+              <p className="text-sm text-slate-400">
+                {zh ? "深入了解支撑 Web3 的底层技术原理" : "Understand the technology that makes Web3 possible"}
+              </p>
             </div>
             <Link href="/web3-guide/blockchain-basics" className="px-6 py-3 bg-blue-500 hover:bg-blue-400 text-white font-bold rounded-xl transition-all whitespace-nowrap">
-                继续学习 →
+                {zh ? "继续学习 →" : "Continue →"}
             </Link>
           </div>
         </FadeIn>

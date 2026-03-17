@@ -4,6 +4,7 @@ import { Link } from "wouter";
 import Web3ChapterNav from "@/components/Web3ChapterNav";
 import { useScrollMemory } from '@/hooks/useScrollMemory';
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 function FadeIn({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -238,6 +239,8 @@ function HashDemo() {
 
 export default function BlockchainBasics() {
   useScrollMemory();
+  const { language } = useLanguage();
+  const zh = language === "zh";
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setTimeout(() => setMounted(true), 50); }, []);
 
@@ -247,10 +250,12 @@ export default function BlockchainBasics() {
         <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
           <button onClick={() => window.history.back()} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-            返回上一页
+            {zh ? "返回上一页" : "Back"}
           </button>
           <div className="flex items-center gap-2">
-            <span className="text-xs px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 hidden sm:inline-flex">进阶 · 章节 02</span>
+            <span className="hidden rounded-full border border-blue-500/30 bg-blue-500/20 px-2.5 py-1 text-xs text-blue-400 sm:inline-flex">
+              {zh ? "进阶 · 章节 02" : "Advanced · Chapter 02"}
+            </span>
             <Web3ChapterNav currentChapterId="blockchain-basics" />
           </div>
         </div>
@@ -259,20 +264,27 @@ export default function BlockchainBasics() {
       <div className="max-w-4xl mx-auto px-4 py-12 pb-20">
         <FadeIn className="mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs mb-5">
-            ⛓️ 第二章：区块链技术
+            {zh ? "⛓️ 第二章：区块链技术" : "⛓️ Chapter 2: Blockchain Technology"}
           </div>
           <h1 className="text-4xl sm:text-5xl font-black mb-4 leading-tight">
-            <span className="bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">区块链</span> 技术基础
+            <span className="bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
+              {zh ? "区块链" : "Blockchain"}
+            </span>{" "}
+            {zh ? "技术基础" : "Fundamentals"}
           </h1>
           <p className="text-slate-400 text-lg leading-relaxed max-w-2xl">
-            区块链是 Web3 的底层基础设施。理解它的工作原理，你就能理解为什么 Web3 是可信的。
+            {zh
+              ? "区块链是 Web3 的底层基础设施。理解它的工作原理，你就能理解为什么 Web3 是可信的。"
+              : "Blockchain is the infrastructure layer of Web3. Once you understand how it works, Web3 starts to feel much less abstract."}
           </p>
         </FadeIn>
 
         {/* 核心概念 */}
         <FadeIn className="mb-8">
           <div className="rounded-2xl border border-blue-500/20 bg-blue-500/5 p-6">
-            <h2 className="text-xl font-black text-blue-400 mb-4">📖 区块链是什么？</h2>
+            <h2 className="mb-4 text-xl font-black text-blue-400">
+              {zh ? "📖 区块链是什么？" : "📖 What is a blockchain?"}
+            </h2>
             <p className="text-slate-300 leading-relaxed mb-4">
               区块链是一种<strong className="text-white">分布式账本技术</strong>。想象一本账本，不是存在银行服务器上，
               而是同时存在全球<strong className="text-blue-300">数千台电脑</strong>上。每一笔交易都被打包成「区块」，
@@ -299,7 +311,9 @@ export default function BlockchainBasics() {
 
         {/* 防篡改演示 */}
         <FadeIn className="mb-8">
-          <h2 className="text-2xl font-black text-white mb-4">🔗 为什么区块链不可篡改？</h2>
+          <h2 className="mb-4 text-2xl font-black text-white">
+            {zh ? "🔗 为什么区块链不可篡改？" : "🔗 Why is a blockchain hard to tamper with?"}
+          </h2>
           <p className="text-slate-400 mb-5 leading-relaxed text-sm">
             每个区块都包含上一个区块的哈希值，形成一条链。修改任意区块的数据，
             其哈希值就会改变，导致后续所有区块的"上一哈希"对不上，整条链失效。
@@ -309,7 +323,9 @@ export default function BlockchainBasics() {
 
         {/* 哈希演示 */}
         <FadeIn className="mb-8">
-          <h2 className="text-2xl font-black text-white mb-4">🔐 哈希函数：区块链的密码学基础</h2>
+          <h2 className="mb-4 text-2xl font-black text-white">
+            {zh ? "🔐 哈希函数：区块链的密码学基础" : "🔐 Hash functions: the cryptographic base"}
+          </h2>
           <p className="text-slate-400 mb-5 text-sm leading-relaxed">
             哈希函数将任意长度的数据转换为固定长度的字符串。输入稍有变化，输出就会完全不同。
             这是区块链不可篡改性的密码学基础。
@@ -319,7 +335,9 @@ export default function BlockchainBasics() {
 
         {/* 共识机制 */}
         <FadeIn className="mb-8">
-          <h2 className="text-2xl font-black text-white mb-4">🤝 共识机制：如何达成全网一致？</h2>
+          <h2 className="mb-4 text-2xl font-black text-white">
+            {zh ? "🤝 共识机制：如何达成全网一致？" : "🤝 Consensus: how does the network agree?"}
+          </h2>
           <p className="text-slate-400 mb-5 text-sm leading-relaxed">
             在没有中央机构的情况下，数千个节点如何就"哪条链是正确的"达成一致？
             这就是共识机制要解决的问题。
@@ -329,7 +347,9 @@ export default function BlockchainBasics() {
 
         {/* Layer 1 vs Layer 2 */}
         <FadeIn className="mb-8">
-          <h2 className="text-2xl font-black text-white mb-5">🏗️ Layer 1 vs Layer 2：扩容之路</h2>
+          <h2 className="mb-5 text-2xl font-black text-white">
+            {zh ? "🏗️ Layer 1 vs Layer 2：扩容之路" : "🏗️ Layer 1 vs Layer 2: the scaling path"}
+          </h2>
           <div className="rounded-2xl border border-slate-700 overflow-hidden">
             <div className="bg-slate-800/50 px-5 py-4 border-b border-slate-700">
               <p className="text-slate-400 text-sm">以太坊每秒只能处理约 15 笔交易（TPS），而 Visa 可以处理 24,000+ TPS。Layer 2 是解决这个问题的关键。</p>
@@ -365,7 +385,9 @@ export default function BlockchainBasics() {
 
         {/* 智能合约 */}
         <FadeIn className="mb-8">
-          <h2 className="text-2xl font-black text-white mb-5">📜 智能合约：代码即法律</h2>
+          <h2 className="mb-5 text-2xl font-black text-white">
+            {zh ? "📜 智能合约：代码即法律" : "📜 Smart contracts: code as the rulebook"}
+          </h2>
           <div className="rounded-2xl border border-purple-500/20 bg-purple-500/5 p-6">
             <p className="text-slate-300 leading-relaxed mb-5">
               智能合约是部署在区块链上的自动执行程序。一旦部署，任何人（包括开发者）都无法修改。
@@ -393,16 +415,24 @@ export default function BlockchainBasics() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Link href="/web3-guide/wallet-keys" className="tap-target block">
               <div className="rounded-2xl border border-violet-500/20 bg-violet-500/5 p-5 hover:bg-violet-500/10 transition-colors">
-                <div className="text-xs text-slate-500 mb-1">下一章</div>
-                <h3 className="font-black text-white text-base">🔐 钱包与私钥</h3>
-                <p className="text-slate-400 text-xs mt-1">了解如何安全管理你的 Web3 资产</p>
+                <div className="mb-1 text-xs text-slate-500">{zh ? "下一章" : "Next chapter"}</div>
+                <h3 className="text-base font-black text-white">
+                  {zh ? "🔐 钱包与私钥" : "🔐 Wallets and private keys"}
+                </h3>
+                <p className="mt-1 text-xs text-slate-400">
+                  {zh ? "了解如何安全管理你的 Web3 资产" : "Learn how to manage Web3 assets safely"}
+                </p>
               </div>
             </Link>
             <Link href="/web3-guide/defi-deep" className="tap-target block">
               <div className="rounded-2xl border border-yellow-500/20 bg-yellow-500/5 p-5 hover:bg-yellow-500/10 transition-colors">
-                <div className="text-xs text-slate-500 mb-1">跳至</div>
-                <h3 className="font-black text-white text-base">💰 DeFi 深度解析</h3>
-                <p className="text-slate-400 text-xs mt-1">去中心化金融的完整使用指南</p>
+                <div className="mb-1 text-xs text-slate-500">{zh ? "跳至" : "Jump to"}</div>
+                <h3 className="text-base font-black text-white">
+                  {zh ? "💰 DeFi 深度解析" : "💰 Deep dive into DeFi"}
+                </h3>
+                <p className="mt-1 text-xs text-slate-400">
+                  {zh ? "去中心化金融的完整使用指南" : "A practical guide to decentralized finance"}
+                </p>
               </div>
             </Link>
           </div>

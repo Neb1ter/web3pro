@@ -4,6 +4,7 @@ import Web3ChapterNav from "@/components/Web3ChapterNav";
 import { useScrollMemory } from '@/hooks/useScrollMemory';
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
 import { renderBoldText } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 function FadeIn({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -435,6 +436,8 @@ DEX 质押收益高，原因有三：
 
 export default function InvestmentGateway() {
   useScrollMemory();
+  const { language } = useLanguage();
+  const zh = language === "zh";
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setTimeout(() => setMounted(true), 50); }, []);
 
@@ -445,10 +448,12 @@ export default function InvestmentGateway() {
         <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
           <button onClick={() => window.history.back()} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-            返回上一页
+            {zh ? "返回上一页" : "Back"}
           </button>
           <div className="flex items-center gap-2">
-            <span className="text-xs px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30 hidden sm:inline-flex">核心 · 章节 06</span>
+            <span className="hidden rounded-full border border-rose-500/30 bg-rose-500/20 px-2.5 py-1 text-xs text-rose-400 sm:inline-flex">
+              {zh ? "核心 · 章节 06" : "Core · Chapter 06"}
+            </span>
             <Web3ChapterNav currentChapterId="investment-gateway" />
           </div>
         </div>
@@ -458,14 +463,17 @@ export default function InvestmentGateway() {
         {/* 标题 */}
         <FadeIn className="mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs mb-5">
-            🚪 第六章：参与 Web3 的门户
+            {zh ? "🚪 第六章：参与 Web3 的门户" : "🚪 Chapter 6: Your gateway to Web3"}
           </div>
           <h1 className="text-4xl sm:text-5xl font-black mb-4 leading-tight">
-            参与 <span className="bg-gradient-to-r from-orange-400 to-yellow-300 bg-clip-text text-transparent">Web3</span> 的门户
+            {zh ? "参与 " : "Your "}
+            <span className="bg-gradient-to-r from-orange-400 to-yellow-300 bg-clip-text text-transparent">Web3</span>
+            {zh ? " 的门户" : " gateway"}
           </h1>
           <p className="text-slate-400 text-lg leading-relaxed max-w-2xl">
-            进入 Web3 世界有三条路：中心化交易所（CEX）、去中心化交易所（DEX）和直接链上操作。
-            了解它们的本质差异，选择最适合你的入场方式。
+            {zh
+              ? "进入 Web3 世界有三条路：中心化交易所（CEX）、去中心化交易所（DEX）和直接链上操作。了解它们的本质差异，选择最适合你的入场方式。"
+              : "There are three practical paths into Web3: centralized exchanges, decentralized exchanges, and direct on-chain participation. Learn the tradeoffs and choose the route that matches your current level."}
           </p>
         </FadeIn>
 
@@ -490,7 +498,9 @@ export default function InvestmentGateway() {
 
         {/* 互动对比选择器 */}
         <FadeIn className="mb-10">
-          <h2 className="text-2xl font-black text-white mb-4">🔍 深度对比：点击切换查看详情</h2>
+          <h2 className="mb-4 text-2xl font-black text-white">
+            {zh ? "🔍 深度对比：点击切换查看详情" : "🔍 Deep comparison: tap to inspect each route"}
+          </h2>
           <MethodComparison />
         </FadeIn>
 
@@ -517,7 +527,9 @@ export default function InvestmentGateway() {
 
         {/* 收益计算器 */}
         <FadeIn className="mb-10">
-          <h2 className="text-2xl font-black text-white mb-4">📊 收益对比：数字说话</h2>
+          <h2 className="mb-4 text-2xl font-black text-white">
+            {zh ? "📊 收益对比：数字说话" : "📊 Yield comparison: let the numbers speak"}
+          </h2>
           <StakingCalculator />
         </FadeIn>
 
@@ -553,7 +565,9 @@ export default function InvestmentGateway() {
 
         {/* 新手路径建议 */}
         <FadeIn className="mb-10">
-          <h2 className="text-2xl font-black text-white mb-4">🗺️ 推荐学习路径</h2>
+          <h2 className="mb-4 text-2xl font-black text-white">
+            {zh ? "🗺️ 推荐学习路径" : "🗺️ Suggested learning path"}
+          </h2>
           <div className="space-y-3">
             {[
               { phase: "第一阶段", time: "0-3个月", title: "从 CEX 起步", desc: "注册主流交易所，完成 KYC，小额入金购买 BTC/ETH，熟悉操作界面和市场节奏，尝试 CEX 活期理财。", color: "border-emerald-500/40 bg-emerald-500/5 text-emerald-400", step: "01" },
@@ -578,7 +592,9 @@ export default function InvestmentGateway() {
         {/* 风险提示 */}
         <FadeIn className="mb-10">
           <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-5">
-            <h3 className="font-bold text-red-400 text-sm mb-3">⚠️ 重要风险提示</h3>
+            <h3 className="mb-3 text-sm font-bold text-red-400">
+              {zh ? "⚠️ 重要风险提示" : "⚠️ Important risk notice"}
+            </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {[
                 "加密货币价格波动剧烈，可能短时间内大幅涨跌",
@@ -601,7 +617,9 @@ export default function InvestmentGateway() {
           <div className="rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 to-teal-500/5 p-8">
             <div className="text-center mb-6">
               <div className="text-4xl mb-3">🏦</div>
-              <h2 className="text-2xl font-black text-white mb-2">准备好迈出第一步了吗？</h2>
+              <h2 className="mb-2 text-2xl font-black text-white">
+                {zh ? "准备好迈出第一步了吗？" : "Ready to take the first step?"}
+              </h2>
               <p className="text-slate-400 text-sm leading-relaxed max-w-lg mx-auto">
                 无论你选择哪种方式，<strong className="text-white">从 CEX 开始</strong>都是最明智的选择。
                 它是你进入 Web3 世界最安全的桥梁——有客服、有保障、有法币通道。
@@ -612,25 +630,29 @@ export default function InvestmentGateway() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
               <div className="rounded-xl border border-emerald-500/20 bg-black/20 p-4 text-center">
                 <div className="text-2xl mb-2">📚</div>
-                <h4 className="font-bold text-white text-sm mb-1">第七章：交易所入门指南</h4>
+                <h4 className="mb-1 text-sm font-bold text-white">
+                  {zh ? "第七章：交易所入门指南" : "Chapter 7: Exchange starter guide"}
+                </h4>
                 <p className="text-slate-400 text-xs mb-3">详细了解各大交易所的对比、注册步骤和安全使用指南</p>
                 <Link href="/web3-guide/exchange-guide" className="w-full py-2 rounded-lg border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 text-xs font-bold transition-all">
-                    继续学习 →
+                    {zh ? "继续学习 →" : "Continue →"}
                 </Link>
               </div>
               <div className="rounded-xl border border-yellow-500/20 bg-black/20 p-4 text-center">
                 <div className="text-2xl mb-2">🎁</div>
-                <h4 className="font-bold text-white text-sm mb-1">立即注册，享受返佣优惠</h4>
+                <h4 className="mb-1 text-sm font-bold text-white">
+                  {zh ? "立即注册，享受返佣优惠" : "Register now and unlock fee rebates"}
+                </h4>
                 <p className="text-slate-400 text-xs mb-3">通过邀请码注册，享受最高 30% 手续费返佣，每笔交易都更划算</p>
                 <Link href="/crypto-saving" className="w-full py-2 rounded-lg bg-yellow-500 hover:bg-yellow-400 text-black text-xs font-black transition-all">
-                    查看返佣邀请码 →
+                    {zh ? "查看返佣邀请码 →" : "View rebate links →"}
                 </Link>
               </div>
             </div>
 
             <div className="text-center">
               <button onClick={() => window.history.back()} className="text-slate-500 hover:text-slate-300 text-xs transition-colors">
-                ← 返回上一页
+                {zh ? "← 返回上一页" : "← Back"}
               </button>
             </div>
           </div>

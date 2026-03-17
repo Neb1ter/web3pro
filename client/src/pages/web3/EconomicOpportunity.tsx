@@ -4,6 +4,7 @@ import Web3ChapterNav from "@/components/Web3ChapterNav";
 import { useScrollMemory } from '@/hooks/useScrollMemory';
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
 import { renderBoldText } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // ============================================================
 // 工具 Hook：滚动进入视野触发动画
@@ -86,6 +87,8 @@ function Source({ children }: { children: React.ReactNode }) {
 // ============================================================
 export default function EconomicOpportunity() {
   useScrollMemory();
+  const { language } = useLanguage();
+  const zh = language === "zh";
   const [pageVisible, setPageVisible] = useState(false);
   const [activeTab, setActiveTab] = useState<"pressure" | "web3">("pressure");
 
@@ -243,10 +246,12 @@ export default function EconomicOpportunity() {
         <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
           <button onClick={() => window.history.back()} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-            返回上一页
+            {zh ? "返回上一页" : "Back"}
           </button>
           <div className="flex items-center gap-2">
-            <span className="text-xs px-2.5 py-1 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/30 hidden sm:inline-flex">核心 · 章节 05</span>
+            <span className="hidden rounded-full border border-orange-500/30 bg-orange-500/20 px-2.5 py-1 text-xs text-orange-400 sm:inline-flex">
+              {zh ? "核心 · 章节 05" : "Core · Chapter 05"}
+            </span>
             <Web3ChapterNav currentChapterId="economic-opportunity" />
           </div>
         </div>
@@ -258,36 +263,37 @@ export default function EconomicOpportunity() {
         <FadeIn delay={100}>
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-orange-500/30 bg-orange-500/10 text-orange-400 text-sm font-medium mb-6">
             <span className="w-2 h-2 bg-orange-400 rounded-full animate-pulse" />
-            第五章 · 经济形势与 Web3 机遇
+            {zh ? "第五章 · 经济形势与 Web3 机遇" : "Chapter 5 · Macro trends and Web3 opportunity"}
           </div>
         </FadeIn>
 
         <FadeIn delay={150}>
           <h1 className="text-4xl sm:text-5xl font-black mb-6 leading-tight">
-            <span className="text-white">现实世界的</span>
+            <span className="text-white">{zh ? "现实世界的" : "Real-world "}</span>
             <br />
             <span
               className="bg-clip-text text-transparent"
               style={{ backgroundImage: "linear-gradient(135deg, #FB923C, #F59E0B, #EAB308)" }}
             >
-              经济压力
+              {zh ? "经济压力" : "economic pressure"}
             </span>
-            <span className="text-white">，</span>
+            <span className="text-white">{zh ? "，" : ", "}</span>
             <br />
-            <span className="text-white">与 Web3 的</span>
+            <span className="text-white">{zh ? "与 Web3 的" : "and Web3's "}</span>
             <span
               className="bg-clip-text text-transparent"
               style={{ backgroundImage: "linear-gradient(135deg, #6EE7B7, #3B82F6)" }}
             >
-              破局机遇
+              {zh ? "破局机遇" : "unlocking opportunity"}
             </span>
           </h1>
         </FadeIn>
 
         <FadeIn delay={200}>
           <p className="text-slate-400 text-lg max-w-2xl leading-relaxed mb-10">
-            2025 年，全球经济增速创下 2008 年金融危机以来最慢记录，贫富差距持续拉大，年轻人就业压力前所未有。
-            与此同时，Web3 正在以惊人的速度走向主流——这是时代的矛盾，也是个人的机遇。
+            {zh
+              ? "2025 年，全球经济增速创下 2008 年金融危机以来最慢记录，贫富差距持续拉大，年轻人就业压力前所未有。与此同时，Web3 正在以惊人的速度走向主流——这是时代的矛盾，也是个人的机遇。"
+              : "Growth has slowed, inequality remains high, and younger generations face heavier pressure than before. At the same time, Web3 is moving into the mainstream. That tension is exactly where opportunity appears."}
           </p>
         </FadeIn>
 
@@ -302,7 +308,7 @@ export default function EconomicOpportunity() {
                   : "text-slate-400 hover:text-white"
               }`}
             >
-              😰 现实经济压力
+              {zh ? "😰 现实经济压力" : "😰 Macro pressure"}
             </button>
             <button
               onClick={() => setActiveTab("web3")}
@@ -312,7 +318,7 @@ export default function EconomicOpportunity() {
                   : "text-slate-400 hover:text-white"
               }`}
             >
-              🚀 Web3 机遇数据
+              {zh ? "🚀 Web3 机遇数据" : "🚀 Web3 opportunity data"}
             </button>
           </div>
         </FadeIn>
@@ -341,8 +347,8 @@ export default function EconomicOpportunity() {
           <div className="flex items-center gap-3 mb-8">
             <div className="w-1 h-8 bg-gradient-to-b from-red-400 to-orange-400 rounded-full" />
             <div>
-              <h2 className="text-2xl font-black text-white">现实世界的经济压力</h2>
-              <p className="text-slate-400 text-sm">为什么普通人越来越难以通过传统路径实现财富积累</p>
+              <h2 className="text-2xl font-black text-white">{zh ? "现实世界的经济压力" : "Economic pressure in the real world"}</h2>
+              <p className="text-sm text-slate-400">{zh ? "为什么普通人越来越难以通过传统路径实现财富积累" : "Why traditional paths to wealth creation feel harder"}</p>
             </div>
           </div>
         </FadeIn>
@@ -554,16 +560,16 @@ export default function EconomicOpportunity() {
         {/* ===== 底部导航 ===== */}
         <FadeIn>
           <div className="rounded-2xl border border-yellow-500/30 bg-yellow-500/5 p-6 text-center mb-10">
-            <h3 className="text-xl font-black text-white mb-2">准备好迈出第一步了吗？</h3>
+            <h3 className="mb-2 text-xl font-black text-white">{zh ? "准备好迈出第一步了吗？" : "Ready to take the first step?"}</h3>
             <p className="text-slate-400 text-sm mb-5">
               通过我们的合作伙伴链接注册交易所，享受永久高额手续费返佣，让每一笔交易都更划算。
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link href="/crypto-saving" className="bg-yellow-500 hover:bg-yellow-400 text-black font-black px-7 py-3 rounded-xl transition-all hover:scale-105 text-sm">
-                  🎁可以尝试下
+                  {zh ? "🎁 可以尝试下" : "🎁 Try the partner links"}
               </Link>
               <Link href="/web3-guide" className="border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 font-bold px-7 py-3 rounded-xl transition-all text-sm">
-                  📖 返回 Web3 入圈指南
+                  {zh ? "📖 返回 Web3 入圈指南" : "📖 Back to the Web3 guide"}
               </Link>
               <Link href="/web3-guide/investment-gateway" className="border border-orange-500/40 text-orange-400 hover:bg-orange-500/10 font-bold px-7 py-3 rounded-xl transition-all text-sm">
                   🚪 下一章：参与 Web3 的门户 →
@@ -575,13 +581,13 @@ export default function EconomicOpportunity() {
         {/* 底部导航 */}
         <div className="border-t border-slate-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <Link href="/web3-guide" className="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-2">
-              ← 返回 Web3 入圈指南
+              {zh ? "← 返回 Web3 入圈指南" : "← Back to the Web3 guide"}
           </Link>
           <p className="text-slate-600 text-xs text-center">
             数据来源：IMF · ILO · CoinGecko · 彭博社 · Fortune Business Insights · 律动BlockBeats
           </p>
           <Link href="/web3-guide/investment-gateway" className="text-slate-400 hover:text-orange-400 transition-colors text-sm flex items-center gap-2">
-              第六章：参与 Web3 的门户 →
+              {zh ? "第六章：参与 Web3 的门户 →" : "Chapter 6: Your gateway to Web3 →"}
           </Link>
         </div>
       </div>

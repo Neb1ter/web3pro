@@ -2,20 +2,13 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "wouter";
 import { useScrollMemory } from "@/hooks/useScrollMemory";
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { WEB3_GUIDE_SECTIONS, tWeb3 } from "@/lib/web3I18n";
 import { Menu, X } from 'lucide-react';
 
 // ============================================================
 // 数据定义
 // ============================================================
-
-const navSections = [
-  { id: "intro", label: "什么是 Web3", icon: "🌐" },
-  { id: "blockchain", label: "区块链基础", icon: "⛓️" },
-  { id: "defi", label: "DeFi 金融", icon: "💰" },
-  { id: "economy", label: "经济形势与机遇", icon: "📈" },
-  { id: "invest", label: "投资方式", icon: "🔄" },
-  { id: "start", label: "如何开始", icon: "🚀" },
-];
 
 const defiProducts = [
   {
@@ -223,6 +216,13 @@ const startSteps = [
 // ============================================================
 function FloatChapterMenu({ activeId }: { activeId: string }) {
   const [open, setOpen] = useState(false);
+  const { language } = useLanguage();
+  const zh = language === "zh";
+  const navSections = WEB3_GUIDE_SECTIONS.map((section) => ({
+    id: section.id,
+    icon: section.icon,
+    label: tWeb3(section.label, language),
+  }));
   const active = navSections.find(s => s.id === activeId) ?? navSections[0];
   // 拖拽偏移量
   const [offset, setOffset] = useState({ x: 0, y: 0 });
@@ -301,7 +301,9 @@ function FloatChapterMenu({ activeId }: { activeId: string }) {
             }}
           >
             <div className="px-4 py-3 border-b border-emerald-500/15">
-              <p className="text-xs font-black text-emerald-400 uppercase tracking-widest">章节导航</p>
+              <p className="text-xs font-black uppercase tracking-widest text-emerald-400">
+                {zh ? "章节导航" : "Section menu"}
+              </p>
             </div>
             <div className="py-2">
               {navSections.map(sec => (
@@ -342,12 +344,14 @@ function FloatChapterMenu({ activeId }: { activeId: string }) {
               touchAction: 'manipulation',
               WebkitTapHighlightColor: 'transparent',
             }}
-            title="拖动可移位，点击切换章节"
+            title={zh ? "拖动可移位，点击切换章节" : "Drag to move, tap to switch sections"}
           >
             <span className="text-lg">{active.icon}</span>
             <div className="hidden sm:block">
               <p className="text-xs font-black text-emerald-400 leading-none mb-0.5">{active.label}</p>
-              <p className="text-[10px] text-slate-500 leading-none">拖动可移位，点击切换</p>
+              <p className="text-[10px] leading-none text-slate-500">
+                {zh ? "拖动可移位，点击切换" : "Drag to move, tap to switch"}
+              </p>
             </div>
             <span className="text-slate-500">
               {open ? <X className="w-3.5 h-3.5" /> : <Menu className="w-3.5 h-3.5" />}
@@ -848,6 +852,13 @@ function SectionTitle({ id, icon, title, subtitle }: { id: string; icon: string;
 // ============================================================
 export default function Web3Guide() {
   useScrollMemory();
+  const { language } = useLanguage();
+  const zh = language === "zh";
+  const navSections = WEB3_GUIDE_SECTIONS.map((section) => ({
+    id: section.id,
+    icon: section.icon,
+    label: tWeb3(section.label, language),
+  }));
   const [activeSection, setActiveSection] = useState("intro");
   const [pageVisible, setPageVisible] = useState(false);
   const [expandedDefi, setExpandedDefi] = useState<number | null>(null);
@@ -896,12 +907,14 @@ export default function Web3Guide() {
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
-                <span className="hidden sm:inline">返回主页</span>
+                <span className="hidden sm:inline">{zh ? "返回主页" : "Back to portal"}</span>
             </Link>
             <div className="w-px h-4 bg-slate-700 shrink-0" />
             {/* 桌面端：页面标题；移动端：当前章节标题（滚动感知） */}
             <div className="min-w-0 overflow-hidden flex-1">
-              <span className="text-emerald-400 font-bold text-sm hidden sm:block truncate">Web3 入圈指南</span>
+              <span className="hidden truncate text-sm font-bold text-emerald-400 sm:block">
+                {zh ? "Web3 入圈指南" : "Web3 Starter Guide"}
+              </span>
               {/* 移动端章节标题：滑入动画 */}
               <div className="sm:hidden overflow-hidden h-5 flex items-center min-w-0">
                 <span
@@ -915,7 +928,7 @@ export default function Web3Guide() {
                 >
                   {(() => {
                     const cur = navSections.find(s => s.id === activeSection);
-                    return cur ? `${cur.icon} ${cur.label}` : 'Web3 入圈指南';
+                    return cur ? `${cur.icon} ${cur.label}` : zh ? "Web3 入圈指南" : "Web3 Starter Guide";
                   })()}
                 </span>
               </div>
@@ -947,27 +960,30 @@ export default function Web3Guide() {
           <FadeIn delay={100}>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-sm font-medium mb-6">
               <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-              面向圈外人的 Web3 完整入门指南
+              {zh ? "面向圈外人的 Web3 完整入门指南" : "A complete Web3 starter guide for newcomers"}
             </div>
           </FadeIn>
           <FadeIn delay={200}>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-6 leading-tight">
-              <span className="text-white">进入 </span>
+              <span className="text-white">{zh ? "进入 " : "Enter the "}</span>
               <span
                 className="bg-clip-text text-transparent"
                 style={{ backgroundImage: "linear-gradient(135deg, #6EE7B7, #3B82F6, #8B5CF6)" }}
               >
                 Web3
               </span>
-              <span className="text-white"> 世界</span>
+              <span className="text-white">{zh ? " 世界" : " world"}</span>
               <br />
-              <span className="text-2xl sm:text-3xl text-slate-400 font-bold">你需要知道的一切</span>
+              <span className="text-2xl font-bold text-slate-400 sm:text-3xl">
+                {zh ? "你需要知道的一切" : "Everything you need to know"}
+              </span>
             </h1>
           </FadeIn>
           <FadeIn delay={300}>
             <p className="text-slate-400 text-lg max-w-2xl mx-auto leading-relaxed mb-8">
-              从区块链的诞生到 DeFi 的爆发，从 Web1 到 Web3 的演进，
-              再到如何迈出你的第一步投资——本指南将带你系统了解这个改变世界的技术浪潮。
+              {zh
+                ? "从区块链的诞生到 DeFi 的爆发，从 Web1 到 Web3 的演进，再到如何迈出你的第一步投资——本指南将带你系统了解这个改变世界的技术浪潮。"
+                : "From the birth of blockchain and the rise of DeFi to the evolution from Web1 to Web3, this guide walks you through the core ideas, opportunities, and first steps."}
             </p>
           </FadeIn>
           <FadeIn delay={400}>
@@ -991,20 +1007,24 @@ export default function Web3Guide() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
               <div className="flex items-center gap-2 flex-shrink-0">
                 <span className="text-lg">📚</span>
-                <span className="text-sm font-bold text-slate-300">每个板块都有深度内容</span>
+                <span className="text-sm font-bold text-slate-300">
+                  {zh ? "每个板块都有深度内容" : "Every section has a deeper lesson"}
+                </span>
               </div>
               <div className="flex-1 text-xs text-slate-500 leading-relaxed">
-                本页面是概览导览，每个章节末尾都有「深入学习」按钮，点击可进入专属深度页面，获取更详细的知识、互动演示和实操指南。
+                {zh
+                  ? "本页面是概览导览，每个章节末尾都有「深入学习」按钮，点击可进入专属深度页面，获取更详细的知识、互动演示和实操指南。"
+                  : "This page is the overview. At the end of each chapter you can jump into a dedicated deep-dive page with richer explanations, demos, and hands-on guidance."}
               </div>
               <div className="flex items-center gap-1.5 flex-shrink-0">
                 {[
-                  { label: "Web3基础", color: "bg-emerald-500/20 text-emerald-400" },
-                  { label: "区块链", color: "bg-blue-500/20 text-blue-400" },
-                  { label: "钱包安全", color: "bg-violet-500/20 text-violet-400" },
+                  { label: zh ? "Web3基础" : "Web3", color: "bg-emerald-500/20 text-emerald-400" },
+                  { label: zh ? "区块链" : "Blockchain", color: "bg-blue-500/20 text-blue-400" },
+                  { label: zh ? "钱包安全" : "Wallets", color: "bg-violet-500/20 text-violet-400" },
                   { label: "DeFi", color: "bg-yellow-500/20 text-yellow-400" },
-                  { label: "经济形势", color: "bg-orange-500/20 text-orange-400" },
-                  { label: "投资门户", color: "bg-orange-500/20 text-orange-400" },
-                  { label: "交易所", color: "bg-emerald-500/20 text-emerald-400" },
+                  { label: zh ? "经济形势" : "Macro", color: "bg-orange-500/20 text-orange-400" },
+                  { label: zh ? "投资门户" : "Gateway", color: "bg-orange-500/20 text-orange-400" },
+                  { label: zh ? "交易所" : "Exchanges", color: "bg-emerald-500/20 text-emerald-400" },
                 ].map((tag) => (
                   <span key={tag.label} className={`hidden sm:inline text-xs px-2 py-0.5 rounded-full ${tag.color}`}>{tag.label}</span>
                 ))}
@@ -1014,14 +1034,28 @@ export default function Web3Guide() {
         </FadeIn>
 
         {/* ===== Section 1: 什么是 Web3 ===== */}
-        <SectionTitle id="intro" icon="🌐" title="什么是 Web3？" subtitle="互联网的第三次进化——从只读到拥有" />
+        <SectionTitle
+          id="intro"
+          icon="🌐"
+          title={zh ? "什么是 Web3？" : "What Is Web3?"}
+          subtitle={zh ? "互联网的第三次进化——从只读到拥有" : "The third evolution of the internet, from read-only to ownership"}
+        />
 
         <FadeIn className="mb-6">
           <div className="rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 p-5 sm:p-7">
             <p className="text-slate-300 leading-relaxed text-base sm:text-lg">
-              Web3 是互联网的下一个阶段。如果说 Web1 是「只能看」，Web2 是「可以发帖但数据属于平台」，
-              那么 <strong className="text-emerald-400">Web3 就是真正属于用户自己的互联网</strong>——你的数据、资产、
-              数字身份都存储在区块链上，没有任何公司或政府可以控制或剥夺。
+              {zh ? (
+                <>
+                  Web3 是互联网的下一个阶段。如果说 Web1 是「只能看」，Web2 是「可以发帖但数据属于平台」，
+                  那么 <strong className="text-emerald-400">Web3 就是真正属于用户自己的互联网</strong>——你的数据、资产、
+                  数字身份都存储在区块链上，没有任何公司或政府可以控制或剥夺。
+                </>
+              ) : (
+                <>
+                  Web3 is the next stage of the internet. If Web1 was read-only and Web2 let you publish while platforms owned the data,
+                  then <strong className="text-emerald-400">Web3 is an internet users can truly own</strong>: your data, assets, and digital identity live on-chain instead of inside a platform database.
+                </>
+              )}
             </p>
           </div>
         </FadeIn>
@@ -1034,12 +1068,20 @@ export default function Web3Guide() {
         {/* Web3 核心理念 */}
         <FadeIn>
           <div className="rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 p-6 sm:p-8 mb-16">
-            <h3 className="text-xl font-bold text-emerald-400 mb-6">🎯 Web3 的三大核心理念</h3>
+            <h3 className="mb-6 text-xl font-bold text-emerald-400">
+              {zh ? "🎯 Web3 的三大核心理念" : "🎯 Three core ideas behind Web3"}
+            </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {[
-                { title: "所有权（Ownership）", desc: "你的数字资产、数据和身份真正属于你，不受任何平台控制。NFT、DeFi 代币都是你真实拥有的资产。", icon: "🔑", color: "text-yellow-400" },
-                { title: "无需许可（Permissionless）", desc: "任何人都可以参与，无需申请账号、无需审批，代码即规则。全球 17 亿无银行账户的人也能参与。", icon: "🚪", color: "text-blue-400" },
-                { title: "去信任化（Trustless）", desc: "通过智能合约自动执行，无需信任任何中间人或机构。代码公开透明，规则不可更改。", icon: "🤝", color: "text-purple-400" },
+                zh
+                  ? { title: "所有权（Ownership）", desc: "你的数字资产、数据和身份真正属于你，不受任何平台控制。NFT、DeFi 代币都是你真实拥有的资产。", icon: "🔑", color: "text-yellow-400" }
+                  : { title: "Ownership", desc: "Your assets, data, and identity belong to you rather than a platform. NFTs and DeFi tokens are assets you truly control.", icon: "🔑", color: "text-yellow-400" },
+                zh
+                  ? { title: "无需许可（Permissionless）", desc: "任何人都可以参与，无需申请账号、无需审批，代码即规则。全球 17 亿无银行账户的人也能参与。", icon: "🚪", color: "text-blue-400" }
+                  : { title: "Permissionless Access", desc: "Anyone can participate without asking for approval. If you can access the network, you can join the system.", icon: "🚪", color: "text-blue-400" },
+                zh
+                  ? { title: "去信任化（Trustless）", desc: "通过智能合约自动执行，无需信任任何中间人或机构。代码公开透明，规则不可更改。", icon: "🤝", color: "text-purple-400" }
+                  : { title: "Trustless Execution", desc: "Smart contracts enforce rules automatically, so users do not need to trust a middleman to settle value or execute logic.", icon: "🤝", color: "text-purple-400" },
               ].map((item) => (
                 <div key={item.title} className="p-5 rounded-xl bg-black/20 border border-white/5 hover:border-white/10 transition-colors">
                   <div className="text-3xl mb-3">{item.icon}</div>
@@ -1050,16 +1092,23 @@ export default function Web3Guide() {
             </div>
             {/* 深入学习按钮 */}
             <div className="mt-6 pt-5 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <p className="text-slate-500 text-xs">想深入了解 Web1/2/3 的演进历史、数据所有权原理？</p>
+              <p className="text-slate-500 text-xs">
+                {zh ? "想深入了解 Web1/2/3 的演进历史、数据所有权原理？" : "Want a deeper look at the evolution from Web1 to Web3 and how digital ownership works?"}
+              </p>
               <Link href="/web3-guide/what-is-web3" className="tap-target flex items-center gap-2 px-5 py-2.5 rounded-xl border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 text-sm font-bold transition-all whitespace-nowrap">
-                  📖 深入学习 Web3 基础 →
+                  {zh ? "📖 深入学习 Web3 基础 →" : "📖 Dive deeper into Web3 basics →"}
               </Link>
             </div>
           </div>
         </FadeIn>
 
         {/* ===== Section 2: 区块链基础 ===== */}
-        <SectionTitle id="blockchain" icon="⛓️" title="区块链基础" subtitle="支撑 Web3 世界的底层技术——理解它，才能真正理解 Web3" />
+        <SectionTitle
+          id="blockchain"
+          icon="⛓️"
+          title={zh ? "区块链基础" : "Blockchain Basics"}
+          subtitle={zh ? "支撑 Web3 世界的底层技术——理解它，才能真正理解 Web3" : "The foundational technology behind Web3"}
+        />
 
         <FadeIn>
           <div className="rounded-2xl border border-blue-500/20 bg-blue-500/5 p-6 sm:p-8 mb-8">
@@ -1164,7 +1213,12 @@ export default function Web3Guide() {
         </FadeIn>
 
         {/* ===== Section 3: DeFi ===== */}
-        <SectionTitle id="defi" icon="💰" title="DeFi：去中心化金融" subtitle="无需银行，人人可参与的开放金融体系" />
+        <SectionTitle
+          id="defi"
+          icon="💰"
+          title={zh ? "DeFi：去中心化金融" : "DeFi: Decentralized Finance"}
+          subtitle={zh ? "无需银行，人人可参与的开放金融体系" : "An open financial system anyone can access"}
+        />
 
         <FadeIn>
           <div className="rounded-2xl border border-yellow-500/20 bg-yellow-500/5 p-6 sm:p-8 mb-8">
@@ -1276,7 +1330,12 @@ export default function Web3Guide() {
         </FadeIn>
 
         {/* ===== Section 4: 经济形势与 Web3 机遇 ===== */}
-        <SectionTitle id="economy" icon="📈" title="经济形势与 Web3 机遇" subtitle="为什么现在是了解 Web3 的最佳时机——结合 2025 年最新数据" />
+        <SectionTitle
+          id="economy"
+          icon="📈"
+          title={zh ? "经济形势与 Web3 机遇" : "Macro Trends and Web3 Opportunities"}
+          subtitle={zh ? "为什么现在是了解 Web3 的最佳时机——结合 2025 年最新数据" : "Why this may be the right moment to understand Web3"}
+        />
 
         {/* 数据统计卡片（带计数动画） */}
         <FadeIn>
@@ -1345,14 +1404,18 @@ export default function Web3Guide() {
             <div className="flex items-center gap-3 flex-1">
               <span className="text-3xl">📊</span>
               <div>
-                <h3 className="font-black text-white text-base">第五章：经济形势与 Web3 机遇（深度版）</h3>
+                <h3 className="font-black text-white text-base">
+                  {zh ? "第五章：经济形势与 Web3 机遇（深度版）" : "Chapter 5: Macro Trends and Web3 Opportunities"}
+                </h3>
                 <p className="text-slate-400 text-xs mt-0.5 leading-relaxed">
-                  深度解析 2025 年全球经济压力数据（就业危机、贫富差距、工资停滞），对比 Web3 机构入场、稳定币爆发、区块链市场规模等最新数据，以及主流资产 10 年回报率对比。
+                  {zh
+                    ? "深度解析 2025 年全球经济压力数据（就业危机、贫富差距、工资停滞），对比 Web3 机构入场、稳定币爆发、区块链市场规模等最新数据，以及主流资产 10 年回报率对比。"
+                    : "A deeper breakdown of macro pressure, institutional adoption, stablecoin growth, and how Web3 compares with traditional assets over time."}
                 </p>
               </div>
             </div>
             <Link href="/web3-guide/economic-opportunity" className="tap-target flex items-center gap-2 px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-400 text-black text-sm font-black transition-all whitespace-nowrap flex-shrink-0">
-                深入了解 →
+                {zh ? "深入了解 →" : "Explore in depth →"}
             </Link>
           </div>
         </FadeIn>
@@ -1360,7 +1423,9 @@ export default function Web3Guide() {
         {/* 视野拓展 */}
         <FadeIn>
           <div className="rounded-2xl border border-purple-500/30 bg-gradient-to-br from-purple-500/10 to-blue-500/5 p-6 sm:p-8 mb-16">
-            <h3 className="text-xl font-bold text-purple-400 mb-6">🔭 为什么了解 Web3 能拓展你的视野？</h3>
+            <h3 className="mb-6 text-xl font-bold text-purple-400">
+              {zh ? "🔭 为什么了解 Web3 能拓展你的视野？" : "🔭 Why learning Web3 broadens your perspective"}
+            </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
                 { title: "理解未来货币体系", desc: "央行数字货币（CBDC）、稳定币、比特币——未来的货币形态将与今天截然不同，提前了解让你不被时代落下。" },
@@ -1381,7 +1446,12 @@ export default function Web3Guide() {
         </FadeIn>
 
         {/* ===== Section 5: 投资方式对比 ===== */}
-        <SectionTitle id="invest" icon="🔄" title="Web3 投资方式对比" subtitle="CEX、DEX 与链上投资——找到最适合你的方式（第六章）" />
+        <SectionTitle
+          id="invest"
+          icon="🔄"
+          title={zh ? "Web3 投资方式对比" : "Ways to Participate in Web3"}
+          subtitle={zh ? "CEX、DEX 与链上投资——找到最适合你的方式（第六章）" : "CEX, DEX, and on-chain participation compared"}
+        />
 
         {/* 第六章入口引导 */}
         <FadeIn className="mb-6">
@@ -1389,14 +1459,18 @@ export default function Web3Guide() {
             <div className="flex items-center gap-3 flex-1">
               <span className="text-3xl">🚪</span>
               <div>
-                <h3 className="font-black text-white text-base">第六章：参与 Web3 的门户</h3>
+                <h3 className="font-black text-white text-base">
+                  {zh ? "第六章：参与 Web3 的门户" : "Chapter 6: Your Gateway to Web3"}
+                </h3>
                 <p className="text-slate-400 text-xs mt-0.5 leading-relaxed">
-                  深度对比 CEX、DEX 和链上投资的本质差异，包含质押理财收益计算器、无常损失解析、CEX 内置 Web3 功能介绍，以及新手推荐路径。
+                  {zh
+                    ? "深度对比 CEX、DEX 和链上投资的本质差异，包含质押理财收益计算器、无常损失解析、CEX 内置 Web3 功能介绍，以及新手推荐路径。"
+                    : "A deeper comparison of CEX, DEX, and direct on-chain participation, including staking, risk tradeoffs, and beginner-friendly routes."}
                 </p>
               </div>
             </div>
             <Link href="/web3-guide/investment-gateway" className="tap-target flex items-center gap-2 px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-400 text-black text-sm font-black transition-all whitespace-nowrap flex-shrink-0">
-                深入了解 →
+                {zh ? "深入了解 →" : "Explore in depth →"}
             </Link>
           </div>
         </FadeIn>
@@ -1419,13 +1493,15 @@ export default function Web3Guide() {
                     </div>
                   </div>
                   <div className={`px-3 py-1 rounded-full border text-xs font-bold ${method.riskBg} ${method.riskColor}`}>
-                    风险：{method.risk}
+                    {zh ? `风险：${method.risk}` : `Risk: ${method.risk}`}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                   <div>
-                    <h4 className="text-xs font-bold text-emerald-400 mb-2 uppercase tracking-wider">✅ 优势</h4>
+                    <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-emerald-400">
+                      {zh ? "✅ 优势" : "✅ Strengths"}
+                    </h4>
                     <ul className="space-y-1">
                       {method.pros.map((p) => (
                         <li key={p} className="text-slate-300 text-sm flex items-start gap-2">
@@ -1436,7 +1512,9 @@ export default function Web3Guide() {
                     </ul>
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-red-400 mb-2 uppercase tracking-wider">⚠️ 注意事项</h4>
+                    <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-red-400">
+                      {zh ? "⚠️ 注意事项" : "⚠️ Watch-outs"}
+                    </h4>
                     <ul className="space-y-1">
                       {method.cons.map((c) => (
                         <li key={c} className="text-slate-300 text-sm flex items-start gap-2">
@@ -1450,10 +1528,12 @@ export default function Web3Guide() {
 
                 <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-white/5">
                   <div>
-                    <span className="text-xs text-slate-500">代表平台：</span>
+                    <span className="text-xs text-slate-500">{zh ? "代表平台：" : "Examples:"}</span>
                     <span className="text-slate-300 text-xs ml-1">{method.examples.join(" · ")}</span>
                   </div>
-                  <div className="text-xs text-slate-400 italic">适合：{method.suitable}</div>
+                  <div className="text-xs italic text-slate-400">
+                    {zh ? `适合：${method.suitable}` : `Best for: ${method.suitable}`}
+                  </div>
                 </div>
               </div>
             ))}
@@ -1463,7 +1543,9 @@ export default function Web3Guide() {
         {/* 投资路径推荐 */}
         <FadeIn>
           <div className="rounded-2xl border border-yellow-500/30 bg-yellow-500/5 p-6 sm:p-8 mb-16">
-            <h3 className="text-lg font-bold text-yellow-400 mb-4">🎯 推荐投资路径（新手版）</h3>
+            <h3 className="mb-4 text-lg font-bold text-yellow-400">
+              {zh ? "🎯 推荐投资路径（新手版）" : "🎯 Suggested path for beginners"}
+            </h3>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-0 mb-4">
               {["注册 CEX 交易所", "→", "完成 KYC", "→", "购买 BTC/ETH", "→", "熟悉操作", "→", "探索 DeFi"].map((step, i) => (
                 <span
@@ -1479,18 +1561,29 @@ export default function Web3Guide() {
               ))}
             </div>
             <p className="text-slate-400 text-sm">
-              💡 <strong className="text-white">重要提示：</strong>
-              永远不要投入超出你能承受损失的资金。加密市场波动剧烈，做好风险管理是长期参与的前提。
-              建议新手从小额开始，先熟悉操作流程，再逐步增加投入。
+              {zh ? (
+                <>
+                  💡 <strong className="text-white">重要提示：</strong>
+                  永远不要投入超出你能承受损失的资金。加密市场波动剧烈，做好风险管理是长期参与的前提。
+                  建议新手从小额开始，先熟悉操作流程，再逐步增加投入。
+                </>
+              ) : (
+                <>
+                  💡 <strong className="text-white">Important:</strong>
+                  only use capital you can afford to lose. Crypto is volatile, so risk management comes before upside. Start small, learn the flow, and size up only after you understand what you are doing.
+                </>
+              )}
             </p>
             <div className="mt-5 pt-5 border-t border-yellow-500/20 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <p className="text-slate-500 text-xs">想深度了解 CEX vs DEX vs 链上的全面对比、质押收益计算器？</p>
+              <p className="text-slate-500 text-xs">
+                {zh ? "想深度了解 CEX vs DEX vs 链上的全面对比、质押收益计算器？" : "Want the full CEX vs DEX vs on-chain comparison and deeper staking guidance?"}
+              </p>
               <div className="flex gap-2 flex-wrap">
                 <Link href="/web3-guide/investment-gateway" className="tap-target flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-400 text-black text-sm font-black transition-all whitespace-nowrap">
-                    🚪 第六章：参与 Web3 的门户 →
+                    {zh ? "🚪 第六章：参与 Web3 的门户 →" : "🚪 Chapter 6: Your Gateway to Web3 →"}
                 </Link>
                 <Link href="/web3-guide/exchange-guide" className="tap-target flex items-center gap-2 px-4 py-2 rounded-xl border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 text-sm font-bold transition-all whitespace-nowrap">
-                    🏦 交易所入门指南 →
+                    {zh ? "🏦 交易所入门指南 →" : "🏦 Exchange Starter Guide →"}
                 </Link>
               </div>
             </div>
@@ -1498,7 +1591,12 @@ export default function Web3Guide() {
         </FadeIn>
 
         {/* ===== Section 6: 如何开始 ===== */}
-        <SectionTitle id="start" icon="🚀" title="如何迈出第一步" subtitle="从零开始的 Web3 入门行动指南（第七章）" />
+        <SectionTitle
+          id="start"
+          icon="🚀"
+          title={zh ? "如何迈出第一步" : "How to Take the First Step"}
+          subtitle={zh ? "从零开始的 Web3 入门行动指南（第七章）" : "A step-by-step action guide for getting started with Web3"}
+        />
 
         <div className="space-y-4 mb-12">
           {startSteps.map((step, i) => (
@@ -1532,7 +1630,9 @@ export default function Web3Guide() {
         {/* 风险提示 */}
         <FadeIn>
           <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-6 mb-12">
-            <h3 className="text-base font-bold text-red-400 mb-3">⚠️ 重要风险提示</h3>
+            <h3 className="mb-3 text-base font-bold text-red-400">
+              {zh ? "⚠️ 重要风险提示" : "⚠️ Important risk notice"}
+            </h3>
             <ul className="space-y-2 text-slate-300 text-sm">
               {[
                 "加密货币价格波动极大，可能在短时间内大幅上涨或下跌，请做好心理准备。",
@@ -1553,16 +1653,18 @@ export default function Web3Guide() {
         {/* 底部 CTA */}
         <FadeIn>
           <div className="rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 to-teal-500/5 p-8 text-center mb-12">
-            <h3 className="text-2xl font-black text-white mb-3">准备好开始了吗？</h3>
+            <h3 className="mb-3 text-2xl font-black text-white">
+              {zh ? "准备好开始了吗？" : "Ready to get started?"}
+            </h3>
             <p className="text-slate-400 mb-6">
-              通过我们的邀请码注册交易所，享受永久手续费返佣，让每一笔交易都更划算。
+              {zh ? "通过我们的邀请码注册交易所，享受永久手续费返佣，让每一笔交易都更划算。" : "Register through our partner links to unlock long-term fee savings and make every trade more efficient."}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link href="/crypto-saving" className="tap-target bg-yellow-500 hover:bg-yellow-400 text-black font-black px-8 py-3 rounded-xl transition-all hover:scale-105">
-                  🎁 查看返佣邀请码
+                  {zh ? "🎁 查看返佣邀请码" : "🎁 View rebate links"}
               </Link>
               <Link href="/exchanges" className="tap-target border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 font-bold px-8 py-3 rounded-xl transition-all">
-                  📊 交易所对比
+                  {zh ? "📊 交易所对比" : "📊 Compare exchanges"}
               </Link>
             </div>
           </div>
@@ -1571,13 +1673,13 @@ export default function Web3Guide() {
         {/* 底部导航 */}
         <div className="border-t border-slate-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <Link href="/portal" className="tap-target text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-2">
-              ← 返回主页
+              {zh ? "← 返回主页" : "← Back to portal"}
           </Link>
           <p className="text-slate-600 text-xs text-center">
-            内容参考：币安学院 · BlockBeats · CoinMarketCap · 登链社区
+            {zh ? "内容参考：币安学院 · BlockBeats · CoinMarketCap · 登链社区" : "References: Binance Academy · BlockBeats · CoinMarketCap · 登链社区"}
           </p>
           <Link href="/crypto-saving" className="tap-target text-slate-400 hover:text-yellow-400 transition-colors text-sm flex items-center gap-2">
-              币圈省钱指南 →
+              {zh ? "币圈省钱指南 →" : "Crypto Saving Guide →"}
           </Link>
         </div>
       </div>

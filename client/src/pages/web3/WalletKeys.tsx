@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import Web3ChapterNav from "@/components/Web3ChapterNav";
 import { useScrollMemory } from '@/hooks/useScrollMemory';
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 function FadeIn({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -192,6 +193,8 @@ function WalletTypeSelector() {
 
 export default function WalletKeys() {
   useScrollMemory();
+  const { language } = useLanguage();
+  const zh = language === "zh";
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setTimeout(() => setMounted(true), 50); }, []);
 
@@ -201,10 +204,12 @@ export default function WalletKeys() {
         <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
           <button onClick={() => window.history.back()} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-            返回上一页
+            {zh ? "返回上一页" : "Back"}
           </button>
           <div className="flex items-center gap-2">
-            <span className="text-xs px-2.5 py-1 rounded-full bg-violet-500/20 text-violet-400 border border-violet-500/30 hidden sm:inline-flex">进阶 · 章节 03</span>
+            <span className="hidden rounded-full border border-violet-500/30 bg-violet-500/20 px-2.5 py-1 text-xs text-violet-400 sm:inline-flex">
+              {zh ? "进阶 · 章节 03" : "Advanced · Chapter 03"}
+            </span>
             <Web3ChapterNav currentChapterId="wallet-keys" />
           </div>
         </div>
@@ -213,13 +218,18 @@ export default function WalletKeys() {
       <div className="max-w-4xl mx-auto px-4 py-12 pb-20">
         <FadeIn className="mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/30 text-violet-400 text-xs mb-5">
-            🔐 第三章：钱包与私钥
+            {zh ? "🔐 第三章：钱包与私钥" : "🔐 Chapter 3: Wallets and Private Keys"}
           </div>
           <h1 className="text-4xl sm:text-5xl font-black mb-4 leading-tight">
-            <span className="bg-gradient-to-r from-violet-400 to-purple-300 bg-clip-text text-transparent">钱包</span> 与私钥
+            <span className="bg-gradient-to-r from-violet-400 to-purple-300 bg-clip-text text-transparent">
+              {zh ? "钱包" : "Wallets"}
+            </span>{" "}
+            {zh ? "与私钥" : "and private keys"}
           </h1>
           <p className="text-slate-400 text-lg leading-relaxed max-w-2xl">
-            在 Web3 世界，你的钱包就是你的身份和银行账户。理解私钥，是保护资产安全的第一步。
+            {zh
+              ? "在 Web3 世界，你的钱包就是你的身份和银行账户。理解私钥，是保护资产安全的第一步。"
+              : "In Web3, your wallet is both your identity and your account. Understanding private keys is the first step to staying safe."}
           </p>
         </FadeIn>
 
@@ -256,7 +266,9 @@ export default function WalletKeys() {
 
         {/* 助记词体验 */}
         <FadeIn className="mb-8">
-          <h2 className="text-2xl font-black text-white mb-4">🌱 助记词：钱包的终极备份</h2>
+          <h2 className="mb-4 text-2xl font-black text-white">
+            {zh ? "🌱 助记词：钱包的终极备份" : "🌱 Seed phrases: the ultimate wallet backup"}
+          </h2>
           <p className="text-slate-400 mb-5 text-sm leading-relaxed">
             助记词（Seed Phrase）是 12 或 24 个英文单词，可以恢复你的整个钱包。
             无论手机丢失、App 卸载，只要有助记词，你的资产就永远可以找回。
@@ -266,13 +278,17 @@ export default function WalletKeys() {
 
         {/* 钱包类型 */}
         <FadeIn className="mb-8">
-          <h2 className="text-2xl font-black text-white mb-5">👛 钱包类型：如何选择？</h2>
+          <h2 className="mb-5 text-2xl font-black text-white">
+            {zh ? "👛 钱包类型：如何选择？" : "👛 Wallet types: how should you choose?"}
+          </h2>
           <WalletTypeSelector />
         </FadeIn>
 
         {/* 安全最佳实践 */}
         <FadeIn className="mb-8">
-          <h2 className="text-2xl font-black text-white mb-5">🛡️ 安全最佳实践</h2>
+          <h2 className="mb-5 text-2xl font-black text-white">
+            {zh ? "🛡️ 安全最佳实践" : "🛡️ Security best practices"}
+          </h2>
           <div className="space-y-3">
             {[
               { icon: "📝", title: "离线备份助记词", desc: "用纸笔抄写，存放在安全的物理位置（如保险柜）。不要截图、不要存在云端、不要发给任何人。", type: "must", label: "必须" },
@@ -301,16 +317,24 @@ export default function WalletKeys() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Link href="/web3-guide/defi-deep" className="tap-target block">
               <div className="rounded-2xl border border-yellow-500/20 bg-yellow-500/5 p-5 hover:bg-yellow-500/10 transition-colors">
-                <div className="text-xs text-slate-500 mb-1">下一章</div>
-                <h3 className="font-black text-white text-base">💰 DeFi 深度解析</h3>
-                <p className="text-slate-400 text-xs mt-1">去中心化金融的完整使用指南</p>
+                <div className="mb-1 text-xs text-slate-500">{zh ? "下一章" : "Next chapter"}</div>
+                <h3 className="text-base font-black text-white">
+                  {zh ? "💰 DeFi 深度解析" : "💰 Deep dive into DeFi"}
+                </h3>
+                <p className="mt-1 text-xs text-slate-400">
+                  {zh ? "去中心化金融的完整使用指南" : "A hands-on guide to decentralized finance"}
+                </p>
               </div>
             </Link>
             <Link href="/web3-guide/exchange-guide" className="tap-target block">
               <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5 hover:bg-emerald-500/10 transition-colors">
-                <div className="text-xs text-slate-500 mb-1">跳至</div>
-                <h3 className="font-black text-white text-base">🏦 交易所入门指南</h3>
-                <p className="text-slate-400 text-xs mt-1">新手最安全的 Web3 入门路径</p>
+                <div className="mb-1 text-xs text-slate-500">{zh ? "跳至" : "Jump to"}</div>
+                <h3 className="text-base font-black text-white">
+                  {zh ? "🏦 交易所入门指南" : "🏦 Exchange starter guide"}
+                </h3>
+                <p className="mt-1 text-xs text-slate-400">
+                  {zh ? "新手最安全的 Web3 入门路径" : "The safest Web3 starting point for beginners"}
+                </p>
               </div>
             </Link>
           </div>

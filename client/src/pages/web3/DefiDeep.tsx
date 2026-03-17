@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import Web3ChapterNav from "@/components/Web3ChapterNav";
 import { useScrollMemory } from '@/hooks/useScrollMemory';
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 function FadeIn({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -156,6 +157,8 @@ function AMMDemo() {
 
 export default function DefiDeep() {
   useScrollMemory();
+  const { language } = useLanguage();
+  const zh = language === "zh";
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   useEffect(() => { setTimeout(() => setMounted(true), 50); }, []);
@@ -197,10 +200,12 @@ export default function DefiDeep() {
         <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
           <button onClick={() => window.history.back()} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-            返回上一页
+            {zh ? "返回上一页" : "Back"}
           </button>
           <div className="flex items-center gap-2">
-            <span className="text-xs px-2.5 py-1 rounded-full bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 hidden sm:inline-flex">进阶 · 章节 04</span>
+            <span className="hidden rounded-full border border-yellow-500/30 bg-yellow-500/20 px-2.5 py-1 text-xs text-yellow-400 sm:inline-flex">
+              {zh ? "进阶 · 章节 04" : "Advanced · Chapter 04"}
+            </span>
             <Web3ChapterNav currentChapterId="defi-deep" />
           </div>
         </div>
@@ -209,20 +214,25 @@ export default function DefiDeep() {
       <div className="max-w-4xl mx-auto px-4 py-12 pb-20">
         <FadeIn className="mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 text-xs mb-5">
-            💰 第四章：DeFi 深度解析
+            {zh ? "💰 第四章：DeFi 深度解析" : "💰 Chapter 4: Deep Dive into DeFi"}
           </div>
           <h1 className="text-4xl sm:text-5xl font-black mb-4 leading-tight">
-            <span className="bg-gradient-to-r from-yellow-400 to-orange-300 bg-clip-text text-transparent">DeFi</span> 深度解析
+            <span className="bg-gradient-to-r from-yellow-400 to-orange-300 bg-clip-text text-transparent">DeFi</span>{" "}
+            {zh ? "深度解析" : "explained"}
           </h1>
           <p className="text-slate-400 text-lg leading-relaxed max-w-2xl">
-            去中心化金融正在重构全球金融体系。了解 DEX、借贷、流动性挖矿和质押，掌握 Web3 的核心玩法。
+            {zh
+              ? "去中心化金融正在重构全球金融体系。了解 DEX、借贷、流动性挖矿和质押，掌握 Web3 的核心玩法。"
+              : "Decentralized finance is rebuilding financial rails from the ground up. Learn DEXs, lending, liquidity mining, and staking to understand a core part of Web3."}
           </p>
         </FadeIn>
 
         {/* DeFi 总览 */}
         <FadeIn className="mb-8">
           <div className="rounded-2xl border border-yellow-500/20 bg-yellow-500/5 p-6">
-            <h2 className="text-xl font-black text-yellow-400 mb-4">🌍 DeFi 生态现状</h2>
+            <h2 className="mb-4 text-xl font-black text-yellow-400">
+              {zh ? "🌍 DeFi 生态现状" : "🌍 The current DeFi landscape"}
+            </h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
               {[
                 { value: "$2000亿+", label: "总锁仓价值（TVL）", color: "text-yellow-400" },
@@ -245,7 +255,9 @@ export default function DefiDeep() {
 
         {/* DeFi 分类详解 */}
         <FadeIn className="mb-8">
-          <h2 className="text-2xl font-black text-white mb-5">📚 DeFi 四大核心玩法</h2>
+          <h2 className="mb-5 text-2xl font-black text-white">
+            {zh ? "📚 DeFi 四大核心玩法" : "📚 Four core DeFi playbooks"}
+          </h2>
           <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
             {defiCategories.map((cat, i) => (
               <button key={i} onClick={() => setActiveTab(i)}
@@ -279,7 +291,9 @@ export default function DefiDeep() {
 
         {/* AMM 演示 */}
         <FadeIn className="mb-8">
-          <h2 className="text-2xl font-black text-white mb-4">🔄 AMM 自动做市商原理</h2>
+          <h2 className="mb-4 text-2xl font-black text-white">
+            {zh ? "🔄 AMM 自动做市商原理" : "🔄 How AMMs work"}
+          </h2>
           <p className="text-slate-400 mb-5 text-sm leading-relaxed">
             传统交易所需要买卖双方匹配订单。DEX 使用 AMM 算法，通过数学公式 <strong className="text-white">x × y = k</strong> 自动定价，
             无需人工做市商，任何人都可以成为流动性提供者。
@@ -289,7 +303,9 @@ export default function DefiDeep() {
 
         {/* 收益计算器 */}
         <FadeIn className="mb-8">
-          <h2 className="text-2xl font-black text-white mb-4">💹 DeFi 收益计算器</h2>
+          <h2 className="mb-4 text-2xl font-black text-white">
+            {zh ? "💹 DeFi 收益计算器" : "💹 DeFi yield calculator"}
+          </h2>
           <LiquidityCalculator />
         </FadeIn>
 
@@ -298,16 +314,24 @@ export default function DefiDeep() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Link href="/web3-guide/economic-opportunity" className="tap-target block">
               <div className="rounded-2xl border border-orange-500/20 bg-orange-500/5 p-5 hover:bg-orange-500/10 transition-colors">
-                <div className="text-xs text-slate-500 mb-1">下一章</div>
-                <h3 className="font-black text-white text-base">📈 第五章：经济形势与 Web3 机遇</h3>
-                <p className="text-slate-400 text-xs mt-1">现实经济压力与 Web3 的破局机遇</p>
+                <div className="mb-1 text-xs text-slate-500">{zh ? "下一章" : "Next chapter"}</div>
+                <h3 className="text-base font-black text-white">
+                  {zh ? "📈 第五章：经济形势与 Web3 机遇" : "📈 Chapter 5: Macro trends and Web3 opportunity"}
+                </h3>
+                <p className="mt-1 text-xs text-slate-400">
+                  {zh ? "现实经济压力与 Web3 的破局机遇" : "Where real-world pressure meets Web3 opportunity"}
+                </p>
               </div>
             </Link>
             <Link href="/web3-guide" className="tap-target block">
               <div className="rounded-2xl border border-slate-700 bg-slate-800/30 p-5 hover:bg-slate-800/50 transition-colors">
-                <div className="text-xs text-slate-500 mb-1">返回</div>
-                <h3 className="font-black text-white text-base">📖 Web3 入圈指南总览</h3>
-                <p className="text-slate-400 text-xs mt-1">回到主页面查看完整学习路径</p>
+                <div className="mb-1 text-xs text-slate-500">{zh ? "返回" : "Back"}</div>
+                <h3 className="text-base font-black text-white">
+                  {zh ? "📖 Web3 入圈指南总览" : "📖 Web3 guide overview"}
+                </h3>
+                <p className="mt-1 text-xs text-slate-400">
+                  {zh ? "回到主页面查看完整学习路径" : "Return to the main overview and learning path"}
+                </p>
               </div>
             </Link>
           </div>

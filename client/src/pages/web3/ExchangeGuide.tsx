@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import Web3ChapterNav from "@/components/Web3ChapterNav";
 import { useScrollMemory } from '@/hooks/useScrollMemory';
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 function FadeIn({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -111,6 +112,8 @@ function InvestmentPathSelector() {
 
 export default function ExchangeGuideDeep() {
   useScrollMemory();
+  const { language } = useLanguage();
+  const zh = language === "zh";
   const [mounted, setMounted] = useState(false);
   const [expandedExchange, setExpandedExchange] = useState<number | null>(null);
   useEffect(() => { setTimeout(() => setMounted(true), 50); }, []);
@@ -145,10 +148,12 @@ export default function ExchangeGuideDeep() {
         <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
           <button onClick={() => window.history.back()} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-            返回上一页
+            {zh ? "返回上一页" : "Back"}
           </button>
           <div className="flex items-center gap-2">
-            <span className="text-xs px-2.5 py-1 rounded-full bg-teal-500/20 text-teal-400 border border-teal-500/30 hidden sm:inline-flex">实操 · 章节 07</span>
+            <span className="hidden rounded-full border border-teal-500/30 bg-teal-500/20 px-2.5 py-1 text-xs text-teal-400 sm:inline-flex">
+              {zh ? "实操 · 章节 07" : "Hands-on · Chapter 07"}
+            </span>
             <Web3ChapterNav currentChapterId="exchange-guide" />
           </div>
         </div>
@@ -157,13 +162,18 @@ export default function ExchangeGuideDeep() {
       <div className="max-w-4xl mx-auto px-4 py-12 pb-20">
         <FadeIn className="mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs mb-5">
-            🏦 第七章：交易所入门
+            {zh ? "🏦 第七章：交易所入门" : "🏦 Chapter 7: Exchange starter guide"}
           </div>
           <h1 className="text-4xl sm:text-5xl font-black mb-4 leading-tight">
-            <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">交易所</span> 入门指南
+            <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
+              {zh ? "交易所" : "Exchange"}
+            </span>{" "}
+            {zh ? "入门指南" : "starter guide"}
           </h1>
           <p className="text-slate-400 text-lg leading-relaxed max-w-2xl">
-            了解了 Web3 的世界，现在是时候迈出第一步了。中心化交易所是大多数人进入 Web3 的最佳起点——安全、简单、支持法币。
+            {zh
+              ? "了解了 Web3 的世界，现在是时候迈出第一步了。中心化交易所是大多数人进入 Web3 的最佳起点——安全、简单、支持法币。"
+              : "Once you understand the Web3 landscape, it is time to take the first practical step. For most people, centralized exchanges are still the safest and simplest entry point."}
           </p>
         </FadeIn>
 
@@ -195,13 +205,17 @@ export default function ExchangeGuideDeep() {
 
         {/* 个性化路径选择 */}
         <FadeIn className="mb-8">
-          <h2 className="text-2xl font-black text-white mb-4">🎯 找到你的入门路径</h2>
+          <h2 className="mb-4 text-2xl font-black text-white">
+            {zh ? "🎯 找到你的入门路径" : "🎯 Find your onboarding path"}
+          </h2>
           <InvestmentPathSelector />
         </FadeIn>
 
         {/* 主流交易所介绍 */}
         <FadeIn className="mb-8">
-          <h2 className="text-2xl font-black text-white mb-5">🏆 主流交易所对比</h2>
+          <h2 className="mb-5 text-2xl font-black text-white">
+            {zh ? "🏆 主流交易所对比" : "🏆 Compare major exchanges"}
+          </h2>
           <div className="space-y-4">
             {exchanges.map((ex, i) => (
               <div
@@ -258,7 +272,9 @@ export default function ExchangeGuideDeep() {
 
         {/* 注册步骤 */}
         <FadeIn className="mb-8">
-          <h2 className="text-2xl font-black text-white mb-5">📋 注册交易所：完整步骤</h2>
+          <h2 className="mb-5 text-2xl font-black text-white">
+            {zh ? "📋 注册交易所：完整步骤" : "📋 Exchange registration: full workflow"}
+          </h2>
           <div className="space-y-3">
             {[
               { step: "01", title: "选择交易所并下载官方 App", desc: "通过官方网站或应用商店下载，谨防钓鱼网站。", icon: "📱", color: "text-blue-400", border: "border-blue-500/30" },
@@ -288,14 +304,16 @@ export default function ExchangeGuideDeep() {
             <div className="flex items-start gap-4">
               <span className="text-4xl">🎁</span>
               <div>
-                <h3 className="text-xl font-black text-white mb-2">通过合作链接注册，享受手续费返佣</h3>
+                <h3 className="mb-2 text-xl font-black text-white">
+                  {zh ? "通过合作链接注册，享受手续费返佣" : "Register through partner links and save on fees"}
+                </h3>
                 <p className="text-slate-400 text-sm leading-relaxed mb-4">
                   你已经了解了 Web3 的完整知识体系——从区块链原理到 DeFi 玩法，从钱包安全到交易所选择。
                   现在，如果你决定迈出第一步，通过我们的合作伙伴链接注册可以享受<strong className="text-yellow-300">永久的手续费返佣</strong>，
                   让每一笔交易都更划算。
                 </p>
                 <Link href="/crypto-saving" className="bg-yellow-500 hover:bg-yellow-400 text-black font-black px-6 py-3 rounded-xl transition-all hover:scale-105 text-sm">
-                    查看合作伙伴邀请链接 →
+                    {zh ? "查看合作伙伴邀请链接 →" : "View partner links →"}
                 </Link>
               </div>
             </div>
@@ -307,14 +325,18 @@ export default function ExchangeGuideDeep() {
           <div className="flex flex-col sm:flex-row gap-4">
             <Link href="/web3-guide" className="flex-1">
               <div className="rounded-2xl border border-slate-700 bg-slate-800/30 p-5 hover:bg-slate-800/50 transition-colors text-center">
-                <div className="text-xs text-slate-500 mb-1">返回</div>
-                <h3 className="font-black text-white text-base">📖 Web3 入圈指南</h3>
+                <div className="mb-1 text-xs text-slate-500">{zh ? "返回" : "Back"}</div>
+                <h3 className="text-base font-black text-white">
+                  {zh ? "📖 Web3 入圈指南" : "📖 Web3 guide"}
+                </h3>
               </div>
             </Link>
             <Link href="/crypto-saving" className="flex-1">
               <div className="rounded-2xl border border-yellow-500/20 bg-yellow-500/5 p-5 hover:bg-yellow-500/10 transition-colors text-center">
-                <div className="text-xs text-slate-500 mb-1">前往</div>
-                <h3 className="font-black text-white text-base">💰 币圈省钱指南</h3>
+                <div className="mb-1 text-xs text-slate-500">{zh ? "前往" : "Open"}</div>
+                <h3 className="text-base font-black text-white">
+                  {zh ? "💰 币圈省钱指南" : "💰 Crypto saving guide"}
+                </h3>
               </div>
             </Link>
           </div>
