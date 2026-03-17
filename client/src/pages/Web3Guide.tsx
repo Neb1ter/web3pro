@@ -277,9 +277,10 @@ function FloatChapterMenu({ activeId }: { activeId: string }) {
   const containerStyle: React.CSSProperties = {
     position: 'fixed',
     left: `calc(1rem + ${offset.x}px)`,
-    bottom: `calc(1.5rem - ${offset.y}px)`,
+    bottom: `calc(1rem + env(safe-area-inset-bottom, 0px) - ${offset.y}px)`,
     zIndex: 50,
     userSelect: 'none',
+    pointerEvents: 'none',
   };
 
   return (
@@ -295,6 +296,8 @@ function FloatChapterMenu({ activeId }: { activeId: string }) {
               WebkitBackdropFilter: 'blur(20px)',
               boxShadow: '0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(16,185,129,0.08)',
               width: '220px',
+              pointerEvents: 'auto',
+              touchAction: 'manipulation',
             }}
           >
             <div className="px-4 py-3 border-b border-emerald-500/15">
@@ -304,6 +307,7 @@ function FloatChapterMenu({ activeId }: { activeId: string }) {
               {navSections.map(sec => (
                 <button
                   key={sec.id}
+                  type="button"
                   onClick={() => scrollTo(sec.id)}
                   className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-all ${
                     sec.id === activeId
@@ -323,8 +327,10 @@ function FloatChapterMenu({ activeId }: { activeId: string }) {
           onMouseDown={onMouseDown}
           onTouchStart={onTouchStart}
           className="cursor-grab active:cursor-grabbing"
+          style={{ pointerEvents: 'auto' }}
         >
           <button
+            type="button"
             onClick={() => { if (!dragRef.current?.moved) setOpen(v => !v); }}
             className="flex items-center gap-2.5 rounded-2xl border border-emerald-500/30 px-3.5 py-2.5 transition-all hover:border-emerald-500/60"
             style={{
@@ -332,6 +338,9 @@ function FloatChapterMenu({ activeId }: { activeId: string }) {
               backdropFilter: 'blur(16px)',
               WebkitBackdropFilter: 'blur(16px)',
               boxShadow: '0 4px 20px rgba(0,0,0,0.4), 0 0 12px rgba(16,185,129,0.08)',
+              pointerEvents: 'auto',
+              touchAction: 'manipulation',
+              WebkitTapHighlightColor: 'transparent',
             }}
             title="拖动可移位，点击切换章节"
           >

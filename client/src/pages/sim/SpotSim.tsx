@@ -8,7 +8,7 @@ import { useLocation } from "wouter";
 import { ArrowLeft, RefreshCw, Info, X, ChevronDown } from "lucide-react";
 import {
   CandleChart, OrderBook, Toast, EmptyHint, HistoryTab, ResetConfirmModal, PercentSlider,
-  initCandles, nextCandle, calcEMA, genBook,
+  initCandles, nextCandle, calcEMA, genBook, useDeferredMount,
   type Candle, type LimitOrder,
 } from "./SimComponents";
 import { useLocalHistory } from "./SimComponents";
@@ -16,11 +16,12 @@ import { useLocalHistory } from "./SimComponents";
 const INITIAL_BALANCE = 10000;
 const TICK_MS = 1000;
 const INIT_PRICE = 65000;
+const INITIAL_CANDLE_COUNT = 60;
 
 export default function SpotSim() {
   const [, navigate] = useLocation();
 
-  const [candles,      setCandles]      = useState(() => initCandles(80, INIT_PRICE));
+  const [candles,      setCandles]      = useState(() => initCandles(INITIAL_CANDLE_COUNT, INIT_PRICE));
   const [currentPrice, setCurrentPrice] = useState(INIT_PRICE);
   const [openPrice]                     = useState(INIT_PRICE);
   const [book,         setBook]         = useState(() => genBook(INIT_PRICE));
@@ -42,6 +43,7 @@ export default function SpotSim() {
   const [timeframe,    setTimeframe]    = useState("小时");
   const [showReset,    setShowReset]    = useState(false);
   const [buyTime,      setBuyTime]      = useState<number>(0);
+  const orderBookReady                  = useDeferredMount(120);
   // 价格偏向：买入时约 70% 向上偏、30% 向下偏，有亏有赢更真实
   const [priceBias,    setPriceBias]    = useState(0);
   // 首次开仓后自动滚动到仓位区域
@@ -236,7 +238,7 @@ export default function SpotSim() {
           <button onClick={() => setSpeed(s => s === 1 ? 3 : 1)} style={{ padding: "3px 8px", borderRadius: 6, background: "rgba(255,255,255,0.07)", border: "none", color: "rgba(255,255,255,0.6)", cursor: "pointer", fontSize: 11 }}>
             {speed}×
           </button>
-          <button onClick={() => { setCandles(initCandles(80, INIT_PRICE)); setBalance(INITIAL_BALANCE); setBtcHeld(0); setAvgBuyPrice(0); setLimitOrders([]); setCurrentPrice(INIT_PRICE); setAmountInput(""); setSliderPct(0); setPriceBias(0); hasScrolled.current = false; }} style={{ background: "rgba(255,255,255,0.07)", border: "none", color: "rgba(255,255,255,0.6)", cursor: "pointer", borderRadius: 6, padding: "3px 6px", display: "flex", alignItems: "center" }}>
+          <button onClick={() => { setCandles(initCandles(INITIAL_CANDLE_COUNT, INIT_PRICE)); setBalance(INITIAL_BALANCE); setBtcHeld(0); setAvgBuyPrice(0); setLimitOrders([]); setCurrentPrice(INIT_PRICE); setAmountInput(""); setSliderPct(0); setPriceBias(0); hasScrolled.current = false; }} style={{ background: "rgba(255,255,255,0.07)", border: "none", color: "rgba(255,255,255,0.6)", cursor: "pointer", borderRadius: 6, padding: "3px 6px", display: "flex", alignItems: "center" }}>
             <RefreshCw size={13} />
           </button>
         </div>
@@ -358,7 +360,14 @@ export default function SpotSim() {
 
         {/* 右侧：订单簿 */}
         <div style={{ flex: 1, overflowY: "auto", padding: "4px 4px" }}>
-          <OrderBook asks={book.asks} bids={book.bids} mid={currentPrice} decimals={1} />
+          {orderBookReady ? (
+            <OrderBook asks={book.asks} bids={book.bids} mid={currentPrice} decimals={1} />
+          ) : (
+            <div style={{ padding: "16px 8px", color: "rgba(255,255,255,0.45)", fontSize: 11 }}>
+              <div style={{ height: 12, width: "72%", borderRadius: 999, background: "rgba(255,255,255,0.08)", marginBottom: 10 }} />
+              <div style={{ height: 88, borderRadius: 12, background: "rgba(255,255,255,0.05)" }} />
+            </div>
+          )}
         </div>
       </div>
 

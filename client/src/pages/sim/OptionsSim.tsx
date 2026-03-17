@@ -51,6 +51,8 @@ function PnLChart({ S, K, premium, type, width, height }: {
 }) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
+    let frame = 0;
+    frame = window.requestAnimationFrame(() => {
     const c = ref.current; if (!c) return;
     const ctx = c.getContext("2d")!;
     const dpr = window.devicePixelRatio || 1;
@@ -99,6 +101,8 @@ function PnLChart({ S, K, premium, type, width, height }: {
     // 标注
     ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.font = "9px monospace"; ctx.textAlign = "center";
     ctx.fillText(`行权价 $${K.toFixed(0)}`, pad.l + (prices.findIndex(p => p >= K) / 99) * cW, pad.t + cH + 15);
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, [S, K, premium, type, width, height]);
   return <canvas ref={ref} style={{ display: "block" }} />;
 }

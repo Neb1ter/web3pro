@@ -8,7 +8,7 @@ import { useLocation } from "wouter";
 import { ArrowLeft, RefreshCw, Info, X, ChevronDown } from "lucide-react";
 import {
   CandleChart, OrderBook, PositionCard, TpSlModal, Toast, EmptyHint, HistoryTab, ResetConfirmModal, PercentSlider,
-  initCandles, nextCandle, calcEMA, genBook,
+  initCandles, nextCandle, calcEMA, genBook, useDeferredMount,
   type Position, type LimitOrder,
 } from "./SimComponents";
 import { useLocalHistory } from "./SimComponents";
@@ -19,11 +19,12 @@ const LEVERAGES = [3, 5, 10, 20] as const;
 const MARGIN_MODES = ["逐仓", "全仓"] as const;
 const HOURLY_RATE = 0.000413;
 const INIT_PRICE = 1893;
+const INITIAL_CANDLE_COUNT = 60;
 
 export default function MarginSim() {
   const [, navigate] = useLocation();
 
-  const [candles,      setCandles]      = useState(() => initCandles(80, INIT_PRICE));
+  const [candles,      setCandles]      = useState(() => initCandles(INITIAL_CANDLE_COUNT, INIT_PRICE));
   const [currentPrice, setCurrentPrice] = useState(INIT_PRICE);
   const [openPrice]                     = useState(INIT_PRICE);
   const [book,         setBook]         = useState(() => genBook(INIT_PRICE));
@@ -47,6 +48,7 @@ export default function MarginSim() {
   const [showBorrow,   setShowBorrow]   = useState(false);
   const [borrowAmount, setBorrowAmount] = useState("");
   const [tpSlPos,      setTpSlPos]      = useState<Position | null>(null);
+  const orderBookReady                  = useDeferredMount(120);
   const [showReset,    setShowReset]    = useState(false);
   const [openedAt,     setOpenedAt]     = useState<Record<number, number>>({});
   // 价格偏向：买入时约 70% 向上偏、30% 向下偏，有亏有赢更真实
@@ -317,7 +319,7 @@ export default function MarginSim() {
           <button onClick={() => setSpeed(s => s === 1 ? 3 : 1)} style={{ padding: "3px 8px", borderRadius: 6, background: "rgba(255,255,255,0.07)", border: "none", color: "rgba(255,255,255,0.6)", cursor: "pointer", fontSize: 11 }}>
             {speed}×
           </button>
-          <button onClick={() => { setCandles(initCandles(80, INIT_PRICE)); setBalance(INITIAL_BALANCE); setPositions([]); setLimitOrders([]); setBorrowed(0); setCurrentPrice(INIT_PRICE); setAmountInput(""); }} style={{ background: "rgba(255,255,255,0.07)", border: "none", color: "rgba(255,255,255,0.6)", cursor: "pointer", borderRadius: 6, padding: "3px 6px", display: "flex", alignItems: "center" }}>
+          <button onClick={() => { setCandles(initCandles(INITIAL_CANDLE_COUNT, INIT_PRICE)); setBalance(INITIAL_BALANCE); setPositions([]); setLimitOrders([]); setBorrowed(0); setCurrentPrice(INIT_PRICE); setAmountInput(""); }} style={{ background: "rgba(255,255,255,0.07)", border: "none", color: "rgba(255,255,255,0.6)", cursor: "pointer", borderRadius: 6, padding: "3px 6px", display: "flex", alignItems: "center" }}>
             <RefreshCw size={13} />
           </button>
         </div>
@@ -476,7 +478,14 @@ export default function MarginSim() {
           </div>
           {/* 订单簿 */}
           <div style={{ flex: 1, padding: "4px 4px" }}>
-            <OrderBook asks={book.asks} bids={book.bids} mid={currentPrice} decimals={2} />
+            {orderBookReady ? (
+              <OrderBook asks={book.asks} bids={book.bids} mid={currentPrice} decimals={2} />
+            ) : (
+              <div style={{ padding: "16px 8px", color: "rgba(255,255,255,0.45)", fontSize: 11 }}>
+                <div style={{ height: 12, width: "72%", borderRadius: 999, background: "rgba(255,255,255,0.08)", marginBottom: 10 }} />
+                <div style={{ height: 88, borderRadius: 12, background: "rgba(255,255,255,0.05)" }} />
+              </div>
+            )}
           </div>
         </div>
       </div>

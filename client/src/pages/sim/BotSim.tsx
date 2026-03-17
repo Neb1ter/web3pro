@@ -12,6 +12,8 @@ function initPrices(n = 200, start = 65000) {
   return a;
 }
 
+const INITIAL_PRICE_POINTS = 120;
+
 // 策略类型
 const STRATEGIES = [
   {
@@ -91,6 +93,8 @@ function BotChart({ prices, trades, width, height }: {
 }) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
+    let frame = 0;
+    frame = window.requestAnimationFrame(() => {
     const c = ref.current; if (!c || prices.length < 2) return;
     const ctx = c.getContext("2d")!;
     const dpr = window.devicePixelRatio || 1;
@@ -128,6 +132,8 @@ function BotChart({ prices, trades, width, height }: {
       ctx.font = "bold 10px sans-serif"; ctx.textAlign = "center";
       ctx.fillText(t.type === "buy" ? "B" : "S", x, y + (t.type === "buy" ? 18 : -10));
     });
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, [prices, trades, width, height]);
   return <canvas ref={ref} style={{ display: "block" }} />;
 }
@@ -151,7 +157,7 @@ export default function BotSim() {
     STRATEGIES.forEach(s => s.params.forEach(param => { p[`${s.id}_${param.key}`] = param.default; }));
     return p;
   });
-  const [prices, setPrices] = useState(() => initPrices(200, 65000));
+  const [prices, setPrices] = useState(() => initPrices(INITIAL_PRICE_POINTS, 65000));
   const [currentPrice, setCurrentPrice] = useState(65000);
   const [balance, setBalance] = useState(INITIAL_BALANCE);
   const [btcHeld, setBtcHeld] = useState(0);
@@ -245,7 +251,7 @@ export default function BotSim() {
     setPrices(prev => {
       const last = prev[prev.length - 1];
       const next = generatePrice(last);
-      const newPrices = [...prev.slice(-199), next];
+      const newPrices = [...prev.slice(-(INITIAL_PRICE_POINTS - 1)), next];
       setCurrentPrice(next);
       setTickCount(t => {
         const newTick = t + 1;
@@ -290,7 +296,7 @@ export default function BotSim() {
       setPrices(prev => {
         const last = prev[prev.length - 1];
         const next = generatePrice(last);
-        const newPrices = [...prev.slice(-199), next];
+      const newPrices = [...prev.slice(-(INITIAL_PRICE_POINTS - 1)), next];
         setCurrentPrice(next);
         tickRef.current++;
         if (botRunning) {
@@ -334,7 +340,7 @@ export default function BotSim() {
             {speed === 1 ? "🐢 慢速" : "🐇 快速"}
           </button>
           <button onClick={() => {
-            setPrices(initPrices(200, 65000)); setBalance(INITIAL_BALANCE);
+            setPrices(initPrices(INITIAL_PRICE_POINTS, 65000)); setBalance(INITIAL_BALANCE);
             setBtcHeld(0); setBotTrades([]); setCurrentPrice(65000);
             setBotRunning(false); tickRef.current = 0; setLastGridBuy(null);
             setPrevShortMA(null); setPrevLongMA(null);

@@ -58,6 +58,18 @@ export function initCandles(n = 80, start = 65000): Candle[] {
   return arr;
 }
 
+export function useDeferredMount(delay = 120) {
+  const [ready, setReady] = useState(delay <= 0);
+
+  useEffect(() => {
+    if (delay <= 0) return;
+    const timer = window.setTimeout(() => setReady(true), delay);
+    return () => window.clearTimeout(timer);
+  }, [delay]);
+
+  return ready;
+}
+
 export function calcEMA(data: number[], period: number): number[] {
   const k = 2 / (period + 1);
   const out: number[] = [];
@@ -70,6 +82,8 @@ export function CandleChart({ candles, height = 200, entryPrice, liquidPrice }: 
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    let frame = 0;
+    frame = window.requestAnimationFrame(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
     if (!canvas || !container || candles.length < 2) return;
@@ -161,6 +175,8 @@ export function CandleChart({ candles, height = 200, entryPrice, liquidPrice }: 
       ctx.fillText("爆仓", W - pad.right + 3, lqy - 1);
       ctx.fillText(liquidPrice.toFixed(0), W - pad.right + 3, lqy + 7);
     }
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, [candles, height, entryPrice, liquidPrice]);
 
   return <div ref={containerRef} style={{ width: "100%", height }}><canvas ref={canvasRef} style={{ display: "block" }} /></div>;
