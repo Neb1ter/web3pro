@@ -61,7 +61,15 @@ function formatDate(date: Date | string, lang: string): string {
 // ─── Flash News (实时快讯) ─────────────────────────────────────────────────────
 function FlashNewsPanel({ zh, language }: { zh: boolean; language: string }) {
   const [activeFilter, setActiveFilter] = useState<FlashFilter>("all");
-  const { data: newsItems = [], isLoading, isError } = trpc.news.list.useQuery({ limit: 100 });
+  const { data: newsItems = [], isLoading, isError } = trpc.news.list.useQuery(
+    { limit: 100 },
+    {
+      staleTime: 60_000,
+      refetchInterval: 60_000,
+      refetchOnWindowFocus: true,
+      refetchOnReconnect: true,
+    }
+  );
 
   const filtered = activeFilter === "all" ? newsItems : newsItems.filter(n => n.category === activeFilter);
 
@@ -191,7 +199,15 @@ function FlashNewsPanel({ zh, language }: { zh: boolean; language: string }) {
 // ─── Articles Panel (深度文章) ─────────────────────────────────────────────────
 function ArticlesPanel({ zh }: { zh: boolean }) {
   const [activeCategory, setActiveCategory] = useState("all");
-  const { data: articles = [], isLoading } = trpc.articles.list.useQuery({ limit: 20, offset: 0 });
+  const { data: articles = [], isLoading } = trpc.articles.list.useQuery(
+    { limit: 20, offset: 0 },
+    {
+      staleTime: 120_000,
+      refetchInterval: 120_000,
+      refetchOnWindowFocus: true,
+      refetchOnReconnect: true,
+    }
+  );
 
   const categories = ["all", ...Object.keys(ARTICLE_CATEGORY_LABELS)];
   const filtered = activeCategory === "all" ? articles : articles.filter((a: { category: string }) => a.category === activeCategory);

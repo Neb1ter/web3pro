@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 
 const envFiles = [
@@ -8,12 +9,23 @@ const envFiles = [
   ".env.runtime",
 ];
 
-for (const relativePath of envFiles) {
-  const fullPath = path.resolve(process.cwd(), relativePath);
-  if (!fs.existsSync(fullPath)) continue;
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
+const candidateRoots = Array.from(
+  new Set([
+    process.cwd(),
+    path.resolve(currentDir, ".."),
+    path.resolve(currentDir, "../.."),
+  ]),
+);
 
-  dotenv.config({
-    path: fullPath,
-    override: relativePath === ".env.runtime",
-  });
+for (const root of candidateRoots) {
+  for (const relativePath of envFiles) {
+    const fullPath = path.resolve(root, relativePath);
+    if (!fs.existsSync(fullPath)) continue;
+
+    dotenv.config({
+      path: fullPath,
+      override: relativePath === ".env.runtime",
+    });
+  }
 }

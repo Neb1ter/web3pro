@@ -27,6 +27,25 @@ const DIFFICULTY_LABELS: Record<string, { zh: string; en: string; color: string 
   advanced:     { zh: "高级",   en: "Advanced",     color: "bg-red-500/20 text-red-400 border-red-500/30" },
 };
 
+const DIRECT_TOOL_HINTS = ["aicoin", "jin10", "blockbeats", "oklink", "feixiaohao", "tokeninsight", "rootdata", "sosovalue"] as const;
+
+function resolveToolNeedVpn(tool: {
+  name: string;
+  nameEn: string;
+  source: string;
+  url: string;
+  needVpn?: boolean | null;
+}) {
+  if (typeof tool.needVpn === "boolean") return tool.needVpn;
+
+  const haystack = [tool.name, tool.nameEn, tool.source, tool.url]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  return !DIRECT_TOOL_HINTS.some((hint) => haystack.includes(hint));
+}
+
 // ─── 辅助组件 ─────────────────────────────────────────────────────────────────
 
 function SocialBar({ zh }: { zh: boolean }) {
@@ -142,9 +161,7 @@ export default function CryptoTools() {
       
       const matchCat = activeCategory === "all" || t.category === activeCategory;
       
-      // 数据库中目前没有 needVpn 字段，默认为 true (因为大部分币圈工具国内都需要 VPN)
-      // 如果以后数据库增加了 needVpn 字段，这里可以改为使用 t.needVpn
-      const toolNeedVpn = (t as any).needVpn ?? true;
+      const toolNeedVpn = resolveToolNeedVpn(t as typeof t & { needVpn?: boolean | null });
       const matchVpn =
         vpnFilter === "all" ? true :
         vpnFilter === "no-vpn" ? !toolNeedVpn :
@@ -283,7 +300,7 @@ export default function CryptoTools() {
               const diff = DIFFICULTY_LABELS[tool.difficulty] ?? DIFFICULTY_LABELS.beginner;
               const tags = tool.tags ? tool.tags.split(",").filter(Boolean) : [];
               const catLabel = CATEGORIES.find(c => c.key === tool.category);
-              const toolNeedVpn = (tool as any).needVpn ?? true;
+              const toolNeedVpn = resolveToolNeedVpn(tool as typeof tool & { needVpn?: boolean | null });
               
               return (
                 <div

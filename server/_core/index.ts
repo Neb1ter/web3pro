@@ -19,7 +19,7 @@ import {
 } from "./security";
 import { ENV } from "./env";
 import { sdk } from "./sdk";
-import { upsertUser, getDb, seedCryptoToolsIfEmpty, seedMediaPlatformsIfEmpty, getExchangeLinks } from "../db";
+import { upsertUser, getDb, seedCryptoToolsIfEmpty, seedMediaPlatformsIfEmpty, getExchangeLinks, ensureCryptoToolsSchema, getSystemSetting, setSystemSetting } from "../db";
 import { startRssScheduler } from "./rss";
 import { startWordUpdateScheduler } from "./sensitiveWordUpdater";
 import { startDailyContentScheduler } from "./dailyContent";
@@ -54,6 +54,28 @@ const __dirname = path.dirname(__filename);
 
 const ADMIN_OPEN_ID = "admin";
 
+async function getAcceptedAdminPasswords(): Promise<string[]> {
+  const candidates = new Set<string>();
+
+  if (ENV.adminPassword) {
+    candidates.add(ENV.adminPassword);
+    try {
+      await setSystemSetting("admin_password", ENV.adminPassword, "Admin password synced from runtime environment");
+    } catch (error) {
+      console.warn("[AdminLogin] Failed to sync admin password into system settings:", error);
+    }
+  }
+
+  try {
+    const dbPassword = await getSystemSetting("admin_password", "");
+    if (dbPassword) candidates.add(dbPassword.trim());
+  } catch (error) {
+    console.warn("[AdminLogin] Failed to read admin password from system settings:", error);
+  }
+
+  return [...candidates].filter(Boolean);
+}
+
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
     const server = net.createServer();
@@ -85,8 +107,10 @@ async function startServer() {
         console.log(`[Database] Running migrations from: ${migrationsFolder}`);
         await migrate(db as any, { migrationsFolder });
         console.log("[Database] Migrations completed successfully");
+        await ensureCryptoToolsSchema();
         // 初始化默认数据（如果表为空则插入种子数据）
         await seedCryptoToolsIfEmpty();
+        await ensureCryptoToolsSchema();
         await seedMediaPlatformsIfEmpty();
         console.log("[Database] Seed data initialized");
       }
@@ -114,11 +138,18 @@ async function startServer() {
   app.post("/api/admin-login", async (req: Request, res: Response) => {
     const { password } = req.body as { password?: string };
     const normalizedPassword = password?.trim() ?? "";
-    if (!ENV.adminPassword) {
+    const acceptedPasswords = await getAcceptedAdminPasswords();
+
+    if (acceptedPasswords.length === 0) {
       res.status(503).json({ error: "管理员密码登录未配置，请设置 ADMIN_PASSWORD 环境变量" });
       return;
     }
-    if (!normalizedPassword || !safeComparePassword(normalizedPassword, ENV.adminPassword)) {
+
+    const matched = normalizedPassword
+      ? acceptedPasswords.some((expected) => safeComparePassword(normalizedPassword, expected))
+      : false;
+
+    if (!matched) {
       res.status(401).json({ error: "密码错误" });
       return;
     }

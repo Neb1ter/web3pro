@@ -208,9 +208,9 @@ export const appRouter = router({
   news: router({
     list: publicProcedure
       .input(z.object({ limit: z.number().min(1).max(100).optional().default(20) }))
-      // 新闻缓存 5 分钟，平衡实时性与性能
+      // 新闻缓存 1 分钟，避免前台长期显示旧快讯
       .query(async ({ input }) =>
-        withCache(`news:list:${input.limit}`, () => getCryptoNews(input.limit), 5 * 60 * 1000)
+        withCache(`news:list:${input.limit}`, () => getCryptoNews(input.limit), 60 * 1000)
       ),
     /** Admin: list all news (including inactive) */
     listAll: protectedProcedure
@@ -252,6 +252,7 @@ export const appRouter = router({
           isActive: input.isActive,
           publishedAt: input.publishedAt ? new Date(input.publishedAt) : new Date(),
         });
+        invalidateCache('news:list:');
         return { success: true };
       }),
     /** Admin: publish a news item to platforms */
@@ -303,6 +304,7 @@ export const appRouter = router({
         if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
         const { id, ...data } = input;
         await db.update(cryptoNews).set(data).where(eq(cryptoNews.id, id));
+        invalidateCache('news:list:');
         return { success: true };
       }),
     /** Admin: delete a news item */
@@ -316,6 +318,7 @@ export const appRouter = router({
         const db = await getDb();
         if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
         await db.delete(cryptoNews).where(eq(cryptoNews.id, input.id));
+        invalidateCache('news:list:');
         return { success: true };
       }),
     /** Admin: retranslate existing English news to Chinese */
@@ -450,6 +453,7 @@ export const appRouter = router({
         icon: z.string().max(8).default('🔧'),
         tags: z.string().max(256).optional(),
         difficulty: z.enum(['beginner', 'intermediate', 'advanced']).default('beginner'),
+        needVpn: z.boolean().default(true),
         sortOrder: z.number().int().default(0),
         isActive: z.boolean().default(true),
       }))

@@ -220,6 +220,8 @@ export const cryptoTools = mysqlTable("crypto_tools", {
   tags: varchar("tags", { length: 256 }),
   /** Difficulty level */
   difficulty: mysqlEnum("difficulty", ["beginner", "intermediate", "advanced"]).default("beginner").notNull(),
+  /** Whether the tool typically requires VPN/network tunneling in mainland China */
+  needVpn: boolean("needVpn").default(true).notNull(),
   /** Sort order */
   sortOrder: int("sortOrder").default(0).notNull(),
   /** Whether visible on site */

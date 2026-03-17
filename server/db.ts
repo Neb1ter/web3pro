@@ -44,6 +44,63 @@ export async function getDb() {
   return _db;
 }
 
+const DIRECT_TOOL_HINTS = [
+  "aicoin",
+  "jin10",
+  "blockbeats",
+  "oklink",
+  "feixiaohao",
+  "tokeninsight",
+  "rootdata",
+  "sosovalue",
+] as const;
+
+function inferToolNeedVpn(tool: Pick<InsertCryptoTool, "name" | "nameEn" | "source" | "url">): boolean {
+  const haystack = [tool.name, tool.nameEn, tool.source, tool.url]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  return !DIRECT_TOOL_HINTS.some((hint) => haystack.includes(hint));
+}
+
+export async function ensureCryptoToolsSchema(): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  try {
+    await db.execute("ALTER TABLE crypto_tools ADD COLUMN needVpn BOOLEAN NOT NULL DEFAULT TRUE");
+    console.log("[Database] Added crypto_tools.needVpn column");
+  } catch (error) {
+    const message = String(error).toLowerCase();
+    if (!message.includes("duplicate column")) {
+      console.warn("[Database] Failed to ensure crypto_tools.needVpn column:", error);
+    }
+  }
+
+  try {
+    const tools = await db
+      .select({
+        id: cryptoTools.id,
+        name: cryptoTools.name,
+        nameEn: cryptoTools.nameEn,
+        source: cryptoTools.source,
+        url: cryptoTools.url,
+        needVpn: cryptoTools.needVpn,
+      })
+      .from(cryptoTools);
+
+    for (const tool of tools) {
+      const expectedNeedVpn = inferToolNeedVpn(tool);
+      if (tool.needVpn !== expectedNeedVpn) {
+        await db.update(cryptoTools).set({ needVpn: expectedNeedVpn }).where(eq(cryptoTools.id, tool.id));
+      }
+    }
+  } catch (error) {
+    console.warn("[Database] Failed to sync crypto tool VPN metadata:", error);
+  }
+}
+
 /**
  * 检查数据库中是否已有管理员账号。
  * 用于「首位注册用户自动成为管理员」逻辑。
@@ -674,6 +731,12 @@ export async function seedCryptoToolsIfEmpty(): Promise<void> {
     { name: "金十数据", nameEn: "Jin10 Data", description: "国内最快的财经资讯平台，提供加密货币、外汇、股市实时快讯，7×24 小时不间断推送市场重要消息", descriptionEn: "China's fastest financial news platform with real-time crypto, forex, and stock market alerts 24/7", category: "news", source: "Jin10", url: "https://www.jin10.com", icon: "⚡", tags: "资讯,快讯,新手", difficulty: "beginner", sortOrder: 13, isActive: true },
     { name: "律动 BlockBeats", nameEn: "BlockBeats", description: "专注 Web3 的中文资讯媒体，深度报道 DeFi、NFT、公链生态，提供行业研究与项目分析", descriptionEn: "Web3-focused Chinese media with in-depth coverage of DeFi, NFT, and blockchain ecosystems", category: "news", source: "BlockBeats", url: "https://www.theblockbeats.info", icon: "🎵", tags: "资讯,Web3,进阶", difficulty: "intermediate", sortOrder: 14, isActive: true },
     { name: "CoinGlass 合约数据", nameEn: "CoinGlass", description: "专业加密货币衍生品数据平台，提供爆仓数据、资金费率、持仓量、多空比等合约核心指标", descriptionEn: "Professional crypto derivatives data platform with liquidations, funding rates, open interest, and long/short ratios", category: "chart", source: "CoinGlass", url: "https://www.coinglass.com", icon: "🔮", tags: "合约,爆仓,进阶", difficulty: "intermediate", sortOrder: 15, isActive: true },
+    { name: "AICoin 行情终端", nameEn: "AICoin", description: "面向中文用户的行情与预警工具，适合盯盘、看异动和接收价格提醒。", descriptionEn: "Chinese-friendly price terminal with alerts, anomaly tracking, and market monitoring.", category: "price", source: "AICoin", url: "https://www.aicoin.com", icon: "📈", tags: "行情,预警,直连", difficulty: "beginner", needVpn: false, sortOrder: 16, isActive: true },
+    { name: "OKLink 链上浏览器", nameEn: "OKLink", description: "多链浏览器与地址分析工具，适合查转账、地址标签和链上行为。", descriptionEn: "Multi-chain explorer and address analysis tool for transfers, labels, and on-chain behavior.", category: "onchain", source: "OKLink", url: "https://www.oklink.com", icon: "🔎", tags: "多链,浏览器,直连", difficulty: "beginner", needVpn: false, sortOrder: 17, isActive: true },
+    { name: "非小号 市场数据", nameEn: "Feixiaohao", description: "中文加密市场数据站，适合看项目排名、交易所信息和基础资料。", descriptionEn: "Chinese crypto market data site for rankings, exchange info, and project basics.", category: "price", source: "Feixiaohao", url: "https://www.feixiaohao.com", icon: "🧭", tags: "排名,项目,直连", difficulty: "beginner", needVpn: false, sortOrder: 18, isActive: true },
+    { name: "TokenInsight 研究与评级", nameEn: "TokenInsight", description: "提供项目研究、交易所评级和市场数据，适合做基础研究。", descriptionEn: "Research, exchange ratings, and market data for initial project due diligence.", category: "general", source: "TokenInsight", url: "https://tokeninsight.com", icon: "📚", tags: "研究,评级,直连", difficulty: "intermediate", needVpn: false, sortOrder: 19, isActive: true },
+    { name: "RootData 项目数据库", nameEn: "RootData", description: "面向投研的项目数据库，适合查融资、团队、赛道和项目关系。", descriptionEn: "Project database for research, funding rounds, teams, sectors, and ecosystem relationships.", category: "general", source: "RootData", url: "https://www.rootdata.com", icon: "🗂️", tags: "项目库,投研,直连", difficulty: "intermediate", needVpn: false, sortOrder: 20, isActive: true },
+    { name: "SoSoValue 市场面板", nameEn: "SoSoValue", description: "中文友好的市场概览和板块热度面板，适合快速看资金流向和热点轮动。", descriptionEn: "Chinese-friendly market dashboard for flows, sector heat, and rotation tracking.", category: "general", source: "SoSoValue", url: "https://www.sosovalue.com", icon: "🧠", tags: "面板,热点,直连", difficulty: "beginner", needVpn: false, sortOrder: 21, isActive: true },
   ];
 
   // 使用 upsert 逻辑：按 name 查找，不存在则插入，确保新增工具能自动同步到已有数据库

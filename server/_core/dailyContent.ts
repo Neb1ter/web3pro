@@ -516,10 +516,10 @@ export function startDailyContentScheduler(): void {
 
   console.log("[DailyContent] 每日内容自动化调度器已启动");
 
-  // ── 快讯检查：每 6 小时执行一次（北京时间 08:30/14:30/20:30/02:30）──────
-  const NEWS_INTERVAL_MS = 6 * 60 * 60 * 1000;
+  // ── 快讯检查：每 4 小时执行一次（北京时间 08:30/12:30/16:30/20:30）──────
+  const NEWS_INTERVAL_MS = 4 * 60 * 60 * 1000;
   const scheduleNewsCheck = () => {
-    const delay = msUntilNextCST([8, 14, 20]);
+    const delay = msUntilNextCST([8, 12, 16, 20]);
     console.log(`[DailyContent] 下次快讯检查将在 ${Math.round(delay / 60000)} 分钟后执行`);
     setTimeout(async () => {
       try {
@@ -543,10 +543,10 @@ export function startDailyContentScheduler(): void {
     }, delay);
   };
 
-  // ── 文章生成：每 8 小时执行一次（北京时间 08:30/16:30/00:30）────────────
-  const ARTICLE_INTERVAL_MS = 8 * 60 * 60 * 1000;
+  // ── 文章生成：每 4 小时执行一次（北京时间 09:30/13:30/17:30/21:30）────────────
+  const ARTICLE_INTERVAL_MS = 4 * 60 * 60 * 1000;
   const scheduleArticleGeneration = () => {
-    const delay = msUntilNextCST([8, 16]);
+    const delay = msUntilNextCST([9, 13, 17, 21]);
     console.log(`[DailyContent] 下次文章生成将在 ${Math.round(delay / 60000)} 分钟后执行`);
     setTimeout(async () => {
       try {

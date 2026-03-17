@@ -270,7 +270,7 @@ const TOOL_CATEGORIES = [
 const EMPTY_TOOL = {
   name: "", nameEn: "", description: "", descriptionEn: "",
   category: "general", source: "", url: "", icon: "🔧",
-  tags: "", difficulty: "beginner" as const, sortOrder: 0, isActive: true,
+  tags: "", difficulty: "beginner" as const, needVpn: true, sortOrder: 0, isActive: true,
 };
 
 function ToolsTab({ zh }: { zh: boolean }) {
@@ -294,7 +294,7 @@ function ToolsTab({ zh }: { zh: boolean }) {
       description: t.description, descriptionEn: t.descriptionEn,
       category: t.category, source: t.source, url: t.url,
       icon: t.icon, tags: t.tags ?? "",
-      difficulty: t.difficulty, sortOrder: t.sortOrder, isActive: !!t.isActive,
+      difficulty: t.difficulty, needVpn: t.needVpn ?? true, sortOrder: t.sortOrder, isActive: !!t.isActive,
     });
     setEditing(t.id);
   };
@@ -348,6 +348,10 @@ function ToolsTab({ zh }: { zh: boolean }) {
             </div>
             <LabeledInput label={zh ? "图标（Emoji）" : "Icon (Emoji)"} value={form.icon} onChange={v => setForm(f => ({ ...f, icon: v }))} placeholder="🔧" />
             <LabeledInput label={zh ? "标签（逗号分隔）" : "Tags (comma-separated)"} value={form.tags} onChange={v => setForm(f => ({ ...f, tags: v }))} placeholder="价格,实时,免费" />
+            <div className="flex items-center gap-2 mt-4">
+              <input type="checkbox" id="toolNeedVpn" checked={!!form.needVpn} onChange={e => setForm(f => ({ ...f, needVpn: e.target.checked }))} className="w-4 h-4 accent-cyan-500" />
+              <label htmlFor="toolNeedVpn" className="text-sm text-slate-300">{zh ? "需要 VPN 才能稳定访问" : "Requires VPN for stable access"}</label>
+            </div>
             <LabeledInput label={zh ? "排序权重" : "Sort Order"} value={String(form.sortOrder)} onChange={v => setForm(f => ({ ...f, sortOrder: parseInt(v) || 0 }))} type="number" />
             <div className="flex items-center gap-2 mt-4">
               <input type="checkbox" id="toolActive" checked={form.isActive} onChange={e => setForm(f => ({ ...f, isActive: e.target.checked }))} className="w-4 h-4 accent-cyan-500" />
@@ -378,6 +382,7 @@ function ToolsTab({ zh }: { zh: boolean }) {
                 <th className="py-3 px-3">{zh ? "名称" : "Name"}</th>
                 <th className="py-3 px-3">{zh ? "分类" : "Category"}</th>
                 <th className="py-3 px-3">{zh ? "来源" : "Source"}</th>
+                <th className="py-3 px-3">{zh ? "访问" : "Access"}</th>
                 <th className="py-3 px-3">{zh ? "难度" : "Difficulty"}</th>
                 <th className="py-3 px-3">{zh ? "状态" : "Status"}</th>
                 <th className="py-3 px-3">{zh ? "操作" : "Actions"}</th>
@@ -397,6 +402,15 @@ function ToolsTab({ zh }: { zh: boolean }) {
                     </span>
                   </td>
                   <td className="py-3 px-3 text-slate-400 text-xs">{t.source}</td>
+                  <td className="py-3 px-3">
+                    <span className={`text-xs px-2 py-0.5 rounded-full border ${
+                      t.needVpn
+                        ? "bg-amber-500/15 text-amber-300 border-amber-500/30"
+                        : "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
+                    }`}>
+                      {t.needVpn ? (zh ? "需 VPN" : "VPN") : (zh ? "可直连" : "Direct")}
+                    </span>
+                  </td>
                   <td className="py-3 px-3">
                     <span className={`text-xs px-2 py-0.5 rounded-full border ${
                       t.difficulty === "beginner" ? "bg-green-500/20 text-green-400 border-green-500/30" :

@@ -409,14 +409,14 @@ export async function retranslateEnglishNews(): Promise<number> {
   return updated;
 }
 
-// ─── 启动定时任务（每 30 分钟抓取一次）────────────────────────────────────────
+// ─── 启动定时任务（每 10 分钟抓取一次）────────────────────────────────────────
 export function startRssScheduler(): void {
   if (!ENV.rssEnabled) {
     console.log("[RSS] 已禁用（RSS_ENABLED=false）");
     return;
   }
 
-  const INTERVAL_MS = 30 * 60 * 1000; // 30 分钟
+  const INTERVAL_MS = 10 * 60 * 1000; // 10 分钟
 
   const run = async () => {
     try {
@@ -442,5 +442,5 @@ export function startRssScheduler(): void {
     setInterval(() => run().catch(e => console.error("[RSS] 定时任务异常:", e)), INTERVAL_MS);
   }, 15_000);
 
-  console.log("[RSS] 定时抓取已启动，间隔 30 分钟，共 " + RSS_SOURCES.length + " 个源");
+  console.log("[RSS] 定时抓取已启动，间隔 10 分钟，共 " + RSS_SOURCES.length + " 个源");
 }

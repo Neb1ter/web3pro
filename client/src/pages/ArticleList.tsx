@@ -50,9 +50,17 @@ export default function ArticleList() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data, isLoading } = trpc.articles.list.useQuery({
-    limit: 50,
-  });
+  const { data, isLoading } = trpc.articles.list.useQuery(
+    {
+      limit: 50,
+    },
+    {
+      staleTime: 120_000,
+      refetchInterval: 120_000,
+      refetchOnWindowFocus: true,
+      refetchOnReconnect: true,
+    }
+  );
 
   const articles = Array.isArray(data) ? data : [];
 
