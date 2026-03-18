@@ -12,13 +12,13 @@ type SeoEntry = {
 };
 
 const BASE_TITLE = {
-  zh: "Get8 Pro | Web3导航、交易所对比与KYC指南",
-  en: "Get8 Pro | Web3 Navigation, Exchange Comparison & KYC Guides",
+  zh: "Get8 Pro | Web3 指南、交易所信息与学习资源",
+  en: "Get8 Pro | Web3 Guides, Exchange Information & Learning Resources",
 } as const;
 
 const BASE_DESCRIPTION = {
-  zh: "Get8 Pro 提供 Web3 入门、交易所对比、KYC 实名流程、风险提示与实用工具，帮助用户更清楚地完成学习和决策。",
-  en: "Get8 Pro provides Web3 education, exchange comparison, KYC onboarding guides, risk disclosures, and practical tools for crypto users.",
+  zh: "Get8 Pro 整理 Web3 入门内容、交易所信息、KYC 流程说明、风险提示与实用工具，帮助用户更系统地了解相关主题。",
+  en: "Get8 Pro organizes Web3 learning resources, exchange information, KYC guidance, risk disclosures, and practical tools for users exploring the space.",
 } as const;
 
 const BASE_KEYWORDS = {
