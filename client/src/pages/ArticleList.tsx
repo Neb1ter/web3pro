@@ -76,16 +76,7 @@ export default function ArticleList() {
 
   return (
     <>
-      <SeoManager
-        title={zh ? "加密货币深度文章 — 交易所评测、返佣攻略、Web3教程 | Get8 Pro" : "Crypto Deep Dive Articles — Exchange Reviews, Rebate Guides, Web3 Tutorials | Get8 Pro"}
-        description={zh
-          ? "Get8 Pro 专业内容中心：交易所手续费对比、返佣攻略、合约交易教程、Web3入门指南。由专业团队撰写，数据真实可靠。"
-          : "Get8 Pro professional content hub: exchange fee comparisons, rebate guides, futures trading tutorials, Web3 beginner guides. Written by professionals with verified data."}
-        path="/articles"
-        keywords={zh
-          ? "加密货币文章,交易所评测,返佣攻略,合约教程,Web3入门,币圈知识"
-          : "crypto articles,exchange review,rebate guide,futures tutorial,Web3 beginner,crypto knowledge"}
-      />
+      <SeoManager path="/articles" />
 
       <div className="min-h-screen bg-[#050D1A] text-white">
         {/* ── 顶部导航 ── */}

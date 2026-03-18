@@ -131,20 +131,7 @@ export default function Standards() {
 
   return (
     <>
-      <SeoManager
-        title={zh ? "Get8 Pro 编辑原则与透明度" : "Get8 Pro Editorial Standards & Transparency"}
-        description={
-          zh
-            ? "查看 Get8 Pro 如何核对交易所信息、披露合作关系、处理风险提示和内容修正，建立更清晰的可信度信号。"
-            : "See how Get8 Pro verifies exchange information, discloses partnerships, handles risk disclosures, and processes corrections."
-        }
-        path="/standards"
-        keywords={
-          zh
-            ? "Get8 Pro,编辑原则,透明度,合作披露,风险披露,内容修正,Web3 导航"
-            : "Get8 Pro,editorial standards,transparency,partnership disclosure,risk disclosure,corrections,Web3 navigation"
-        }
-      />
+      <SeoManager path="/standards" />
 
       <div className="min-h-screen bg-[#050D1A] text-white">
         <div className="sticky top-0 z-10 border-b border-white/10 bg-[#050D1A]/85 backdrop-blur-sm">

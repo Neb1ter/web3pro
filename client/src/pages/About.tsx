@@ -83,20 +83,7 @@ export default function About() {
 
   return (
     <>
-      <SeoManager
-        title={zh ? "关于 Get8 Pro - Web3 交易者的可信导航站" : "About Get8 Pro - A Trusted Web3 Navigation Site"}
-        description={
-          zh
-            ? "了解 Get8 Pro 如何处理返佣信息、内容方法论、合作交易所和风险披露，帮助用户更安心地浏览与决策。"
-            : "See how Get8 Pro handles rebate information, editorial methodology, partner exchanges, and risk disclosures."
-        }
-        path="/about"
-        keywords={
-          zh
-            ? "Get8 Pro,关于我们,返佣规则,交易所合作,Web3 导航,内容方法论"
-            : "Get8 Pro,about us,rebate rules,exchange partners,Web3 navigation,editorial methodology"
-        }
-      />
+      <SeoManager path="/about" />
 
       <div className="min-h-screen bg-[#050D1A] text-white">
         <div className="sticky top-0 z-10 border-b border-white/10 bg-[#050D1A]/85 backdrop-blur-sm">

@@ -10,6 +10,7 @@ import { saveScrollPosition, getScrollPosition } from "@/hooks/useScrollMemory";
 import { useLearningPathSync } from "@/hooks/useLearningPathSync";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { preloadRoutes, scheduleIdle } from "@/lib/routePreload";
+import { getSeoForPath } from "@/lib/seo";
 // Delay loading large floating nav bundles until idle time.
 const MobileFloatNav = lazy(() => import("@/components/MobileFloatNav"));
 const DesktopFloatNav = lazy(() => import("@/components/DesktopFloatNav"));
@@ -270,37 +271,14 @@ function PageTransition({ children }: { children: React.ReactNode }) {
 // ============================================================
 // Dynamic route meta kept in ASCII-safe literals to avoid encoding-related build failures.
 // ============================================================
-const PAGE_META: Record<string, { title: string; desc: string }> = {
-  "/": { title: "Get8 Pro | Web3 Trading Navigation Platform", desc: "Get8 Pro provides exchange comparison, rebate guides, Web3 education, and tools to help users lower trading costs." },
-  "/portal": { title: "Get8 Pro | Web3 Trading Navigation Platform", desc: "Get8 Pro provides exchange comparison, rebate guides, Web3 education, and tools to help users lower trading costs." },
-  "/crypto-saving": { title: "Crypto Saving Guide | Get8 Pro", desc: "Compare exchange fees, rebate options, and onboarding paths for lower-cost trading." },
-  "/exchanges": { title: "Exchange Comparison | Get8 Pro", desc: "Compare major crypto exchanges across fees, security, liquidity, and feature coverage." },
-  "/exchange-guide": { title: "Exchange Guide | Get8 Pro", desc: "Explore exchange features, product differences, and beginner-friendly trading guidance." },
-  "/beginner": { title: "Beginner Guide | Get8 Pro", desc: "Learn crypto basics, trading concepts, safety tips, and common beginner questions." },
-  "/crypto-intro": { title: "Crypto Intro | Get8 Pro", desc: "A practical introduction to crypto, Bitcoin, Ethereum, DeFi, and on-chain concepts." },
-  "/crypto-news": { title: "Crypto News Hub | Get8 Pro", desc: "Track crypto news, market updates, exchange announcements, and policy developments." },
-  "/web3-guide": { title: "Web3 Guide | Get8 Pro", desc: "Understand Web3 fundamentals, wallets, DeFi, and the broader on-chain ecosystem." },
-  "/web3-guide/kyc-flow": { title: "KYC Flow | Get8 Pro", desc: "Learn the KYC verification process, required materials, review steps, and common pitfalls for exchange onboarding." },
-  "/contact": { title: "Contact | Get8 Pro", desc: "Contact the Get8 Pro team for support, cooperation, and rebate-related questions." },
-  "/legal": { title: "Legal | Get8 Pro", desc: "Read the terms, privacy information, and risk disclosures for Get8 Pro." },
-  "/about": { title: "About | Get8 Pro", desc: "Learn more about Get8 Pro and its focus on exchange guidance, Web3 education, and tools." },
-  "/standards": { title: "Standards | Get8 Pro", desc: "Review Get8 Pro editorial standards, transparency practices, and how the site verifies exchange and content information." },
-  "/articles": { title: "Articles | Get8 Pro", desc: "Browse in-depth articles, exchange reviews, rebate strategy guides, and Web3 tutorials." },
-};
-
 function usePageMeta() {
   const [location] = useLocation();
   const { language } = useLanguage();
   useEffect(() => {
-    const meta = PAGE_META[location] ?? PAGE_META["/"];
-    const fallbackTitle = "Get8 Pro | Web3 Trading Navigation Platform";
-    const fallbackDesc =
-      "Get8 Pro provides exchange comparison, rebate guides, Web3 education, and tools to help users lower trading costs.";
-    const title = meta?.title?.includes("?") ? fallbackTitle : meta?.title || fallbackTitle;
-    const desc = meta?.desc?.includes("?") ? fallbackDesc : meta?.desc || fallbackDesc;
+    const meta = getSeoForPath(location, language);
     const canonicalUrl = `https://get8.pro${location === "/" ? "/" : location}`;
 
-    document.title = title;
+    document.title = meta.title;
     document.documentElement.lang = language === "zh" ? "zh-CN" : "en";
 
     const updateMeta = (selector: string, value: string, attr: "content" | "href" = "content") => {
@@ -310,12 +288,13 @@ function usePageMeta() {
       }
     };
 
-    updateMeta('meta[name="description"]', desc);
-    updateMeta('meta[property="og:title"]', title);
-    updateMeta('meta[property="og:description"]', desc);
+    updateMeta('meta[name="description"]', meta.description);
+    updateMeta('meta[name="keywords"]', meta.keywords);
+    updateMeta('meta[property="og:title"]', meta.title);
+    updateMeta('meta[property="og:description"]', meta.description);
     updateMeta('meta[property="og:url"]', canonicalUrl);
-    updateMeta('meta[name="twitter:title"]', title);
-    updateMeta('meta[name="twitter:description"]', desc);
+    updateMeta('meta[name="twitter:title"]', meta.title);
+    updateMeta('meta[name="twitter:description"]', meta.description);
     updateMeta('meta[name="twitter:url"]', canonicalUrl);
     updateMeta('link[rel="canonical"]', canonicalUrl, "href");
   }, [language, location]);
