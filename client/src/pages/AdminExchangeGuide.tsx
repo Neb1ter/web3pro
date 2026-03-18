@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
@@ -449,7 +449,7 @@ function ToolsTab({ zh }: { zh: boolean }) {
 }
 
 // ─── Settings Tab ─────────────────────────────────────────────────────────────
-function SettingsTab({ zh }: { zh: boolean }) {
+function LegacySettingsTab({ zh }: { zh: boolean }) {
   const settingsQuery = trpc.settings.getAll.useQuery();
   const setMutation = trpc.settings.set.useMutation({
     onSuccess: () => {
@@ -558,6 +558,261 @@ function SettingsTab({ zh }: { zh: boolean }) {
   );
 }
 // ─── NewsTab ───────────────────────────────────────────────────────────────────
+function SettingsTab({ zh }: { zh: boolean }) {
+  const settingsQuery = trpc.settings.getAll.useQuery();
+  const platformsQuery = trpc.platforms.list.useQuery();
+  const setMutation = trpc.settings.set.useMutation({
+    onSuccess: () => {
+      settingsQuery.refetch();
+      platformsQuery.refetch();
+      toast.success(zh ? "设置已保存" : "Settings saved");
+    },
+    onError: (e: { message: string }) => toast.error(e.message),
+  });
+
+  const settings = settingsQuery.data ?? [];
+  const platforms = platformsQuery.data ?? [];
+
+  function getVal(key: string, def: string = "true") {
+    return settings.find((s: { key: string; value: string }) => s.key === key)?.value ?? def;
+  }
+
+  function toggle(key: string, description: string) {
+    const current = getVal(key);
+    setMutation.mutate({ key, value: current === "true" ? "false" : "true", description });
+  }
+
+  function saveSetting(key: string, value: string, description: string) {
+    setMutation.mutate({ key, value, description });
+  }
+
+  function parseMultiValue(key: string) {
+    const raw = getVal(key, "all").trim();
+    if (!raw || raw.toLowerCase() === "all") return [] as string[];
+    return raw.split(",").map(item => item.trim()).filter(Boolean);
+  }
+
+  function saveMultiValue(key: string, nextValues: string[], description: string) {
+    saveSetting(key, nextValues.length ? nextValues.join(",") : "all", description);
+  }
+
+  const switchItems = [
+    {
+      key: "rss_enabled",
+      label: zh ? "RSS 自动抓取快讯" : "RSS Auto-fetch News",
+      desc: zh ? "自动从配置好的 RSS 来源抓取快讯并入库。" : "Automatically fetch news from configured RSS sources and save them into the database.",
+      icon: "📰",
+    },
+    {
+      key: "telegram_enabled",
+      label: zh ? "Telegram 自动推送" : "Telegram Auto-push",
+      desc: zh ? "系统级 Telegram 推送总开关，和平台管理里的 Telegram 开关一起生效。" : "System-wide Telegram push switch. It works together with the Telegram platform switch.",
+      icon: "✈️",
+    },
+    {
+      key: "rss_push_enabled",
+      label: zh ? "RSS 快讯允许推送" : "RSS Push Enabled",
+      desc: zh ? "关闭后仍会抓取入库，但不会自动把 RSS 快讯推送到 Telegram。" : "When off, RSS still ingests news but stops auto-pushing them to Telegram.",
+      icon: "📨",
+    },
+  ];
+
+  const rssSources = useMemo(() => [
+    { value: "吳說區塊鏈", labelZh: "吴说区块链", labelEn: "Wu Blockchain" },
+    { value: "Foresight News", labelZh: "Foresight News", labelEn: "Foresight News" },
+    { value: "Odaily每日星球", labelZh: "Odaily 每日星球", labelEn: "Odaily" },
+    { value: "CoinDesk", labelZh: "CoinDesk", labelEn: "CoinDesk" },
+    { value: "CoinTelegraph", labelZh: "CoinTelegraph", labelEn: "CoinTelegraph" },
+    { value: "Decrypt", labelZh: "Decrypt", labelEn: "Decrypt" },
+  ], []);
+
+  const rssCategories = useMemo(() => [
+    { value: "market", labelZh: "行情", labelEn: "Market" },
+    { value: "policy", labelZh: "政策监管", labelEn: "Policy" },
+    { value: "exchange", labelZh: "交易所", labelEn: "Exchange" },
+    { value: "defi", labelZh: "DeFi", labelEn: "DeFi" },
+    { value: "nft", labelZh: "NFT", labelEn: "NFT" },
+    { value: "other", labelZh: "其他", labelEn: "Other" },
+  ], []);
+
+  const rssInterval = getVal("rss_interval_minutes", "10");
+  const selectedSources = parseMultiValue("rss_push_sources");
+  const selectedCategories = parseMultiValue("rss_push_categories");
+  const telegramPlatform = platforms.find((platform: { platform: string }) => platform.platform === "telegram");
+  const telegramReady = Boolean(telegramPlatform?.apiKey?.trim() && telegramPlatform?.channelId?.trim());
+
+  if (settingsQuery.isLoading || platformsQuery.isLoading) {
+    return <div className="py-8 text-center text-slate-400">{zh ? "加载中..." : "Loading..."}</div>;
+  }
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-white font-semibold text-lg">{zh ? "系统设置" : "System Settings"}</h2>
+      <p className="text-slate-400 text-sm">{zh ? "这些设置会直接影响 RSS 抓取和 Telegram 推送。" : "These settings directly control RSS ingestion and Telegram push behavior."}</p>
+
+      <div className={`rounded-xl border px-4 py-3 text-sm ${
+        telegramReady
+          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-200"
+          : "border-amber-500/30 bg-amber-500/10 text-amber-100"
+      }`}>
+        {telegramReady
+          ? (zh ? "已检测到 Telegram 平台完整配置，RSS 推送会优先使用平台管理里保存的 Token 和频道 ID。" : "Telegram platform config is ready. RSS push will prefer the token and channel ID saved in Platform Management.")
+          : (zh ? "当前 Telegram 平台缺少 Token 或频道 ID。即使开关打开，也可能不会推送，请先去平台管理补齐。" : "Telegram platform config is incomplete. Even with switches on, pushes may still fail until token and channel ID are filled in Platform Management.")}
+      </div>
+
+      <div className="space-y-4">
+        <h3 className="text-slate-300 font-medium text-sm uppercase tracking-wider">{zh ? "自动化开关" : "Automation"}</h3>
+        {switchItems.map(item => {
+          const isOn = getVal(item.key) === "true";
+          return (
+            <div key={item.key} className="flex items-center justify-between p-4 rounded-xl bg-slate-800/50 border border-slate-700/50">
+              <div className="flex items-start gap-3">
+                <span className="text-2xl mt-0.5">{item.icon}</span>
+                <div>
+                  <div className="text-white font-medium text-sm">{item.label}</div>
+                  <div className="text-slate-400 text-xs mt-0.5 max-w-md">{item.desc}</div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => toggle(item.key, item.desc)}
+                disabled={setMutation.isPending}
+                className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-200 focus:outline-none flex-shrink-0 ml-4 ${
+                  isOn ? "bg-cyan-500" : "bg-slate-600"
+                } ${setMutation.isPending ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+              >
+                <span
+                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-200 ${
+                    isOn ? "translate-x-6" : "translate-x-1"
+                  }`}
+                />
+              </button>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="rounded-xl border border-slate-700/50 bg-slate-800/40 p-4 space-y-3">
+          <h3 className="text-white font-medium">{zh ? "快讯抓取频率" : "RSS Fetch Frequency"}</h3>
+          <p className="text-xs text-slate-400">{zh ? "修改后下一轮调度就会自动读取新的频率，无需重新部署。" : "The next scheduler loop will read the new interval automatically without redeploying."}</p>
+          <div className="flex gap-2">
+            <input
+              type="number"
+              min={1}
+              max={180}
+              defaultValue={rssInterval}
+              onBlur={(e) => {
+                const next = Math.min(180, Math.max(1, Number.parseInt(e.target.value || "10", 10) || 10));
+                saveSetting("rss_interval_minutes", String(next), zh ? "RSS 快讯自动抓取间隔（分钟）" : "RSS fetch interval in minutes");
+              }}
+              className="admin-input w-full"
+            />
+            <button
+              type="button"
+              onClick={() => saveSetting("rss_interval_minutes", "10", zh ? "RSS 快讯自动抓取间隔（分钟）" : "RSS fetch interval in minutes")}
+              className="admin-btn-ghost shrink-0"
+            >
+              {zh ? "重置" : "Reset"}
+            </button>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-slate-700/50 bg-slate-800/40 p-4 space-y-3">
+          <h3 className="text-white font-medium">{zh ? "快讯推送方向" : "Push Filters"}</h3>
+          <p className="text-xs text-slate-400">{zh ? "不选代表全部推送；选了之后只推对应来源或分类。" : "Select nothing to push everything. Once selected, only those sources or categories will be pushed."}</p>
+          <div>
+            <label className="block text-xs text-slate-400 mb-2">{zh ? "来源筛选" : "Source Filter"}</label>
+            <div className="flex flex-wrap gap-2">
+              {rssSources.map(source => {
+                const active = selectedSources.includes(source.value);
+                return (
+                  <button
+                    key={source.value}
+                    type="button"
+                    onClick={() => {
+                      const next = active
+                        ? selectedSources.filter(item => item !== source.value)
+                        : [...selectedSources, source.value];
+                      saveMultiValue("rss_push_sources", next, zh ? "允许自动推送的 RSS 来源，逗号分隔，all 表示全部" : "Allowed RSS push sources, comma separated, all means all");
+                    }}
+                    className={`rounded-full border px-3 py-1.5 text-xs transition ${
+                      active
+                        ? "border-cyan-400/60 bg-cyan-500/15 text-cyan-200"
+                        : "border-slate-600/60 bg-slate-900/40 text-slate-300"
+                    }`}
+                  >
+                    {zh ? source.labelZh : source.labelEn}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs text-slate-400 mb-2">{zh ? "分类筛选" : "Category Filter"}</label>
+            <div className="flex flex-wrap gap-2">
+              {rssCategories.map(category => {
+                const active = selectedCategories.includes(category.value);
+                return (
+                  <button
+                    key={category.value}
+                    type="button"
+                    onClick={() => {
+                      const next = active
+                        ? selectedCategories.filter(item => item !== category.value)
+                        : [...selectedCategories, category.value];
+                      saveMultiValue("rss_push_categories", next, zh ? "允许自动推送的快讯分类，逗号分隔，all 表示全部" : "Allowed RSS push categories, comma separated, all means all");
+                    }}
+                    className={`rounded-full border px-3 py-1.5 text-xs transition ${
+                      active
+                        ? "border-emerald-400/60 bg-emerald-500/15 text-emerald-200"
+                        : "border-slate-600/60 bg-slate-900/40 text-slate-300"
+                    }`}
+                  >
+                    {zh ? category.labelZh : category.labelEn}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {settings.length > 0 && (
+        <div>
+          <h3 className="text-slate-300 font-medium text-sm uppercase tracking-wider mb-3">{zh ? "全部设置记录" : "All Settings"}</h3>
+          <div className="overflow-x-auto rounded-xl border border-slate-700/50">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-700/50 bg-slate-800/40">
+                  <th className="text-left px-4 py-2 text-slate-400 font-medium">Key</th>
+                  <th className="text-left px-4 py-2 text-slate-400 font-medium">{zh ? "值" : "Value"}</th>
+                  <th className="text-left px-4 py-2 text-slate-400 font-medium">{zh ? "最后更新" : "Updated"}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {settings.map((s: { key: string; value: string; description: string | null; updatedAt: Date }) => (
+                  <tr key={s.key} className="border-b border-slate-700/30 hover:bg-slate-800/30">
+                    <td className="px-4 py-2 font-mono text-cyan-400">{s.key}</td>
+                    <td className="px-4 py-2">
+                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                        s.value === "true" ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"
+                      }`}>
+                        {s.value}
+                      </span>
+                    </td>
+                    <td className="px-4 py-2 text-slate-500 text-xs">{new Date(s.updatedAt).toLocaleString("zh-CN")}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function NewsTab({ zh }: { zh: boolean }) {
   const utils = trpc.useUtils();
   const { data: newsList, isLoading } = trpc.news.listAll.useQuery({ limit: 100, offset: 0 });
