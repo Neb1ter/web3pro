@@ -87,8 +87,8 @@ const LANG = {
       columns: [
         { title: "学习与指南", links: [{ label: "Web3 入圈指南", href: "/web3-guide" }, { label: "币圈省钱指南", href: "/crypto-saving" }, { label: "交易所扫盲", href: "/exchange-guide" }, { label: "KYC实名流程", href: "/web3-guide/kyc-flow" }, { label: "下载交易所", href: "/exchange-download" }, { label: "知识测评", href: "/web3-quiz" }] },
         { title: "交易与工具", links: [{ label: "交易所对比", href: "/exchanges" }, { label: "币圈工具合集", href: "/tools" }, { label: "现货模拟", href: "/sim/spot" }, { label: "合约模拟", href: "/sim/futures" }, { label: "杠杆模拟", href: "/sim/margin" }] },
-        { title: "支持与关于", links: [{ label: "关于我们", href: "/about" }, { label: "联系我们", href: "/contact" }, { label: "新手入门", href: "/beginner" }, { label: "加密货币科普", href: "/crypto-intro" }, { label: "加密快讯", href: "/crypto-news" }] },
-        { title: "法律与合规", links: [{ label: "免责声明", href: "/legal#disclaimer" }, { label: "风险提示", href: "/legal#risk" }] },
+        { title: "支持与关于", links: [{ label: "关于我们", href: "/about" }, { label: "编辑原则", href: "/standards" }, { label: "联系我们", href: "/contact" }, { label: "新手入门", href: "/beginner" }, { label: "加密货币科普", href: "/crypto-intro" }, { label: "加密快讯", href: "/crypto-news" }] },
+        { title: "法律与合规", links: [{ label: "免责声明", href: "/legal#disclaimer" }, { label: "风险提示", href: "/legal#risk" }, { label: "合规说明", href: "/legal#compliance" }] },
       ],
       copyright: "© 2026 Get8 Pro",
       disclaimer: "内容仅供参考，不构成投资建议。投资有风险，入市需谨慎。",
@@ -171,8 +171,8 @@ const LANG = {
       columns: [
         { title: "Learn & Guide", links: [{ label: "Web3 Guide", href: "/web3-guide" }, { label: "Crypto Saving", href: "/crypto-saving" }, { label: "Exchange Tutorial", href: "/exchange-guide" }, { label: "KYC Verification Flow", href: "/web3-guide/kyc-flow" }, { label: "Download Exchange", href: "/exchange-download" }, { label: "Knowledge Quiz", href: "/web3-quiz" }] },
         { title: "Trade & Tools", links: [{ label: "Exchange Compare", href: "/exchanges" }, { label: "Crypto Tools Hub", href: "/tools" }, { label: "Spot Sim", href: "/sim/spot" }, { label: "Futures Sim", href: "/sim/futures" }, { label: "Margin Sim", href: "/sim/margin" }] },
-        { title: "Support & About", links: [{ label: "About Us", href: "/about" }, { label: "Contact Us", href: "/contact" }, { label: "Beginner Guide", href: "/beginner" }, { label: "Crypto Intro", href: "/crypto-intro" }, { label: "Crypto News", href: "/crypto-news" }] },
-        { title: "Legal", links: [{ label: "Disclaimer", href: "/legal#disclaimer" }, { label: "Risk Notice", href: "/legal#risk" }] },
+        { title: "Support & About", links: [{ label: "About Us", href: "/about" }, { label: "Editorial Standards", href: "/standards" }, { label: "Contact Us", href: "/contact" }, { label: "Beginner Guide", href: "/beginner" }, { label: "Crypto Intro", href: "/crypto-intro" }, { label: "Crypto News", href: "/crypto-news" }] },
+        { title: "Legal", links: [{ label: "Disclaimer", href: "/legal#disclaimer" }, { label: "Risk Notice", href: "/legal#risk" }, { label: "Compliance", href: "/legal#compliance" }] },
       ],
       copyright: "© 2026 Get8 Pro",
       disclaimer: "Content is for reference only and does not constitute investment advice. Invest responsibly.",

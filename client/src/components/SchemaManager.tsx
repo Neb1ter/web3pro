@@ -1,96 +1,100 @@
-import { Helmet } from 'react-helmet-async';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { Helmet } from "react-helmet-async";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-const BASE_URL = 'https://get8.pro';
-
-// 定义 Organization 结构化数据
-const organizationSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'Organization',
-  name: 'Get8 Pro',
-  url: BASE_URL,
-  logo: `${BASE_URL}/logo.png`,
-  contactPoint: {
-    '@type': 'ContactPoint',
-    email: 'mailto:contact@get8.pro',
-    contactType: 'customer support',
-  },
-  sameAs: [
-    // 在这里添加社交媒体链接
-  ],
-};
-
-// 定义 WebSite 结构化数据
-const webSiteSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'WebSite',
-  url: BASE_URL,
-  name: 'Get8 Pro',
-  potentialAction: {
-    '@type': 'SearchAction',
-    target: `${BASE_URL}/search?q={search_term_string}`,
-    'query-input': 'required name=search_term_string',
-  },
-};
-
-// 定义 Service 结构化数据（针对返佣服务）
-const serviceSchema = (language: string) => ({
-  '@context': 'https://schema.org',
-  '@type': 'Service',
-  serviceType: language === 'zh' ? '交易所返佣服务' : 'Exchange Rebate Service',
-  provider: {
-    '@type': 'Organization',
-    name: 'Get8 Pro',
-  },
-  areaServed: {
-    '@type': 'Country',
-    name: 'Global',
-  },
-  description: language === 'zh' ? '通过 Get8 Pro 官方合作的专属邀请码，永久降低主流交易所（币安、OKX、Gate.io 等）的交易手续费。' : 'Permanently reduce trading fees on major exchanges like Binance, OKX, and Gate.io with exclusive, officially partnered referral codes from Get8 Pro.',
-  name: language === 'zh' ? '加密货币交易所手续费返佣' : 'Cryptocurrency Exchange Fee Rebates',
-});
-
-// 定义 FAQPage 结构化数据
-const faqSchema = (language: string) => ({
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: [
-    {
-      '@type': 'Question',
-      name: language === 'zh' ? '什么是交易所返佣？' : 'What are exchange rebates?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: language === 'zh' ? '交易所返佣是平台将一部分交易手续费返还给用户或推广者的激励机制。通过使用特定的邀请码注册，您可以永久性地降低每笔交易的成本。' : 'Exchange rebates are an incentive mechanism where the platform returns a portion of the trading fees to users or promoters. By registering with a specific referral code, you can permanently reduce the cost of every trade.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: language === 'zh' ? '使用返佣码安全吗？' : 'Is it safe to use a rebate code?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: language === 'zh' ? '非常安全。返佣是通过交易所官方后台实现的，只影响您的费率设置，不涉及账户权限或资金安全。Get8 Pro 提供的都是官方合作渠道。' : 'Yes, it is very safe. Rebates are handled through the exchange\'s official backend system. It only affects your fee rate and does not involve your account permissions or fund security. All channels provided by Get8 Pro are official partnerships.',
-      },
-    },
-  ],
-});
+const BASE_URL = "https://get8.pro";
 
 export function SchemaManager() {
   const { language } = useLanguage();
+  const isZh = language === "zh";
+
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Get8 Pro",
+    url: BASE_URL,
+    logo: `${BASE_URL}/logo.png`,
+    description: isZh
+      ? "Get8 Pro 是一个面向 Web3 新手与交易用户的教育、导航和信息核对站点。"
+      : "Get8 Pro is an educational and navigation website for Web3 beginners and trading users.",
+    email: "contact@get8.pro",
+    contactPoint: {
+      "@type": "ContactPoint",
+      email: "contact@get8.pro",
+      contactType: "customer support",
+      availableLanguage: ["Chinese", "English"],
+    },
+    areaServed: "Global",
+    knowsAbout: [
+      "Web3 education",
+      "exchange comparison",
+      "KYC onboarding",
+      "crypto tools",
+      "risk disclosures",
+    ],
+  };
+
+  const websiteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    url: BASE_URL,
+    name: "Get8 Pro",
+    description: isZh
+      ? "提供 Web3 教程、交易所对比、KYC 流程、工具导航和快讯聚合。"
+      : "Provides Web3 guides, exchange comparisons, KYC workflows, tool navigation, and crypto news aggregation.",
+    inLanguage: [isZh ? "zh-CN" : "en", isZh ? "en" : "zh-CN"],
+    publisher: {
+      "@type": "Organization",
+      name: "Get8 Pro",
+    },
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${BASE_URL}/?q={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
+  };
+
+  const collectionPageSchema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: isZh ? "Get8 Pro 内容与导航入口" : "Get8 Pro guides and navigation hub",
+    url: BASE_URL,
+    description: isZh
+      ? "聚合 Web3 教程、交易所信息、KYC 流程、工具和风险披露。"
+      : "A hub for Web3 education, exchange information, KYC guidance, tools, and risk disclosures.",
+    isPartOf: {
+      "@type": "WebSite",
+      name: "Get8 Pro",
+      url: BASE_URL,
+    },
+    about: [
+      "Web3 onboarding",
+      "exchange comparisons",
+      "crypto tools",
+      "risk notices",
+    ],
+  };
+
+  const aboutPageSchema = {
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    name: isZh ? "关于 Get8 Pro" : "About Get8 Pro",
+    url: `${BASE_URL}/about`,
+    description: isZh
+      ? "介绍站点定位、合作披露、信息核对方式和风险说明。"
+      : "Explains site purpose, partnership disclosures, information verification, and risk notes.",
+    isPartOf: {
+      "@type": "WebSite",
+      name: "Get8 Pro",
+      url: BASE_URL,
+    },
+  };
 
   return (
     <Helmet>
-      <script type="application/ld+json">
-        {JSON.stringify(organizationSchema)}
-      </script>
-      <script type="application/ld+json">
-        {JSON.stringify(webSiteSchema)}
-      </script>
-      <script type="application/ld+json">
-        {JSON.stringify(serviceSchema(language))}
-      </script>
-      <script type="application/ld+json">
-        {JSON.stringify(faqSchema(language))}
-      </script>
+      <script type="application/ld+json">{JSON.stringify(organizationSchema)}</script>
+      <script type="application/ld+json">{JSON.stringify(websiteSchema)}</script>
+      <script type="application/ld+json">{JSON.stringify(collectionPageSchema)}</script>
+      <script type="application/ld+json">{JSON.stringify(aboutPageSchema)}</script>
     </Helmet>
   );
 }

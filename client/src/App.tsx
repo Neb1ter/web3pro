@@ -40,6 +40,7 @@ const ArticleDetail   = lazy(() => import("./pages/ArticleDetail"));
 const ArticleList     = lazy(() => import("./pages/ArticleList"));
 const ExchangeDetail  = lazy(() => import("./pages/ExchangeDetail"));
 const About           = lazy(() => import("./pages/About"));
+const Standards       = lazy(() => import("./pages/Standards"));
 
 // Web3 鍏ュ湀鎸囧崡鏉垮潡
 const Web3Guide           = lazy(() => import("./pages/Web3Guide"));
@@ -283,6 +284,7 @@ const PAGE_META: Record<string, { title: string; desc: string }> = {
   "/contact": { title: "Contact | Get8 Pro", desc: "Contact the Get8 Pro team for support, cooperation, and rebate-related questions." },
   "/legal": { title: "Legal | Get8 Pro", desc: "Read the terms, privacy information, and risk disclosures for Get8 Pro." },
   "/about": { title: "About | Get8 Pro", desc: "Learn more about Get8 Pro and its focus on exchange guidance, Web3 education, and tools." },
+  "/standards": { title: "Standards | Get8 Pro", desc: "Review Get8 Pro editorial standards, transparency practices, and how the site verifies exchange and content information." },
   "/articles": { title: "Articles | Get8 Pro", desc: "Browse in-depth articles, exchange reviews, rebate strategy guides, and Web3 tutorials." },
 };
 
@@ -343,6 +345,7 @@ function Router() {
           <Route path="/exchange/:slug"   component={ExchangeDetail} />
           {/* 鈹€鈹€ 鍏充簬鎴戜滑 鈹€鈹€ */}
           <Route path="/about"            component={About} />
+          <Route path="/standards"        component={Standards} />
 
           {/* 鈹€鈹€ Web3 鍏ュ湀鎸囧崡鏉垮潡 鈹€鈹€ */}
           <Route path="/web3-guide"                         component={Web3Guide} />
