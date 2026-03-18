@@ -17,6 +17,8 @@ import {
 } from 'lucide-react';
 import { useScrollMemory } from '@/hooks/useScrollMemory';
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
+import { TrustSignalsCard } from "@/components/TrustSignalsCard";
+import { TRUST_LAST_REVIEWED } from "@/lib/trust";
 
 // ─── 交易所 emoji 映射 ────────────────────────────────────────────────────────
 const EXCHANGE_META: Record<string, { emoji: string; color: string }> = {
@@ -363,6 +365,22 @@ export default function Home() {
 
   // 滚动感知：当前章节
   const [activeChapter, setActiveChapter] = useState(CHAPTERS[0].id);
+  const rebateTrustSources = zh
+    ? [
+        { label: '各交易所官方费率与返佣页面' },
+        { label: '各交易所下载页与活动公告' },
+        { label: 'CoinGecko 2025 年报' },
+        { label: 'CoinGlass 市场数据' },
+      ]
+    : [
+        { label: 'Official exchange fee and rebate pages' },
+        { label: 'Official exchange download pages and campaign notes' },
+        { label: 'CoinGecko 2025 annual report' },
+        { label: 'CoinGlass market data' },
+      ];
+  const rebateDisclosure = zh
+    ? '返佣说明以当前公开规则为准。Get8 Pro 可能从官方合作或邀请计划获得收益，但这不会替代风险提示，也不代表老账户一定能补绑；默认 20% 与更高额度方案请以实际平台显示和沟通结果为准。'
+    : 'Rebate notes follow the current public rules. Get8 Pro may earn from official partner or referral programs, but that does not replace risk disclosures and does not mean existing accounts can always be retrofitted. Treat the default 20% and any higher-rate arrangement as subject to actual platform display and direct confirmation.';
 
   useEffect(() => {
     let ticking = false;
@@ -556,6 +574,18 @@ export default function Home() {
             </div>
           </div>
           <IntentShortcuts zh={zh} navigate={navigate} />
+          <div className="mx-auto mt-8 max-w-4xl text-left">
+            <TrustSignalsCard
+              zh={zh}
+              title={zh ? "作者、审核与返佣披露" : "Authorship, Review & Rebate Disclosure"}
+              summary={zh ? "这页涉及交易所、费率和合作入口，所以把作者、更新时间、来源依据和披露规则提前展示，方便你先判断可信度再继续往下看。" : "This page touches exchanges, fee rules, and partner routes, so we surface authorship, update timing, source basis, and disclosures early before the reader continues."}
+              author={zh ? "Get8 Pro 编辑团队" : "Get8 Pro Editorial Team"}
+              reviewer={zh ? "Get8 Pro 内容审核" : "Get8 Pro Editorial Review"}
+              updatedAt={TRUST_LAST_REVIEWED}
+              sources={rebateTrustSources}
+              disclosure={rebateDisclosure}
+            />
+          </div>
           <div className="mt-14 animate-bounce">
             <ChevronDown className="text-amber-400/60 mx-auto" size={28} />
           </div>

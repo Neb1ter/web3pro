@@ -6,7 +6,9 @@
 import { useRoute, Link } from "wouter";
 import { SeoManager } from "@/components/SeoManager";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { TrustSignalsCard } from "@/components/TrustSignalsCard";
 import { EXCHANGE_FEES, INVITE_CODES, type ExchangeSlug } from "@shared/exchangeFees";
+import { TRUST_LAST_REVIEWED } from "@/lib/trust";
 import { Button } from "@/components/ui/button";
 import {
   Shield, TrendingUp, Users, Star, CheckCircle2, AlertTriangle,
@@ -321,6 +323,17 @@ export default function ExchangeDetail() {
     ? `${data.name}详细评测：${data.tagline.zh}。现货手续费${fees.spotMaker}，合约手续费${fees.futMaker}，返佣${fees.rebateRate}。通过Get8 Pro邀请码注册享受最高返佣。`
     : `${data.nameEn} detailed review: ${data.tagline.en}. Spot fee ${fees.spotMaker}, futures fee ${fees.futMaker}, rebate ${fees.rebateRate}. Register via Get8 Pro for maximum rebates.`;
 
+  const officialLink = data.downloadLinks[data.downloadLinks.length - 1]?.url ?? data.downloadLinks[0]?.url;
+  const trustSources = [
+    { label: zh ? `${data.name} 官网与下载页` : `${data.nameEn} official site`, href: officialLink },
+    { label: zh ? "官方费率与活动说明" : "Official fee and campaign notes" },
+    { label: zh ? "公开公告与合规信息" : "Public announcements and compliance information" },
+    { label: "CoinGlass / CoinGecko" },
+  ];
+  const trustDisclosure = zh
+    ? `本页会展示 Get8 Pro 可用的公开返佣与下载入口。部分链接属于官方合作或邀请计划，我们可能因此获得收益，但费率、区域限制和活动条款仍应以 ${data.name} 最新官方页面为准。`
+    : `This page may include public rebate and download routes available through Get8 Pro. Some links are part of official partner or referral programs. That can generate revenue for us, but fees, regional restrictions, and campaign terms should still be re-checked on ${data.nameEn}'s latest official pages.`;
+
   return (
     <>
       <SeoManager
@@ -443,6 +456,17 @@ export default function ExchangeDetail() {
           </div>
 
           {/* ── 详细介绍 ── */}
+          <TrustSignalsCard
+            zh={zh}
+            title={zh ? "作者、审核与来源说明" : "Authorship, Review & Source Notes"}
+            summary={zh ? "交易所页面经常会被用户直接拿来做决策，所以这里把作者、复核口径、更新时间、来源依据和合作披露集中展示。" : "Exchange pages are often used for direct decisions, so this block keeps authorship, review context, update timing, source basis, and disclosures together."}
+            author={zh ? "Get8 Pro 研究团队" : "Get8 Pro Research Desk"}
+            reviewer={zh ? "Get8 Pro 内容审核" : "Get8 Pro Editorial Review"}
+            updatedAt={TRUST_LAST_REVIEWED}
+            sources={trustSources}
+            disclosure={trustDisclosure}
+          />
+
           <section id="about-exchange">
             <h2 className="text-xl font-black text-white mb-4">{zh ? `${data.name} 详细介绍` : `About ${data.nameEn}`}</h2>
             <div className="bg-white/5 rounded-xl border border-white/10 p-5">

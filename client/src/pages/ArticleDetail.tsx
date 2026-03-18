@@ -6,6 +6,8 @@ import { goBack } from "@/hooks/useScrollMemory";
 import { trpc } from "@/lib/trpc";
 import { Markdown } from "@/components/Markdown";
 import { preloadRoute } from "@/lib/routePreload";
+import { TrustSignalsCard } from "@/components/TrustSignalsCard";
+import { TRUST_LAST_REVIEWED, getArticleSourceList } from "@/lib/trust";
 
 const ARTICLE_CATEGORY_LABELS: Record<string, { zh: string; en: string; color: string }> = {
   analysis:    { zh: "市场分析", en: "Analysis",    color: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30" },
@@ -107,6 +109,10 @@ export default function ArticleDetail() {
   const catLabel = zh ? catInfo.zh : catInfo.en;
   const tags = article.tags ? article.tags.split(",").map((t: string) => t.trim()).filter(Boolean) : [];
   const articleContent = article.content || "";
+  const articleDisclosure = zh
+    ? `本文用于信息整理与学习参考${article.isAiGenerated ? "，初稿含 AI 辅助生成，发布前已做人工复核" : ""}，不构成投资建议；涉及费率、政策或活动时，请以对应平台的最新官方页面为准。`
+    : `This page is for learning and information reference${article.isAiGenerated ? ", with AI-assisted drafting and editorial review before publication" : ""}. It is not investment advice. Re-check the latest official page when fees, policies, or campaigns matter.`;
+  const articleSources = getArticleSourceList(article.category, zh).map((label) => ({ label }));
 
   return (
     <div className="min-h-screen" style={{ background: "linear-gradient(135deg, #0A192F 0%, #0d2137 50%, #0A192F 100%)" }}>
@@ -175,6 +181,20 @@ export default function ArticleDetail() {
         )}
 
         {/* Content — Markdown 渲染，正确处理 AI 生成的 ** 加粗、## 标题等语法 */}
+        <div className="mb-6">
+          <TrustSignalsCard
+            zh={zh}
+            title={zh ? "作者、审核与披露" : "Authorship, Review & Disclosure"}
+            summary={zh ? "把作者、更新时间、来源依据和披露信息放在一起，方便你快速判断这篇内容是否适合继续阅读。" : "This block keeps the author, update timing, source basis, and disclosure together so readers can quickly assess the article."}
+            author={article.author}
+            reviewer={zh ? "Get8 Pro 内容审核" : "Get8 Pro Editorial Review"}
+            updatedAt={article.updatedAt || article.publishedAt || article.createdAt || TRUST_LAST_REVIEWED}
+            sources={articleSources}
+            disclosure={articleDisclosure}
+            reviewNote={article.reviewNotes}
+          />
+        </div>
+
         <div className="prose prose-invert prose-sm sm:prose-base max-w-none
             prose-headings:text-white prose-headings:font-bold
             prose-h2:text-lg prose-h2:border-b prose-h2:border-gray-700 prose-h2:pb-2 prose-h2:mb-4
