@@ -428,7 +428,7 @@ function AppInner() {
   useEffect(() => {
     return scheduleIdle(() => {
       setShowFloatNav(true);
-      preloadRoutes(["/crypto-saving", "/exchanges", "/web3-guide", "/crypto-news"]);
+      preloadRoutes(["/crypto-saving", "/contact", "/exchanges", "/web3-guide", "/crypto-news"]);
     }, 1500);
   }, []);
 
