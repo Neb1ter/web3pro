@@ -23,7 +23,7 @@ import superjson from "superjson";
 // ============================================================
 // 棣栧睆鍚屾鍔犺浇锛氫粎 Portal锛堥椤碉級鍜?NotFound 淇濇寔鍚屾
 // ============================================================
-import PortalResearch from "./pages/PortalResearch";
+import Portal from "./pages/Portal";
 import NotFound from "@/pages/NotFound";
 
 // ============================================================
@@ -31,8 +31,7 @@ import NotFound from "@/pages/NotFound";
 // ============================================================
 
 // 甯佸湀鐪侀挶鎸囧崡鏉垮潡
-const HomeClassic     = lazy(() => import("./pages/Home"));
-const TradingCostGuide = lazy(() => import("./pages/TradingCostGuide"));
+const Home            = lazy(() => import("./pages/Home"));
 const Contact         = lazy(() => import("./pages/Contact"));
 const Exchanges       = lazy(() => import("./pages/Exchanges"));
 const Beginner        = lazy(() => import("./pages/Beginner"));
@@ -44,7 +43,6 @@ const ExchangeDetail  = lazy(() => import("./pages/ExchangeDetail"));
 const About           = lazy(() => import("./pages/About"));
 const Standards       = lazy(() => import("./pages/Standards"));
 const UiDemos         = lazy(() => import("./pages/UiDemos"));
-const PortalClassic   = lazy(() => import("./pages/Portal"));
 
 // Web3 鍏ュ湀鎸囧崡鏉垮潡
 const Web3Guide           = lazy(() => import("./pages/Web3Guide"));
@@ -311,13 +309,11 @@ function Router() {
       <PageTransition>
         <Switch>
           {/* 鈹€鈹€ 棣栧睆鍚屾璺敱 鈹€鈹€ */}
-          <Route path="/"       component={PortalResearch} />
-          <Route path="/portal" component={PortalResearch} />
-          <Route path="/portal-classic" component={PortalClassic} />
+          <Route path="/"       component={Portal} />
+          <Route path="/portal" component={Portal} />
 
           {/* 鈹€鈹€ 甯佸湀鐪侀挶鎸囧崡鏉垮潡 鈹€鈹€ */}
-          <Route path="/crypto-saving" component={TradingCostGuide} />
-          <Route path="/crypto-saving-classic" component={HomeClassic} />
+          <Route path="/crypto-saving" component={Home} />
           <Route path="/contact"       component={Contact} />
           <Route path="/exchanges"     component={Exchanges} />
           <Route path="/beginner"      component={Beginner} />
