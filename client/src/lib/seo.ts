@@ -540,6 +540,21 @@ SEO_BY_PATH["/portal-classic"] = {
   },
 };
 
+SEO_BY_PATH["/portal-research"] = {
+  title: {
+    zh: "研究型首页预览 | Get8 Pro",
+    en: "Research Homepage Preview | Get8 Pro",
+  },
+  description: {
+    zh: "查看 Get8 Pro 的研究型首页预览方案，用于对照首页信息结构和视觉方向。",
+    en: "Preview the research-led homepage concept for Get8 Pro and compare structure and visual direction.",
+  },
+  keywords: {
+    zh: "研究型首页预览,首页预览方案,首页改版预览,Get8 Pro 研究型首页",
+    en: "research homepage preview,homepage concept,homepage redesign preview,get8 pro research homepage",
+  },
+};
+
 SEO_BY_PATH["/crypto-saving-classic"] = {
   title: {
     zh: "经典版交易成本页对照 | Get8 Pro",
