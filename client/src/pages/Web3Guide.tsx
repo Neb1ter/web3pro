@@ -1704,7 +1704,7 @@ export default function Web3Guide() {
             {zh ? "内容参考：币安学院 · BlockBeats · CoinMarketCap · 登链社区" : "References: Binance Academy · BlockBeats · CoinMarketCap · 登链社区"}
           </p>
           <Link href="/crypto-saving" className="tap-target text-slate-400 hover:text-yellow-400 transition-colors text-sm flex items-center gap-2">
-              {zh ? "币圈省钱指南 →" : "Crypto Saving Guide →"}
+              {zh ? "交易成本指南 →" : "Trading Cost Guide →"}
           </Link>
         </div>
       </div>

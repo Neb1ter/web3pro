@@ -42,6 +42,7 @@ const ArticleList     = lazy(() => import("./pages/ArticleList"));
 const ExchangeDetail  = lazy(() => import("./pages/ExchangeDetail"));
 const About           = lazy(() => import("./pages/About"));
 const Standards       = lazy(() => import("./pages/Standards"));
+const UiDemos         = lazy(() => import("./pages/UiDemos"));
 
 // Web3 鍏ュ湀鎸囧崡鏉垮潡
 const Web3Guide           = lazy(() => import("./pages/Web3Guide"));
@@ -325,6 +326,7 @@ function Router() {
           {/* 鈹€鈹€ 鍏充簬鎴戜滑 鈹€鈹€ */}
           <Route path="/about"            component={About} />
           <Route path="/standards"        component={Standards} />
+          <Route path="/ui-demos"         component={UiDemos} />
 
           {/* 鈹€鈹€ Web3 鍏ュ湀鎸囧崡鏉垮潡 鈹€鈹€ */}
           <Route path="/web3-guide"                         component={Web3Guide} />

@@ -24,7 +24,7 @@ const ALL_SECTIONS = [
     color: "#f59e0b",
     colorRgb: "245,158,11",
     items: [
-      { icon: "💰", title: "省钱指南", desc: "返佣机制全攻略", path: "/crypto-saving" },
+      { icon: "💰", title: "交易成本指南", desc: "返佣规则与费用结构说明", path: "/crypto-saving" },
       { icon: "📖", title: "交易所扫盲", desc: "五大交易所功能一网打尽", path: "/exchange-guide" },
       { icon: "📱", title: "下载交易所", desc: "新手下载注册全流程", path: "/exchange-download" },
       { icon: "🏢", title: "交易所对比", desc: "选择最适合你的交易所", path: "/exchanges" },

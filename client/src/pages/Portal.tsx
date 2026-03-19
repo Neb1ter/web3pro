@@ -42,8 +42,8 @@ const LANG = {
       },
       {
         badge: "HOT",
-        subtitle: "CRYPTO SAVING GUIDE",
-        title: "币圈省钱指南",
+        subtitle: "TRADING COST & REBATE GUIDE",
+        title: "交易成本与返佣指南",
         description: "每一笔返佣，都来自交易所官方合作协议。返佣比例公开、结算记录可查。在 Get8 Pro，信任无需猜测，成本清晰可见。",
         tags: ["邀请码返佣", "手续费对比", "交易所评测", "新手注册"],
         cta: "查看省钱攻略 →",
@@ -85,7 +85,7 @@ const LANG = {
     footer: {
       tagline: "Get8 Pro: 官方认证，专业致胜。",
       columns: [
-        { title: "学习与指南", links: [{ label: "Web3 入圈指南", href: "/web3-guide" }, { label: "币圈省钱指南", href: "/crypto-saving" }, { label: "交易所扫盲", href: "/exchange-guide" }, { label: "KYC实名流程", href: "/web3-guide/kyc-flow" }, { label: "下载交易所", href: "/exchange-download" }, { label: "知识测评", href: "/web3-quiz" }] },
+        { title: "学习与指南", links: [{ label: "Web3 入圈指南", href: "/web3-guide" }, { label: "交易成本与返佣指南", href: "/crypto-saving" }, { label: "交易所扫盲", href: "/exchange-guide" }, { label: "KYC实名流程", href: "/web3-guide/kyc-flow" }, { label: "下载交易所", href: "/exchange-download" }, { label: "知识测评", href: "/web3-quiz" }] },
         { title: "交易与工具", links: [{ label: "交易所对比", href: "/exchanges" }, { label: "币圈工具合集", href: "/tools" }, { label: "现货模拟", href: "/sim/spot" }, { label: "合约模拟", href: "/sim/futures" }, { label: "杠杆模拟", href: "/sim/margin" }] },
         { title: "支持与关于", links: [{ label: "关于我们", href: "/about" }, { label: "编辑原则", href: "/standards" }, { label: "联系我们", href: "/contact" }, { label: "新手入门", href: "/beginner" }, { label: "加密货币科普", href: "/crypto-intro" }, { label: "加密快讯", href: "/crypto-news" }] },
         { title: "法律与合规", links: [{ label: "免责声明", href: "/legal#disclaimer" }, { label: "风险提示", href: "/legal#risk" }, { label: "合规说明", href: "/legal#compliance" }] },
@@ -126,8 +126,8 @@ const LANG = {
       },
       {
         badge: "HOT",
-        subtitle: "CRYPTO SAVING GUIDE",
-        title: "Crypto Saving Guide",
+        subtitle: "TRADING COST & REBATE GUIDE",
+        title: "Trading Cost & Rebate Guide",
         description: "Every rebate is sourced from official exchange partnership agreements. Rebate rates are public, settlement records are verifiable. At Get8 Pro, trust is not assumed — it's proven.",
         tags: ["Referral Rebates", "Fee Comparison", "Exchange Reviews", "Beginner Sign-up"],
         cta: "View Saving Tips →",
@@ -169,7 +169,7 @@ const LANG = {
     footer: {
       tagline: "Get8 Pro: Officially Verified, Professionally Vetted.",
       columns: [
-        { title: "Learn & Guide", links: [{ label: "Web3 Guide", href: "/web3-guide" }, { label: "Crypto Saving", href: "/crypto-saving" }, { label: "Exchange Tutorial", href: "/exchange-guide" }, { label: "KYC Verification Flow", href: "/web3-guide/kyc-flow" }, { label: "Download Exchange", href: "/exchange-download" }, { label: "Knowledge Quiz", href: "/web3-quiz" }] },
+        { title: "Learn & Guide", links: [{ label: "Web3 Guide", href: "/web3-guide" }, { label: "Trading Cost & Rebate Guide", href: "/crypto-saving" }, { label: "Exchange Tutorial", href: "/exchange-guide" }, { label: "KYC Verification Flow", href: "/web3-guide/kyc-flow" }, { label: "Download Exchange", href: "/exchange-download" }, { label: "Knowledge Quiz", href: "/web3-quiz" }] },
         { title: "Trade & Tools", links: [{ label: "Exchange Compare", href: "/exchanges" }, { label: "Crypto Tools Hub", href: "/tools" }, { label: "Spot Sim", href: "/sim/spot" }, { label: "Futures Sim", href: "/sim/futures" }, { label: "Margin Sim", href: "/sim/margin" }] },
         { title: "Support & About", links: [{ label: "About Us", href: "/about" }, { label: "Editorial Standards", href: "/standards" }, { label: "Contact Us", href: "/contact" }, { label: "Beginner Guide", href: "/beginner" }, { label: "Crypto Intro", href: "/crypto-intro" }, { label: "Crypto News", href: "/crypto-news" }] },
         { title: "Legal", links: [{ label: "Disclaimer", href: "/legal#disclaimer" }, { label: "Risk Notice", href: "/legal#risk" }, { label: "Compliance", href: "/legal#compliance" }] },

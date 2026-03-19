@@ -221,7 +221,7 @@ export default function ArticleList() {
               <Link href="/crypto-saving" className="tap-target block">
                 <div className="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition">
                   <div>
-                    <div className="font-semibold text-white text-sm">{zh ? "返佣指南" : "Rebate Guide"}</div>
+                    <div className="font-semibold text-white text-sm">{zh ? "交易成本指南" : "Trading Cost Guide"}</div>
                     <div className="text-xs text-slate-400">{zh ? "最高60%手续费返佣" : "Up to 60% fee rebate"}</div>
                   </div>
                   <ChevronRight className="w-4 h-4 text-slate-400" />

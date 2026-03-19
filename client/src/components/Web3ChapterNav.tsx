@@ -216,7 +216,7 @@ export default function Web3ChapterNav({ currentChapterId }: Web3ChapterNavProps
             </div>
             <div className="flex-1">
               <div className="text-sm font-bold text-yellow-500/80 transition-colors group-hover:text-yellow-400">
-                {zh ? "币圈省钱指南" : "Crypto Saving Guide"}
+                {zh ? "交易成本指南" : "Trading Cost Guide"}
               </div>
               <div className="text-[10px] text-slate-600">
                 {zh ? "交易所返佣 · 手续费优化" : "Exchange rebates · Fee optimization"}

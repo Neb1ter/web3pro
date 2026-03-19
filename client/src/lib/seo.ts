@@ -450,6 +450,36 @@ const PREFIX_DEFAULTS: Array<{ prefix: string; entry: SeoEntry }> = [
   },
 ];
 
+SEO_BY_PATH["/crypto-saving"] = {
+  title: {
+    zh: "交易成本与返佣指南 | Get8 Pro",
+    en: "Trading Cost & Rebate Guide | Get8 Pro",
+  },
+  description: {
+    zh: "整理交易所费用差异、默认 20% 返佣规则、下载路径与老账户限制，帮助你更清楚地理解和评估交易成本。",
+    en: "Review exchange fee differences, default 20% rebate rules, download paths, and existing-account limits with clearer context.",
+  },
+  keywords: {
+    zh: "交易成本指南,返佣规则,交易所费用说明,老账户限制,交易成本优化,平台费用对比",
+    en: "trading cost guide,rebate rules,exchange fee guide,existing account limits,trading cost optimization,platform fee comparison",
+  },
+};
+
+SEO_BY_PATH["/ui-demos"] = {
+  title: {
+    zh: "UI 风格提案预览 | Get8 Pro",
+    en: "UI Direction Preview | Get8 Pro",
+  },
+  description: {
+    zh: "查看 Get8 Pro 的 3 套界面风格提案，比较专业感、可信度与高意图路径设计。",
+    en: "Preview three interface directions for Get8 Pro across professional tone, trust signals, and high-intent user paths.",
+  },
+  keywords: {
+    zh: "Get8 Pro UI提案,Web3网站改版,交易所导航设计,界面预览,风格方案",
+    en: "get8 pro ui proposal,web3 website redesign,exchange navigation design,interface preview,design directions",
+  },
+};
+
 export function getSiteKeywords(language: Language) {
   return BASE_KEYWORDS[language];
 }

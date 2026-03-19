@@ -181,7 +181,7 @@ export default function ArticleDetail() {
         )}
 
         {/* Content — Markdown 渲染，正确处理 AI 生成的 ** 加粗、## 标题等语法 */}
-        <div className="mb-6">
+        <div className="hidden mb-6">
           <TrustSignalsCard
             zh={zh}
             title={zh ? "作者、审核与披露" : "Authorship, Review & Disclosure"}
@@ -250,6 +250,20 @@ export default function ArticleDetail() {
               {zh ? "更多资讯" : "More News"}
             </Link>
           </div>
+        </div>
+        <div className="mt-8">
+          <TrustSignalsCard
+            zh={zh}
+            title={zh ? "浣滆€呫€佸鏍镐笌鎶湶" : "Authorship, Review & Disclosure"}
+            summary={zh ? "鏂囩珷鐨勪綔鑰呫€佹洿鏂版椂闂淬€佹潵婧愪緷鎹拰鎶湶淇℃伅缁熶竴鏀惧湪椤甸潰鏈熬锛屾洿閫傚悎鍦ㄩ槄璇诲畬鍐呭鍚庡仛鏈€鍚庣殑鍙俊搴﹀垽鏂€?"
+              : "The author, update timing, source basis, and disclosure notes are grouped near the footer so readers can do a final credibility check after reading the article."}
+            author={article.author}
+            reviewer={zh ? "Get8 Pro 鍐呭瀹℃牳" : "Get8 Pro Editorial Review"}
+            updatedAt={article.updatedAt || article.publishedAt || article.createdAt || TRUST_LAST_REVIEWED}
+            sources={articleSources}
+            disclosure={articleDisclosure}
+            reviewNote={article.reviewNotes}
+          />
         </div>
       </main>
 

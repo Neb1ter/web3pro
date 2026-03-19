@@ -456,7 +456,7 @@ export default function ExchangeDetail() {
           </div>
 
           {/* ── 详细介绍 ── */}
-          <TrustSignalsCard
+          <div className="hidden"><TrustSignalsCard
             zh={zh}
             title={zh ? "作者、审核与来源说明" : "Authorship, Review & Source Notes"}
             summary={zh ? "交易所页面经常会被用户直接拿来做决策，所以这里把作者、复核口径、更新时间、来源依据和合作披露集中展示。" : "Exchange pages are often used for direct decisions, so this block keeps authorship, review context, update timing, source basis, and disclosures together."}
@@ -465,7 +465,7 @@ export default function ExchangeDetail() {
             updatedAt={TRUST_LAST_REVIEWED}
             sources={trustSources}
             disclosure={trustDisclosure}
-          />
+          /></div>
 
           <section id="about-exchange">
             <h2 className="text-xl font-black text-white mb-4">{zh ? `${data.name} 详细介绍` : `About ${data.nameEn}`}</h2>
@@ -599,13 +599,25 @@ export default function ExchangeDetail() {
                 {zh ? "下载教程" : "Download Guide"}
               </Link>
               <Link href="/crypto-saving" className="text-slate-400 hover:text-white transition">
-                {zh ? "返佣指南" : "Rebate Guide"}
+                {zh ? "交易成本指南" : "Trading Cost Guide"}
               </Link>
               <Link href="/exchange-guide" className="text-slate-400 hover:text-white transition">
                 {zh ? "交易所扫盲" : "Exchange Tutorial"}
               </Link>
             </div>
           </div>
+
+          <TrustSignalsCard
+            zh={zh}
+            title={zh ? "浣滆€呫€佸鏍镐笌鏉ユ簮璇存槑" : "Authorship, Review & Source Notes"}
+            summary={zh ? "浜ゆ槗鎵€椤甸潰缁忓父浼氳鐢ㄦ埛鐢ㄦ潵鍋氬喅绛栵紝鎵€浠ユ妸鏉ユ簮渚濇嵁銆佹洿鏂版椂闂村拰鍚堜綔鎶湶缁熶竴鏀惧湪椤甸潰鏈熬锛屼究浜庨槄璇诲畬涓昏鍐呭鍚庡啀鍋氬垽鏂€?"
+              : "Exchange pages are often used for direct decisions, so the source basis, review timing, and disclosure notes are grouped near the footer for a final check after the main content."}
+            author={zh ? "Get8 Pro 鐮旂┒鍥㈤槦" : "Get8 Pro Research Desk"}
+            reviewer={zh ? "Get8 Pro 鍐呭瀹℃牳" : "Get8 Pro Editorial Review"}
+            updatedAt={TRUST_LAST_REVIEWED}
+            sources={trustSources}
+            disclosure={trustDisclosure}
+          />
         </div>
       </div>
     </>

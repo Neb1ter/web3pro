@@ -346,7 +346,7 @@ export default function ExchangeDownload() {
               { icon: <Zap className="w-5 h-5 text-blue-400" />, title: "了解交易所功能", desc: "不熟悉现货/合约/杠杆？前往交易所扫盲指南，从零了解每个功能。", action: "查看功能指南", href: "/exchange-guide" },
               { icon: <Users className="w-5 h-5 text-emerald-400" />, title: "有疑问？看新手问答", desc: "注册遇到问题？返佣没有到账？前往新手问答页面查找解答。", action: "新手问答", href: "/beginner" },
             ] : [
-              { icon: <Gift className="w-5 h-5 text-amber-400" />, title: "Confirm rebate is activated", desc: "After logging in, go to 'Profile → Rebates' or 'Referral Rebates' to confirm your rebate status is active.", action: "Rebate Guide", href: "/crypto-saving" },
+              { icon: <Gift className="w-5 h-5 text-amber-400" />, title: "Confirm rebate is activated", desc: "After logging in, go to 'Profile → Rebates' or 'Referral Rebates' to confirm your rebate status is active.", action: "Trading Cost Guide", href: "/crypto-saving" },
               { icon: <Zap className="w-5 h-5 text-blue-400" />, title: "Learn exchange features", desc: "Not familiar with spot/futures/margin? Visit the Exchange Guide to learn each feature from scratch.", action: "Feature Guide", href: "/exchange-guide" },
               { icon: <Users className="w-5 h-5 text-emerald-400" />, title: "Have questions? Check FAQ", desc: "Having trouble registering? Rebate not credited? Visit our FAQ page for answers.", action: "FAQ", href: "/beginner" },
             ]).map((item, i) => (
@@ -395,7 +395,7 @@ export default function ExchangeDownload() {
               className="border-amber-500/40 text-amber-400 hover:bg-amber-500/10 font-bold"
               onClick={() => navigate("/crypto-saving")}
             >
-              {zh ? "返回省钱指南" : "Back to Saving Guide"}
+              {zh ? "返回交易成本指南" : "Back to Trading Cost Guide"}
             </Button>
           </div>
         </div>

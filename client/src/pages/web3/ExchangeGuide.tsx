@@ -340,7 +340,7 @@ export default function ExchangeGuideDeep() {
               <div className="rounded-2xl border border-yellow-500/20 bg-yellow-500/5 p-5 hover:bg-yellow-500/10 transition-colors text-center">
                 <div className="mb-1 text-xs text-slate-500">{zh ? "前往" : "Open"}</div>
                 <h3 className="text-base font-black text-white">
-                  {zh ? "💰 币圈省钱指南" : "💰 Crypto saving guide"}
+                  {zh ? "💰 交易成本指南" : "💰 Trading cost guide"}
                 </h3>
               </div>
             </Link>

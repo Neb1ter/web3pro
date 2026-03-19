@@ -42,6 +42,13 @@ const CHAPTERS = [
 ];
 
 // ─── 浮动章节菜单（可拖拽） ───────────────────────────────────────────────────
+const CASE_STUDY_MONTHLY_VOLUME = 1_000_000;
+const CASE_STUDY_STANDARD_FEE = 1_000;
+const CASE_STUDY_REBATE_RATE = 0.2;
+const CASE_STUDY_REBATE = CASE_STUDY_STANDARD_FEE * CASE_STUDY_REBATE_RATE;
+const CASE_STUDY_ACTUAL_FEE = CASE_STUDY_STANDARD_FEE - CASE_STUDY_REBATE;
+const CASE_STUDY_YEARLY_SAVINGS = CASE_STUDY_REBATE * 12;
+
 function FloatChapterMenu({ activeId, zh }: { activeId: string; zh: boolean }) {
   const [open, setOpen] = useState(false);
   const active = CHAPTERS.find(c => c.id === activeId) ?? CHAPTERS[0];
@@ -574,7 +581,7 @@ export default function Home() {
             </div>
           </div>
           <IntentShortcuts zh={zh} navigate={navigate} />
-          <div className="mx-auto mt-8 max-w-4xl text-left">
+          {false ? <div className="mx-auto mt-8 max-w-4xl text-left">
             <TrustSignalsCard
               zh={zh}
               title={zh ? "作者、审核与返佣披露" : "Authorship, Review & Rebate Disclosure"}
@@ -585,7 +592,7 @@ export default function Home() {
               sources={rebateTrustSources}
               disclosure={rebateDisclosure}
             />
-          </div>
+          </div> : null}
           <div className="mt-14 animate-bounce">
             <ChevronDown className="text-amber-400/60 mx-auto" size={28} />
           </div>
@@ -854,10 +861,10 @@ export default function Home() {
           <div className="rounded-2xl border p-6 mb-8" style={{ borderColor: 'rgba(255,215,0,0.25)', background: 'rgba(10,25,47,0.6)', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center mb-6">
               {[
-                { label: texts.caseStudy.monthlyVolume, value: '$1,000,000', color: '#ffffff' },
-                { label: texts.caseStudy.standardFee, value: '$1,000', color: '#f87171' },
-                { label: texts.caseStudy.rebateAmount, value: '$600', color: '#FFD700' },
-                { label: texts.caseStudy.actualFee, value: '$400', color: '#4ade80' },
+                { label: texts.caseStudy.monthlyVolume, value: `$${CASE_STUDY_MONTHLY_VOLUME.toLocaleString()}`, color: '#ffffff' },
+                { label: texts.caseStudy.standardFee, value: `$${CASE_STUDY_STANDARD_FEE.toLocaleString()}`, color: '#f87171' },
+                { label: texts.caseStudy.rebateAmount, value: `$${CASE_STUDY_REBATE.toLocaleString()}`, color: '#FFD700' },
+                { label: texts.caseStudy.actualFee, value: `$${CASE_STUDY_ACTUAL_FEE.toLocaleString()}`, color: '#4ade80' },
               ].map((item, i) => (
                 <div key={i} className="rounded-xl bg-white/4 border border-white/8 p-4">
                   <p className="text-xs text-slate-500 mb-2 uppercase tracking-wider leading-tight">{item.label}</p>
@@ -866,8 +873,11 @@ export default function Home() {
               ))}
             </div>
             <div className="text-center border-t pt-5" style={{ borderColor: 'rgba(255,215,0,0.12)' }}>
-              <p className="text-lg font-black mb-1" style={{ color: '#FFD700' }}>
+              <p className="hidden text-lg font-black mb-1" style={{ color: '#FFD700' }}>
                 {texts.caseStudy.summary} <span className="text-2xl">$600</span>，{texts.caseStudy.yearly} <span className="text-2xl">$7,200</span>
+              </p>
+              <p className="text-lg font-black mb-1" style={{ color: '#FFD700' }}>
+                {texts.caseStudy.summary} <span className="text-2xl">${CASE_STUDY_REBATE.toLocaleString()}</span> / {texts.caseStudy.yearly} <span className="text-2xl">${CASE_STUDY_YEARLY_SAVINGS.toLocaleString()}</span>
               </p>
               <p className="text-slate-400 text-sm">{texts.caseStudy.profit}</p>
             </div>
@@ -1132,6 +1142,22 @@ export default function Home() {
       </section>
 
       {/* ── Footer ── */}
+      <section className="px-4 pb-10 bg-background">
+        <div className="container mx-auto max-w-3xl">
+          <TrustSignalsCard
+            zh={zh}
+            title={zh ? "浣滆€呫€佸鏍镐笌杩斾剑鎶湶" : "Authorship, Review & Rebate Disclosure"}
+            summary={zh ? "杩欓〉娑夊強浜ゆ槗鎵€銆佽垂鐜囦俊鎭€佷笅杞藉叆鍙ｅ拰鍚堜綔鎶湶锛屾墍浠ユ妸杩欎簺淇℃伅鏀惧湪椤甸潰鏈熬锛屾柟渚夸綘鍦ㄩ槄璇讳富鍐呭鍚庡啀涓€娆℃牳瀵广€?"
+              : "This page covers exchanges, fee rules, download routes, and partner disclosures, so the trust notes are grouped near the footer for a cleaner reading flow."}
+            author={zh ? "Get8 Pro 缂栬緫鍥㈤槦" : "Get8 Pro Editorial Team"}
+            reviewer={zh ? "Get8 Pro 鍐呭瀹℃牳" : "Get8 Pro Editorial Review"}
+            updatedAt={TRUST_LAST_REVIEWED}
+            sources={rebateTrustSources}
+            disclosure={rebateDisclosure}
+          />
+        </div>
+      </section>
+
       <footer className="py-12 px-4 border-t" style={{ background: 'rgba(10,25,47,0.98)', borderColor: 'rgba(255,215,0,0.1)' }}>
         <div className="container mx-auto text-center max-w-2xl">
           <h3 className="text-xl font-black text-white mb-2">
