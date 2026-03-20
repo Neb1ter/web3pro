@@ -283,6 +283,21 @@ export const appRouter = router({
         );
         return { success: true, results };
       }),
+    /** Admin: build media draft packages for a news item */
+    buildDraftPackages: protectedProcedure
+      .input(z.object({ id: z.number().int() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+        const { getDb } = await import('./db');
+        const { cryptoNews } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        const { buildNewsDraftPackages } = await import('./_core/mediaAutomation');
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+        const [news] = await db.select().from(cryptoNews).where(eq(cryptoNews.id, input.id)).limit(1);
+        if (!news) throw new TRPCError({ code: 'NOT_FOUND' });
+        return { success: true, drafts: buildNewsDraftPackages(news) };
+      }),
     /** Admin: update a news item */
     update: protectedProcedure
       .input(z.object({
@@ -720,6 +735,21 @@ export const appRouter = router({
         );
         return { success: true, results };
       }),
+    /** Admin: build media draft packages for an article */
+    buildDraftPackages: protectedProcedure
+      .input(z.object({ id: z.number().int() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+        const { getDb } = await import('./db');
+        const { articles } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        const { buildArticleDraftPackages } = await import('./_core/mediaAutomation');
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+        const [article] = await db.select().from(articles).where(eq(articles.id, input.id)).limit(1);
+        if (!article) throw new TRPCError({ code: 'NOT_FOUND' });
+        return { success: true, drafts: buildArticleDraftPackages(article) };
+      }),
     /** Admin: Qwen AI content moderation */
     qwenModerate: protectedProcedure
       .input(z.object({
@@ -862,6 +892,11 @@ export const appRouter = router({
       if (!db) return [];
       return db.select().from(mediaPlatforms);
     }),
+    capabilities: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
+      const { listPlatformCapabilities } = await import('./_core/mediaAutomation');
+      return listPlatformCapabilities();
+    }),
     update: protectedProcedure
       .input(z.object({
         id: z.number().int(),
@@ -893,10 +928,20 @@ export const appRouter = router({
         const { mediaPlatforms } = await import('../drizzle/schema');
         const { eq } = await import('drizzle-orm');
         const { ENV } = await import('./_core/env');
+        const { getPlatformCapability } = await import('./_core/mediaAutomation');
         const db = await getDb();
         if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
         const [config] = await db.select().from(mediaPlatforms).where(eq(mediaPlatforms.platform, input.platform)).limit(1);
         if (!config) throw new TRPCError({ code: 'NOT_FOUND', message: '平台配置不存在' });
+        const capability = getPlatformCapability(input.platform);
+        if (capability.deliveryMode !== 'direct') {
+          return {
+            success: true,
+            message: capability.deliveryMode === 'assisted'
+              ? `${config.name} 当前走半自动工作流，请生成外发草稿后手动发布。`
+              : `${config.name} 目前仍是规划位，暂不支持连接测试。`,
+          };
+        }
         if (input.platform === 'telegram') {
           const token = config.apiKey || ENV.telegramBotToken;
           const channelId = config.channelId || ENV.telegramChannelId;
@@ -906,7 +951,22 @@ export const appRouter = router({
           if (!data.ok) throw new TRPCError({ code: 'BAD_REQUEST', message: `Telegram 连接失败: ${data.description}` });
           return { success: true, message: `Telegram 连接成功，频道: ${data.result?.title || channelId}` };
         }
-        return { success: true, message: `${input.platform} 连接测试暂不支持，请手动验证` };
+        if (input.platform === 'notion') {
+          if (!config.apiKey || !config.channelId) {
+            throw new TRPCError({ code: 'BAD_REQUEST', message: 'Notion Token 或 Database ID 未配置' });
+          }
+          const res = await fetch(`https://api.notion.com/v1/databases/${config.channelId}`, {
+            headers: {
+              Authorization: `Bearer ${config.apiKey}`,
+              'Notion-Version': '2022-06-28',
+            },
+          });
+          if (!res.ok) {
+            throw new TRPCError({ code: 'BAD_REQUEST', message: `Notion 连接失败: ${res.status} ${res.statusText}` });
+          }
+          return { success: true, message: 'Notion 数据库连接成功。' };
+        }
+        return { success: true, message: `${config.name} 已支持直连发布，当前暂不提供无消息测试。` };
       }),
   }),
 
