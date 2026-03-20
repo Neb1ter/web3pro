@@ -1,22 +1,6 @@
-/**
- * Markdown Component
- *
- * ⚠️ 性能关键说明：
- * streamdown 及其依赖（mermaid 69MB、shiki 等）体积极大，会导致 vendor-misc chunk 超过 13MB。
- * 本组件使用动态 import() 懒加载 Streamdown，确保首屏和非文章页面完全不加载这些大型库。
- * 只有当用户实际访问 ArticleDetail 等使用 Markdown 的页面时，才会触发加载。
- *
- * ⚠️ 禁止将此组件改回静态 import！否则会导致所有页面加载时间增加 10+ 秒。
- *
- * @see https://streamdown.ai/docs - Streamdown Documentation
- */
-
-import { memo, useState, useEffect, type ReactNode, type ComponentProps } from "react";
+import { memo, useEffect, useState, type ComponentProps, type ReactNode } from "react";
+import { scheduleIdle } from "@/lib/routePreload";
 import { cn } from "@/lib/utils";
-
-// ============================================================================
-// DEFAULT COMPONENT OVERRIDES
-// ============================================================================
 
 const components = {
   h1: ({ children }: { children?: ReactNode }) => (
@@ -90,13 +74,15 @@ const components = {
     <td className="border border-border px-4 py-2">{children}</td>
   ),
   img: ({ src, alt }: { src?: string; alt?: string }) => (
-    <img src={src} alt={alt || ""} className="max-w-full h-auto rounded-lg my-4" loading="lazy" decoding="async" />
+    <img
+      src={src}
+      alt={alt || ""}
+      className="max-w-full h-auto rounded-lg my-4"
+      loading="lazy"
+      decoding="async"
+    />
   ),
 };
-
-// ============================================================================
-// 懒加载 Streamdown 类型定义
-// ============================================================================
 
 type StreamdownModule = typeof import("streamdown");
 type StreamdownProps = ComponentProps<StreamdownModule["Streamdown"]>;
@@ -110,6 +96,13 @@ type MarkdownProps = Omit<StreamdownProps, "components"> & {
 
 const MERMAID_FENCE_RE = /(?:^|\n)(```|~~~)\s*mermaid\b[^\n]*\n/i;
 const CODE_FENCE_RE = /(?:^|\n)(```|~~~)(?!\s*mermaid\b)[^\n]*\n/i;
+
+let streamdownModulePromise: Promise<StreamdownModule> | null = null;
+
+function loadStreamdownModule() {
+  streamdownModulePromise ??= import("streamdown");
+  return streamdownModulePromise;
+}
 
 function detectMarkdownFeatureFlags(children: ReactNode) {
   if (typeof children !== "string") {
@@ -146,16 +139,6 @@ function resolveControlsConfig(
   };
 }
 
-// ============================================================================
-// MARKDOWN COMPONENT（懒加载版本）
-// ============================================================================
-
-/**
- * Markdown - 生产级 Markdown 渲染组件（懒加载版）
- *
- * ⚠️ 重要：streamdown 通过动态 import() 懒加载，首次渲染时会短暂显示骨架屏。
- * 这是为了避免 vendor-misc chunk 体积过大（13MB）导致所有页面加载缓慢。
- */
 export const Markdown = memo(function Markdown({
   className,
   children,
@@ -176,14 +159,22 @@ export const Markdown = memo(function Markdown({
   const resolvedControls = resolveControlsConfig(controls, shouldEnableCode, shouldEnableMermaid);
 
   useEffect(() => {
-    // 动态加载 streamdown，只在组件挂载时触发一次
-    import("streamdown").then((mod) => {
-      setStreamdownComp(() => mod.Streamdown);
-    });
-  }, []);
+    let isCancelled = false;
+    const cancelIdle = scheduleIdle(() => {
+      void loadStreamdownModule().then((mod) => {
+        if (!isCancelled) {
+          setStreamdownComp(() => mod.Streamdown);
+        }
+      });
+    }, shouldEnableCode || shouldEnableMermaid ? 900 : 300);
+
+    return () => {
+      isCancelled = true;
+      cancelIdle();
+    };
+  }, [shouldEnableCode, shouldEnableMermaid]);
 
   if (!StreamdownComp) {
-    // 加载中：显示骨架屏，避免布局跳动
     return (
       <div className={cn("text-foreground leading-relaxed animate-pulse", className)}>
         <div className="h-4 bg-muted rounded w-3/4 mb-3" />
@@ -210,6 +201,5 @@ export const Markdown = memo(function Markdown({
   );
 });
 
-// Export individual components for custom composition
 export { components as markdownComponents };
 export default Markdown;

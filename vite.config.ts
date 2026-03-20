@@ -237,6 +237,10 @@ export default defineConfig({
             return "vendor-forms";
           }
 
+          if (["streamdown", "@streamdown/code", "@streamdown/mermaid"].includes(pkg)) {
+            return "vendor-markdown";
+          }
+
           return undefined;
         },
         chunkFileNames: "assets/js/[name]-[hash].js",
