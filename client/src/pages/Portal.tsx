@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { useScrollMemory } from '@/hooks/useScrollMemory';
 import OnboardingPrompt from "@/components/OnboardingPrompt";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { preloadRoute, preloadRoutes } from "@/lib/routePreload";
+import { preloadRoute } from "@/lib/routePreload";
 import { Compass, ShieldCheck, Sparkles } from "lucide-react";
 
 // ============================================================
@@ -468,7 +468,6 @@ export default function Portal() {
 
   useEffect(() => {
     setMounted(true);
-    preloadRoutes(["/crypto-saving", "/exchanges", "/web3-guide", "/crypto-news"]);
   }, []);
 
   return (

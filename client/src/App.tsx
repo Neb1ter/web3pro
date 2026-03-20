@@ -9,7 +9,7 @@ import { useEffect, useRef, useState, lazy, Suspense, Component, useMemo } from 
 import { saveScrollPosition, getScrollPosition } from "@/hooks/useScrollMemory";
 import { useLearningPathSync } from "@/hooks/useLearningPathSync";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { preloadRoutes, scheduleIdle } from "@/lib/routePreload";
+import { scheduleIdle } from "@/lib/routePreload";
 import { getSeoForPath } from "@/lib/seo";
 // Delay loading large floating nav bundles until idle time.
 const MobileFloatNav = lazy(() => import("@/components/MobileFloatNav"));
@@ -430,7 +430,6 @@ function AppInner() {
   useEffect(() => {
     return scheduleIdle(() => {
       setShowFloatNav(true);
-      preloadRoutes(["/crypto-saving", "/contact", "/exchanges", "/web3-guide", "/crypto-news"]);
     }, 1500);
   }, []);
 
