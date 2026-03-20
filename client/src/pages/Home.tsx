@@ -52,9 +52,6 @@ const CASE_STUDY_YEARLY_SAVINGS = CASE_STUDY_REBATE * 12;
 function FloatChapterMenu({ activeId, zh }: { activeId: string; zh: boolean }) {
   const [open, setOpen] = useState(false);
   const active = CHAPTERS.find(c => c.id === activeId) ?? CHAPTERS[0];
-  // 拖拽偏移量（相对于初始位置 bottom:1.5rem left:1rem）
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const dragRef = useRef<{ startX: number; startY: number; origX: number; origY: number; moved: boolean } | null>(null);
 
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
@@ -62,60 +59,17 @@ function FloatChapterMenu({ activeId, zh }: { activeId: string; zh: boolean }) {
     setOpen(false);
   };
 
-  // 鼠标拖拽
-  const onMouseDown = (e: React.MouseEvent) => {
-    dragRef.current = { startX: e.clientX, startY: e.clientY, origX: offset.x, origY: offset.y, moved: false };
-    e.preventDefault();
-  };
-  useEffect(() => {
-    const onMove = (e: MouseEvent) => {
-      if (!dragRef.current) return;
-      const dx = e.clientX - dragRef.current.startX;
-      const dy = e.clientY - dragRef.current.startY;
-      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragRef.current.moved = true;
-      setOffset({ x: dragRef.current.origX + dx, y: dragRef.current.origY + dy });
-    };
-    const onUp = () => { dragRef.current = null; };
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onUp);
-    return () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
-  }, []);
-  // 触控拖拽
-  const onTouchStart = (e: React.TouchEvent) => {
-    const t = e.touches[0];
-    dragRef.current = { startX: t.clientX, startY: t.clientY, origX: offset.x, origY: offset.y, moved: false };
-  };
-  useEffect(() => {
-    const onMove = (e: TouchEvent) => {
-      if (!dragRef.current) return;
-      const t = e.touches[0];
-      const dx = t.clientX - dragRef.current.startX;
-      const dy = t.clientY - dragRef.current.startY;
-      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
-        dragRef.current.moved = true;
-        setOffset({ x: dragRef.current.origX + dx, y: dragRef.current.origY + dy });
-        e.preventDefault();
-      }
-    };
-    const onEnd = () => { dragRef.current = null; };
-    window.addEventListener('touchmove', onMove, { passive: false });
-    window.addEventListener('touchend', onEnd);
-    return () => { window.removeEventListener('touchmove', onMove); window.removeEventListener('touchend', onEnd); };
-  }, []);
-
-  const containerStyle: React.CSSProperties = {
-    position: 'fixed',
-    left: `calc(1rem + ${offset.x}px)`,
-    bottom: `calc(1rem + env(safe-area-inset-bottom, 0px) - ${offset.y}px)`,
-    zIndex: 50,
-    userSelect: 'none',
-    pointerEvents: 'none',
-  };
-
   return (
     <>
       {open && <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />}
-      <div style={containerStyle}>
+      <div
+        className="fixed left-4 z-50"
+        style={{
+          bottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))',
+          userSelect: 'none',
+          pointerEvents: 'none',
+        }}
+      >
         {/* 展开的菜单面板 */}
         {open && (
           <div
@@ -155,16 +109,11 @@ function FloatChapterMenu({ activeId, zh }: { activeId: string; zh: boolean }) {
             </div>
           </div>
         )}
-        {/* 触发按钮（拖拽手柄） */}
-        <div
-          onMouseDown={onMouseDown}
-          onTouchStart={onTouchStart}
-          className="cursor-grab active:cursor-grabbing"
-          style={{ pointerEvents: 'auto' }}
-        >
+        {/* 触发按钮 */}
+        <div style={{ pointerEvents: 'auto' }}>
           <button
             type="button"
-            onClick={() => { if (!dragRef.current?.moved) setOpen(v => !v); }}
+            onClick={() => setOpen(v => !v)}
             className="flex items-center gap-2.5 rounded-2xl border border-amber-500/30 px-3.5 py-2.5 transition-all hover:border-amber-500/60"
             style={{
               background: 'rgba(10,25,47,0.92)',
@@ -175,7 +124,7 @@ function FloatChapterMenu({ activeId, zh }: { activeId: string; zh: boolean }) {
               touchAction: 'manipulation',
               WebkitTapHighlightColor: 'transparent',
             }}
-            title={zh ? '拖动可移位，点击切换章节' : 'Drag to move · Tap to switch'}
+            title={zh ? '点击展开章节导航' : 'Open chapter navigation'}
           >
             <span className="text-lg">{active.icon}</span>
             <div className="hidden sm:block">
@@ -183,7 +132,7 @@ function FloatChapterMenu({ activeId, zh }: { activeId: string; zh: boolean }) {
                 {zh ? active.zh : active.en}
               </p>
               <p className="text-[10px] text-slate-500 leading-none">
-                {zh ? '拖动可移位，点击切换' : 'Drag to move'}
+                {zh ? '点击切换章节' : 'Tap to switch'}
               </p>
             </div>
             <span className="text-slate-500">
@@ -303,57 +252,6 @@ function FeeCalculator({ zh }: { zh: boolean }) {
   );
 }
 
-function IntentShortcuts({
-  zh,
-  navigate,
-}: {
-  zh: boolean;
-  navigate: (href: string) => void;
-}) {
-  const scrollTo = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
-
-  const items: Array<{ title: string; desc: string; action: () => void }> = zh
-    ? [
-        { title: '新用户先看这里', desc: '先看默认 20% 怎么拿，再决定去哪家交易所。', action: () => scrollTo('how-to-get') },
-        { title: '老用户先看限制', desc: '老账户通常不能补绑，先看限制和下一步。', action: () => scrollTo('action') },
-        { title: '先看五家下载入口', desc: '直接去下载页，按平台进入官方入口。', action: () => navigate('/exchange-download') },
-        { title: '直接看交易所对比', desc: '已经有经验的话，这一步最快。', action: () => navigate('/exchanges') },
-      ]
-    : [
-        { title: 'New user: start here', desc: 'See how the default 20% works before picking an exchange.', action: () => scrollTo('how-to-get') },
-        { title: 'Existing user: check limits', desc: 'Existing accounts usually cannot be retrofitted.', action: () => scrollTo('action') },
-        { title: 'Go straight to downloads', desc: 'Open the official exchange download routes first.', action: () => navigate('/exchange-download') },
-        { title: 'Compare exchanges first', desc: 'This is the fastest route for experienced users.', action: () => navigate('/exchanges') },
-      ];
-
-  return (
-    <div className="mx-auto mt-8 max-w-4xl rounded-3xl border border-amber-500/20 bg-black/20 p-4 sm:p-5">
-      <div className="mb-4 flex items-center gap-2">
-        <Zap className="h-4 w-4 text-amber-400" />
-        <p className="text-sm font-black text-amber-300">
-          {zh ? '高意图用户快捷入口' : 'High-intent shortcuts'}
-        </p>
-      </div>
-      <div className="grid gap-3 sm:grid-cols-2">
-        {items.map((item) => (
-          <button
-            key={item.title}
-            type="button"
-            onClick={item.action}
-            className="tap-target rounded-2xl border border-white/10 bg-white/5 p-4 text-left transition hover:border-amber-500/30 hover:bg-white/10"
-          >
-            <p className="mb-1 text-sm font-black text-white">{item.title}</p>
-            <p className="text-xs leading-6 text-slate-400">{item.desc}</p>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ─── 主组件 ───────────────────────────────────────────────────────────────────
 export default function Home() {
   useScrollMemory();
   const { language, setLanguage } = useLanguage();
@@ -580,7 +478,6 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <IntentShortcuts zh={zh} navigate={navigate} />
           {false ? <div className="mx-auto mt-8 max-w-4xl text-left">
             <TrustSignalsCard
               zh={zh}
@@ -1146,11 +1043,11 @@ export default function Home() {
         <div className="container mx-auto max-w-3xl">
           <TrustSignalsCard
             zh={zh}
-            title={zh ? "浣滆€呫€佸鏍镐笌杩斾剑鎶湶" : "Authorship, Review & Rebate Disclosure"}
-            summary={zh ? "杩欓〉娑夊強浜ゆ槗鎵€銆佽垂鐜囦俊鎭€佷笅杞藉叆鍙ｅ拰鍚堜綔鎶湶锛屾墍浠ユ妸杩欎簺淇℃伅鏀惧湪椤甸潰鏈熬锛屾柟渚夸綘鍦ㄩ槄璇讳富鍐呭鍚庡啀涓€娆℃牳瀵广€?"
+            title={zh ? "\u4f5c\u8005\u3001\u5ba1\u6838\u4e0e\u8fd4\u4f63\u62ab\u9732" : "Authorship, Review & Rebate Disclosure"}
+            summary={zh ? "\u8fd9\u9875\u6d89\u53ca\u4ea4\u6613\u6240\u3001\u8d39\u7387\u4fe1\u606f\u3001\u4e0b\u8f7d\u5165\u53e3\u548c\u5408\u4f5c\u62ab\u9732\uff0c\u6240\u4ee5\u628a\u8fd9\u4e9b\u4fe1\u606f\u653e\u5728\u9875\u9762\u672b\u5c3e\uff0c\u65b9\u4fbf\u4f60\u5728\u770b\u5b8c\u4e3b\u4f53\u5185\u5bb9\u540e\u518d\u7edf\u4e00\u6838\u5bf9\u3002"
               : "This page covers exchanges, fee rules, download routes, and partner disclosures, so the trust notes are grouped near the footer for a cleaner reading flow."}
-            author={zh ? "Get8 Pro 缂栬緫鍥㈤槦" : "Get8 Pro Editorial Team"}
-            reviewer={zh ? "Get8 Pro 鍐呭瀹℃牳" : "Get8 Pro Editorial Review"}
+            author={zh ? "Get8 Pro \u7f16\u8f91\u56e2\u961f" : "Get8 Pro Editorial Team"}
+            reviewer={zh ? "Get8 Pro \u5185\u5bb9\u5ba1\u6838" : "Get8 Pro Editorial Review"}
             updatedAt={TRUST_LAST_REVIEWED}
             sources={rebateTrustSources}
             disclosure={rebateDisclosure}
@@ -1161,42 +1058,25 @@ export default function Home() {
       <footer className="py-12 px-4 border-t" style={{ background: 'rgba(10,25,47,0.98)', borderColor: 'rgba(255,215,0,0.1)' }}>
         <div className="container mx-auto text-center max-w-2xl">
           <h3 className="text-xl font-black text-white mb-2">
-            {zh ? '让每一笔交易都更具价值' : 'Make Every Trade More Valuable'}
+            {zh ? "\u8ba9\u4ea4\u6613\u6210\u672c\u66f4\u6e05\u6670" : "Make Trading Costs Easier to Read"}
           </h3>
           <p className="text-slate-500 mb-8 text-sm">
-            {zh ? '智慧交易，从省钱开始' : 'Smart Trading Starts with Savings'}
+            {zh ? "\u628a Web3 \u5b66\u4e60\u3001\u4ea4\u6613\u6240\u4e0e\u8d39\u7387\u4fe1\u606f\u6574\u7406\u5728\u540c\u4e00\u6761\u6d4f\u89c8\u8def\u5f84\u91cc" : "Keep Web3 learning, exchange routes, and fee information in one clearer path"}
           </p>
           <div className="flex justify-center flex-wrap gap-6 text-sm mb-6">
             <button onClick={() => navigate('/exchanges')} className="text-slate-500 hover:text-amber-400 transition font-medium">{texts.nav.exchanges}</button>
-            <button onClick={() => navigate('/exchange-download')} className="text-slate-500 hover:text-amber-400 transition font-medium">{zh ? '下载指南' : 'Download Guide'}</button>
-            <button onClick={() => navigate('/exchange-guide')} className="text-slate-500 hover:text-amber-400 transition font-medium">{zh ? '交易所扫盲' : 'Exchange Guide'}</button>
-            <button onClick={() => navigate('/web3-guide/kyc-flow')} className="text-slate-500 hover:text-amber-400 transition font-medium">{zh ? 'KYC实名流程' : 'KYC Verification Flow'}</button>
-            <button onClick={() => navigate('/about')} className="text-slate-500 hover:text-amber-400 transition font-medium">{zh ? '鍏充簬鎴戜滑' : 'About Us'}</button>
-            <button onClick={() => navigate('/standards')} className="text-slate-500 hover:text-amber-400 transition font-medium">{zh ? '缂栬緫鍘熷垯' : 'Editorial Standards'}</button>
-            <button onClick={() => navigate('/legal')} className="text-slate-500 hover:text-amber-400 transition font-medium">{zh ? '娉曞緥涓庨闄?' : 'Legal & Risk'}</button>
+            <button onClick={() => navigate('/exchange-download')} className="text-slate-500 hover:text-amber-400 transition font-medium">{zh ? "\u4e0b\u8f7d\u6307\u5357" : "Download Guide"}</button>
+            <button onClick={() => navigate('/exchange-guide')} className="text-slate-500 hover:text-amber-400 transition font-medium">{zh ? "\u4ea4\u6613\u6240\u626b\u76f2" : "Exchange Guide"}</button>
+            <button onClick={() => navigate('/web3-guide/kyc-flow')} className="text-slate-500 hover:text-amber-400 transition font-medium">{zh ? "KYC\u5b9e\u540d\u6d41\u7a0b" : "KYC Verification Flow"}</button>
+            <button onClick={() => navigate('/standards')} className="text-slate-500 hover:text-amber-400 transition font-medium">{zh ? "\u7f16\u8f91\u539f\u5219" : "Editorial Standards"}</button>
+            <button onClick={() => navigate('/legal')} className="text-slate-500 hover:text-amber-400 transition font-medium">{zh ? "\u6cd5\u5f8b\u4e0e\u98ce\u9669" : "Legal & Risk"}</button>
             <button onClick={() => navigate('/contact')} className="text-slate-500 hover:text-amber-400 transition font-medium">{texts.nav.contact}</button>
-            <button onClick={() => navigate('/beginner')} className="text-slate-500 hover:text-amber-400 transition font-medium">{texts.nav.beginnerGuide}</button>
-          </div>
-          {/* Discord 社群图标 */}
-          <div className="flex justify-center mb-6">
-            <a
-              href="https://discord.gg/wgvetpH6Un"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-all hover:scale-105"
-              style={{ background: 'rgba(88,101,242,0.15)', border: '1px solid rgba(88,101,242,0.3)', color: '#7289DA' }}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.033.055a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
-              </svg>
-              <span>{zh ? '加入 Discord 社群' : 'Join Discord Community'}</span>
-            </a>
           </div>
           <p className="text-slate-700 text-xs">
             <a
               href="/manage-m2u0z0i04"
               style={{ color: 'inherit', textDecoration: 'none', cursor: 'default' }}
-            >{zh ? '祝您在币圈稳健获利，财富自由！' : 'Wishing you stable profits and financial freedom in crypto!'}</a>
+            >{zh ? "\u672c\u9875\u4ec5\u5bf9 Web3 \u5b66\u4e60\u3001\u5e73\u53f0\u4fe1\u606f\u4e0e\u8d39\u7387\u8def\u5f84\u505a\u7edf\u4e00\u6574\u7406\u3002" : "This page is a consolidated reference for Web3 learning, platform info, and fee paths."}</a>
           </p>
         </div>
       </footer>

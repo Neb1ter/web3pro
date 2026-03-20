@@ -20,7 +20,6 @@ const LANG = {
     stat1v: "5", stat1u: "大板块", stat1l: "内容模块",
     stat2v: "5+", stat2u: "家交易所", stat2l: "合作平台",
     stat3v: "永久", stat3u: "个性化返佣", stat3l: "终身有效",
-    bannerLabel: "合作平台",
     sectionTitle: "选择你的学习路径",
     sectionSub: "五大核心板块，覆盖从入门到实操的完整旅程",
     comingSoonBadge: "即将推出",
@@ -36,7 +35,6 @@ const LANG = {
         subtitle: "WEB3 ONBOARDING",
         title: "Web3 入圈指南",
         description: "拒绝噪音，回归基本面。我们聚合官方文档与链上数据，为你构建机构级的 Web3 知识体系。从宏观经济到赛道分析，像专业人士一样思考，做出理性决策。",
-        tags: ["区块链基础", "DeFi 入门", "投资路径", "CEX vs DEX"],
         cta: "开始探索 Web3 →",
         stats: [{ label: "核心概念", value: "12+" }, { label: "投资方式", value: "4种" }, { label: "适合人群", value: "零基础" }],
       },
@@ -45,7 +43,6 @@ const LANG = {
         subtitle: "TRADING COST & REBATE GUIDE",
         title: "交易成本与返佣指南",
         description: "每一笔返佣，都来自交易所官方合作协议。返佣比例公开、结算记录可查。在 Get8 Pro，信任无需猜测，成本清晰可见。",
-        tags: ["邀请码返佣", "手续费对比", "交易所评测", "新手注册"],
         cta: "查看省钱攻略 →",
         stats: [{ label: "合作交易所", value: "5家" }, { label: "永久返佣", value: "个性化" }, { label: "已服务用户", value: "持续增长" }],
       },
@@ -54,7 +51,6 @@ const LANG = {
         subtitle: "EXCHANGE TUTORIAL",
         title: "交易所扫盲指南",
         description: "基于独立评测模型，我们对各大交易所进行安全性、流动性、合规性三维评分。不因佣金高低改变评分，敢于曝光风险，助你安全交易。",
-        tags: ["现货交易", "合约入门", "理财产品", "跟单交易", "交易所对比"],
         cta: "开始扫盲 →",
         stats: [{ label: "功能板块", value: "13个" }, { label: "覆盖交易所", value: "5家" }, { label: "互动测验", value: "全程" }],
       },
@@ -63,7 +59,6 @@ const LANG = {
         subtitle: "CRYPTO TOOLS HUB",
         title: "币圈工具合集",
         description: "精选新手到专业交易者都能用到的加密货币工具，标注工具来源与功能，涵盖行情查询、图表分析、链上数据、DeFi、税务等多个层面。",
-        tags: ["行情查询", "链上数据", "DeFi 工具", "图表分析", "税务工具"],
         cta: "查看工具合集 →",
         stats: [{ label: "工具数量", value: "12+" }, { label: "适合人群", value: "全级别" }, { label: "持续更新", value: "实时" }],
       },
@@ -72,7 +67,6 @@ const LANG = {
         subtitle: "CRYPTO NEWS",
         title: "加密快讯",
         description: "实时聚合律动BlockBeats、深潮TechFlow等权威媒体快讯，自动分类行情、政策、交易所、DeFi 等板块，第一时间掌握市场动态，不错过任何重要信号。",
-        tags: ["实时快讯", "行情动态", "政策监管", "交易所公告", "DeFi 资讯"],
         cta: "查看最新快讯 →",
         stats: [{ label: "更新频率", value: "30分钟" }, { label: "快讯来源", value: "3家" }, { label: "分类标签", value: "6种" }],
       },
@@ -104,7 +98,6 @@ const LANG = {
     stat1v: "5", stat1u: "Modules", stat1l: "Content Areas",
     stat2v: "5+", stat2u: "Exchanges", stat2l: "Partners",
     stat3v: "Lifetime", stat3u: "Personalized Rebates", stat3l: "Forever Valid",
-    bannerLabel: "Partners",
     sectionTitle: "Choose Your Learning Path",
     sectionSub: "Five core modules covering the complete journey from beginner to trader",
     comingSoonBadge: "Coming Soon",
@@ -120,7 +113,6 @@ const LANG = {
         subtitle: "WEB3 ONBOARDING",
         title: "Web3 Onboarding Guide",
         description: "Cut through the noise. We aggregate official documentation and on-chain data to build an institutional-grade Web3 knowledge base — from macro economics to sector analysis, think like a pro.",
-        tags: ["Blockchain Basics", "DeFi Intro", "Investment Paths", "CEX vs DEX"],
         cta: "Start Exploring Web3 →",
         stats: [{ label: "Core Concepts", value: "12+" }, { label: "Invest Methods", value: "4" }, { label: "For", value: "Beginners" }],
       },
@@ -129,7 +121,6 @@ const LANG = {
         subtitle: "TRADING COST & REBATE GUIDE",
         title: "Trading Cost & Rebate Guide",
         description: "Every rebate is sourced from official exchange partnership agreements. Rebate rates are public, settlement records are verifiable. At Get8 Pro, trust is not assumed — it's proven.",
-        tags: ["Referral Rebates", "Fee Comparison", "Exchange Reviews", "Beginner Sign-up"],
         cta: "View Saving Tips →",
         stats: [{ label: "Partner Exchanges", value: "5+" }, { label: "Lifetime Rebates", value: "Custom" }, { label: "Users Served", value: "Growing" }],
       },
@@ -138,7 +129,6 @@ const LANG = {
         subtitle: "EXCHANGE TUTORIAL",
         title: "Exchange Tutorial",
         description: "Built on an independent review model, we score exchanges across three dimensions: security, liquidity, and compliance. We don't change ratings for higher commissions — we expose risks.",
-        tags: ["Spot Trading", "Futures Basics", "Earn Products", "Copy Trading", "Exchange Compare"],
         cta: "Start Learning →",
         stats: [{ label: "Feature Modules", value: "13" }, { label: "Exchanges", value: "5" }, { label: "Quizzes", value: "All" }],
       },
@@ -147,7 +137,6 @@ const LANG = {
         subtitle: "CRYPTO TOOLS HUB",
         title: "Crypto Tools Hub",
         description: "Curated crypto tools for beginners to pro traders — with source labels and function descriptions. Covers price data, charts, on-chain analytics, DeFi, tax tools, and more.",
-        tags: ["Price Data", "On-Chain", "DeFi Tools", "Chart Analysis", "Tax Tools"],
         cta: "View Tools Hub →",
         stats: [{ label: "Tools", value: "12+" }, { label: "For", value: "All Levels" }, { label: "Updated", value: "Live" }],
       },
@@ -156,7 +145,6 @@ const LANG = {
         subtitle: "CRYPTO NEWS",
         title: "Crypto News Feed",
         description: "Real-time aggregation from BlockBeats, TechFlow and other authoritative sources. Auto-categorized into market, policy, exchange, and DeFi — never miss a signal that matters.",
-        tags: ["Live News", "Market Updates", "Policy Watch", "Exchange Alerts", "DeFi News"],
         cta: "View Latest News →",
         stats: [{ label: "Update Cycle", value: "30 min" }, { label: "Sources", value: "3" }, { label: "Categories", value: "6" }],
       },
@@ -183,23 +171,6 @@ const LANG = {
 // ============================================================
 // 交易所 / DEX 文字数据（纯文字跑马灯，无假 Logo）
 // ============================================================
-const PLATFORM_LOGOS = [
-  { name: "Binance", tag: "CEX" },
-  { name: "OKX", tag: "CEX" },
-  { name: "Bybit", tag: "CEX" },
-  { name: "Gate.io", tag: "CEX" },
-  { name: "Bitget", tag: "CEX" },
-  { name: "HTX", tag: "CEX" },
-  { name: "Uniswap", tag: "DEX" },
-  { name: "dYdX", tag: "DEX" },
-  { name: "PancakeSwap", tag: "DEX" },
-  { name: "Curve", tag: "DEX" },
-  { name: "Aave", tag: "DeFi" },
-  { name: "1inch", tag: "DEX" },
-];
-
-const ALL_LOGOS = [...PLATFORM_LOGOS, ...PLATFORM_LOGOS];
-
 function QuickStartPaths({ lang }: { lang: string }) {
   const zh = lang === "zh";
   const paths = zh
@@ -355,41 +326,6 @@ function AnimatedBackground() {
     };
   }, []);
   return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none" />;
-}
-
-function LogoMarquee({ label }: { label: string }) {
-  return (
-    <div className="relative py-8 border-y border-white/5 bg-white/[0.01] overflow-hidden">
-      <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-[#050D1A] to-transparent z-10" />
-      <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-[#050D1A] to-transparent z-10" />
-      <div className="flex items-center gap-4 mb-4 px-8">
-        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
-        <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">{label}</span>
-        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
-      </div>
-      <div className="flex whitespace-nowrap animate-marquee">
-        {ALL_LOGOS.map((logo, i) => (
-          <div key={i} className="inline-flex items-center gap-2 mx-8 group">
-            <span className="text-xl font-black text-slate-400 group-hover:text-white transition-colors tracking-tighter">
-              {logo.name}
-            </span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/5 text-slate-600 font-bold border border-white/5">
-              {logo.tag}
-            </span>
-          </div>
-        ))}
-      </div>
-      <style>{`
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        .animate-marquee {
-          animation: marquee 40s linear infinite;
-        }
-      `}</style>
-    </div>
-  );
 }
 
 function QuizBanner({ lang }: { lang: string }) {
@@ -597,26 +533,10 @@ export default function Portal() {
             {t.desc}
           </p>
 
-          <div className="flex flex-wrap justify-center gap-6 sm:gap-12 mb-10">
-            {[
-              { value: t.stat1v, unit: t.stat1u, label: t.stat1l },
-              { value: t.stat2v, unit: t.stat2u, label: t.stat2l },
-              { value: t.stat3v, unit: t.stat3u, label: t.stat3l },
-            ].map((stat, i) => (
-              <div key={i} className="text-center">
-                <div className="text-3xl sm:text-4xl font-black text-yellow-400">
-                  {stat.value}
-                  <span className="text-lg text-yellow-300/70 ml-1">{stat.unit}</span>
-                </div>
-                <div className="text-slate-500 text-sm mt-1">{stat.label}</div>
-              </div>
-            ))}
-          </div>
         </div>
 
         <QuizBanner lang={lang} />
         <QuickStartPaths lang={lang} />
-        <LogoMarquee label={t.bannerLabel} />
 
         <div className="pb-16">
           <div className="text-center mb-10">
@@ -664,13 +584,6 @@ export default function Portal() {
                       </div>
                       <h3 className={`text-2xl sm:text-3xl font-black ${colors.titleColor} mb-3`}>{mod.title}</h3>
                       <p className="text-slate-300 text-sm sm:text-base leading-relaxed mb-6">{mod.description}</p>
-                      <div className="flex flex-wrap gap-2 mb-6">
-                        {mod.tags.map((tag) => (
-                          <span key={tag} className="text-xs px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-300">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
                       <div className="grid grid-cols-3 gap-3 mb-6 p-4 rounded-xl bg-black/20 border border-white/5">
                         {mod.stats.map((stat, i) => (
                           <div key={i} className="text-center">
