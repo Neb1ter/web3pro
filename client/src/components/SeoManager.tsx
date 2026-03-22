@@ -13,7 +13,8 @@ const BASE_URL = "https://get8.pro";
 
 export function SeoManager({ path, title, description, keywords }: SeoManagerProps) {
   const { language } = useLanguage();
-  const canonicalUrl = `${BASE_URL}${path}`;
+  const normalizedPath = path === "/portal" ? "/" : path;
+  const canonicalUrl = `${BASE_URL}${normalizedPath}`;
   const defaults = getSeoForPath(path, language);
   const resolvedTitle = title || defaults.title;
   const resolvedDescription = description || defaults.description;
@@ -27,9 +28,9 @@ export function SeoManager({ path, title, description, keywords }: SeoManagerPro
       <meta name="keywords" content={resolvedKeywords} />
       <link rel="canonical" href={canonicalUrl} />
 
-      <link rel="alternate" hrefLang="zh-CN" href={`${BASE_URL}/zh-CN${path}`} />
-      <link rel="alternate" hrefLang="en" href={`${BASE_URL}/en${path}`} />
-      <link rel="alternate" hrefLang="x-default" href={`${BASE_URL}/en${path}`} />
+      <link rel="alternate" hrefLang="zh-CN" href={canonicalUrl} />
+      <link rel="alternate" hrefLang="en" href={canonicalUrl} />
+      <link rel="alternate" hrefLang="x-default" href={canonicalUrl} />
 
       <meta property="og:title" content={resolvedTitle} />
       <meta property="og:description" content={resolvedDescription} />

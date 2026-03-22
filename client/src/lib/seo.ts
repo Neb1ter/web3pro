@@ -11,20 +11,20 @@ type SeoEntry = {
   keywords: LocalizedSeo;
 };
 
-const BASE_TITLE = {
+const BASE_TITLE: LocalizedSeo = {
   zh: "Get8 Pro | Web3 指南、交易所信息与学习资源",
   en: "Get8 Pro | Web3 Guides, Exchange Information & Learning Resources",
-} as const;
+};
 
-const BASE_DESCRIPTION = {
-  zh: "Get8 Pro 整理 Web3 入门内容、交易所信息、KYC 流程说明、风险提示与实用工具，帮助用户更系统地了解相关主题。",
+const BASE_DESCRIPTION: LocalizedSeo = {
+  zh: "Get8 Pro 整理 Web3 学习资源、交易所信息、KYC 指南、风险提示与实用工具，帮助用户更系统地了解相关主题。",
   en: "Get8 Pro organizes Web3 learning resources, exchange information, KYC guidance, risk disclosures, and practical tools for users exploring the space.",
-} as const;
+};
 
-const BASE_KEYWORDS = {
+const BASE_KEYWORDS: LocalizedSeo = {
   zh: "Web3导航,交易所对比,KYC流程,加密货币教程,Web3入门,币圈工具,风险提示,交易所指南",
   en: "web3 navigation,exchange comparison,kyc guide,crypto education,web3 onboarding,crypto tools,risk disclosure,exchange guide",
-} as const;
+};
 
 export const SEO_BY_PATH: Record<string, SeoEntry> = {
   "/": {
@@ -39,16 +39,16 @@ export const SEO_BY_PATH: Record<string, SeoEntry> = {
   },
   "/crypto-saving": {
     title: {
-      zh: "交易所返佣与手续费指南 | Get8 Pro",
-      en: "Crypto Rebate & Fee Guide | Get8 Pro",
+      zh: "交易成本优化指南 | Get8 Pro",
+      en: "Trading Cost Optimization Guide | Get8 Pro",
     },
     description: {
-      zh: "查看默认返佣规则、交易所下载入口、手续费差异和老用户限制，更快找到适合自己的省手续费路径。",
-      en: "Compare exchange rebates, fee differences, download paths, and existing-account limits to reduce trading costs more clearly.",
+      zh: "查看交易所费用差异、默认 20% 返佣规则、下载路径和老账户限制，更清楚地评估交易成本。",
+      en: "Review exchange fee differences, default 20% rebate rules, download paths, and existing-account limits with clearer context.",
     },
     keywords: {
-      zh: "交易所返佣,手续费指南,返佣规则,老用户返佣,交易成本优化,币圈省手续费",
-      en: "crypto rebate,exchange fee guide,rebate rules,existing account rebate,trading cost optimization,fee saving",
+      zh: "交易成本优化,返佣规则,交易所费用说明,老账户限制,平台费用对比,手续费指南",
+      en: "trading cost optimization,rebate rules,exchange fee guide,existing account limits,platform fee comparison,fee guide",
     },
   },
   "/exchanges": {
@@ -57,7 +57,7 @@ export const SEO_BY_PATH: Record<string, SeoEntry> = {
       en: "Exchange Comparison | Get8 Pro",
     },
     description: {
-      zh: "对比主流交易所的手续费、流动性、安全性、KYC 要求与功能覆盖，帮助你更快完成选择。",
+      zh: "对比主流交易所的费用、流动性、安全性、KYC 要求与功能覆盖，帮助用户更快完成选择。",
       en: "Compare major exchanges across fees, liquidity, security, KYC requirements, and feature coverage.",
     },
     keywords: {
@@ -89,7 +89,7 @@ export const SEO_BY_PATH: Record<string, SeoEntry> = {
       en: "Find official exchange download links, installation guidance, regional notes, and first-time registration tips.",
     },
     keywords: {
-      zh: "交易所下载,交易所安装,官方app下载,币安下载,OKX下载,Gate下载,Bybit下载,Bitget下载",
+      zh: "交易所下载,交易所安装,官方App下载,币安下载,OKX下载,Gate下载,Bybit下载,Bitget下载",
       en: "exchange download,crypto app install,official exchange app,binance download,okx download,gate download,bybit download,bitget download",
     },
   },
@@ -99,7 +99,7 @@ export const SEO_BY_PATH: Record<string, SeoEntry> = {
       en: "Beginner Guide | Get8 Pro",
     },
     description: {
-      zh: "用更清楚的顺序理解加密货币基础、交易概念、风险边界和第一次操作前该知道的事。",
+      zh: "用更清晰的顺序理解加密货币基础、交易概念、风险边界和第一次操作前需要知道的内容。",
       en: "Learn crypto basics, trading concepts, risk boundaries, and what to know before your first action.",
     },
     keywords: {
@@ -127,7 +127,7 @@ export const SEO_BY_PATH: Record<string, SeoEntry> = {
       en: "Crypto News Hub | Get8 Pro",
     },
     description: {
-      zh: "追踪加密快讯、市场更新、交易所公告和政策变化，帮助你更快理解发生了什么。",
+      zh: "追踪加密快讯、市场更新、交易所公告和政策变化，帮助用户更快了解正在发生的内容。",
       en: "Track crypto news, market updates, exchange announcements, and policy changes in one place.",
     },
     keywords: {
@@ -169,7 +169,7 @@ export const SEO_BY_PATH: Record<string, SeoEntry> = {
       en: "What Is Web3 | Get8 Pro",
     },
     description: {
-      zh: "理解 Web3 的基本概念、使用场景和它与传统互联网的区别。",
+      zh: "理解 Web3 的基本概念、常见使用场景，以及它与传统互联网服务的区别。",
       en: "Understand the basics of Web3, common use cases, and how it differs from traditional internet services.",
     },
     keywords: {
@@ -239,7 +239,7 @@ export const SEO_BY_PATH: Record<string, SeoEntry> = {
       en: "Economic Opportunity | Get8 Pro",
     },
     description: {
-      zh: "从机会、门槛和风险三方面看待 Web3，不把单一收益叙事当作全部答案。",
+      zh: "从机会、门槛和风险三个角度看 Web3，而不是只看单一收益叙事。",
       en: "Look at Web3 through opportunity, friction, and risk instead of hype alone.",
     },
     keywords: {
@@ -281,7 +281,7 @@ export const SEO_BY_PATH: Record<string, SeoEntry> = {
       en: "About Get8 Pro",
     },
     description: {
-      zh: "了解 Get8 Pro 的站点定位、合作说明、内容方法和为什么这样设计浏览路径。",
+      zh: "了解 Get8 Pro 的站点定位、合作说明、内容方法和浏览路径设计。",
       en: "Learn about Get8 Pro, its site mission, partnership disclosures, and content methodology.",
     },
     keywords: {
@@ -323,7 +323,7 @@ export const SEO_BY_PATH: Record<string, SeoEntry> = {
       en: "Web3 Quiz | Get8 Pro",
     },
     description: {
-      zh: "通过简单测评判断你更适合哪条学习路径，再进入更合理的下一步。",
+      zh: "通过简单测评判断更适合你的学习路径，再进入更合理的下一步。",
       en: "Take a quick quiz to get a more suitable Web3 learning path.",
     },
     keywords: {
@@ -337,7 +337,7 @@ export const SEO_BY_PATH: Record<string, SeoEntry> = {
       en: "Learning Path | Get8 Pro",
     },
     description: {
-      zh: "根据你的情况生成更适合的新手、进阶或交易路径。",
+      zh: "根据当前情况生成更适合的新手、进阶或交易路径。",
       en: "Get a tailored beginner, intermediate, or trading-oriented learning path.",
     },
     keywords: {
@@ -380,11 +380,11 @@ const PREFIX_DEFAULTS: Array<{ prefix: string; entry: SeoEntry }> = [
     prefix: "/exchange/",
     entry: {
       title: {
-        zh: "交易所详情页 | Get8 Pro",
+        zh: "交易所详情 | Get8 Pro",
         en: "Exchange Detail | Get8 Pro",
       },
       description: {
-        zh: "查看交易所的手续费、返佣、KYC、下载入口和常见问题。",
+        zh: "查看交易所的费用、返佣、KYC、下载入口和常见问题。",
         en: "Review exchange fees, rebates, KYC notes, download links, and FAQs.",
       },
       keywords: {
@@ -450,29 +450,14 @@ const PREFIX_DEFAULTS: Array<{ prefix: string; entry: SeoEntry }> = [
   },
 ];
 
-SEO_BY_PATH["/crypto-saving"] = {
-  title: {
-    zh: "交易成本与返佣指南 | Get8 Pro",
-    en: "Trading Cost & Rebate Guide | Get8 Pro",
-  },
-  description: {
-    zh: "整理交易所费用差异、默认 20% 返佣规则、下载路径与老账户限制，帮助你更清楚地理解和评估交易成本。",
-    en: "Review exchange fee differences, default 20% rebate rules, download paths, and existing-account limits with clearer context.",
-  },
-  keywords: {
-    zh: "交易成本指南,返佣规则,交易所费用说明,老账户限制,交易成本优化,平台费用对比",
-    en: "trading cost guide,rebate rules,exchange fee guide,existing account limits,trading cost optimization,platform fee comparison",
-  },
-};
-
 SEO_BY_PATH["/ui-demos"] = {
   title: {
     zh: "UI 风格提案预览 | Get8 Pro",
     en: "UI Direction Preview | Get8 Pro",
   },
   description: {
-    zh: "查看 Get8 Pro 的 3 套界面风格提案，比较专业感、可信度与高意图路径设计。",
-    en: "Preview three interface directions for Get8 Pro across professional tone, trust signals, and high-intent user paths.",
+    zh: "查看 Get8 Pro 的界面风格提案，比较专业感、可信度与高意图用户路径设计。",
+    en: "Preview interface directions for Get8 Pro across professional tone, trust signals, and high-intent user paths.",
   },
   keywords: {
     zh: "Get8 Pro UI提案,Web3网站改版,交易所导航设计,界面预览,风格方案",

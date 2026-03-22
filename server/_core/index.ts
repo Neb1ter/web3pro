@@ -206,12 +206,29 @@ async function startServer() {
     const base = ENV.siteUrl ?? "https://get8.pro";
     const staticRoutes = [
       { path: "/",                  priority: "1.0", changefreq: "daily"   },
-      { path: "/exchanges",         priority: "0.9", changefreq: "weekly"  },
-      { path: "/exchange-guide",    priority: "0.8", changefreq: "weekly"  },
-      { path: "/news",              priority: "0.9", changefreq: "hourly"  },
-      { path: "/beginner",          priority: "0.7", changefreq: "weekly"  },
-      { path: "/broker-program",    priority: "0.8", changefreq: "monthly" },
-      { path: "/contact",           priority: "0.5", changefreq: "monthly" },
+      { path: "/crypto-saving",     priority: "0.95", changefreq: "weekly"  },
+      { path: "/exchanges",         priority: "0.9",  changefreq: "weekly"  },
+      { path: "/exchange-guide",    priority: "0.9",  changefreq: "weekly"  },
+      { path: "/exchange-download", priority: "0.85", changefreq: "monthly" },
+      { path: "/beginner",          priority: "0.8",  changefreq: "weekly"  },
+      { path: "/crypto-intro",      priority: "0.8",  changefreq: "weekly"  },
+      { path: "/crypto-news",       priority: "0.9",  changefreq: "hourly"  },
+      { path: "/articles",          priority: "0.85", changefreq: "daily"   },
+      { path: "/web3-guide",        priority: "0.9",  changefreq: "weekly"  },
+      { path: "/web3-guide/what-is-web3",         priority: "0.8",  changefreq: "monthly" },
+      { path: "/web3-guide/blockchain-basics",    priority: "0.8",  changefreq: "monthly" },
+      { path: "/web3-guide/wallet-keys",          priority: "0.8",  changefreq: "monthly" },
+      { path: "/web3-guide/defi-deep",            priority: "0.75", changefreq: "monthly" },
+      { path: "/web3-guide/exchange-guide",       priority: "0.75", changefreq: "monthly" },
+      { path: "/web3-guide/investment-gateway",   priority: "0.75", changefreq: "monthly" },
+      { path: "/web3-guide/economic-opportunity", priority: "0.7",  changefreq: "monthly" },
+      { path: "/web3-guide/kyc-flow",             priority: "0.8",  changefreq: "monthly" },
+      { path: "/tools",             priority: "0.8",  changefreq: "weekly"  },
+      { path: "/web3-quiz",         priority: "0.7",  changefreq: "monthly" },
+      { path: "/about",             priority: "0.6",  changefreq: "monthly" },
+      { path: "/standards",         priority: "0.6",  changefreq: "monthly" },
+      { path: "/legal",             priority: "0.6",  changefreq: "monthly" },
+      { path: "/contact",           priority: "0.5",  changefreq: "monthly" },
     ];
     const now = new Date().toISOString().split("T")[0];
     const staticUrls = staticRoutes.map(r => `
@@ -223,6 +240,21 @@ async function startServer() {
   </url>`).join("");
 
     // 动态文章页：从数据库读取所有已发布文章，加入 Sitemap
+    let exchangeUrls = "";
+    try {
+      const exchangeLinks = await getExchangeLinks();
+      const exchangePaths = [...new Set(exchangeLinks.map((item) => item.slug).filter(Boolean))];
+      exchangeUrls = exchangePaths.map((slug) => `
+  <url>
+    <loc>${base}/exchange/${slug}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`).join("");
+    } catch (e) {
+      console.error("[Sitemap] 获取交易所详情列表失败:", e);
+    }
+
     let articleUrls = "";
     try {
       const { getPublishedArticles } = await import("./articles");
@@ -233,7 +265,7 @@ async function startServer() {
           : now;
         return `
   <url>
-    <loc>${base}/articles/${a.slug}</loc>
+    <loc>${base}/article/${a.slug}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -246,7 +278,7 @@ async function startServer() {
     res.header("Content-Type", "application/xml");
     res.header("Cache-Control", "public, max-age=3600"); // 缓存 1 小时
     res.send(`<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${staticUrls}${articleUrls}
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${staticUrls}${exchangeUrls}${articleUrls}
 </urlset>`);
   });
 
