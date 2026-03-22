@@ -862,7 +862,7 @@ export default function Web3Guide() {
       <header className="sticky top-0 z-50 border-b border-slate-800/80 bg-[#050D1A]/90 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3 min-w-0 flex-1">
-            <Link href="/portal" className="tap-target flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors text-sm shrink-0">
+            <Link href="/" className="tap-target flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors text-sm shrink-0">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
@@ -1697,7 +1697,7 @@ export default function Web3Guide() {
 
         {/* 底部导航 */}
         <div className="border-t border-slate-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <Link href="/portal" className="tap-target text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-2">
+          <Link href="/" className="tap-target text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-2">
               {zh ? "← 返回主页" : "← Back to portal"}
           </Link>
           <p className="text-slate-600 text-xs text-center">

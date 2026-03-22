@@ -277,7 +277,8 @@ function usePageMeta() {
   const { language } = useLanguage();
   useEffect(() => {
     const meta = getSeoForPath(location, language);
-    const canonicalUrl = `https://get8.pro${location === "/" ? "/" : location}`;
+    const canonicalPath = location === "/portal" ? "/" : location;
+    const canonicalUrl = `https://get8.pro${canonicalPath === "/" ? "/" : canonicalPath}`;
 
     document.title = meta.title;
     document.documentElement.lang = language === "zh" ? "zh-CN" : "en";
@@ -301,6 +302,16 @@ function usePageMeta() {
   }, [language, location]);
 }
 
+function LegacyPortalRedirect() {
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    setLocation("/");
+  }, [setLocation]);
+
+  return null;
+}
+
 
 function Router() {
   return (
@@ -310,7 +321,7 @@ function Router() {
         <Switch>
           {/* 鈹€鈹€ 棣栧睆鍚屾璺敱 鈹€鈹€ */}
           <Route path="/"       component={Portal} />
-          <Route path="/portal" component={Portal} />
+          <Route path="/portal" component={LegacyPortalRedirect} />
 
           {/* 鈹€鈹€ 甯佸湀鐪侀挶鎸囧崡鏉垮潡 鈹€鈹€ */}
           <Route path="/crypto-saving" component={Home} />

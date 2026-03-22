@@ -377,7 +377,7 @@ export default function Home() {
         <div className="container mx-auto px-4 h-14 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
             {/* 返回主页按钮：移动端 + 桌面端均显示 */}
-            <Link href="/portal" className="tap-target flex items-center gap-1.5 text-slate-400 hover:text-amber-400 transition-colors text-sm shrink-0">
+            <Link href="/" className="tap-target flex items-center gap-1.5 text-slate-400 hover:text-amber-400 transition-colors text-sm shrink-0">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
