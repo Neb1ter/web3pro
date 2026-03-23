@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Get8 Pro UI Demo</title>
+    <style>
+      :root { --bg:#050c16; --panel:#091424; --line:rgba(126,194,255,.16); --text:#eef5ff; --soft:rgba(238,245,255,.72); --dim:rgba(238,245,255,.46); --blue:#7ec2ff; --teal:#79e7d1; --gold:#ffd57a; --radius:28px; --shadow:0 24px 64px rgba(0,0,0,.42); }
+      * { box-sizing:border-box; }
+      body { margin:0; color:var(--text); font-family:"Segoe UI Variable Text","Aptos","PingFang SC","Microsoft YaHei",sans-serif; background:radial-gradient(circle at 18% 0%,rgba(126,194,255,.22),transparent 28%),radial-gradient(circle at 82% 12%,rgba(121,231,209,.16),transparent 22%),linear-gradient(180deg,#040a13 0%,#07111d 48%,#040a12 100%); }
+      body::before { content:""; position:fixed; inset:0; pointer-events:none; opacity:.14; background-image:linear-gradient(rgba(126,194,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(126,194,255,.08) 1px,transparent 1px); background-size:56px 56px; mask-image:radial-gradient(circle at center,black 32%,transparent 84%); }
+      a { color:inherit; text-decoration:none; }
+      .container { width:min(1180px,calc(100vw - 40px)); margin:0 auto; }
+      .topbar { position:sticky; top:0; z-index:10; backdrop-filter:blur(16px); background:rgba(5,12,22,.76); border-bottom:1px solid rgba(126,194,255,.1); }
+      .topbar-inner,.brand,.hero-actions,.route-head,.section-head,.cta { display:flex; align-items:center; }
+      .topbar-inner { min-height:76px; justify-content:space-between; gap:24px; }
+      .brand { gap:14px; }
+      .mark { width:44px; height:44px; border-radius:14px; display:grid; place-items:center; border:1px solid rgba(126,194,255,.24); background:linear-gradient(135deg,rgba(121,231,209,.18),rgba(126,194,255,.12)); }
+      .brand-title,.hero h1,.section-title,.surface-title,.cta-title { font-family:"Segoe UI Variable Display","Aptos Display","Microsoft YaHei",sans-serif; }
+      .brand-title { font-size:17px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+      .brand-sub { margin-top:4px; color:var(--dim); font-size:11px; letter-spacing:.14em; text-transform:uppercase; }
+      .badge { min-height:40px; padding:0 16px; border-radius:999px; display:inline-flex; align-items:center; gap:10px; color:var(--teal); background:rgba(121,231,209,.08); border:1px solid rgba(121,231,209,.2); font-size:12px; letter-spacing:.12em; text-transform:uppercase; }
+      .dot { width:8px; height:8px; border-radius:999px; background:var(--teal); box-shadow:0 0 0 0 rgba(121,231,209,.4); animation:pulse 2.2s infinite; }
+      .hero { padding:54px 0 26px; }
+      .hero-grid,.two-col,.workflow { display:grid; grid-template-columns:minmax(0,1fr) minmax(360px,.92fr); gap:24px; align-items:center; }
+      .eyebrow,.section-eyebrow,.surface-kicker { color:var(--blue); font-size:12px; letter-spacing:.22em; text-transform:uppercase; }
+      .eyebrow { display:inline-flex; align-items:center; gap:12px; }
+      .eyebrow::before { content:""; width:48px; height:1px; background:linear-gradient(90deg,transparent,var(--blue)); }
+      .hero h1 { margin:22px 0 0; font-size:clamp(46px,7vw,84px); line-height:.96; letter-spacing:-.04em; }
+      .hero h1 span { display:block; }
+      .hero .muted { color:rgba(238,245,255,.55); }
+      .hero-copy,.section-copy,.surface-copy,.footer-note { color:var(--soft); line-height:1.82; }
+      .hero-copy { margin-top:20px; max-width:620px; font-size:16px; }
+      .hero-copy strong { color:var(--text); }
+      .btn { min-height:54px; padding:0 24px; border-radius:999px; display:inline-flex; align-items:center; justify-content:center; font-size:14px; font-weight:600; transition:transform .24s ease; }
+      .btn:hover { transform:translateY(-2px); }
+      .btn.primary { color:#06101a; background:linear-gradient(135deg,#d3fbff 0%,#7ec2ff 42%,#79e7d1 100%); box-shadow:0 12px 30px rgba(126,194,255,.18); }
+      .btn.secondary { margin-left:12px; color:var(--soft); background:rgba(7,17,31,.72); border:1px solid rgba(126,194,255,.18); }
+      .metrics,.hero-floats,.routes,.module-list,.spec-list { display:grid; gap:14px; }
+      .metrics { margin-top:34px; grid-template-columns:repeat(3,minmax(0,1fr)); }
+      .metric { padding-top:16px; border-top:1px solid rgba(126,194,255,.12); }
+      .metric-label { color:var(--dim); font-size:12px; letter-spacing:.16em; text-transform:uppercase; }
+      .metric-value { margin-top:10px; font-size:clamp(24px,4vw,38px); font-weight:650; }
+      .metric-note { margin-top:6px; color:var(--dim); font-size:13px; line-height:1.6; }
+      .visual,.surface,.route,.cta { border:1px solid rgba(126,194,255,.12); background:linear-gradient(180deg,rgba(9,20,36,.92),rgba(7,17,31,.82)); box-shadow:var(--shadow); }
+      .visual { position:relative; border-radius:36px; overflow:hidden; }
+      .visual::before { content:""; position:absolute; inset:0; background:radial-gradient(circle at 28% 18%,rgba(126,194,255,.24),transparent 28%),radial-gradient(circle at 70% 82%,rgba(121,231,209,.16),transparent 34%); pointer-events:none; }
+      .visual-head { position:absolute; top:18px; left:18px; right:18px; display:flex; justify-content:space-between; gap:12px; z-index:2; }
+      .tag,.chip { display:inline-flex; align-items:center; border-radius:999px; font-size:12px; }
+      .tag { min-height:34px; padding:0 12px; gap:8px; color:var(--soft); background:rgba(6,16,29,.66); border:1px solid rgba(126,194,255,.12); font-size:11px; letter-spacing:.12em; text-transform:uppercase; }
+      .scan { position:absolute; inset:0; background:linear-gradient(180deg,transparent,rgba(121,231,209,.06),transparent); animation:scan 8s linear infinite; pointer-events:none; }
+      .visual svg,.workflow svg { width:100%; display:block; }
+      .hero-floats { position:absolute; left:18px; right:18px; bottom:18px; grid-template-columns:1.1fr .9fr; z-index:2; }
+      .micro { border-radius:24px; padding:18px; border:1px solid rgba(126,194,255,.12); background:rgba(6,16,29,.78); backdrop-filter:blur(18px); }
+      .micro h3 { margin:0 0 10px; color:var(--dim); font-size:13px; letter-spacing:.16em; text-transform:uppercase; }
+      .micro strong { font-size:24px; font-weight:650; }
+      .micro p,.floating-copy { margin:8px 0 0; color:var(--soft); font-size:13px; line-height:1.74; }
+      .micro-row,.trend { display:flex; justify-content:space-between; gap:14px; }
+      .trend { padding-top:12px; border-top:1px solid rgba(126,194,255,.08); color:var(--soft); font-size:13px; }
+      .trend:first-child { padding-top:0; border-top:none; }
+      .section { padding:36px 0; }
+      .section-head { justify-content:space-between; gap:20px; margin-bottom:26px; align-items:end; }
+      .section-title { margin:10px 0 0; font-size:clamp(28px,3vw,42px); line-height:1.08; letter-spacing:-.03em; }
+      .section-note { max-width:340px; color:var(--dim); font-size:13px; line-height:1.75; }
+      .route { border-radius:24px; padding:24px 26px; display:grid; grid-template-columns:minmax(0,.95fr) minmax(220px,.7fr) auto; gap:18px; align-items:center; }
+      .route-icon { width:58px; height:58px; border-radius:18px; display:grid; place-items:center; border:1px solid rgba(126,194,255,.14); background:rgba(6,16,29,.82); }
+      .route-head { gap:18px; }
+      .route-title { font-size:20px; font-weight:640; }
+      .route-copy { margin-top:6px; color:var(--soft); font-size:14px; line-height:1.74; }
+      .chip-row { display:flex; flex-wrap:wrap; gap:8px; }
+      .chip { min-height:32px; padding:0 12px; color:var(--soft); border:1px solid rgba(126,194,255,.14); background:rgba(255,255,255,.03); }
+      .route-action { font-size:13px; letter-spacing:.12em; text-transform:uppercase; white-space:nowrap; }
+      .surface { border-radius:32px; overflow:hidden; }
+      .surface-inner { padding:28px; }
+      .surface-kicker { color:var(--teal); }
+      .surface-title { margin:10px 0 0; font-size:24px; line-height:1.08; letter-spacing:-.03em; }
+      .surface-copy { margin-top:12px; font-size:14px; }
+      .module-row,.spec-row { display:grid; gap:16px; padding-top:14px; border-top:1px solid rgba(126,194,255,.08); }
+      .module-row { grid-template-columns:180px minmax(0,1fr) 150px; }
+      .spec-row { grid-template-columns:120px minmax(0,1fr); }
+      .module-row:first-child,.spec-row:first-child { padding-top:0; border-top:none; }
+      .module-label,.cta-title { font-weight:640; }
+      .module-body,.module-note,.spec-value { font-size:14px; line-height:1.82; }
+      .module-body { color:var(--soft); }
+      .module-note { color:var(--dim); }
+      .floating { margin-top:18px; padding:18px; border-radius:22px; border:1px solid rgba(126,194,255,.12); background:rgba(6,16,29,.78); }
+      .floating-title { color:var(--dim); font-size:11px; letter-spacing:.16em; text-transform:uppercase; }
+      .cta { margin-top:4px; padding:34px; border-radius:34px; justify-content:space-between; gap:24px; }
+      .cta-title { margin:10px 0 0; font-size:clamp(30px,4vw,48px); line-height:1.04; letter-spacing:-.04em; }
+      .footer { padding:22px 0 56px; }
+      .footer-row { padding-top:18px; border-top:1px solid rgba(126,194,255,.1); color:var(--dim); font-size:13px; display:flex; justify-content:space-between; gap:16px; }
+      @keyframes pulse { 0% { box-shadow:0 0 0 0 rgba(121,231,209,.4); } 70% { box-shadow:0 0 0 12px rgba(121,231,209,0); } 100% { box-shadow:0 0 0 0 rgba(121,231,209,0); } }
+      @keyframes scan { 0% { transform:translateY(-100%); } 100% { transform:translateY(100%); } }
+      @media (max-width: 1080px) { .hero-grid,.two-col,.workflow,.route,.module-row,.spec-row,.cta { grid-template-columns:1fr; } .metrics,.hero-floats { grid-template-columns:1fr; } .hero-grid { min-height:auto; } }
+      @media (max-width: 780px) { .container { width:min(100vw - 24px,1180px); } .badge { display:none; } .hero h1 { font-size:clamp(38px,13vw,56px); } .visual-head { position:static; padding:16px 16px 0; } .hero-floats { position:static; padding:0 16px 16px; margin-top:-8px; } .surface-inner,.cta { padding:22px; } .footer-row { flex-direction:column; } .btn.secondary { margin-left:0; } }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container topbar-inner">
+        <div class="brand">
+          <div class="mark"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 10.25L10 3L17 10.25L10 17L3 10.25Z" stroke="#7EC2FF" stroke-width="1.2" /><path d="M10 5.9L14.4 10.25L10 14.6L5.6 10.25L10 5.9Z" fill="#79E7D1" fill-opacity=".62" /></svg></div>
+          <div><div class="brand-title">Get8 Pro</div><div class="brand-sub">Professional Tool Station Preview</div></div>
+        </div>
+        <div class="badge"><span class="dot"></span> live visual demo</div>
+      </div>
+    </header>
+    <main>
+      <section class="hero">
+        <div class="container hero-grid">
+          <div>
+            <div class="eyebrow">Visual Thesis / Crypto Desk × Research Atlas</div>
+            <h1><span class="muted">把网站从“信息集合页”</span><span>升级成专业工具工作台</span></h1>
+            <div class="hero-copy">这个 demo 只用于先看方向，不会改你当前线上页面。整体参考优秀币圈网站常见的 <strong>终端式深色视觉、明确路径分流、强信任结构与克制科技感</strong>，让用户第一眼就知道这里是能帮助决策的专业工具站。</div>
+            <div class="hero-actions" style="margin-top:30px;"><a class="btn primary" href="#paths">查看首页结构方案</a><a class="btn secondary" href="#direction">看设计要点</a></div>
+            <div class="metrics">
+              <div class="metric"><div class="metric-label">Entry Logic</div><div class="metric-value">3 条主路径</div><div class="metric-note">先分用户身份，再进入返佣、工具和研究内容。</div></div>
+              <div class="metric"><div class="metric-label">Visual Language</div><div class="metric-value">冷静科技感</div><div class="metric-note">用细线、光带、矢量图建立高级感，不堆花哨视觉。</div></div>
+              <div class="metric"><div class="metric-label">Site Feel</div><div class="metric-value">工具站优先</div><div class="metric-note">首屏先解决方向感，不先让用户读长文案。</div></div>
+            </div>
+          </div>
+          <div class="visual">
+            <div class="visual-head"><div class="tag">Home Surface / System Overview</div><div class="tag"><span class="dot"></span> routing stable</div></div>
+            <svg viewBox="0 0 760 760" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="heroLine" x1="88" y1="300" x2="650" y2="220" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#7EC2FF" stop-opacity="0" /><stop offset=".35" stop-color="#7EC2FF" stop-opacity="1" /><stop offset="1" stop-color="#79E7D1" stop-opacity=".92" /></linearGradient>
+                <linearGradient id="heroStroke" x1="122" y1="442" x2="632" y2="492" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#79E7D1" stop-opacity=".15" /><stop offset=".48" stop-color="#7EC2FF" stop-opacity=".72" /><stop offset="1" stop-color="#FFD57A" stop-opacity=".28" /></linearGradient>
+              </defs>
+              <rect width="760" height="760" fill="#081423" />
+              <g opacity=".2"><path d="M0 98H760M0 170H760M0 242H760M0 314H760M0 386H760M0 458H760M0 530H760M0 602H760" stroke="#7EAAD7" /><path d="M98 0V760M170 0V760M242 0V760M314 0V760M386 0V760M458 0V760M530 0V760M602 0V760" stroke="#7EAAD7" /></g>
+              <rect x="62" y="110" width="282" height="174" rx="24" fill="#0A1628" stroke="rgba(130,170,220,.18)" />
+              <text x="88" y="146" fill="#6F889E" font-size="14" letter-spacing="4">USER ROUTER</text>
+              <text x="88" y="194" fill="#ECF5FF" font-size="34" font-weight="700">先分流，再阅读</text>
+              <text x="88" y="230" fill="#B6C7D7" font-size="18">首页先回答“我现在该去哪一块”</text>
+              <rect x="88" y="266" width="74" height="12" rx="6" fill="#79E7D1" fill-opacity=".9" /><rect x="174" y="266" width="58" height="12" rx="6" fill="#7EC2FF" fill-opacity=".76" /><rect x="244" y="266" width="40" height="12" rx="6" fill="#FFD57A" fill-opacity=".68" />
+              <rect x="388" y="96" width="304" height="198" rx="28" fill="#0A1628" stroke="rgba(130,170,220,.18)" />
+              <text x="420" y="132" fill="#6F889E" font-size="14" letter-spacing="4">SIGNAL MATRIX</text>
+              <polyline points="424,222 458,204 496,214 540,170 585,184 620,142 656,156" stroke="url(#heroLine)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+              <circle cx="458" cy="204" r="5" fill="#7EC2FF" /><circle cx="540" cy="170" r="6" fill="#79E7D1" /><circle cx="620" cy="142" r="6" fill="#FFD57A" />
+              <path d="M122 476C168 430 242 420 296 446C340 468 404 470 456 450C520 426 590 436 638 486" stroke="url(#heroStroke)" stroke-width="4" stroke-linecap="round" fill="none" />
+              <path d="M122 520C170 482 236 476 294 502C348 526 400 526 454 504C522 476 584 482 638 528" stroke="#7EAAD7" stroke-opacity=".22" stroke-width="2" stroke-linecap="round" fill="none" />
+              <text x="122" y="620" fill="#6F889E" font-size="14" letter-spacing="4">TRUST / ROUTE / RESEARCH / TOOLS</text>
+            </svg>
+            <div class="scan"></div>
+            <div class="hero-floats">
+              <div class="micro"><h3>Primary Offer</h3><div class="micro-row"><strong>默认 20% 返佣路径</strong><span class="chip">Fee route</span></div><p>先亮核心结果，再承接下载、KYC、工具、新闻和研究内容。</p></div>
+              <div class="micro"><h3>Live Surface</h3><div class="trend"><span>Beginner onboarding</span><span style="color:var(--teal);">priority</span></div><div class="trend"><span>Tool atlas refresh</span><span style="color:var(--blue);">synced</span></div><div class="trend"><span>Research credibility</span><span style="color:var(--teal);">raised</span></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="paths" class="section">
+        <div class="container">
+          <div class="section-head"><div><div class="section-eyebrow">Content Plan / Hero Then Route</div><h2 class="section-title">第一屏先分清用户该怎么走，而不是先让他读很多</h2></div><div class="section-note">这是专业币圈站常见的强点: 让高意图用户快速进入自己的路径。</div></div>
+          <div class="routes">
+            <div class="route"><div class="route-head"><div class="route-icon"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M6 20L14 7L22 20" stroke="#7EC2FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /><circle cx="14" cy="15" r="3.4" fill="#79E7D1" /></svg></div><div><div class="route-title">新手路径 / Onboarding</div><div class="route-copy">先测认知，再进入 Web3 基础、KYC 与交易所下载，降低信息焦虑。</div></div></div><div class="chip-row"><span class="chip">2 分钟测评</span><span class="chip">基础路径</span><span class="chip">低噪点引导</span></div><div class="route-action">Quiz → Guide → KYC</div></div>
+            <div class="route"><div class="route-head"><div class="route-icon"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M5 19L10.2 13.8L14.5 17.6L22.5 9.5" stroke="#79E7D1" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" /><path d="M20 9.5H22.5V12" stroke="#79E7D1" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" /></svg></div><div><div class="route-title">交易者路径 / Fee Intelligence</div><div class="route-copy">直接先看默认返佣、支持平台、下载入口和工具能力，像工具站一样直达结果。</div></div></div><div class="chip-row"><span class="chip">默认 20%</span><span class="chip">支持平台</span><span class="chip">工具优先</span></div><div class="route-action">Fee Route → Tools → Exchange</div></div>
+            <div class="route"><div class="route-head"><div class="route-icon"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M8.5 13.5V10.8C8.5 7.95 10.7 6 14 6C17.3 6 19.5 7.95 19.5 10.8V13.5" stroke="#FFD57A" stroke-width="1.8" /><rect x="6.5" y="12.5" width="15" height="10" rx="3" stroke="#FFD57A" stroke-width="1.8" /><circle cx="14" cy="17.6" r="1.6" fill="#FFD57A" /></svg></div><div><div class="route-title">老用户路径 / Limit & Recovery</div><div class="route-copy">单独解释老账户限制与后续处理方案，避免重要说明被埋没在长页面里。</div></div></div><div class="chip-row"><span class="chip">限制优先说明</span><span class="chip">人工支持</span><span class="chip">减少误解</span></div><div class="route-action">Restriction → Contact</div></div>
+          </div>
+        </div>
+      </section>
+      <section id="modules" class="section">
+        <div class="container two-col">
+          <div class="surface"><div class="surface-inner"><div class="surface-kicker">Support Layer / Modular Structure</div><h2 class="surface-title">首页往下不是卡片瀑布，而是更像产品模块编排</h2><div class="surface-copy">你们现有的学习、返佣、交易所、工具、快讯内容会被重组为更像专业产品的模块序列，每块只负责一件事。</div><div class="module-list"><div class="module-row"><div class="module-label">01 / Rebate Intelligence</div><div class="module-body">返佣规则、支持平台与下载入口做成工具主入口，不再像普通营销说明页。</div><div class="module-note">承接高意图流量</div></div><div class="module-row"><div class="module-label">02 / Exchange Atlas</div><div class="module-body">交易所信息统一进数据化结构，强调安全、功能、手续费、KYC 与下载路径。</div><div class="module-note">更像研究数据库</div></div><div class="module-row"><div class="module-label">03 / Tool Station</div><div class="module-body">工具集合用目录、场景和优先级组织，建立真正的工具站感知。</div><div class="module-note">专业站气质核心</div></div><div class="module-row"><div class="module-label">04 / Research & News</div><div class="module-body">快讯和文章变成研究层与动态层，补足长期信任与内容深度。</div><div class="module-note">增强可引用感</div></div></div></div></div>
+          <div class="surface"><div class="surface-inner"><div class="surface-kicker">Trust Architecture / Technology Tone</div><h2 class="surface-title">可信度做成结构，科技感做成秩序</h2><div class="spec-list"><div class="spec-row"><div class="surface-kicker">Trust</div><div class="spec-value">作者、审核、更新时间、来源、披露说明会收纳进统一信任层，而不是随机散落。</div></div><div class="spec-row"><div class="surface-kicker">Graphics</div><div class="spec-value">用矢量图、线框图、轨道图和信号节点替代 emoji 与随意插画。</div></div><div class="spec-row"><div class="surface-kicker">Color</div><div class="spec-value">主色用深海蓝和石墨黑，辅以冰蓝、青绿、暖金三种信号色，减少视觉噪点。</div></div><div class="spec-row"><div class="surface-kicker">Copy</div><div class="spec-value">标题更凝练，正文更偏操作与结构，不走泛化营销腔。</div></div></div></div></div>
+        </div>
+      </section>
+      <section id="workflow" class="section">
+        <div class="container workflow">
+          <div class="surface"><div class="surface-inner"><div class="surface-kicker">Workflow Surface / Research Terminal</div><h2 class="surface-title">核心工作流页面会更像研究终端</h2><svg viewBox="0 0 860 560" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="20" width="820" height="520" rx="30" fill="#081423" stroke="rgba(126,194,255,.12)" /><rect x="50" y="54" width="504" height="392" rx="22" fill="#0A1628" stroke="rgba(126,194,255,.12)" /><rect x="580" y="54" width="230" height="392" rx="22" fill="#0A1628" stroke="rgba(126,194,255,.12)" /><rect x="50" y="470" width="760" height="44" rx="16" fill="#0A1628" stroke="rgba(126,194,255,.12)" /><g opacity=".22"><path d="M76 110H528M76 182H528M76 254H528M76 326H528M76 398H528" stroke="#7EAAD7" /><path d="M144 76V418M212 76V418M280 76V418M348 76V418M416 76V418M484 76V418" stroke="#7EAAD7" /></g><polyline points="86,334 140,304 196,310 246,260 306,278 360,220 418,230 472,162 514,176" stroke="#7EC2FF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" /><circle cx="246" cy="260" r="6" fill="#79E7D1" /><circle cx="360" cy="220" r="6" fill="#7EC2FF" /><circle cx="472" cy="162" r="6" fill="#FFD57A" /><rect x="602" y="128" width="186" height="72" rx="18" fill="rgba(255,255,255,.03)" /><rect x="602" y="220" width="186" height="132" rx="18" fill="rgba(255,255,255,.03)" /><text x="622" y="164" fill="#ECF5FF" font-size="24" font-weight="700">20%</text><text x="622" y="186" fill="#A6BACD" font-size="13">Default rebate route</text><text x="622" y="252" fill="#A6BACD" font-size="12">Primary stack</text><text x="622" y="280" fill="#ECF5FF" font-size="16">Fee guide</text><text x="622" y="306" fill="#ECF5FF" font-size="16">Exchange atlas</text><text x="622" y="332" fill="#ECF5FF" font-size="16">Tool station</text></svg><div class="floating"><div class="floating-title">Motion Notes</div><div class="floating-copy">首屏会有轻微扫描线、矢量轨迹浮动、按钮悬停和局部层级切换，但整体保持克制，不影响阅读。</div></div></div></div>
+          <div class="surface" id="direction"><div class="surface-inner"><div class="surface-kicker">Recommendation / The direction I recommend first</div><h2 class="surface-title">我建议优先走“专业工具站 + 研究感界面”这条路</h2><div class="surface-copy">你要的“科技感和简约大气”最怕做成普通 Web3 营销页。这个方向更稳，也更符合工具站、币圈信息站、返佣入口站三种角色的结合。</div><div class="spec-list"><div class="spec-row"><div class="surface-kicker">Typography</div><div class="spec-value">标题更像终端主屏提示，正文减少情绪化营销句。</div></div><div class="spec-row"><div class="surface-kicker">Layout</div><div class="spec-value">大面工作区、细节检查区和路径导流条并存，减少卡片拼盘式布局。</div></div><div class="spec-row"><div class="surface-kicker">Conversion</div><div class="spec-value">首屏就把默认返佣、用户分流与可信度提要放上来，让高意图访问者更快进入核心动作。</div></div></div></div></div>
+        </div>
+      </section>
+      <section class="section"><div class="container"><div class="cta"><div><div class="section-eyebrow">Next Step / If this direction feels right</div><h2 class="cta-title">如果这个 demo 方向对了，下一步就把它落进真实页面</h2><div class="footer-note">真正开始改代码时，我建议优先改 Portal 首页首屏与路径结构，再改 crypto-saving 页面和工具页，把整站第一印象统一起来。</div></div><div class="chip-row"><span class="btn primary">Recommended Direction</span><span class="btn secondary">Professional / Minimal / Tech</span></div></div></div></section>
+    </main>
+    <footer class="footer"><div class="container footer-row"><div>Standalone preview only. No existing site files were modified for this concept.</div><div class="footer-note">Get8 Pro / Tool-station aesthetic / Vector-based concept</div></div></footer>
+  </body>
+</html>
