@@ -229,8 +229,8 @@ export default function ExchangeDownload() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-4 py-6 sm:py-8">
-        <section className="rounded-[28px] border border-white/10 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.18),transparent_30%),linear-gradient(180deg,rgba(9,18,32,0.96),rgba(5,10,20,0.98))] px-5 py-6 sm:px-7 sm:py-7">
+      <main className="mx-auto max-w-4xl px-4 py-5 sm:py-8">
+        <section className="rounded-[24px] border border-white/10 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.18),transparent_30%),linear-gradient(180deg,rgba(9,18,32,0.96),rgba(5,10,20,0.98))] px-5 py-5 sm:px-7 sm:py-6">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/12 px-3 py-1 text-[11px] font-semibold text-slate-300">
             <Shield className="h-4 w-4 text-cyan-300" />
             <span>{zh ? "\u628a\u9009\u62e9\u3001\u6ce8\u518c\u548c\u4e0b\u8f7d\u653e\u5230\u4e00\u6761\u8def\u5f84\u91cc" : "Keep choosing, signing up, and downloading in one flow"}</span>
@@ -245,12 +245,12 @@ export default function ExchangeDownload() {
           </p>
         </section>
 
-        <section id="registration-guide" className="mt-6 rounded-[28px] border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+        <section id="registration-guide" className="mt-5 rounded-[24px] border border-white/10 bg-white/[0.03] p-4 sm:p-6">
           <div className="space-y-6">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">{zh ? "\u7b2c\u4e00\u6b65" : "Step 1"}</p>
               <h2 className="mt-2 text-xl font-black text-white sm:text-2xl">{zh ? "\u5148\u9009\u4ea4\u6613\u6240" : "Choose the exchange first"}</h2>
-              <div className="-mx-1 mt-4 flex gap-3 overflow-x-auto px-1 pb-2">
+              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
                 {(Object.keys(EXCHANGES) as ExchangeSlug[]).map((slug) => {
                   const item = EXCHANGES[slug];
                   const active = slug === exchange;
@@ -259,11 +259,11 @@ export default function ExchangeDownload() {
                       key={slug}
                       type="button"
                       onClick={() => setExchange(slug)}
-                      className={`tap-target min-w-[154px] shrink-0 rounded-[22px] border px-4 py-4 text-left transition ${active ? "border-white/40 bg-white/[0.09]" : "border-white/10 bg-black/15 hover:bg-white/[0.05]"}`}
+                      className={`tap-target rounded-[20px] border px-4 py-4 text-left transition ${active ? "border-white/40 bg-white/[0.09] shadow-[0_12px_36px_rgba(15,23,42,0.22)]" : "border-white/10 bg-black/15 hover:bg-white/[0.05]"}`}
                     >
-                      <div className="h-9 w-9 rounded-full" style={{ background: `radial-gradient(circle at 30% 30%, ${item.accent}, rgba(255,255,255,0.08))` }} />
-                      <h3 className="mt-5 text-lg font-black text-white">{item.name}</h3>
-                      <div className="mt-3 inline-flex rounded-full border border-yellow-400/30 bg-yellow-400/10 px-3 py-1 text-[11px] font-bold text-yellow-300">
+                      <div className="h-8 w-8 rounded-full" style={{ background: `radial-gradient(circle at 30% 30%, ${item.accent}, rgba(255,255,255,0.08))` }} />
+                      <h3 className="mt-4 text-[1.15rem] font-black leading-none text-white">{item.name}</h3>
+                      <div className="mt-3 inline-flex rounded-full border border-yellow-400/30 bg-yellow-400/10 px-2.5 py-1 text-[10px] font-bold text-yellow-300">
                         {zh ? `\u9ed8\u8ba4\u8fd4\u4f63 ${rebateRate}` : `Default rebate ${rebateRate}`}
                       </div>
                     </button>
@@ -275,7 +275,7 @@ export default function ExchangeDownload() {
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">{zh ? "\u7b2c\u4e8c\u6b65" : "Step 2"}</p>
               <h2 className="mt-2 text-xl font-black text-white sm:text-2xl">{zh ? "\u518d\u9009\u6ce8\u518c\u8def\u5f84" : "Then choose the registration path"}</h2>
-              <div className="mt-4 grid gap-3">
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 {pathCards.map((item) => {
                   const active = item.key === mode;
                   return (
@@ -283,12 +283,12 @@ export default function ExchangeDownload() {
                       key={item.key}
                       type="button"
                       onClick={() => setMode(item.key)}
-                      className={`tap-target rounded-[22px] border px-4 py-4 text-left transition ${active ? "border-white/40 bg-white/[0.09]" : "border-white/10 bg-black/15 hover:bg-white/[0.05]"}`}
+                      className={`tap-target rounded-[20px] border px-4 py-4 text-left transition ${active ? "border-white/40 bg-white/[0.09]" : "border-white/10 bg-black/15 hover:bg-white/[0.05]"}`}
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div>
                           <p className="text-sm font-black text-white">{item.title}</p>
-                          <p className="mt-2 text-sm leading-7 text-slate-300">{item.body}</p>
+                          <p className="mt-2 text-[13px] leading-6 text-slate-300">{item.body}</p>
                         </div>
                         {active ? (
                           <span className="mt-1 shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold text-black" style={{ background: meta.accent }}>
@@ -304,8 +304,8 @@ export default function ExchangeDownload() {
           </div>
         </section>
 
-        <section className="mt-6 rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(0,0,0,0.15))] p-5 sm:p-6">
-          <div className="flex flex-col gap-4 rounded-[24px] border border-white/10 bg-black/20 p-4 sm:p-5">
+        <section className="mt-5 rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(0,0,0,0.15))] p-4 sm:p-6">
+          <div className="flex flex-col gap-4 rounded-[22px] border border-white/10 bg-black/20 p-4 sm:p-5">
             <div className="flex flex-wrap items-center gap-3">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 text-xs font-semibold text-slate-200">
                 <span className="h-2.5 w-2.5 rounded-full" style={{ background: meta.accent }} />
@@ -366,7 +366,7 @@ export default function ExchangeDownload() {
 
             <div className="space-y-3">
               {steps.map((step, index) => (
-                <div key={step} className="flex items-start gap-3 rounded-[20px] border border-white/10 bg-black/20 px-4 py-4">
+                <div key={step} className="flex items-start gap-3 rounded-[18px] border border-white/10 bg-black/20 px-4 py-4">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-black text-black" style={{ background: meta.accent }}>
                     {index + 1}
                   </div>
@@ -382,9 +382,9 @@ export default function ExchangeDownload() {
               <h2 className="mt-2 text-xl font-black text-white sm:text-2xl">{zh ? "\u7559\u7ed9\u5b98\u7f51\u622a\u56fe\u7684\u4f4d\u7f6e" : "Reserved places for official screenshots"}</h2>
             </div>
 
-            <div className="grid gap-3">
+            <div className="grid gap-3 sm:grid-cols-3">
               {screenshotTitles.map((title, index) => (
-                <div key={title} className="rounded-[20px] border border-white/10 bg-black/20 px-4 py-4">
+                <div key={title} className="rounded-[18px] border border-white/10 bg-black/20 px-4 py-4">
                   <div className="flex items-center gap-3 text-slate-200">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-xs font-black text-white">
                       {index + 1}
@@ -406,9 +406,9 @@ export default function ExchangeDownload() {
               <h2 className="mt-2 text-xl font-black text-white sm:text-2xl">{zh ? "\u6700\u597d\u5148\u770b\u8fd9\u4e09\u6761" : "Read these three notes first"}</h2>
             </div>
 
-            <div className="grid gap-3">
+            <div className="grid gap-3 sm:grid-cols-3">
               {(zh ? meta.blockerZh : meta.blockerEn).map((item) => (
-                <div key={item} className="flex items-start gap-3 rounded-[20px] border border-white/10 bg-black/20 px-4 py-4">
+                <div key={item} className="flex items-start gap-3 rounded-[18px] border border-white/10 bg-black/20 px-4 py-4">
                   <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" style={{ color: meta.accent }} />
                   <p className="text-sm leading-7 text-slate-300">{item}</p>
                 </div>
