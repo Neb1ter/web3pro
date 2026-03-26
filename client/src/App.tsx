@@ -87,6 +87,42 @@ const Legal          = lazy(() => import("./pages/Legal"));
 // Fallback UI for chunk loading errors such as stale deploys or flaky networks.
 // ============================================================
 interface ChunkErrorState { hasError: boolean; }
+const CHUNK_RECOVERY_KEY = "get8pro:chunk-recovery";
+
+function isChunkLoadFailure(error: unknown) {
+  const message =
+    error instanceof Error
+      ? `${error.name} ${error.message}`
+      : typeof error === "string"
+        ? error
+        : "";
+
+  return /ChunkLoadError|Loading chunk|Failed to fetch dynamically imported module|Importing a module script failed/i.test(
+    message,
+  );
+}
+
+function recoverFromStaleChunk() {
+  if (typeof window === "undefined") return false;
+
+  try {
+    const marker = `${window.location.pathname}${window.location.search}`;
+    const previous = window.sessionStorage.getItem(CHUNK_RECOVERY_KEY);
+    if (previous === marker) {
+      window.sessionStorage.removeItem(CHUNK_RECOVERY_KEY);
+      return false;
+    }
+    window.sessionStorage.setItem(CHUNK_RECOVERY_KEY, marker);
+  } catch {
+    return false;
+  }
+
+  const nextUrl = new URL(window.location.href);
+  nextUrl.searchParams.set("_reload", Date.now().toString());
+  window.location.replace(nextUrl.toString());
+  return true;
+}
+
 class ChunkErrorBoundary extends Component<{ children: React.ReactNode }, ChunkErrorState> {
   constructor(props: { children: React.ReactNode }) {
     super(props);
@@ -94,6 +130,11 @@ class ChunkErrorBoundary extends Component<{ children: React.ReactNode }, ChunkE
   }
   static getDerivedStateFromError(): ChunkErrorState {
     return { hasError: true };
+  }
+  componentDidCatch(error: Error) {
+    if (isChunkLoadFailure(error) && recoverFromStaleChunk()) {
+      return;
+    }
   }
   render() {
     if (this.state.hasError) {
@@ -454,6 +495,20 @@ function AppInner() {
     return scheduleIdle(() => {
       setShowFloatNav(true);
     }, 1500);
+  }, []);
+
+  useEffect(() => {
+    const handlePreloadError = (event: Event) => {
+      const payload = event as Event & { payload?: unknown };
+      if (isChunkLoadFailure(payload.payload) || isChunkLoadFailure((event as CustomEvent).detail)) {
+        recoverFromStaleChunk();
+      }
+    };
+
+    window.addEventListener("vite:preloadError", handlePreloadError as EventListener);
+    return () => {
+      window.removeEventListener("vite:preloadError", handlePreloadError as EventListener);
+    };
   }, []);
 
   return (
