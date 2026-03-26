@@ -189,33 +189,33 @@ export default function ExchangeDownload() {
 
       return [
         {
-          titleZh: "\u5148\u786e\u8ba4\u4f60\u6253\u5f00\u7684\u662f Gate \u5b98\u7f51",
+          titleZh: "\u5148\u5728 Gate \u5b98\u7f51\u9996\u9875\u70b9\u51fb\u6ce8\u518c",
           titleEn: "Confirm that you are on the official Gate site",
-          bodyZh: "\u76f4\u63a5\u6253\u5f00 Gate \u5b98\u7f51\u539f\u751f\u6ce8\u518c\u9875\u4e4b\u524d\uff0c\u5148\u770b\u57df\u540d\u662f gate.com\uff0c\u518d\u5f00\u59cb\u586b\u5199\u8d26\u53f7\u4fe1\u606f\u3002",
-          bodyEn: "Before continuing, confirm the domain is gate.com and that you are on the official registration page.",
-          visualTitleZh: "\u7d20\u6750 1\uff1a\u5b98\u7f51\u9996\u9875\u4e0e\u57df\u540d",
+          bodyZh: "\u5148\u6253\u5f00 Gate \u5b98\u7f51\u9996\u9875\uff0c\u786e\u8ba4\u5730\u5740\u680f\u662f gate.com \u540e\uff0c\u518d\u70b9\u51fb\u53f3\u4e0a\u89d2\u7684\u300c\u6ce8\u518c\u300d\u8fdb\u5165\u539f\u751f\u6ce8\u518c\u9875\u3002",
+          bodyEn: "Open Gate's official homepage, confirm the domain is gate.com, and then click Register in the top-right corner.",
+          visualTitleZh: "\u7d20\u6750 1\uff1aGate \u5b98\u7f51\u9996\u9875",
           visualTitleEn: "Asset 1: Official homepage and domain",
-          visualHintZh: "\u7528 Gate \u5b98\u7f51\u622a\u56fe\u8ba9\u7528\u6237\u5148\u5b66\u4f1a\u8fa8\u8ba4\u6b63\u786e\u57df\u540d\u3002",
+          visualHintZh: "\u5bf9\u5e94\u4f60\u7ed9\u7684 Gate \u9996\u9875\u7d20\u6750\uff0c\u91cd\u70b9\u662f gate.com \u57df\u540d\u548c\u53f3\u4e0a\u89d2\u300c\u6ce8\u518c\u300d\u6309\u94ae\u3002",
           visualHintEn: "Use the Gate homepage screenshot to show the correct official domain.",
         },
         {
-          titleZh: "\u5c55\u5f00\u9080\u8bf7\u7801\u4f4d\u7f6e\u5e76\u624b\u52a8\u586b\u5199",
+          titleZh: "\u5728\u6ce8\u518c\u9875\u624b\u52a8\u586b\u5199\u9080\u8bf7\u7801",
           titleEn: "Expand the invite field and enter the code",
-          bodyZh: "\u5728 Gate \u539f\u751f\u6ce8\u518c\u8868\u5355\u91cc\uff0c\u627e\u5230 Invite code \u6216 Referral code \u4f4d\u7f6e\uff0c\u624b\u52a8\u8f93\u5165 getitpro\u3002",
-          bodyEn: "On Gate's native registration form, find the Invite code or Referral code field and enter getitpro manually.",
-          visualTitleZh: "\u7d20\u6750 2\uff1a\u586b\u5199 getitpro",
+          bodyZh: "\u8fdb\u5165\u521b\u5efa\u8d26\u53f7\u9875\u9762\u540e\uff0c\u627e\u5230\u300c\u9080\u8bf7\u7801\u300d\u533a\u57df\uff0c\u5c06 getitpro \u624b\u52a8\u586b\u5165\uff0c\u518d\u7ee7\u7eed\u4e0b\u4e00\u6b65\u3002",
+          bodyEn: "On the account creation page, locate the invite code field and enter getitpro manually before continuing.",
+          visualTitleZh: "\u7d20\u6750 2\uff1a\u6ce8\u518c\u9875\u586b\u5199 getitpro",
           visualTitleEn: "Asset 2: Enter getitpro",
-          visualHintZh: "\u7528\u7ea2\u6846\u7a81\u51fa getitpro \u8fd9\u4e2a\u4f4d\u7f6e\uff0c\u8ba9\u7528\u6237\u4e00\u773c\u5c31\u80fd\u5bf9\u4e0a\u3002",
+          visualHintZh: "\u5bf9\u5e94\u4f60\u7ed9\u7684\u7b2c\u4e8c\u5f20\u7d20\u6750\uff0c\u91cd\u70b9\u5c31\u662f\u7ea2\u6846\u91cc\u7684 getitpro\u3002",
           visualHintEn: "Highlight the getitpro field so users can match it at a glance.",
         },
         {
-          titleZh: "\u5b8c\u6210\u6ce8\u518c\u540e\u518d\u4e0b\u8f7d",
+          titleZh: "\u6ce8\u518c\u5b8c\u6210\u540e\u56de\u5230\u5b98\u65b9\u4e0b\u8f7d\u9875",
           titleEn: "Download after the account is created",
-          bodyZh: "\u8d26\u53f7\u521b\u5efa\u6210\u529f\u540e\uff0c\u518d\u4ece Gate \u5b98\u7f51\u6216\u5b98\u65b9\u4e0b\u8f7d\u9875\u7ee7\u7eed\u4e0b\u8f7d\u3002",
-          bodyEn: "Once the account is created, continue from the official Gate download page.",
-          visualTitleZh: "\u7d20\u6750 3\uff1a\u5b98\u65b9\u4e0b\u8f7d\u5165\u53e3",
+          bodyZh: "\u6ce8\u518c\u6210\u529f\u540e\uff0c\u56de\u5230 Gate \u5b98\u65b9\u4e0b\u8f7d\u9875\uff0c\u6839\u636e\u4f60\u7684\u8bbe\u5907\u7ee7\u7eed\u5b89\u88c5 App\u3002",
+          bodyEn: "After the account is created, return to Gate's official download page and continue with the app installation.",
+          visualTitleZh: "\u7d20\u6750 3\uff1aGate \u5b98\u65b9\u4e0b\u8f7d\u9875",
           visualTitleEn: "Asset 3: Official download entry",
-          visualHintZh: "\u7528\u4e0b\u8f7d\u5165\u53e3\u622a\u56fe\u544a\u8bc9\u7528\u6237\u8981\u4ece\u54ea\u4e2a\u5b98\u7f51\u533a\u57df\u7ee7\u7eed\u4e0b\u8f7d\u3002",
+          visualHintZh: "\u5bf9\u5e94\u4f60\u7ed9\u7684\u7b2c\u4e09\u5f20\u7d20\u6750\uff0c\u7528\u6765\u544a\u8bc9\u7528\u6237\u6ce8\u518c\u540e\u8981\u4ece\u54ea\u91cc\u7ee7\u7eed\u4e0b\u8f7d\u3002",
           visualHintEn: "Show where the user should continue for the official download.",
         },
       ];
@@ -388,7 +388,10 @@ export default function ExchangeDownload() {
                 <div>
                   <p className="text-sm font-black text-white">{zh ? "\u4f7f\u7528\u6211\u4eec\u7684\u5b98\u65b9\u5408\u4f5c\u94fe\u63a5" : "Use our official partner link"}</p>
                   <p className="mt-1.5 text-sm leading-6 text-slate-300">
-                    {zh ? "\u70b9\u51fb\u540e\u76f4\u63a5\u8df3\u5230\u5b98\u65b9\u6ce8\u518c\u5165\u53e3\uff0c\u9002\u5408\u60f3\u5feb\u901f\u5f00\u59cb\u7684\u7528\u6237\u3002" : "Opens the official sign-up page immediately."}
+                    {zh ? "\u70b9\u51fb\u540e\u5c31\u76f4\u63a5\u8df3\u5230\u5b98\u65b9\u6ce8\u518c\u5165\u53e3\uff0c\u4e0d\u9700\u8981\u518d\u770b\u4e0b\u9762\u7684\u624b\u52a8\u6559\u7a0b\u3002" : "Opens the official sign-up page immediately."}
+                  </p>
+                  <p className="mt-2 text-xs leading-5 text-emerald-300">
+                    {zh ? "\u8fd9\u6761\u94fe\u63a5\u540c\u6837\u662f\u5b98\u7f51\u5206\u914d\u7684\u57df\u540d\u5165\u53e3\uff0c\u5168\u7a0b\u7eff\u8272\u5b89\u5168\u6807\u8bc6\uff0c\u53ef\u5728\u5b98\u7f51\u57df\u540d\u4e0b\u6838\u5bf9\u3002" : "This link still opens the official domain and can be verified on the official site."}
                   </p>
                 </div>
                 <div className="inline-flex h-10 w-10 items-center justify-center rounded-full text-black" style={{ background: meta.accent }}>
@@ -465,6 +468,11 @@ export default function ExchangeDownload() {
                       <div>
                         <p className="text-sm font-semibold text-slate-200">{zh ? step.visualTitleZh : step.visualTitleEn}</p>
                         <p className="mt-2 text-xs leading-6 text-slate-500">{zh ? step.visualHintZh : step.visualHintEn}</p>
+                        {exchange === "gate" ? (
+                          <p className="mt-3 text-[11px] leading-5 text-emerald-300">
+                            {zh ? "\u8fd9\u4e00\u683c\u5df2\u6309\u4f60\u521a\u7ed9\u7684 Gate \u7d20\u6750\u987a\u5e8f\u56fa\u5b9a\uff1a\u9996\u9875 -> \u9080\u8bf7\u7801 -> \u4e0b\u8f7d\u9875\u3002" : "This slot is mapped to the Gate material you provided."}
+                          </p>
+                        ) : null}
                       </div>
                     </div>
                   </div>
