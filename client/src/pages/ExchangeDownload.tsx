@@ -181,6 +181,27 @@ export default function ExchangeDownload() {
     [inviteCode, meta.name, mode, zh],
   );
 
+  const pathCards = [
+    {
+      key: "partner" as const,
+      title: zh ? "\u4f7f\u7528\u6211\u4eec\u63d0\u4f9b\u7684\u5b98\u65b9\u5408\u4f5c\u94fe\u63a5" : "Use the official partner link we provide",
+      body: zh
+        ? "\u9002\u5408\u60f3\u76f4\u63a5\u8fdb\u5165\u5e26\u9080\u8bf7\u4fe1\u606f\u7684\u5b98\u65b9\u6ce8\u518c\u9875\u3002"
+        : "Best when you want the official sign-up page with referral context already attached.",
+    },
+    {
+      key: "official" as const,
+      title: zh ? "\u4ece\u5b98\u7f51\u539f\u751f\u9875\u9762\u6ce8\u518c" : "Use the native official registration page",
+      body: zh
+        ? "\u9002\u5408\u60f3\u5148\u8d70\u5b98\u7f51\u539f\u751f\u6ce8\u518c\u9875\uff0c\u518d\u624b\u52a8\u586b\u9080\u8bf7\u7801\u7684\u7528\u6237\u3002"
+        : "Best when you prefer the exchange's native sign-up page and want to enter the code manually.",
+    },
+  ];
+
+  const screenshotTitles = zh
+    ? ["\u6ce8\u518c\u5165\u53e3\u9875", "\u9080\u8bf7\u7801\u586b\u5199\u4f4d\u7f6e", "\u5b98\u65b9\u4e0b\u8f7d\u5165\u53e3"]
+    : ["Registration entry", "Referral field", "Official download page"];
+
   return (
     <div className="min-h-screen bg-[#081a30] text-white">
       <SeoManager
@@ -208,116 +229,108 @@ export default function ExchangeDownload() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-8 sm:py-10">
-        <section className="rounded-[32px] border border-white/10 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.18),transparent_32%),linear-gradient(180deg,rgba(9,18,32,0.96),rgba(5,10,20,0.98))] px-6 py-8 sm:px-8 lg:px-10">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/12 px-3 py-1 text-xs font-semibold text-slate-300">
-              <Shield className="h-4 w-4 text-cyan-300" />
-              <span>{zh ? "\u4e00\u9875\u5b8c\u6210\u4ea4\u6613\u6240\u9009\u62e9\u3001\u6ce8\u518c\u548c\u4e0b\u8f7d" : "Choose the exchange, register, and download in one page"}</span>
-            </div>
-            <h1 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-5xl">
-              {zh ? "\u5b98\u7f51\u6ce8\u518c\u4e0e\u4e0b\u8f7d\u6559\u7a0b" : "Official registration and download tutorial"}
-            </h1>
-            <p className="mt-4 text-base leading-8 text-slate-300 sm:text-lg">
-              {zh
-                ? "\u5148\u9009\u4ea4\u6613\u6240\uff0c\u518d\u9009\u4f60\u60f3\u8d70\u7684\u6ce8\u518c\u8def\u5f84\u3002\u5982\u679c\u60f3\u76f4\u63a5\u8d70\u6211\u4eec\u63d0\u4f9b\u7684\u5b98\u65b9\u5408\u4f5c\u94fe\u63a5\uff0c\u53ef\u4ee5\u9009\u62e9\u5408\u4f5c\u8def\u5f84\uff1b\u5982\u679c\u53ea\u60f3\u4ece\u5b98\u7f51\u539f\u751f\u9875\u9762\u6ce8\u518c\uff0c\u5219\u9009\u62e9\u5b98\u7f51\u624b\u52a8\u8def\u5f84\u3002"
-                : "Choose an exchange first, then decide whether you want to use the official partner link we provide or the exchange's native registration page with manual code entry."}
-            </p>
+      <main className="mx-auto max-w-5xl px-4 py-6 sm:py-8">
+        <section className="rounded-[28px] border border-white/10 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.18),transparent_30%),linear-gradient(180deg,rgba(9,18,32,0.96),rgba(5,10,20,0.98))] px-5 py-6 sm:px-7 sm:py-7">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/12 px-3 py-1 text-[11px] font-semibold text-slate-300">
+            <Shield className="h-4 w-4 text-cyan-300" />
+            <span>{zh ? "\u628a\u9009\u62e9\u3001\u6ce8\u518c\u548c\u4e0b\u8f7d\u653e\u5230\u4e00\u6761\u8def\u5f84\u91cc" : "Keep choosing, signing up, and downloading in one flow"}</span>
           </div>
+          <h1 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">
+            {zh ? "\u4ea4\u6613\u6240\u5b98\u7f51\u6ce8\u518c\u4e0e\u4e0b\u8f7d\u6559\u7a0b" : "Official exchange registration and download guide"}
+          </h1>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300 sm:text-base">
+            {zh
+              ? "\u79fb\u52a8\u7aef\u5148\u505a\u4e24\u4e2a\u51b3\u5b9a\u5c31\u591f\uff1a\u9009\u4ea4\u6613\u6240\uff0c\u9009\u8def\u5f84\u3002\u4e0b\u9762\u7684\u6b65\u9aa4\u3001\u9080\u8bf7\u7801\u548c\u4e0b\u8f7d\u5165\u53e3\u4f1a\u8ddf\u7740\u4f60\u5f53\u524d\u7684\u9009\u62e9\u4e00\u8d77\u66f4\u65b0\u3002"
+              : "On mobile, you only need to decide two things first: which exchange and which path. The steps, code, and download links below will update together."}
+          </p>
         </section>
 
-        <section className="pt-8">
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">{zh ? "\u7b2c\u4e00\u6b65" : "Step 1"}</p>
-          <h2 className="mt-2 text-2xl font-black text-white">{zh ? "\u9009\u62e9\u4ea4\u6613\u6240" : "Choose the exchange"}</h2>
-          <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-            {(Object.keys(EXCHANGES) as ExchangeSlug[]).map((slug) => {
-              const item = EXCHANGES[slug];
-              const active = slug === exchange;
-              return (
-                <button
-                  key={slug}
-                  type="button"
-                  onClick={() => setExchange(slug)}
-                  className={`tap-target rounded-[26px] border p-5 text-left transition ${active ? "border-white/40 bg-white/[0.08]" : "border-white/10 bg-white/[0.03] hover:bg-white/[0.05]"}`}
-                >
-                  <div className="h-10 w-10 rounded-full" style={{ background: `radial-gradient(circle at 30% 30%, ${item.accent}, rgba(255,255,255,0.08))` }} />
-                  <h3 className="mt-6 text-xl font-black text-white">{item.name}</h3>
-                  <div className="mt-3 inline-flex rounded-full border border-yellow-400/30 bg-yellow-400/10 px-3 py-1 text-xs font-bold text-yellow-300">
-                    {zh ? `\u9ed8\u8ba4\u8fd4\u4f63 ${rebateRate}` : `Default rebate ${rebateRate}`}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
-        <section id="registration-guide" className="pt-8">
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">{zh ? "\u7b2c\u4e8c\u6b65" : "Step 2"}</p>
-          <h2 className="mt-2 text-2xl font-black text-white">{zh ? "\u9009\u62e9\u6ce8\u518c\u8def\u5f84" : "Choose the registration path"}</h2>
-          <div className="mt-5 grid gap-4 lg:grid-cols-2">
-            {([
-              { key: "partner", titleZh: "\u4f7f\u7528\u6211\u4eec\u63d0\u4f9b\u7684\u5b98\u65b9\u5408\u4f5c\u94fe\u63a5", titleEn: "Use the official partner link we provide" },
-              { key: "official", titleZh: "\u4ece\u5b98\u7f51\u539f\u751f\u9875\u9762\u6ce8\u518c", titleEn: "Use the native official registration page" },
-            ] as const).map((item) => {
-              const active = item.key === mode;
-              return (
-                <button
-                  key={item.key}
-                  type="button"
-                  onClick={() => setMode(item.key)}
-                  className={`tap-target rounded-[28px] border p-6 text-left transition ${active ? "border-white/40 bg-white/[0.08]" : "border-white/10 bg-white/[0.03] hover:bg-white/[0.05]"}`}
-                >
-                  <p className="text-sm font-black text-white">{zh ? item.titleZh : item.titleEn}</p>
-                  <p className="mt-3 text-sm leading-7 text-slate-300">
-                    {zh
-                      ? mode === item.key && item.key === "partner"
-                        ? "\u9002\u5408\u60f3\u76f4\u63a5\u4f7f\u7528\u6211\u4eec\u63d0\u4f9b\u7684\u5b98\u65b9\u5408\u4f5c\u94fe\u63a5\u8fdb\u5165\u6ce8\u518c\u9875\u7684\u7528\u6237\u3002"
-                        : item.key === "partner"
-                          ? "\u8fd9\u6761\u8def\u5f84\u4f1a\u4f18\u5148\u4f7f\u7528\u6211\u4eec\u63d0\u4f9b\u7684\u5b98\u65b9\u5408\u4f5c\u94fe\u63a5\u3002"
-                          : "\u8fd9\u6761\u8def\u5f84\u4f1a\u76f4\u63a5\u6253\u5f00\u4ea4\u6613\u6240\u5b98\u7f51\u539f\u751f\u6ce8\u518c\u9875\u3002"
-                      : item.key === "partner"
-                        ? "This path uses the official partner sign-up link we provide."
-                        : "This path opens the exchange's native official registration page."}
-                  </p>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
-        <section className="grid gap-8 pt-8 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">{zh ? "\u7b2c\u4e09\u6b65" : "Step 3"}</p>
-                <h2 className="mt-2 text-2xl font-black text-white">{zh ? "\u8ddf\u7740\u6b65\u9aa4\u5b8c\u6210\u6ce8\u518c\u4e0e\u4e0b\u8f7d" : "Follow the steps to register and download"}</h2>
+        <section id="registration-guide" className="mt-6 rounded-[28px] border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+          <div className="space-y-6">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">{zh ? "\u7b2c\u4e00\u6b65" : "Step 1"}</p>
+              <h2 className="mt-2 text-xl font-black text-white sm:text-2xl">{zh ? "\u5148\u9009\u4ea4\u6613\u6240" : "Choose the exchange first"}</h2>
+              <div className="-mx-1 mt-4 flex gap-3 overflow-x-auto px-1 pb-2">
+                {(Object.keys(EXCHANGES) as ExchangeSlug[]).map((slug) => {
+                  const item = EXCHANGES[slug];
+                  const active = slug === exchange;
+                  return (
+                    <button
+                      key={slug}
+                      type="button"
+                      onClick={() => setExchange(slug)}
+                      className={`tap-target min-w-[154px] shrink-0 rounded-[22px] border px-4 py-4 text-left transition ${active ? "border-white/40 bg-white/[0.09]" : "border-white/10 bg-black/15 hover:bg-white/[0.05]"}`}
+                    >
+                      <div className="h-9 w-9 rounded-full" style={{ background: `radial-gradient(circle at 30% 30%, ${item.accent}, rgba(255,255,255,0.08))` }} />
+                      <h3 className="mt-5 text-lg font-black text-white">{item.name}</h3>
+                      <div className="mt-3 inline-flex rounded-full border border-yellow-400/30 bg-yellow-400/10 px-3 py-1 text-[11px] font-bold text-yellow-300">
+                        {zh ? `\u9ed8\u8ba4\u8fd4\u4f63 ${rebateRate}` : `Default rebate ${rebateRate}`}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
-              <span className="rounded-full px-3 py-1 text-xs font-bold text-black" style={{ background: meta.accent }}>
+            </div>
+
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">{zh ? "\u7b2c\u4e8c\u6b65" : "Step 2"}</p>
+              <h2 className="mt-2 text-xl font-black text-white sm:text-2xl">{zh ? "\u518d\u9009\u6ce8\u518c\u8def\u5f84" : "Then choose the registration path"}</h2>
+              <div className="mt-4 grid gap-3">
+                {pathCards.map((item) => {
+                  const active = item.key === mode;
+                  return (
+                    <button
+                      key={item.key}
+                      type="button"
+                      onClick={() => setMode(item.key)}
+                      className={`tap-target rounded-[22px] border px-4 py-4 text-left transition ${active ? "border-white/40 bg-white/[0.09]" : "border-white/10 bg-black/15 hover:bg-white/[0.05]"}`}
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <p className="text-sm font-black text-white">{item.title}</p>
+                          <p className="mt-2 text-sm leading-7 text-slate-300">{item.body}</p>
+                        </div>
+                        {active ? (
+                          <span className="mt-1 shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold text-black" style={{ background: meta.accent }}>
+                            {zh ? "\u5f53\u524d\u8def\u5f84" : "Current"}
+                          </span>
+                        ) : null}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-6 rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(0,0,0,0.15))] p-5 sm:p-6">
+          <div className="flex flex-col gap-4 rounded-[24px] border border-white/10 bg-black/20 p-4 sm:p-5">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 text-xs font-semibold text-slate-200">
+                <span className="h-2.5 w-2.5 rounded-full" style={{ background: meta.accent }} />
                 {meta.name}
-              </span>
+              </div>
+              <div className="inline-flex rounded-full border border-cyan-400/25 bg-cyan-400/10 px-3 py-1.5 text-xs font-semibold text-cyan-200">
+                {mode === "partner"
+                  ? zh
+                    ? "\u5b98\u65b9\u5408\u4f5c\u8def\u5f84"
+                    : "Official partner path"
+                  : zh
+                    ? "\u5b98\u7f51\u624b\u52a8\u8def\u5f84"
+                    : "Official manual path"}
+              </div>
+              <div className="inline-flex rounded-full border border-yellow-400/25 bg-yellow-400/10 px-3 py-1.5 text-xs font-semibold text-yellow-200">
+                {zh ? `\u9080\u8bf7\u7801 ${inviteCode}` : `Code ${inviteCode}`}
+              </div>
             </div>
 
-            <div className="mt-6 space-y-4">
-              {steps.map((step, index) => (
-                <div key={step} className="flex items-start gap-4 rounded-[22px] border border-white/10 bg-black/20 p-4">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-black text-black" style={{ background: meta.accent }}>
-                    {index + 1}
-                  </div>
-                  <p className="text-sm leading-7 text-slate-200">{step}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-6 rounded-2xl border border-amber-400/20 bg-amber-400/10 px-4 py-4 text-sm leading-7 text-amber-100">
-              {zh ? `\u5982\u679c\u7cfb\u7edf\u6ca1\u6709\u81ea\u52a8\u5e26\u5165\uff0c\u8bf7\u624b\u52a8\u586b\u5199\u9080\u8bf7\u7801 ${inviteCode}\u3002` : `If the code is not prefilled, enter ${inviteCode} manually.`}
-            </div>
-
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <div className="grid gap-3 sm:grid-cols-2">
               <a
                 href={primaryHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="tap-target inline-flex flex-1 items-center justify-center gap-2 rounded-2xl px-5 py-4 text-sm font-black text-black transition hover:scale-[1.01]"
+                className="tap-target inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-4 text-sm font-black text-black transition hover:scale-[1.01]"
                 style={{ background: meta.accent }}
               >
                 {primaryLabel}
@@ -327,58 +340,80 @@ export default function ExchangeDownload() {
                 href={meta.officialDownload}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="tap-target inline-flex flex-1 items-center justify-center gap-2 rounded-2xl border border-white/12 bg-white/5 px-5 py-4 text-sm font-semibold text-white transition hover:bg-white/10"
+                className="tap-target inline-flex items-center justify-center gap-2 rounded-2xl border border-white/12 bg-white/5 px-5 py-4 text-sm font-semibold text-white transition hover:bg-white/10"
               >
                 {zh ? "\u524d\u5f80\u5b98\u65b9\u4e0b\u8f7d\u9875" : "Open official download page"}
                 <Download className="h-4 w-4" />
               </a>
             </div>
+
+            <div className="rounded-2xl border border-amber-400/20 bg-amber-400/10 px-4 py-4 text-sm leading-7 text-amber-100">
+              {zh
+                ? mode === "partner"
+                  ? `\u5982\u679c\u94fe\u63a5\u8df3\u8f6c\u540e\u6ca1\u6709\u81ea\u52a8\u5e26\u5165\uff0c\u8bf7\u624b\u52a8\u586b\u5199 ${inviteCode}\u3002`
+                  : `\u8d70\u5b98\u7f51\u624b\u52a8\u8def\u5f84\u65f6\uff0c\u8bf7\u5728 Referral code \u6216 Invite code \u680f\u586b\u5199 ${inviteCode}\u3002`
+                : mode === "partner"
+                  ? `If the partner page does not prefill the code, enter ${inviteCode} manually.`
+                  : `On the official manual path, enter ${inviteCode} in the referral field.`}
+            </div>
           </div>
 
-          <div className="space-y-6">
-            <div className="rounded-[28px] border border-white/10 bg-black/20 p-6">
-              <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">{zh ? "\u9080\u8bf7\u7801" : "Referral code"}</p>
-              <h2 className="mt-3 text-3xl font-black text-white">{inviteCode}</h2>
-              <p className="mt-3 text-sm leading-7 text-slate-300">
-                {zh
-                  ? "\u5982\u679c\u4f60\u8d70\u5408\u4f5c\u94fe\u63a5\uff0c\u9080\u8bf7\u7801\u5927\u591a\u4f1a\u81ea\u52a8\u5e26\u5165\u3002\u5982\u679c\u4f60\u8d70\u5b98\u7f51\u539f\u751f\u5165\u53e3\uff0c\u8bf7\u5728 Referral code \u6216 Invite code \u680f\u624b\u52a8\u586b\u5199\u3002"
-                  : "If you use the partner link, the code is usually prefilled. If you use the native official page, enter it manually in the referral field."}
-              </p>
+          <div className="mt-6 space-y-4">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">{zh ? "\u7b2c\u4e09\u6b65" : "Step 3"}</p>
+              <h2 className="mt-2 text-xl font-black text-white sm:text-2xl">{zh ? "\u6309\u8fd9\u4e2a\u987a\u5e8f\u5b8c\u6210" : "Follow this order"}</h2>
             </div>
 
-            <div className="rounded-[28px] border border-dashed border-white/15 bg-black/20 p-6">
-              <div className="flex items-center gap-3 text-slate-300">
-                <ImagePlus className="h-5 w-5" />
-                <p className="text-sm font-semibold">{zh ? "\u5b98\u7f51\u622a\u56fe\u9884\u7559\u533a" : "Reserved area for official screenshots"}</p>
-              </div>
-              <div className="mt-5 grid gap-4">
-                {[
-                  zh ? "\u6ce8\u518c\u5165\u53e3\u9875" : "Registration entry page",
-                  zh ? "\u9080\u8bf7\u7801\u586b\u5199\u4f4d\u7f6e" : "Referral field location",
-                  zh ? "\u5b98\u65b9\u4e0b\u8f7d\u5165\u53e3" : "Official download entry",
-                ].map((title) => (
-                  <div key={title} className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
-                    <h3 className="text-base font-black text-white">{title}</h3>
-                    <div className="mt-4 flex h-28 items-center justify-center rounded-2xl border border-dashed border-white/10 bg-black/20 text-center text-sm leading-7 text-slate-500">
-                      {zh ? "\u8fd9\u91cc\u53ef\u4ee5\u653e\u5b98\u7f51\u622a\u56fe\uff0c\u5e2e\u52a9\u7528\u6237\u5bf9\u7167\u6bcf\u4e00\u6b65\u64cd\u4f5c" : "Place the official screenshot here so users can follow each step visually"}
-                    </div>
+            <div className="space-y-3">
+              {steps.map((step, index) => (
+                <div key={step} className="flex items-start gap-3 rounded-[20px] border border-white/10 bg-black/20 px-4 py-4">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-black text-black" style={{ background: meta.accent }}>
+                    {index + 1}
                   </div>
-                ))}
-              </div>
+                  <p className="pt-0.5 text-sm leading-7 text-slate-200">{step}</p>
+                </div>
+              ))}
             </div>
           </div>
-        </section>
 
-        <section className="pt-8">
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">{zh ? "\u5e38\u89c1\u5361\u70b9" : "Common blockers"}</p>
-          <h2 className="mt-2 text-2xl font-black text-white">{zh ? "\u5148\u628a\u6700\u5bb9\u6613\u51fa\u9519\u7684\u5730\u65b9\u8bb2\u6e05\u695a" : "Call out the most common blockers first"}</h2>
-          <div className="mt-5 grid gap-4 md:grid-cols-3">
-            {(zh ? meta.blockerZh : meta.blockerEn).map((item) => (
-              <div key={item} className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
-                <CheckCircle2 className="h-5 w-5" style={{ color: meta.accent }} />
-                <p className="mt-4 text-sm leading-7 text-slate-300">{item}</p>
-              </div>
-            ))}
+          <div className="mt-6 space-y-4">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">{zh ? "\u6559\u7a0b\u7d20\u6750" : "Tutorial assets"}</p>
+              <h2 className="mt-2 text-xl font-black text-white sm:text-2xl">{zh ? "\u7559\u7ed9\u5b98\u7f51\u622a\u56fe\u7684\u4f4d\u7f6e" : "Reserved places for official screenshots"}</h2>
+            </div>
+
+            <div className="grid gap-3">
+              {screenshotTitles.map((title, index) => (
+                <div key={title} className="rounded-[20px] border border-white/10 bg-black/20 px-4 py-4">
+                  <div className="flex items-center gap-3 text-slate-200">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-xs font-black text-white">
+                      {index + 1}
+                    </div>
+                    <h3 className="text-sm font-black text-white">{title}</h3>
+                  </div>
+                  <div className="mt-3 flex items-center gap-3 rounded-2xl border border-dashed border-white/10 bg-white/[0.03] px-4 py-4 text-sm leading-7 text-slate-400">
+                    <ImagePlus className="h-4 w-4 shrink-0" />
+                    <span>{zh ? "\u8fd9\u91cc\u53ef\u4ee5\u653e\u5b98\u7f51\u622a\u56fe\uff0c\u8ba9\u7528\u6237\u4e0d\u7528\u5728\u4e0a\u4e0b\u5185\u5bb9\u4e4b\u95f4\u6765\u56de\u5bf9\u7167\u3002" : "Place an official screenshot here so users can confirm the step visually without scrolling back."}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-6 space-y-4">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">{zh ? "\u5e38\u89c1\u5361\u70b9" : "Common blockers"}</p>
+              <h2 className="mt-2 text-xl font-black text-white sm:text-2xl">{zh ? "\u6700\u597d\u5148\u770b\u8fd9\u4e09\u6761" : "Read these three notes first"}</h2>
+            </div>
+
+            <div className="grid gap-3">
+              {(zh ? meta.blockerZh : meta.blockerEn).map((item) => (
+                <div key={item} className="flex items-start gap-3 rounded-[20px] border border-white/10 bg-black/20 px-4 py-4">
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" style={{ color: meta.accent }} />
+                  <p className="text-sm leading-7 text-slate-300">{item}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       </main>
