@@ -4,12 +4,13 @@
  * 路由: /exchange-download
  * 从 /crypto-saving 点击「新手不知道怎么下载？」入口进入
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useExchangeLinks } from '@/contexts/ExchangeLinksContext';
 import { useScrollMemory, goBack } from "@/hooks/useScrollMemory";
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
+import { preloadRoute } from "@/lib/routePreload";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft, Download, CheckCircle2, Shield, Gift,
@@ -152,6 +153,10 @@ export default function ExchangeDownload() {
   const tips = COMMON_TIPS[zh ? "zh" : "en"];
   const guideCopy = GUIDE_ROUTE_COPY[zh ? "zh" : "en"];
 
+  useEffect(() => {
+    preloadRoute(`/exchange-registration/${activeExchange}`);
+  }, [activeExchange]);
+
   return (
     <div className="min-h-screen text-white" style={{ background: 'linear-gradient(180deg, #0A192F 0%, #0d1f35 100%)' }}>
       {/* ── Header ── */}
@@ -249,6 +254,10 @@ export default function ExchangeDownload() {
                 <Link
                   key={ex.slug}
                   href={`/exchange-registration/${ex.slug}`}
+                  onMouseEnter={() => preloadRoute(`/exchange-registration/${ex.slug}`)}
+                  onTouchStart={() => preloadRoute(`/exchange-registration/${ex.slug}`)}
+                  onFocus={() => preloadRoute(`/exchange-registration/${ex.slug}`)}
+                  onPointerDown={() => preloadRoute(`/exchange-registration/${ex.slug}`)}
                   className="tap-target rounded-2xl border border-white/10 bg-[#071422] px-4 py-4 transition hover:border-cyan-400/40 hover:bg-white/[0.04]"
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -332,7 +341,14 @@ export default function ExchangeDownload() {
                 {zh ? "邀请码已自动带入；如未带入请填写 getitpro" : "Referral code is prefilled; if not, enter getitpro"}
               </p>
             )}
-            <Link href={`/exchange-registration/${activeExchange}`} className="mt-4 block">
+            <Link
+              href={`/exchange-registration/${activeExchange}`}
+              className="mt-4 block"
+              onMouseEnter={() => preloadRoute(`/exchange-registration/${activeExchange}`)}
+              onTouchStart={() => preloadRoute(`/exchange-registration/${activeExchange}`)}
+              onFocus={() => preloadRoute(`/exchange-registration/${activeExchange}`)}
+              onPointerDown={() => preloadRoute(`/exchange-registration/${activeExchange}`)}
+            >
               <button
                 type="button"
                 className="tap-target w-full rounded-xl border border-white/12 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"

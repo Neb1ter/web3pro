@@ -231,8 +231,15 @@ function PageTransition({ children }: { children: React.ReactNode }) {
   const [transitionStage, setTransitionStage] = useState<"enter" | "exit">("enter");
   const prevLocation = useRef(location);
 
+  const isExchangeGuideRoute = (path: string) =>
+    path === "/exchange-download" ||
+    path.startsWith("/exchange-registration/") ||
+    path.startsWith("/exchange/");
+
   useEffect(() => {
     if (location !== prevLocation.current) {
+      const transitionDelay =
+        isExchangeGuideRoute(location) && isExchangeGuideRoute(prevLocation.current) ? 110 : 280;
       saveScrollPosition(prevLocation.current);
       setTransitionStage("exit");
       const timer = setTimeout(() => {
@@ -250,7 +257,7 @@ function PageTransition({ children }: { children: React.ReactNode }) {
             }
           });
         });
-      }, 280);
+      }, transitionDelay);
       return () => clearTimeout(timer);
     }
   }, [location]);

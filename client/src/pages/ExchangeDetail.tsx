@@ -3,10 +3,12 @@
  * 交易所独立详情页 — SEO 优化版
  * 路由: /exchange/:slug (gate | okx | binance | bybit | bitget)
  */
+import { useEffect } from "react";
 import { useRoute, Link } from "wouter";
 import { SeoManager } from "@/components/SeoManager";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { TrustSignalsCard } from "@/components/TrustSignalsCard";
+import { preloadRoute } from "@/lib/routePreload";
 import { EXCHANGE_FEES, INVITE_CODES, type ExchangeSlug } from "@shared/exchangeFees";
 import { TRUST_LAST_REVIEWED } from "@/lib/trust";
 import { Button } from "@/components/ui/button";
@@ -305,6 +307,12 @@ export default function ExchangeDetail() {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
+  useEffect(() => {
+    if (slug) {
+      preloadRoute(`/exchange-registration/${slug}`);
+    }
+  }, [slug]);
+
   if (!data || !fees || !invite) {
     return (
       <div className="min-h-screen bg-[#050D1A] flex items-center justify-center">
@@ -405,7 +413,7 @@ export default function ExchangeDetail() {
                   <ExternalLink className="w-4 h-4 ml-2" />
                 </a>
               </Button>
-              <Link href={`/exchange-registration/${slug}`} className="sm:w-auto">
+              <Link href={`/exchange-registration/${slug}`} className="sm:w-auto" onMouseEnter={() => preloadRoute(`/exchange-registration/${slug}`)} onTouchStart={() => preloadRoute(`/exchange-registration/${slug}`)} onFocus={() => preloadRoute(`/exchange-registration/${slug}`)} onPointerDown={() => preloadRoute(`/exchange-registration/${slug}`)}>
                 <Button variant="outline" className="w-full border-white/20 text-white hover:bg-white/10 py-5">
                   <Download className="w-4 h-4 mr-2" />
                   {zh ? "注册与下载教学" : "Sign-up Guide"}
@@ -432,7 +440,7 @@ export default function ExchangeDetail() {
                 {
                   title: zh ? "查看完整注册教学" : "Open full sign-up guide",
                   desc: zh ? "带邀请码的官网注册步骤会单独讲清楚。" : "A dedicated guide covers the official sign-up flow with the referral code.",
-                  onClick: () => (window.location.href = `/exchange-registration/${slug}`),
+                  onClick: () => { preloadRoute(`/exchange-registration/${slug}`); window.location.href = `/exchange-registration/${slug}`; },
                 },
                 {
                   title: zh ? "先看常见问题" : "Read the FAQ first",
@@ -598,7 +606,7 @@ export default function ExchangeDetail() {
               <Link href="/exchanges" className="text-slate-400 hover:text-white transition">
                 {zh ? "交易所对比" : "Exchange Comparison"}
               </Link>
-              <Link href={`/exchange-registration/${slug}`} className="text-slate-400 hover:text-white transition">
+              <Link href={`/exchange-registration/${slug}`} className="text-slate-400 hover:text-white transition" onMouseEnter={() => preloadRoute(`/exchange-registration/${slug}`)} onTouchStart={() => preloadRoute(`/exchange-registration/${slug}`)} onFocus={() => preloadRoute(`/exchange-registration/${slug}`)}>
                 {zh ? "注册与下载教学" : "Sign-up Guide"}
               </Link>
               <Link href="/crypto-saving" className="text-slate-400 hover:text-white transition">

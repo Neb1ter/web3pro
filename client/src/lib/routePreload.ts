@@ -10,6 +10,8 @@ const routeImporters: Record<string, () => Promise<unknown>> = {
   "/web3-guide": () => import("@/pages/Web3Guide"),
   "/exchange-guide": () => import("@/pages/ExchangeGuideIndex"),
   "/exchange-download": () => import("@/pages/ExchangeDownload"),
+  "/exchange/:slug": () => import("@/pages/ExchangeDetail"),
+  "/exchange-registration/:slug": () => import("@/pages/ExchangeRegistrationGuide"),
   "/tools": () => import("@/pages/CryptoTools"),
   "/web3-quiz": () => import("@/pages/Web3Quiz"),
   "/sim/spot": () => import("@/pages/sim/SpotSim"),
@@ -22,14 +24,21 @@ const routeImporters: Record<string, () => Promise<unknown>> = {
 
 const preloadedRoutes = new Set<string>();
 
+function normalizeRoute(route: string): string {
+  if (route.startsWith("/exchange-registration/")) return "/exchange-registration/:slug";
+  if (route.startsWith("/exchange/")) return "/exchange/:slug";
+  return route;
+}
+
 export function preloadRoute(route: string): void {
-  if (preloadedRoutes.has(route)) return;
-  const importer = routeImporters[route];
+  const normalizedRoute = normalizeRoute(route);
+  if (preloadedRoutes.has(normalizedRoute)) return;
+  const importer = routeImporters[normalizedRoute];
   if (!importer) return;
 
-  preloadedRoutes.add(route);
+  preloadedRoutes.add(normalizedRoute);
   void importer().catch(() => {
-    preloadedRoutes.delete(route);
+    preloadedRoutes.delete(normalizedRoute);
   });
 }
 
