@@ -54,7 +54,7 @@ export function TrustSignalsCard({
   ];
 
   return (
-    <section className="rounded-2xl border border-cyan-500/20 bg-[#081423]/80 p-5 sm:p-6 shadow-[0_10px_40px_rgba(0,0,0,0.18)]">
+    <section className="rounded-2xl border border-cyan-500/20 bg-[#081423]/80 p-5 shadow-[0_10px_40px_rgba(0,0,0,0.18)] sm:p-6">
       <div className="mb-5 flex items-start gap-3">
         <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/10 p-2">
           <FileSearch className="h-5 w-5 text-cyan-300" />

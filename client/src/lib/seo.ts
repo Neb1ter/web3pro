@@ -81,16 +81,16 @@ export const SEO_BY_PATH: Record<string, SeoEntry> = {
   },
   "/exchange-download": {
     title: {
-      zh: "交易所下载指南 | Get8 Pro",
-      en: "Exchange Download Guide | Get8 Pro",
+      zh: "交易所注册与下载教程 | Get8 Pro",
+      en: "Exchange Registration & Download Guide | Get8 Pro",
     },
     description: {
-      zh: "整理主流交易所下载入口、安装说明、地区限制提示和首次注册注意事项。",
-      en: "Find official exchange download links, installation guidance, regional notes, and first-time registration tips.",
+      zh: "在一个页面内完成交易所选择、注册路径选择、邀请码填写与官方下载流程查看。",
+      en: "Choose an exchange, compare the registration path, confirm the invite code, and follow the official download flow in one place.",
     },
     keywords: {
-      zh: "交易所下载,交易所安装,官方App下载,币安下载,OKX下载,Gate下载,Bybit下载,Bitget下载",
-      en: "exchange download,crypto app install,official exchange app,binance download,okx download,gate download,bybit download,bitget download",
+      zh: "交易所下载,交易所注册,官方注册链接,邀请码填写,币安下载,OKX下载,Gate下载,Bybit下载,Bitget下载",
+      en: "exchange download,exchange registration,official sign-up link,invite code guide,binance download,okx download,gate download,bybit download,bitget download",
     },
   },
   "/beginner": {
@@ -163,130 +163,46 @@ export const SEO_BY_PATH: Record<string, SeoEntry> = {
       en: "web3 guide,web3 learning path,wallet and private keys,kyc flow,blockchain basics,web3 beginner",
     },
   },
-  "/web3-guide/what-is-web3": {
+  "/about": {
     title: {
-      zh: "什么是 Web3 | Get8 Pro",
-      en: "What Is Web3 | Get8 Pro",
+      zh: "关于 Get8 Pro | Get8 Pro",
+      en: "About Get8 Pro | Get8 Pro",
     },
     description: {
-      zh: "理解 Web3 的基本概念、常见使用场景，以及它与传统互联网服务的区别。",
-      en: "Understand the basics of Web3, common use cases, and how it differs from traditional internet services.",
+      zh: "了解 Get8 Pro 的站点定位、信息边界、合作披露和内容整理方式。",
+      en: "Learn about Get8 Pro, including its scope, disclosures, and approach to organizing information.",
     },
     keywords: {
-      zh: "什么是Web3,Web3概念,Web3入门,去中心化互联网,Web3基础",
-      en: "what is web3,web3 basics,web3 introduction,decentralized internet,web3 concepts",
-    },
-  },
-  "/web3-guide/blockchain-basics": {
-    title: {
-      zh: "区块链基础 | Get8 Pro",
-      en: "Blockchain Basics | Get8 Pro",
-    },
-    description: {
-      zh: "弄清区块链、链上数据、地址、Gas 和共识等基础概念。",
-      en: "Learn the basics of blockchains, on-chain data, addresses, gas, and consensus.",
-    },
-    keywords: {
-      zh: "区块链基础,链上数据,钱包地址,Gas费,共识机制,区块链教程",
-      en: "blockchain basics,on-chain data,wallet address,gas fee,consensus,blockchain tutorial",
-    },
-  },
-  "/web3-guide/wallet-keys": {
-    title: {
-      zh: "钱包与私钥 | Get8 Pro",
-      en: "Wallets & Private Keys | Get8 Pro",
-    },
-    description: {
-      zh: "了解钱包、助记词、私钥和常见安全风险，建立更稳的资产管理习惯。",
-      en: "Understand wallets, seed phrases, private keys, and common security risks.",
-    },
-    keywords: {
-      zh: "钱包私钥,助记词,钱包安全,私钥管理,Web3钱包,加密安全",
-      en: "wallet private keys,seed phrase,wallet security,private key management,web3 wallet,crypto security",
-    },
-  },
-  "/web3-guide/defi-deep": {
-    title: {
-      zh: "DeFi 进阶理解 | Get8 Pro",
-      en: "DeFi Deep Dive | Get8 Pro",
-    },
-    description: {
-      zh: "进一步理解 DeFi 的核心逻辑、收益来源、风险边界和新手误区。",
-      en: "Go deeper into DeFi, including yield logic, risk boundaries, and beginner pitfalls.",
-    },
-    keywords: {
-      zh: "DeFi教程,DeFi风险,收益来源,链上金融,DeFi进阶",
-      en: "defi guide,defi risks,yield strategies,on-chain finance,defi deep dive",
-    },
-  },
-  "/web3-guide/investment-gateway": {
-    title: {
-      zh: "投资方式入门 | Get8 Pro",
-      en: "Investment Gateway | Get8 Pro",
-    },
-    description: {
-      zh: "了解现货、定投、合约、杠杆等不同路径的差异，先看懂再决定。",
-      en: "Compare spot, DCA, futures, and leverage paths so you can decide with more context.",
-    },
-    keywords: {
-      zh: "投资方式入门,现货合约区别,定投,杠杆风险,交易方式对比",
-      en: "investment gateway,spot vs futures,dca,leverage risk,trading path comparison",
-    },
-  },
-  "/web3-guide/economic-opportunity": {
-    title: {
-      zh: "Web3 机会与风险 | Get8 Pro",
-      en: "Economic Opportunity | Get8 Pro",
-    },
-    description: {
-      zh: "从机会、门槛和风险三个角度看 Web3，而不是只看单一收益叙事。",
-      en: "Look at Web3 through opportunity, friction, and risk instead of hype alone.",
-    },
-    keywords: {
-      zh: "Web3机会,Web3风险,加密机会,链上机会,风险边界",
-      en: "web3 opportunities,web3 risks,crypto opportunities,on-chain opportunities,risk boundaries",
-    },
-  },
-  "/web3-guide/kyc-flow": {
-    title: {
-      zh: "KYC 实名流程 | Get8 Pro",
-      en: "KYC Verification Guide | Get8 Pro",
-    },
-    description: {
-      zh: "了解 KYC 所需资料、提交流程、审核逻辑和常见退回原因，减少第一次认证时的阻力。",
-      en: "Learn the KYC process, required documents, review logic, and common rejection reasons.",
-    },
-    keywords: {
-      zh: "KYC流程,实名认证,交易所KYC,身份认证,审核退回原因,KYC准备",
-      en: "kyc guide,identity verification,exchange kyc,kyc process,review rejection reasons,kyc preparation",
+      zh: "关于Get8 Pro,站点说明,合作披露,内容原则",
+      en: "about get8 pro,site overview,disclosures,editorial principles",
     },
   },
   "/contact": {
     title: {
-      zh: "联系 Get8 Pro",
-      en: "Contact Get8 Pro",
+      zh: "联系我们 | Get8 Pro",
+      en: "Contact | Get8 Pro",
     },
     description: {
-      zh: "联系 Get8 Pro 咨询返佣、平台开户、合作和内容修正等问题。",
-      en: "Contact Get8 Pro for rebate questions, platform onboarding, cooperation, and corrections.",
+      zh: "通过联系页面提交合作、反馈或内容勘误需求，帮助 Get8 Pro 持续完善。",
+      en: "Use the contact page for feedback, collaboration requests, or content corrections.",
     },
     keywords: {
-      zh: "联系Get8 Pro,返佣咨询,合作联系,平台咨询,内容纠错",
-      en: "contact get8 pro,rebate support,cooperation inquiry,platform support,content correction",
+      zh: "联系Get8 Pro,反馈,合作,内容勘误",
+      en: "contact get8 pro,feedback,collaboration,correction request",
     },
   },
-  "/about": {
+  "/legal": {
     title: {
-      zh: "关于 Get8 Pro",
-      en: "About Get8 Pro",
+      zh: "法律与风险说明 | Get8 Pro",
+      en: "Legal & Risk Notice | Get8 Pro",
     },
     description: {
-      zh: "了解 Get8 Pro 的站点定位、合作说明、内容方法和浏览路径设计。",
-      en: "Learn about Get8 Pro, its site mission, partnership disclosures, and content methodology.",
+      zh: "查看 Get8 Pro 的法律说明、风险提示与信息使用边界。",
+      en: "Read Get8 Pro’s legal notes, risk disclosures, and information boundaries.",
     },
     keywords: {
-      zh: "关于Get8 Pro,站点介绍,合作说明,内容方法,Web3导航站",
-      en: "about get8 pro,site mission,partnership disclosure,editorial method,web3 navigation site",
+      zh: "法律说明,风险提示,免责声明",
+      en: "legal notice,risk disclosure,disclaimer",
     },
   },
   "/standards": {
@@ -295,82 +211,26 @@ export const SEO_BY_PATH: Record<string, SeoEntry> = {
       en: "Editorial Standards & Transparency | Get8 Pro",
     },
     description: {
-      zh: "查看 Get8 Pro 如何核对信息、披露合作关系、处理风险提示和内容修正。",
-      en: "Review how Get8 Pro verifies information, discloses partnerships, handles risks, and processes corrections.",
+      zh: "查看 Get8 Pro 如何处理来源、审核、披露和内容更新。",
+      en: "See how Get8 Pro handles sourcing, review, disclosure, and content updates.",
     },
     keywords: {
-      zh: "编辑原则,透明度,合作披露,风险披露,内容修正,站点可信度",
-      en: "editorial standards,transparency,partnership disclosure,risk disclosure,corrections,site trust",
+      zh: "编辑原则,透明度,来源说明,审核说明",
+      en: "editorial standards,transparency,source notes,review policy",
     },
   },
-  "/tools": {
+  "/ui-demos": {
     title: {
-      zh: "币圈工具合集 | Get8 Pro",
-      en: "Crypto Tools Directory | Get8 Pro",
+      zh: "UI 风格预览 | Get8 Pro",
+      en: "UI Direction Preview | Get8 Pro",
     },
     description: {
-      zh: "按场景查看行情、链上、安全和研究工具，并区分哪些工具可直连、哪些可能需要额外网络环境。",
-      en: "Browse market, on-chain, security, and research tools, with clearer notes on direct access and network requirements.",
+      zh: "查看 Get8 Pro 的界面预览和风格方向。",
+      en: "Preview interface directions for Get8 Pro.",
     },
     keywords: {
-      zh: "币圈工具,链上工具,行情工具,研究工具,安全工具,无需VPN工具",
-      en: "crypto tools,on-chain tools,market tools,research tools,security tools,no vpn crypto tools",
-    },
-  },
-  "/web3-quiz": {
-    title: {
-      zh: "Web3 学习测评 | Get8 Pro",
-      en: "Web3 Quiz | Get8 Pro",
-    },
-    description: {
-      zh: "通过简单测评判断更适合你的学习路径，再进入更合理的下一步。",
-      en: "Take a quick quiz to get a more suitable Web3 learning path.",
-    },
-    keywords: {
-      zh: "Web3测评,学习路径,新手评测,Web3路线推荐",
-      en: "web3 quiz,learning path,beginner assessment,web3 path recommendation",
-    },
-  },
-  "/learning-path": {
-    title: {
-      zh: "学习路径推荐 | Get8 Pro",
-      en: "Learning Path | Get8 Pro",
-    },
-    description: {
-      zh: "根据当前情况生成更适合的新手、进阶或交易路径。",
-      en: "Get a tailored beginner, intermediate, or trading-oriented learning path.",
-    },
-    keywords: {
-      zh: "学习路径,Web3路线,新手路线,交易学习路径",
-      en: "learning path,web3 roadmap,beginner roadmap,trading learning path",
-    },
-  },
-  "/learning-complete": {
-    title: {
-      zh: "学习完成 | Get8 Pro",
-      en: "Learning Complete | Get8 Pro",
-    },
-    description: {
-      zh: "查看下一步行动建议，继续进入工具、文章、模拟器或交易所对比。",
-      en: "See what to do next after your learning flow and continue into tools, articles, sims, or exchange comparisons.",
-    },
-    keywords: {
-      zh: "学习完成,下一步行动,Web3下一步,学习总结",
-      en: "learning complete,next step,web3 next actions,learning summary",
-    },
-  },
-  "/legal": {
-    title: {
-      zh: "法律与风险披露 | Get8 Pro",
-      en: "Legal & Risk Disclosures | Get8 Pro",
-    },
-    description: {
-      zh: "查看 Get8 Pro 的法律说明、隐私信息、合作披露与风险提示。",
-      en: "Read the legal notices, privacy information, partnership disclosures, and risk statements for Get8 Pro.",
-    },
-    keywords: {
-      zh: "法律说明,风险披露,隐私政策,合作披露,免责声明",
-      en: "legal notice,risk disclosure,privacy policy,partnership disclosure,disclaimer",
+      zh: "Get8 Pro UI,界面预览,风格方向",
+      en: "get8 pro ui,interface preview,design direction",
     },
   },
 };
@@ -380,22 +240,18 @@ const PREFIX_DEFAULTS: Array<{ prefix: string; entry: SeoEntry }> = [
     prefix: "/exchange/",
     entry: {
       title: {
-        zh: "交易所详情 | Get8 Pro",
+        zh: "交易所说明 | Get8 Pro",
         en: "Exchange Detail | Get8 Pro",
       },
       description: {
-        zh: "查看交易所的费用、返佣、KYC、下载入口和常见问题。",
+        zh: "查看交易所费用、返佣、KYC、下载入口和常见问题。",
         en: "Review exchange fees, rebates, KYC notes, download links, and FAQs.",
       },
       keywords: {
-        zh: "交易所详情,手续费,返佣,下载入口,KYC说明,交易所FAQ",
+        zh: "交易所说明,手续费,返佣,下载入口,KYC说明,交易所FAQ",
         en: "exchange detail,fees,rebate,download links,kyc notes,exchange faq",
       },
     },
-  },
-  {
-    prefix: "/exchange-guide/",
-    entry: SEO_BY_PATH["/exchange-guide"],
   },
   {
     prefix: "/article/",
@@ -449,21 +305,6 @@ const PREFIX_DEFAULTS: Array<{ prefix: string; entry: SeoEntry }> = [
     },
   },
 ];
-
-SEO_BY_PATH["/ui-demos"] = {
-  title: {
-    zh: "UI 风格提案预览 | Get8 Pro",
-    en: "UI Direction Preview | Get8 Pro",
-  },
-  description: {
-    zh: "查看 Get8 Pro 的界面风格提案，比较专业感、可信度与高意图用户路径设计。",
-    en: "Preview interface directions for Get8 Pro across professional tone, trust signals, and high-intent user paths.",
-  },
-  keywords: {
-    zh: "Get8 Pro UI提案,Web3网站改版,交易所导航设计,界面预览,风格方案",
-    en: "get8 pro ui proposal,web3 website redesign,exchange navigation design,interface preview,design directions",
-  },
-};
 
 export function getSiteKeywords(language: Language) {
   return BASE_KEYWORDS[language];
