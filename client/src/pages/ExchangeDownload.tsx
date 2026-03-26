@@ -1,492 +1,774 @@
-/**
- * ExchangeDownload.tsx
- * 新手下载交易所 + 三步快速上手 次级页面
- * 路由: /exchange-download
- * 从 /crypto-saving 点击「新手不知道怎么下载？」入口进入
- */
-import { useEffect, useState } from "react";
-import { Link, useLocation } from "wouter";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { useExchangeLinks } from '@/contexts/ExchangeLinksContext';
-import { useScrollMemory, goBack } from "@/hooks/useScrollMemory";
-import { ScrollToTopButton } from "@/components/ScrollToTopButton";
-import { preloadRoute } from "@/lib/routePreload";
-import { Button } from "@/components/ui/button";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "wouter";
 import {
-  ArrowLeft, Download, CheckCircle2, Shield, Gift,
-  Smartphone, Globe, Zap, AlertTriangle, ExternalLink,
-  ChevronRight, Star, Users, Lock
+  AlertTriangle,
+  ArrowLeft,
+  CheckCircle2,
+  Download,
+  ExternalLink,
+  ImagePlus,
+  Lock,
+  Shield,
+  Smartphone,
 } from "lucide-react";
+import { SeoManager } from "@/components/SeoManager";
+import { ScrollToTopButton } from "@/components/ScrollToTopButton";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useExchangeLinks } from "@/contexts/ExchangeLinksContext";
+import { goBack, useScrollMemory } from "@/hooks/useScrollMemory";
 
-const EXCHANGE_META: Record<string, {
+type ExchangeSlug = "gate" | "okx" | "binance" | "bybit" | "bitget";
+type FlowMode = "partner" | "official";
+
+type StepSet = {
+  zh: string[];
+  en: string[];
+};
+
+type TutorialData = {
+  slug: ExchangeSlug;
+  name: string;
+  nameEn: string;
   emoji: string;
-  color: string;
-  borderColor: string;
-  platform: string[];
-  highlight: string;
-  tip: { zh: string; en: string };
-  steps: { zh: string[]; en: string[] };
-}> = {
+  accent: string;
+  rebate: string;
+  officialSignup: string;
+  officialDownload: string;
+  appStore?: string;
+  partnerSummary: { zh: string; en: string };
+  officialSummary: { zh: string; en: string };
+  partnerSteps: StepSet;
+  officialSteps: StepSet;
+  blockers: StepSet;
+};
+
+const GUIDE_DATA: Record<ExchangeSlug, TutorialData> = {
   gate: {
+    slug: "gate",
+    name: "Gate.io",
+    nameEn: "Gate.io",
     emoji: "🟢",
-    color: "from-emerald-900/60 to-slate-900",
-    borderColor: "border-emerald-500/30",
-    platform: ["iOS", "Android", "Web"],
-    highlight: "储备金率 125%，全球首家 100% 储备承诺",
-    tip: {
-      zh: "Gate.io 在 App Store 搜索「Gate.io」即可找到，注意认准官方图标。",
-      en: "Search 'Gate.io' on App Store or Google Play. Make sure to download the official app."
+    accent: "#00B173",
+    rebate: "60%",
+    officialSignup: "https://www.gate.com/signup",
+    officialDownload: "https://www.gate.com/mobileapp",
+    appStore: "https://apps.apple.com/app/gate-io/id1294998195",
+    partnerSummary: {
+      zh: "适合想直接从我们提供的官方合作链接完成注册的用户，邀请码通常会自动带入。",
+      en: "Best for users who want to register through the official partner link we provide. The referral code is usually prefilled.",
     },
-    steps: {
-      zh: ["进入 App Store / Google Play，搜索「Gate.io」", "点击安装，打开 App 后点「注册」", "填写手机号或邮箱，输入邀请码，完成 KYC 实名认证"],
-      en: ["Search 'Gate.io' on App Store / Google Play", "Install the app, tap 'Register'", "Enter phone/email, input referral code, complete KYC verification"]
-    }
+    officialSummary: {
+      zh: "适合只想从官网原生注册入口进入的用户，进入后手动填写邀请码 getitpro 即可。",
+      en: "Best for users who prefer the native official sign-up page and want to enter getitpro manually.",
+    },
+    partnerSteps: {
+      zh: [
+        "点击“官方合作注册链接”，确认地址属于 Gate 官方域名。",
+        "进入注册页后先看邀请码栏，通常会自动带入 getitpro。",
+        "如果邀请码没有自动出现，再手动填写 getitpro，然后继续完成注册与 KYC。",
+        "注册完成后再去下载 App，并核对账户权益是否正常显示。",
+      ],
+      en: [
+        "Open the official partner sign-up link and confirm the page belongs to Gate's official domain.",
+        "Check the referral field first. getitpro is usually prefilled.",
+        "If the code is missing, enter getitpro manually before finishing registration and KYC.",
+        "Download the app after the account is created and verify the expected benefits.",
+      ],
+    },
+    officialSteps: {
+      zh: [
+        "点击“官网注册链接”，直接进入 Gate 官方注册入口。",
+        "填写邮箱或手机号后，展开邀请码或 Referral code 栏。",
+        "手动填写 getitpro，再继续验证码与 KYC 流程。",
+        "注册完成后，从下方官方下载入口安装 App。",
+      ],
+      en: [
+        "Open the official Gate sign-up page directly.",
+        "After entering your email or phone number, expand the referral code field.",
+        "Enter getitpro manually, then continue with verification and KYC.",
+        "Install the app from the official download entry after the account is created.",
+      ],
+    },
+    blockers: {
+      zh: [
+        "如果页面很慢，先确认你打开的是 Gate 官方域名，而不是镜像站。",
+        "邀请码通常无法在注册完成后补录，所以提交前一定要检查一遍。",
+        "开始 KYC 前先准备身份证件和稳定光线，能减少退回次数。",
+      ],
+      en: [
+        "If the page is slow, make sure you are on Gate's official domain and not a mirror.",
+        "The referral code usually cannot be added after registration, so double-check before submitting.",
+        "Prepare your ID and stable lighting before starting KYC to reduce rejections.",
+      ],
+    },
   },
   okx: {
+    slug: "okx",
+    name: "OKX",
+    nameEn: "OKX",
     emoji: "🔷",
-    color: "from-blue-900/60 to-slate-900",
-    borderColor: "border-blue-500/30",
-    platform: ["iOS", "Android", "Web", "Desktop"],
-    highlight: "德国/波兰正式监管牌照，CoinGlass 评分 88.77",
-    tip: {
-      zh: "OKX 在中国区 App Store 下架，需切换海外 Apple ID 或使用 APK 安装包。",
-      en: "OKX may not be available in some regions on App Store. Use a foreign Apple ID or download the APK directly."
+    accent: "#7EA7FF",
+    rebate: "20%",
+    officialSignup: "https://www.okx.com/account/register",
+    officialDownload: "https://www.okx.com/download",
+    appStore: "https://apps.apple.com/app/okx/id1327268470",
+    partnerSummary: {
+      zh: "适合想直接使用我们提供的官方合作开户链接的用户，邀请码通常已自动带入。",
+      en: "Best for users who want to start from the official partner link we provide, where the code is usually prefilled.",
     },
-    steps: {
-      zh: ["访问 okx.com 官网，点击「下载 App」", "iOS 用户需使用海外 Apple ID，Android 用户可直接下载 APK", "注册账号，填写邀请码，完成身份验证"],
-      en: ["Visit okx.com, click 'Download App'", "iOS users may need a foreign Apple ID; Android users can download APK directly", "Register, enter referral code, complete identity verification"]
-    }
+    officialSummary: {
+      zh: "适合只走 OKX 官网原生注册入口的用户，进入后手动填写邀请码 getitpro。",
+      en: "Best for users who want the native OKX sign-up page and prefer to enter getitpro manually.",
+    },
+    partnerSteps: {
+      zh: [
+        "点击“官方合作注册链接”，确认当前页面属于 OKX 官方域名。",
+        "进入注册页后先检查 Referral code 是否已经带入。",
+        "如果邀请码为空，手动填写 getitpro，再继续注册。",
+        "注册成功后再从官方下载页安装 App 或桌面端。",
+      ],
+      en: [
+        "Open the official partner sign-up link and confirm the page belongs to OKX.",
+        "Check whether the referral code field is already filled.",
+        "If the field is empty, enter getitpro manually before continuing.",
+        "Install the app or desktop client from the official download page after registration.",
+      ],
+    },
+    officialSteps: {
+      zh: [
+        "点击“官网注册链接”，直接进入 OKX 官方注册入口。",
+        "填写邮箱或手机号后，展开 Referral code 区域。",
+        "手动填写 getitpro，再继续验证码和身份认证。",
+        "如果 App Store 搜不到 OKX，优先查看官网下载页说明。",
+      ],
+      en: [
+        "Open the official OKX sign-up page directly.",
+        "After entering your email or phone number, expand the referral area.",
+        "Enter getitpro manually, then continue with verification and identity checks.",
+        "If OKX is missing from your App Store, check the official download page first.",
+      ],
+    },
+    blockers: {
+      zh: [
+        "OKX 部分地区的 App Store 入口有限制，优先参考官网下载页。",
+        "邀请码一般不能在注册后补填，所以一定要在创建账户前检查。",
+        "如果你切到 App 内继续注册，邀请码栏要重新确认一次。",
+      ],
+      en: [
+        "The App Store entry is limited in some regions, so check the official download page first.",
+        "The referral code usually cannot be added after registration, so verify it before creating the account.",
+        "If you continue in the app, re-check the referral field once more.",
+      ],
+    },
   },
   binance: {
+    slug: "binance",
+    name: "Binance",
+    nameEn: "Binance",
     emoji: "🟡",
-    color: "from-yellow-900/60 to-slate-900",
-    borderColor: "border-yellow-500/30",
-    platform: ["iOS", "Android", "Web", "Desktop"],
-    highlight: "全球最大，2.5 亿+ 注册用户，市场份额约 40%",
-    tip: {
-      zh: "币安在中国区 App Store 下架，需切换海外 Apple ID。Android 用户可访问 binance.com 下载 APK。",
-      en: "Binance may not be available in some regions. Android users can download the APK from binance.com."
+    accent: "#F0B90B",
+    rebate: "20%",
+    officialSignup: "https://accounts.binance.com/register",
+    officialDownload: "https://www.binance.com/download",
+    appStore: "https://apps.apple.com/app/binance-buy-bitcoin-crypto/id1436799971",
+    partnerSummary: {
+      zh: "适合想直接从官方合作链接注册的用户，邀请码通常已经被带入。",
+      en: "Best for users who want to register through the official partner link, where the code is usually carried over automatically.",
     },
-    steps: {
-      zh: ["访问 binance.com，点击「下载」", "iOS 用户切换海外 Apple ID 后搜索「Binance」，Android 用户下载 APK", "注册账号，在邀请码栏填写专属码，完成 KYC"],
-      en: ["Visit binance.com, click 'Download'", "iOS: use a foreign Apple ID; Android: download APK from the website", "Register, enter referral code in the invitation field, complete KYC"]
-    }
+    officialSummary: {
+      zh: "适合只想从 Binance 官网原生入口注册的用户，进入后手动填入 getitpro。",
+      en: "Best for users who want Binance's native sign-up page and prefer to enter getitpro manually.",
+    },
+    partnerSteps: {
+      zh: [
+        "点击“官方合作注册链接”，确认当前页面属于 Binance 官方域名。",
+        "在提交前先看 Referral ID 或 Referral code 栏位。",
+        "如果邀请码没有自动带入，请手动填写 getitpro。",
+        "完成注册与基础认证后，再安装官方 App。",
+      ],
+      en: [
+        "Open the official partner sign-up link and confirm the page belongs to Binance.",
+        "Before submitting, check the Referral ID or Referral code field.",
+        "If the code is missing, enter getitpro manually.",
+        "Finish registration and the basic checks first, then install the official app.",
+      ],
+    },
+    officialSteps: {
+      zh: [
+        "点击“官网注册链接”，直接进入 Binance 官方注册入口。",
+        "填写手机号或邮箱与密码后，展开邀请码区域。",
+        "手动填写 getitpro，再继续验证码与 KYC。",
+        "如果 App Store 没有 Binance，优先参考官网下载页。",
+      ],
+      en: [
+        "Open the official Binance sign-up page directly.",
+        "After entering your phone number or email and password, expand the referral section.",
+        "Enter getitpro manually, then continue with verification and KYC.",
+        "If Binance is missing from your App Store, use the official download page first.",
+      ],
+    },
+    blockers: {
+      zh: [
+        "不要从广告页或不熟悉的短链进入，避免邀请码丢失。",
+        "邀请码栏有时默认折叠，提交前一定要展开确认。",
+        "部分地区下载入口有限制，优先以官网说明为准。",
+      ],
+      en: [
+        "Avoid ad pages or unfamiliar short links so the referral code is not lost.",
+        "The referral field may be collapsed by default, so expand it before submitting.",
+        "Some regions have restricted download access, so follow the official instructions first.",
+      ],
+    },
   },
   bybit: {
+    slug: "bybit",
+    name: "Bybit",
+    nameEn: "Bybit",
     emoji: "🔵",
-    color: "from-orange-900/60 to-slate-900",
-    borderColor: "border-orange-500/30",
-    platform: ["iOS", "Android", "Web"],
-    highlight: "荷兰持牌，Hacken 每月储备金证明审计",
-    tip: {
-      zh: "Bybit 在 App Store 可直接搜索「Bybit」下载，部分地区需要海外账号。",
-      en: "Search 'Bybit' on App Store or Google Play. Some regions may require a foreign account."
+    accent: "#6EA8FF",
+    rebate: "30%",
+    officialSignup: "https://www.bybit.com/register",
+    officialDownload: "https://www.bybit.com/download",
+    appStore: "https://apps.apple.com/app/bybit-buy-crypto-bitcoin/id1488296980",
+    partnerSummary: {
+      zh: "适合想直接走我们提供的官方合作链接完成注册的用户，邀请码大多会自动带入。",
+      en: "Best for users who want to register through the official partner link we provide, where the code is usually prefilled.",
     },
-    steps: {
-      zh: ["App Store / Google Play 搜索「Bybit」", "安装后点「注册」，选择手机号或邮箱注册", "填写邀请码，完成邮箱/手机验证和 KYC 实名"],
-      en: ["Search 'Bybit' on App Store / Google Play", "Tap 'Register', choose phone or email", "Enter referral code, complete email/phone verification and KYC"]
-    }
+    officialSummary: {
+      zh: "适合只想从 Bybit 官网入口注册的用户，进入后手动填写邀请码 getitpro。",
+      en: "Best for users who prefer the native Bybit sign-up page and want to enter getitpro manually.",
+    },
+    partnerSteps: {
+      zh: [
+        "点击“官方合作注册链接”，确认页面属于 Bybit 官方域名。",
+        "注册时先检查邀请码或 Referral code 栏位是否带入。",
+        "如果邀请码为空，手动填写 getitpro 再继续。",
+        "完成注册后从官网或商店安装官方 App。",
+      ],
+      en: [
+        "Open the official partner sign-up link and confirm it belongs to Bybit.",
+        "Check whether the referral field is already filled before you continue.",
+        "If the field is blank, enter getitpro manually.",
+        "Install the official app from the website or store after the account is ready.",
+      ],
+    },
+    officialSteps: {
+      zh: [
+        "点击“官网注册链接”，直接进入 Bybit 官方注册入口。",
+        "填写邮箱或手机号后，展开邀请码区域。",
+        "手动填写 getitpro，再继续验证码和 KYC。",
+        "注册完成后再对照我们提供的截图检查每一步是否一致。",
+      ],
+      en: [
+        "Open the official Bybit sign-up page directly.",
+        "After entering your email or phone number, expand the referral section.",
+        "Enter getitpro manually, then continue with verification and KYC.",
+        "Compare each step with the tutorial screenshots after registration.",
+      ],
+    },
+    blockers: {
+      zh: [
+        "Bybit 注册完成后通常不能补录邀请码，所以一定要在创建账户前确认。",
+        "如果你先下 App 再注册，邀请码栏也要再检查一遍。",
+        "下载前先核对开发者信息，避免装到仿冒 App。",
+      ],
+      en: [
+        "Bybit usually does not allow adding the code after registration, so check before creating the account.",
+        "If you install the app first, re-check the referral field there too.",
+        "Verify the developer information before downloading to avoid fake apps.",
+      ],
+    },
   },
   bitget: {
+    slug: "bitget",
+    name: "Bitget",
+    nameEn: "Bitget",
     emoji: "🟣",
-    color: "from-teal-900/60 to-slate-900",
-    borderColor: "border-teal-500/30",
-    platform: ["iOS", "Android", "Web"],
-    highlight: "CoinGlass 综合评分 83.10，跟单交易领先平台",
-    tip: {
-      zh: "Bitget 在 App Store 可直接搜索「Bitget」下载，支持中文界面。",
-      en: "Search 'Bitget' on App Store or Google Play. Chinese interface is supported."
+    accent: "#9C6CFF",
+    rebate: "50%",
+    officialSignup: "https://www.bitget.com/account/register",
+    officialDownload: "https://www.bitget.com/download",
+    appStore: "https://apps.apple.com/app/bitget-buy-bitcoin-crypto/id1619678672",
+    partnerSummary: {
+      zh: "适合想直接从官方合作链接进入注册页的用户，邀请码通常会自动带入。",
+      en: "Best for users who want to enter from the official partner sign-up link, where the code is usually prefilled.",
     },
-    steps: {
-      zh: ["App Store / Google Play 搜索「Bitget」", "安装后点「注册」，填写手机号或邮箱", "输入邀请码，完成验证和 KYC 实名认证"],
-      en: ["Search 'Bitget' on App Store / Google Play", "Tap 'Register', enter phone or email", "Enter referral code, complete verification and KYC"]
-    }
-  }
+    officialSummary: {
+      zh: "适合从 Bitget 官网原生入口注册的用户，进入后手动填写邀请码 getitpro。",
+      en: "Best for users who prefer Bitget's native sign-up page and want to type getitpro manually.",
+    },
+    partnerSteps: {
+      zh: [
+        "点击“官方合作注册链接”，确认页面属于 Bitget 官方域名。",
+        "进入注册页后先看 Referral code 或 Invite code 是否已经带入。",
+        "如果邀请码为空，手动填写 getitpro 再继续。",
+        "完成注册后，再安装官方 App 并检查权益状态。",
+      ],
+      en: [
+        "Open the official partner sign-up link and confirm it belongs to Bitget.",
+        "Check whether the Referral code or Invite code field is already filled.",
+        "If the field is blank, enter getitpro manually.",
+        "Install the official app after registration and verify the expected benefits.",
+      ],
+    },
+    officialSteps: {
+      zh: [
+        "点击“官网注册链接”，直接进入 Bitget 官方注册入口。",
+        "填写邮箱或手机号后，展开邀请码或 Referral code 区域。",
+        "手动填写 getitpro，再继续验证码与 KYC。",
+        "完成注册后按官方下载页选择 App 或桌面端。",
+      ],
+      en: [
+        "Open the official Bitget sign-up page directly.",
+        "After entering your email or phone number, expand the referral section.",
+        "Enter getitpro manually, then continue with verification and KYC.",
+        "Use the official download page afterward to choose the app or desktop client.",
+      ],
+    },
+    blockers: {
+      zh: [
+        "Bitget 老账户通常无法补填邀请码，所以第一次注册时一定要确认。",
+        "如果页面加载慢，先核对是否进入了官方域名。",
+        "下载官方 App 前先核对图标和开发者信息。",
+      ],
+      en: [
+        "Existing Bitget accounts usually cannot add the code later, so verify it on first registration.",
+        "If the page loads slowly, confirm you are on the official domain.",
+        "Verify the icon and developer details before downloading the official app.",
+      ],
+    },
+  },
 };
 
-const COMMON_TIPS = {
+const COMMON_NOTES = {
   zh: [
-    { icon: <Shield className="w-5 h-5 text-emerald-400" />, title: "只从官网下载", desc: "务必通过交易所官网或官方 App Store 下载，避免钓鱼网站和假冒 App。" },
-    { icon: <Lock className="w-5 h-5 text-blue-400" />, title: "注册时填写邀请码", desc: "注册完成后无法补填邀请码，请在注册页面的「邀请码/推荐码」栏填写，确保享有返佣权益。" },
-    { icon: <AlertTriangle className="w-5 h-5 text-amber-400" />, title: "KYC 实名认证", desc: "大多数交易所需要身份证/护照照片进行实名认证，这是合规要求，信息由交易所加密保存。" },
-    { icon: <Smartphone className="w-5 h-5 text-purple-400" />, title: "iOS 海外账号", desc: "若 App Store 找不到，需切换至香港/美国区 Apple ID。可在网上购买或自行注册海外 Apple ID。" },
-    { icon: <Globe className="w-5 h-5 text-cyan-400" />, title: "网络访问", desc: "部分地区需要使用 VPN 才能访问交易所官网和 App，建议提前准备好稳定的网络工具。" },
-    { icon: <Star className="w-5 h-5 text-yellow-400" />, title: "新手建议从小额开始", desc: "首次入金建议从小额（如 100 USDT）开始，熟悉平台操作后再逐步增加资金。" },
+    {
+      icon: <Shield className="h-5 w-5 text-emerald-400" />,
+      title: "只使用官方域名和官方商店",
+      desc: "注册和下载都优先使用官方域名、官方下载页或官方商店入口，不要从陌生短链和镜像页进入。",
+    },
+    {
+      icon: <Lock className="h-5 w-5 text-blue-400" />,
+      title: "邀请码要在注册前确认",
+      desc: "大多数平台在注册完成后都不能补录邀请码，所以一定要在提交表单前确认 getitpro 是否已经带入或填写完成。",
+    },
+    {
+      icon: <Smartphone className="h-5 w-5 text-purple-400" />,
+      title: "下载前核对图标和开发者",
+      desc: "如果你是从 App Store 或其他应用商店进入，先看图标和开发者信息，避免误下非官方应用。",
+    },
+    {
+      icon: <AlertTriangle className="h-5 w-5 text-amber-400" />,
+      title: "KYC 前先准备资料",
+      desc: "身份证件、稳定光线和网络环境提前准备好，会明显减少 KYC 退回或中断。",
+    },
   ],
   en: [
-    { icon: <Shield className="w-5 h-5 text-emerald-400" />, title: "Download from official sources only", desc: "Always download from the official website or App Store. Avoid phishing sites and fake apps." },
-    { icon: <Lock className="w-5 h-5 text-blue-400" />, title: "Enter referral code during registration", desc: "Referral codes cannot be added after registration. Enter it in the 'Referral Code' field during sign-up to ensure rebate benefits." },
-    { icon: <AlertTriangle className="w-5 h-5 text-amber-400" />, title: "KYC identity verification", desc: "Most exchanges require ID/passport photos for KYC. This is a compliance requirement; your information is encrypted and stored securely." },
-    { icon: <Smartphone className="w-5 h-5 text-purple-400" />, title: "iOS foreign account", desc: "If the app is not available in your region's App Store, switch to a Hong Kong/US Apple ID." },
-    { icon: <Globe className="w-5 h-5 text-cyan-400" />, title: "Network access", desc: "Some regions may require a VPN to access exchange websites and apps. Prepare a stable VPN tool in advance." },
-    { icon: <Star className="w-5 h-5 text-yellow-400" />, title: "Start small as a beginner", desc: "For your first deposit, start with a small amount (e.g., 100 USDT) to get familiar with the platform before increasing funds." },
-  ]
+    {
+      icon: <Shield className="h-5 w-5 text-emerald-400" />,
+      title: "Use official domains and official stores only",
+      desc: "Always use official domains, official download pages, or official app stores instead of unfamiliar short links or mirrors.",
+    },
+    {
+      icon: <Lock className="h-5 w-5 text-blue-400" />,
+      title: "Confirm the referral code before registration",
+      desc: "Most platforms do not allow adding the code after registration, so verify that getitpro is present before submitting the form.",
+    },
+    {
+      icon: <Smartphone className="h-5 w-5 text-purple-400" />,
+      title: "Check the icon and developer before downloading",
+      desc: "If you are using an app store, confirm the icon and developer details before installing the app.",
+    },
+    {
+      icon: <AlertTriangle className="h-5 w-5 text-amber-400" />,
+      title: "Prepare for KYC in advance",
+      desc: "Prepare your ID, stable lighting, and a reliable network before starting KYC to reduce rejections or interruptions.",
+    },
+  ],
 };
 
-const GUIDE_ROUTE_COPY = {
-  zh: {
-    sectionLabel: "独立教学路由",
-    sectionTitle: "按交易所进入专属注册与下载教学",
-    sectionDesc: "如果你已经确定要注册哪一家，可以直接进入对应教学页，按照官网注册、邀请码填写和下载步骤一步步操作。",
-    button: "进入独立教学页",
-    helper: "每一页都会单独讲清楚官网注册、邀请码填写和官方下载入口。",
-  },
-  en: {
-    sectionLabel: "Dedicated guide routes",
-    sectionTitle: "Open the exchange-specific sign-up guide directly",
-    sectionDesc: "If you already know which exchange you want, jump straight into the dedicated guide for official sign-up, referral-code entry, and download steps.",
-    button: "Open dedicated guide",
-    helper: "Each page explains the official sign-up flow, referral field, and official download path separately.",
-  }
+const SCREENSHOT_HINTS = {
+  zh: ["官网注册入口截图", "邀请码填写位置截图", "官方下载入口截图"],
+  en: ["Official sign-up entry screenshot", "Referral code field screenshot", "Official download entry screenshot"],
 };
+
+function isExchangeSlug(value: string | null): value is ExchangeSlug {
+  return value === "gate" || value === "okx" || value === "binance" || value === "bybit" || value === "bitget";
+}
 
 export default function ExchangeDownload() {
   useScrollMemory();
   const { language } = useLanguage();
   const zh = language === "zh";
-  const [, navigate] = useLocation();
-  const [activeExchange, setActiveExchange] = useState("gate");
-  const { allLinks: exchangeLinksData } = useExchangeLinks();
+  const { allLinks } = useExchangeLinks();
 
-  const meta = EXCHANGE_META[activeExchange];
-  const exchangeData = exchangeLinksData.find(e => e.slug === activeExchange);
-  const tips = COMMON_TIPS[zh ? "zh" : "en"];
-  const guideCopy = GUIDE_ROUTE_COPY[zh ? "zh" : "en"];
+  const initialExchange = useMemo(() => {
+    const params = new URLSearchParams(window.location.search);
+    const value = params.get("exchange");
+    return isExchangeSlug(value) ? value : "gate";
+  }, []);
+
+  const initialMode = useMemo(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("mode") === "official" ? "official" : "partner";
+  }, []);
+
+  const [activeExchange, setActiveExchange] = useState<ExchangeSlug>(initialExchange);
+  const [mode, setMode] = useState<FlowMode>(initialMode);
 
   useEffect(() => {
-    preloadRoute(`/exchange-registration/${activeExchange}`);
-  }, [activeExchange]);
+    const params = new URLSearchParams(window.location.search);
+    params.set("exchange", activeExchange);
+    params.set("mode", mode);
+    const nextUrl = `${window.location.pathname}?${params.toString()}${window.location.hash}`;
+    window.history.replaceState({}, "", nextUrl);
+  }, [activeExchange, mode]);
+
+  const tutorial = GUIDE_DATA[activeExchange];
+  const dynamicLink = allLinks.find((item) => item.slug === activeExchange);
+  const notes = COMMON_NOTES[zh ? "zh" : "en"];
+  const screenshotHints = SCREENSHOT_HINTS[zh ? "zh" : "en"];
+  const steps = mode === "partner" ? tutorial.partnerSteps : tutorial.officialSteps;
+  const primaryHref = mode === "partner" ? dynamicLink?.referralLink ?? tutorial.officialSignup : tutorial.officialSignup;
+  const primaryLabel = zh
+    ? mode === "partner"
+      ? "前往官方合作注册链接"
+      : "前往官网注册链接"
+    : mode === "partner"
+      ? "Open Official Partner Link"
+      : "Open Official Sign-up Link";
+  const primaryHelper = zh
+    ? mode === "partner"
+      ? "邀请码通常已自动带入；如未带入请填写 getitpro。"
+      : "进入官网注册页后，请在邀请码栏手动填写 getitpro。"
+    : mode === "partner"
+      ? "The referral code is usually prefilled; if not, enter getitpro manually."
+      : "After opening the official page, enter getitpro manually in the referral field.";
 
   return (
-    <div className="min-h-screen text-white" style={{ background: 'linear-gradient(180deg, #0A192F 0%, #0d1f35 100%)' }}>
-      {/* ── Header ── */}
-      <header className="sticky top-0 z-50 border-b border-amber-500/15 backdrop-blur-sm" style={{ background: 'rgba(10,25,47,0.95)' }}>
-        <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
+    <div className="min-h-screen bg-[#081322] text-white">
+      <SeoManager
+        title={zh ? "交易所注册与下载教学 | Get8 Pro" : "Exchange Registration & Download Guide | Get8 Pro"}
+        description={
+          zh
+            ? "在一个页面内完成交易所选择、注册链接选择、邀请码填写说明与官方下载教学。"
+            : "Choose an exchange, choose a registration path, and follow the official sign-up and download tutorial in one place."
+        }
+        path="/exchange-download"
+        keywords={
+          zh
+            ? "交易所注册教学,交易所下载教学,邀请码填写,getitpro,官网注册链接,官方合作链接"
+            : "exchange registration guide,exchange download guide,referral code,getitpro,official sign-up link,partner link"
+        }
+      />
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#081322]/90 backdrop-blur">
+        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
           <button
+            type="button"
             onClick={() => goBack()}
-            className="flex items-center gap-2 text-slate-400 hover:text-amber-400 transition-colors text-sm font-medium"
+            className="tap-target inline-flex items-center gap-2 text-sm font-medium text-slate-400 transition hover:text-white"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span>{zh ? "返回" : "Back"}</span>
+            <ArrowLeft className="h-4 w-4" />
+            {zh ? "返回" : "Back"}
           </button>
-          <div className="flex items-center gap-2">
-            <Download className="w-4 h-4 text-amber-400" />
-            <span className="font-black text-sm text-white">
-              {zh ? "交易所下载指南" : "Exchange Download Guide"}
-            </span>
+          <div className="inline-flex items-center gap-2 text-sm font-black text-white">
+            <Download className="h-4 w-4 text-cyan-300" />
+            {zh ? "交易所注册与下载教学" : "Exchange Registration & Download Guide"}
           </div>
-          <div className="w-16" />
+          <Link href="/exchanges" className="tap-target text-sm text-slate-400 transition hover:text-white">
+            {zh ? "交易所对比" : "Exchanges"}
+          </Link>
         </div>
       </header>
 
-      <div className="max-w-4xl mx-auto px-4 py-10">
-        {/* ── Hero ── */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold mb-4 border"
-            style={{ background: 'rgba(255,215,0,0.08)', borderColor: 'rgba(255,215,0,0.25)', color: '#FFD700' }}>
-            <span className="animate-pulse">●</span>
-            {zh ? "新手专属下载指南" : "Beginner Download Guide"}
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-black text-white mb-3">
-            {zh ? "三步完成交易所注册" : "3 Steps to Register an Exchange"}
-          </h1>
-          <p className="text-slate-400 text-base leading-relaxed max-w-xl mx-auto">
-            {zh
-              ? "从下载 App 到填写邀请码，全程图文说明，5 分钟完成注册，立即享受返佣福利。"
-              : "From downloading the app to entering the referral code — step-by-step guide, complete registration in 5 minutes and start earning rebates."}
-          </p>
-          <div className="mx-auto mt-6 max-w-2xl rounded-2xl border border-amber-500/25 bg-amber-500/10 p-4 text-left text-sm leading-6 text-amber-100">
-            <p className="font-bold text-amber-300">
-              {zh ? '新用户默认 20% 返佣，想要更高额度请直接联系我。' : 'New users start with a default 20% rebate. Contact me if you need a higher rate.'}
-            </p>
-            <p className="mt-2">
-              {zh ? '老账户通常无法补绑返佣；目前优先支持 5 家交易所，如果你需要其他平台，也可以直接联系我。' : 'Existing accounts usually cannot be retrofitted. We currently support 5 exchanges, and you can contact me if you need another platform.'}
+      <main className="mx-auto max-w-6xl px-4 py-8 sm:py-10">
+        <section className="rounded-[32px] border border-white/10 bg-[radial-gradient(circle_at_top_right,rgba(34,211,238,0.12),transparent_35%),linear-gradient(180deg,rgba(8,19,34,0.98),rgba(4,12,24,0.98))] px-6 py-8 sm:px-8 lg:px-10">
+          <div className="max-w-3xl">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-bold text-cyan-200">
+              <CheckCircle2 className="h-4 w-4" />
+              {zh ? "一个页面讲清楚注册、邀请码和下载流程" : "One page for registration, referral, and download"}
+            </div>
+            <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl">
+              {zh ? "先选交易所，再选注册方式" : "Choose the exchange first, then choose the registration path"}
+            </h1>
+            <p className="mt-4 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
+              {zh
+                ? "这个页面会把五家交易所的注册、邀请码填写和官方下载入口整合到一起。你可以直接走我们提供的官方合作链接；如果你只想用官网原生入口，也可以手动填写邀请码 getitpro，我们会把教学步骤整理清楚。"
+                : "This page brings the sign-up path, referral-code instructions, and official download entries for all five exchanges into one place. You can use our official partner links, or you can use the native official sign-up pages and type getitpro manually."}
             </p>
           </div>
-        </div>
+        </section>
 
-        {/* ── Exchange Selector ── */}
-        <div className="mb-8">
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">
-            {zh ? "选择你想下载的交易所" : "Choose an exchange to download"}
-          </p>
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-            {Object.entries(EXCHANGE_META).map(([slug, m]) => {
-              const exData = exchangeLinksData.find(e => e.slug === slug);
+        <section className="pt-8">
+          <div className="mb-4 flex items-center justify-between gap-4">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">
+                {zh ? "第一步" : "Step 1"}
+              </p>
+              <h2 className="mt-2 text-2xl font-black text-white">
+                {zh ? "选择你要注册的交易所" : "Choose the exchange you want to register"}
+              </h2>
+            </div>
+            <div className="text-xs text-slate-400">
+              {zh ? "默认邀请码：getitpro" : "Default code: getitpro"}
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+            {allLinks.map((item) => {
+              const exchange = GUIDE_DATA[item.slug as ExchangeSlug];
+              const selected = item.slug === activeExchange;
               return (
                 <button
-                  key={slug}
-                  onClick={() => setActiveExchange(slug)}
-                  className={`relative flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all ${
-                    activeExchange === slug
-                      ? `bg-gradient-to-b ${m.color} ${m.borderColor} scale-105 shadow-lg`
-                      : "border-white/10 hover:border-white/25 hover:bg-white/3"
-                  }`}
+                  key={item.slug}
+                  type="button"
+                  onClick={() => setActiveExchange(item.slug as ExchangeSlug)}
+                  className={`rounded-[24px] border px-4 py-5 text-left transition ${selected ? "border-cyan-400/45 bg-cyan-400/10" : "border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05]"}`}
                 >
-                  <span className="text-3xl">{m.emoji}</span>
-                  <span className="text-xs font-black text-white capitalize">{slug === "gate" ? "Gate.io" : slug.charAt(0).toUpperCase() + slug.slice(1)}</span>
-                  {exData?.rebateRate && (
-                    <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(255,215,0,0.12)', color: '#FFD700', border: '1px solid rgba(255,215,0,0.2)' }}>
-                      {zh ? `返佣 ${exData.rebateRate}` : `${exData.rebateRate} rebate`}
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-3xl">{exchange.emoji}</p>
+                      <h3 className="mt-3 text-lg font-black text-white">{exchange.name}</h3>
+                    </div>
+                    <span className="rounded-full border border-amber-400/20 bg-amber-400/10 px-2 py-1 text-xs font-bold text-amber-300">
+                      {zh ? `返佣 ${item.rebateRate}` : `${item.rebateRate} rebate`}
                     </span>
-                  )}
+                  </div>
                 </button>
               );
             })}
           </div>
-        </div>
+        </section>
 
-        {/* ── Selected Exchange Detail ── */}
-        <div className="mb-8 rounded-2xl border border-cyan-500/20 bg-cyan-500/[0.04] p-5 sm:p-6">
-          <p className="mb-2 text-xs font-bold uppercase tracking-[0.22em] text-cyan-300">
-            {guideCopy.sectionLabel}
-          </p>
-          <h2 className="text-xl font-black text-white sm:text-2xl">
-            {guideCopy.sectionTitle}
-          </h2>
-          <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-300">
-            {guideCopy.sectionDesc}
-          </p>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-            {exchangeLinksData.map((ex) => {
-              const exchangeMeta = EXCHANGE_META[ex.slug];
-              return (
-                <Link
-                  key={ex.slug}
-                  href={`/exchange-registration/${ex.slug}`}
-                  onMouseEnter={() => preloadRoute(`/exchange-registration/${ex.slug}`)}
-                  onTouchStart={() => preloadRoute(`/exchange-registration/${ex.slug}`)}
-                  onFocus={() => preloadRoute(`/exchange-registration/${ex.slug}`)}
-                  onPointerDown={() => preloadRoute(`/exchange-registration/${ex.slug}`)}
-                  className="tap-target rounded-2xl border border-white/10 bg-[#071422] px-4 py-4 transition hover:border-cyan-400/40 hover:bg-white/[0.04]"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-2xl">{exchangeMeta?.emoji ?? "🏦"}</p>
-                      <h3 className="mt-3 text-sm font-black text-white">{ex.name}</h3>
-                      <p className="mt-1 text-xs leading-6 text-slate-400">
-                        {guideCopy.helper}
-                      </p>
-                    </div>
-                    <ChevronRight className="mt-1 h-4 w-4 shrink-0 text-cyan-300" />
-                  </div>
-                  <div className="mt-4 inline-flex items-center gap-2 text-xs font-bold text-cyan-300">
-                    {guideCopy.button}
-                  </div>
-                </Link>
-              );
-            })}
+        <section id="registration-guide" className="pt-8">
+          <div className="mb-4">
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">
+              {zh ? "第二步" : "Step 2"}
+            </p>
+            <h2 className="mt-2 text-2xl font-black text-white">
+              {zh ? `选择 ${tutorial.name} 的注册方式` : `Choose the registration path for ${tutorial.nameEn}`}
+            </h2>
           </div>
-        </div>
 
-        {meta && (
-          <div className={`rounded-2xl border ${meta.borderColor} bg-gradient-to-br ${meta.color} p-6 mb-8`}>
-            <div className="flex items-start gap-4 mb-6">
-              <span className="text-5xl">{meta.emoji}</span>
-              <div className="flex-1">
-                <h2 className="text-xl font-black text-white mb-1 capitalize">
-                  {activeExchange === "gate" ? "Gate.io" : activeExchange.charAt(0).toUpperCase() + activeExchange.slice(1)}
-                </h2>
-                <p className="text-slate-400 text-sm mb-2">{meta.highlight}</p>
-                <div className="flex flex-wrap gap-2">
-                  {meta.platform.map(p => (
-                    <span key={p} className="text-xs bg-white/10 border border-white/15 text-slate-300 px-2 py-0.5 rounded-full">{p}</span>
-                  ))}
-                </div>
+          <div className="grid gap-4 lg:grid-cols-2">
+            <button
+              type="button"
+              onClick={() => setMode("partner")}
+              className={`rounded-[28px] border p-6 text-left transition ${mode === "partner" ? "border-cyan-400/45 bg-cyan-400/10" : "border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05]"}`}
+            >
+              <div className="mb-4 inline-flex rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-bold text-cyan-200">
+                {zh ? "官方合作链接" : "Official partner link"}
               </div>
+              <h3 className="text-2xl font-black text-white">
+                {zh ? "直接走我们提供的官方合作链接" : "Use our official partner sign-up link"}
+              </h3>
+              <p className="mt-3 text-sm leading-7 text-slate-300">
+                {zh ? tutorial.partnerSummary.zh : tutorial.partnerSummary.en}
+              </p>
+              <div className="mt-4 text-xs font-semibold text-slate-400">
+                {zh ? "更适合想快速完成注册的用户" : "Best for users who want the shortest route"}
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setMode("official")}
+              className={`rounded-[28px] border p-6 text-left transition ${mode === "official" ? "border-cyan-400/45 bg-cyan-400/10" : "border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05]"}`}
+            >
+              <div className="mb-4 inline-flex rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-bold text-slate-200">
+                {zh ? "官网原生入口" : "Native official sign-up"}
+              </div>
+              <h3 className="text-2xl font-black text-white">
+                {zh ? "只用官网注册链接，手动填写邀请码" : "Use the official sign-up page and enter the code manually"}
+              </h3>
+              <p className="mt-3 text-sm leading-7 text-slate-300">
+                {zh ? tutorial.officialSummary.zh : tutorial.officialSummary.en}
+              </p>
+              <div className="mt-4 text-xs font-semibold text-slate-400">
+                {zh ? "更适合只想使用官网原生流程的用户" : "Best for users who prefer the native official flow"}
+              </div>
+            </button>
+          </div>
+        </section>
+
+        <section className="grid gap-8 pt-8 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6">
+            <div className="mb-5 flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">
+                  {zh ? "第三步" : "Step 3"}
+                </p>
+                <h2 className="mt-2 text-2xl font-black text-white">
+                  {zh ? "跟着步骤完成注册与下载" : "Follow the steps to register and download"}
+                </h2>
+              </div>
+              <span
+                className="rounded-full px-3 py-1 text-xs font-bold text-black"
+                style={{ background: tutorial.accent }}
+              >
+                {mode === "partner" ? (zh ? "合作链接模式" : "Partner mode") : (zh ? "官网手动模式" : "Manual mode")}
+              </span>
             </div>
 
-            {/* 三步骤 */}
-            <div className="space-y-4 mb-6">
-              <h3 className="text-sm font-black text-slate-300 uppercase tracking-widest">
-                {zh ? "下载 & 注册步骤" : "Download & Registration Steps"}
-              </h3>
-              {(zh ? meta.steps.zh : meta.steps.en).map((step, i) => (
-                <div key={i} className="flex items-start gap-3">
-                  <div className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-sm font-black text-black"
-                    style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)' }}>
-                    {i + 1}
+            <div className="space-y-4">
+              {(zh ? steps.zh : steps.en).map((step, index) => (
+                <div key={step} className="flex items-start gap-4 rounded-[22px] border border-white/10 bg-black/20 p-4">
+                  <div
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-black text-black"
+                    style={{ background: tutorial.accent }}
+                  >
+                    {index + 1}
                   </div>
-                  <p className="text-slate-200 text-sm leading-relaxed pt-0.5">{step}</p>
+                  <p className="text-sm leading-7 text-slate-200">{step}</p>
                 </div>
               ))}
             </div>
 
-            {/* 小贴士 */}
-            <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 mb-6">
-              <div className="flex items-start gap-2">
-                <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                <p className="text-amber-200 text-sm leading-relaxed">
-                  {zh ? meta.tip.zh : meta.tip.en}
-                </p>
-              </div>
+            <div className="mt-6 rounded-2xl border border-amber-400/20 bg-amber-400/10 px-4 py-4 text-sm leading-7 text-amber-100">
+              {primaryHelper}
             </div>
 
-            {/* 下载按钮 */}
-            {exchangeData?.referralLink && (
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <a
-                href={exchangeData.referralLink}
+                href={primaryHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-black text-black text-base transition-all hover:scale-[1.02] active:scale-[0.98]"
-                style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', boxShadow: '0 4px 20px rgba(255,215,0,0.3)' }}
+                className="tap-target inline-flex flex-1 items-center justify-center gap-2 rounded-2xl px-5 py-4 text-sm font-black text-black transition hover:scale-[1.01]"
+                style={{ background: tutorial.accent }}
               >
-                <Download className="w-5 h-5" />
-                {zh ? "前往官方注册链接" : "Open Official Sign-up Link"}
-                <ExternalLink className="w-4 h-4" />
+                {primaryLabel}
+                <ExternalLink className="h-4 w-4" />
               </a>
-            )}
-            {exchangeData?.referralLink && (
-              <p className="mt-3 text-center text-xs leading-relaxed text-slate-400">
-                {zh ? "邀请码已自动带入；如未带入请填写 getitpro" : "Referral code is prefilled; if not, enter getitpro"}
-              </p>
-            )}
-            <Link
-              href={`/exchange-registration/${activeExchange}`}
-              className="mt-4 block"
-              onMouseEnter={() => preloadRoute(`/exchange-registration/${activeExchange}`)}
-              onTouchStart={() => preloadRoute(`/exchange-registration/${activeExchange}`)}
-              onFocus={() => preloadRoute(`/exchange-registration/${activeExchange}`)}
-              onPointerDown={() => preloadRoute(`/exchange-registration/${activeExchange}`)}
-            >
-              <button
-                type="button"
-                className="tap-target w-full rounded-xl border border-white/12 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+              <a
+                href={tutorial.officialDownload}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="tap-target inline-flex flex-1 items-center justify-center gap-2 rounded-2xl border border-white/12 bg-white/5 px-5 py-4 text-sm font-semibold text-white transition hover:bg-white/10"
               >
-                {zh ? "查看完整注册与下载教学" : "View Full Sign-up Guide"}
-              </button>
-            </Link>
+                {zh ? "前往官方下载页" : "Open official download page"}
+                <Download className="h-4 w-4" />
+              </a>
+            </div>
+            <div className="mt-3 text-xs leading-6 text-slate-400">
+              {zh ? `当前交易所：${tutorial.name} · 默认返佣 ${tutorial.rebate}` : `Current exchange: ${tutorial.nameEn} · Default rebate ${tutorial.rebate}`}
+            </div>
+            <div className="mt-4 flex flex-wrap gap-3 text-xs">
+              <Link
+                href={`/exchange/${activeExchange}`}
+                className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-2 text-slate-300 transition hover:bg-white/[0.06]"
+              >
+                {zh ? "查看交易所详情页" : "View exchange detail"}
+              </Link>
+              <a
+                href={tutorial.appStore ?? tutorial.officialDownload}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-2 text-slate-300 transition hover:bg-white/[0.06]"
+              >
+                {zh ? "查看 App Store 入口" : "View app store entry"}
+              </a>
+            </div>
           </div>
-        )}
 
-        {/* ── 通用注意事项 ── */}
-        <div className="mb-10">
-          <h2 className="text-lg font-black text-white mb-4">
-            {zh ? "📋 注册前必读" : "📋 Must Read Before Registering"}
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {tips.map((tip, i) => (
-              <div key={i} className="flex items-start gap-3 rounded-xl border border-white/8 bg-white/3 p-4">
-                <div className="shrink-0 mt-0.5">{tip.icon}</div>
-                <div>
-                  <h3 className="text-sm font-black text-white mb-1">{tip.title}</h3>
-                  <p className="text-slate-400 text-xs leading-relaxed">{tip.desc}</p>
-                </div>
+          <div className="space-y-6">
+            <div className="rounded-[28px] border border-white/10 bg-black/20 p-6">
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">
+                {zh ? "邀请码说明" : "Referral code note"}
+              </p>
+              <h2 className="mt-3 text-3xl font-black text-white">getitpro</h2>
+              <p className="mt-3 text-sm leading-7 text-slate-300">
+                {zh
+                  ? "如果你通过我们提供的官方合作链接进入，邀请码大多会自动带入。如果你选择官网原生注册入口，请在邀请码、Referral code 或 Invite code 栏手动填写 getitpro。"
+                  : "If you use the official partner link we provide, the code is usually prefilled. If you use the native official sign-up page, enter getitpro manually in the referral field."}
+              </p>
+            </div>
+
+            <div className="rounded-[28px] border border-dashed border-white/15 bg-black/20 p-6">
+              <div className="flex items-center gap-3 text-slate-300">
+                <ImagePlus className="h-5 w-5" />
+                <p className="text-sm font-semibold">
+                  {zh ? "官网截图预留区" : "Reserved area for official screenshots"}
+                </p>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ── 邀请码汇总 ── */}
-        <div className="rounded-2xl border border-amber-500/25 p-6 mb-10" style={{ background: 'linear-gradient(135deg, rgba(255,215,0,0.05) 0%, rgba(10,25,47,0.8) 100%)' }}>
-          <h2 className="text-lg font-black text-white mb-1">
-            {zh ? "🎁 专属邀请码汇总" : "🎁 Exclusive Referral Codes"}
-          </h2>
-          <p className="text-slate-400 text-sm mb-5">
-            {zh ? "注册时填写以下邀请码，享受终身手续费返佣。" : "Enter these referral codes during registration to enjoy lifetime fee rebates."}
-          </p>
-          <div className="space-y-3">
-            {exchangeLinksData.map((ex) => (
-              <div key={ex.slug} className="flex items-center justify-between gap-4 rounded-xl border border-white/8 bg-white/3 px-4 py-3">
-                <div className="flex items-center gap-3">
-                  <span className="text-xl">{EXCHANGE_META[ex.slug]?.emoji ?? "💱"}</span>
-                  <div>
-                    <span className="font-black text-white text-sm">{ex.name}</span>
-                    {ex.rebateRate && (
-                      <span className="ml-2 text-xs font-bold" style={{ color: '#FFD700' }}>返佣 {ex.rebateRate}</span>
-                    )}
+              <div className="mt-5 grid gap-4">
+                {screenshotHints.map((title) => (
+                  <div key={title} className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
+                    <h3 className="text-base font-black text-white">{title}</h3>
+                    <div className="mt-4 flex h-32 items-center justify-center rounded-2xl border border-dashed border-white/10 bg-black/20 text-center text-sm leading-7 text-slate-500">
+                      {zh ? "这里可以放官网截图，帮助用户对照完成每一步操作" : "Place the official screenshot here so users can follow each step visually"}
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  {ex.inviteCode && (
-                    <code className="text-xs font-mono bg-white/8 border border-white/15 text-amber-300 px-2.5 py-1 rounded-lg">
-                      {ex.inviteCode}
-                    </code>
-                  )}
-                  {ex.referralLink && (
-                    <a
-                      href={ex.referralLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1 text-xs font-bold text-amber-400 hover:text-amber-300 transition-colors"
-                    >
-                      {zh ? "官方注册链接" : "Official Sign-up Link"}
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
-                  )}
-                </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
-        </div>
+        </section>
 
-        {/* ── 完成后去哪里 ── */}
-        <div className="rounded-2xl border border-white/10 bg-white/3 p-6 mb-10">
-          <h2 className="text-lg font-black text-white mb-4">
-            {zh ? "✅ 注册完成后，下一步做什么？" : "✅ After registration, what's next?"}
-          </h2>
-          <div className="space-y-3">
-            {(zh ? [
-              { icon: <Gift className="w-5 h-5 text-amber-400" />, title: "确认返佣已激活", desc: "登录账号后，在「个人中心 → 返佣」或「邀请返佣」页面确认返佣状态已激活。", action: "前往返佣说明", href: "/crypto-saving" },
-              { icon: <Zap className="w-5 h-5 text-blue-400" />, title: "了解交易所功能", desc: "不熟悉现货/合约/杠杆？前往交易所扫盲指南，从零了解每个功能。", action: "查看功能指南", href: "/exchange-guide" },
-              { icon: <Users className="w-5 h-5 text-emerald-400" />, title: "有疑问？看新手问答", desc: "注册遇到问题？返佣没有到账？前往新手问答页面查找解答。", action: "新手问答", href: "/beginner" },
-            ] : [
-              { icon: <Gift className="w-5 h-5 text-amber-400" />, title: "Confirm rebate is activated", desc: "After logging in, go to 'Profile → Rebates' or 'Referral Rebates' to confirm your rebate status is active.", action: "Trading Cost Guide", href: "/crypto-saving" },
-              { icon: <Zap className="w-5 h-5 text-blue-400" />, title: "Learn exchange features", desc: "Not familiar with spot/futures/margin? Visit the Exchange Guide to learn each feature from scratch.", action: "Feature Guide", href: "/exchange-guide" },
-              { icon: <Users className="w-5 h-5 text-emerald-400" />, title: "Have questions? Check FAQ", desc: "Having trouble registering? Rebate not credited? Visit our FAQ page for answers.", action: "FAQ", href: "/beginner" },
-            ]).map((item, i) => (
-              <div key={i} className="flex items-start gap-3 rounded-xl border border-white/8 bg-white/3 p-4">
-                <div className="shrink-0 mt-0.5">{item.icon}</div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-black text-white mb-1">{item.title}</h3>
-                  <p className="text-slate-400 text-xs leading-relaxed mb-2">{item.desc}</p>
-                  <button
-                    onClick={() => navigate(item.href)}
-                    className="flex items-center gap-1 text-xs font-bold text-amber-400 hover:text-amber-300 transition-colors"
-                  >
-                    {item.action}
-                    <ChevronRight className="w-3 h-3" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ── 底部 CTA ── */}
-        <div className="rounded-2xl border border-amber-500/25 p-8 text-center" style={{ background: 'linear-gradient(135deg, rgba(255,215,0,0.06) 0%, rgba(10,25,47,0.9) 100%)' }}>
-          <div className="text-4xl mb-3">🎉</div>
-          <h3 className="text-xl font-black text-white mb-2">
-            {zh ? "准备好了吗？" : "Ready to get started?"}
-          </h3>
-          <p className="text-slate-400 text-sm mb-6 max-w-sm mx-auto">
-            {zh
-              ? "选择一家交易所，通过专属链接注册，立即开始享受永久返佣福利。"
-              : "Choose an exchange, register via our exclusive link, and start enjoying lifetime rebate benefits."}
+        <section className="pt-8">
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">
+            {zh ? "常见卡点" : "Common blockers"}
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button
-              size="lg"
-              className="font-black hover:scale-105 transition-transform"
-              style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', color: '#0A192F' }}
-              onClick={() => navigate("/exchanges")}
-            >
-              <Zap className="mr-2 w-5 h-5" />
-              {zh ? "查看全部返佣链接" : "View All Rebate Links"}
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-amber-500/40 text-amber-400 hover:bg-amber-500/10 font-bold"
-              onClick={() => navigate("/crypto-saving")}
-            >
-              {zh ? "返回交易成本指南" : "Back to Trading Cost Guide"}
-            </Button>
+          <h2 className="mt-2 text-2xl font-black text-white">
+            {zh ? "先把最容易出错的地方讲清楚" : "Call out the most common blockers first"}
+          </h2>
+          <div className="mt-5 grid gap-4 md:grid-cols-3">
+            {(zh ? tutorial.blockers.zh : tutorial.blockers.en).map((item) => (
+              <div key={item} className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
+                <CheckCircle2 className="h-5 w-5" style={{ color: tutorial.accent }} />
+                <p className="mt-4 text-sm leading-7 text-slate-300">{item}</p>
+              </div>
+            ))}
           </div>
-        </div>
-      </div>
+        </section>
 
-      <ScrollToTopButton color="yellow" />
+        <section className="pt-8">
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">
+            {zh ? "通用提醒" : "General notes"}
+          </p>
+          <h2 className="mt-2 text-2xl font-black text-white">
+            {zh ? "注册前建议先看完这几条" : "Read these notes before you register"}
+          </h2>
+          <div className="mt-5 grid gap-4 md:grid-cols-2">
+            {notes.map((item) => (
+              <div key={item.title} className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+                <div className="shrink-0">{item.icon}</div>
+                <div>
+                  <h3 className="text-sm font-black text-white">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-7 text-slate-300">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="pt-8">
+          <div className="rounded-[32px] border border-white/10 bg-white/[0.03] px-6 py-7 sm:px-8">
+            <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
+              <div>
+                <p className="text-sm font-semibold text-slate-300">{zh ? "最后一步" : "Final step"}</p>
+                <h2 className="mt-2 text-3xl font-black text-white">
+                  {zh ? `进入 ${tutorial.name} 的官方入口` : `Open the official entry for ${tutorial.nameEn}`}
+                </h2>
+                <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">
+                  {primaryHelper}
+                </p>
+              </div>
+              <a
+                href={primaryHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="tap-target inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-4 text-sm font-black text-black transition hover:scale-[1.01]"
+                style={{ background: tutorial.accent }}
+              >
+                {primaryLabel}
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <ScrollToTopButton color="cyan" />
     </div>
   );
 }

@@ -309,7 +309,7 @@ export default function ExchangeDetail() {
 
   useEffect(() => {
     if (slug) {
-      preloadRoute(`/exchange-registration/${slug}`);
+        preloadRoute("/exchange-download");
     }
   }, [slug]);
 
@@ -413,7 +413,7 @@ export default function ExchangeDetail() {
                   <ExternalLink className="w-4 h-4 ml-2" />
                 </a>
               </Button>
-              <Link href={`/exchange-registration/${slug}`} className="sm:w-auto" onMouseEnter={() => preloadRoute(`/exchange-registration/${slug}`)} onTouchStart={() => preloadRoute(`/exchange-registration/${slug}`)} onFocus={() => preloadRoute(`/exchange-registration/${slug}`)} onPointerDown={() => preloadRoute(`/exchange-registration/${slug}`)}>
+              <Link href={`/exchange-download?exchange=${slug}#registration-guide`} className="sm:w-auto" onMouseEnter={() => preloadRoute("/exchange-download")} onTouchStart={() => preloadRoute("/exchange-download")} onFocus={() => preloadRoute("/exchange-download")} onPointerDown={() => preloadRoute("/exchange-download")}>
                 <Button variant="outline" className="w-full border-white/20 text-white hover:bg-white/10 py-5">
                   <Download className="w-4 h-4 mr-2" />
                   {zh ? "注册与下载教学" : "Sign-up Guide"}
@@ -440,7 +440,7 @@ export default function ExchangeDetail() {
                 {
                   title: zh ? "查看完整注册教学" : "Open full sign-up guide",
                   desc: zh ? "带邀请码的官网注册步骤会单独讲清楚。" : "A dedicated guide covers the official sign-up flow with the referral code.",
-                  onClick: () => { preloadRoute(`/exchange-registration/${slug}`); window.location.href = `/exchange-registration/${slug}`; },
+                  onClick: () => { preloadRoute("/exchange-download"); window.location.href = `/exchange-download?exchange=${slug}#registration-guide`; },
                 },
                 {
                   title: zh ? "先看常见问题" : "Read the FAQ first",
@@ -606,7 +606,7 @@ export default function ExchangeDetail() {
               <Link href="/exchanges" className="text-slate-400 hover:text-white transition">
                 {zh ? "交易所对比" : "Exchange Comparison"}
               </Link>
-              <Link href={`/exchange-registration/${slug}`} className="text-slate-400 hover:text-white transition" onMouseEnter={() => preloadRoute(`/exchange-registration/${slug}`)} onTouchStart={() => preloadRoute(`/exchange-registration/${slug}`)} onFocus={() => preloadRoute(`/exchange-registration/${slug}`)}>
+              <Link href={`/exchange-download?exchange=${slug}#registration-guide`} className="text-slate-400 hover:text-white transition" onMouseEnter={() => preloadRoute("/exchange-download")} onTouchStart={() => preloadRoute("/exchange-download")} onFocus={() => preloadRoute("/exchange-download")}>
                 {zh ? "注册与下载教学" : "Sign-up Guide"}
               </Link>
               <Link href="/crypto-saving" className="text-slate-400 hover:text-white transition">
