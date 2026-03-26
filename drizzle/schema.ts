@@ -45,6 +45,9 @@ export const exchangeLinks = mysqlTable("exchange_links", {
   referralLink: text("referralLink").notNull(),
   inviteCode: varchar("inviteCode", { length: 64 }).notNull(),
   rebateRate: varchar("rebateRate", { length: 16 }).notNull(),
+  guideStep1ImageUrl: text("guideStep1ImageUrl"),
+  guideStep2ImageUrl: text("guideStep2ImageUrl"),
+  guideStep3ImageUrl: text("guideStep3ImageUrl"),
   sortOrder: int("sortOrder").default(0).notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

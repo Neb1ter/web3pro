@@ -6,10 +6,6 @@ import { ScrollToTopButton } from "@/components/ScrollToTopButton";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useExchangeLinks } from "@/contexts/ExchangeLinksContext";
 import { goBack, useScrollMemory } from "@/hooks/useScrollMemory";
-import gateStepHome from "@/assets/exchange/gate/step-1-home.png";
-import gateStepInvite from "@/assets/exchange/gate/step-2-invite.png";
-import gateStepDownload from "@/assets/exchange/gate/step-3-download.png";
-
 type ExchangeSlug = "gate" | "okx" | "binance" | "bybit" | "bitget";
 type FlowMode = "partner" | "official";
 
@@ -37,6 +33,11 @@ type GuideStep = {
 };
 
 const FALLBACK_INVITE = "getitpro";
+const GATE_GUIDE_DEFAULTS = {
+  step1: "/images/exchange-guides/gate/step-1-home.png",
+  step2: "/images/exchange-guides/gate/step-2-invite.png",
+  step3: "/images/exchange-guides/gate/step-3-download.png",
+} as const;
 
 const EXCHANGES: Record<ExchangeSlug, ExchangeMeta> = {
   gate: {
@@ -138,7 +139,7 @@ export default function ExchangeDownload() {
   useScrollMemory();
   const { language } = useLanguage();
   const zh = language === "zh";
-  const { getReferralLink, getInviteCode, getRebateRate } = useExchangeLinks();
+  const { getReferralLink, getInviteCode, getRebateRate, getGuideImages } = useExchangeLinks();
   const initial = readQuery();
   const [exchange, setExchange] = useState<ExchangeSlug>(initial.exchange);
   const [mode, setMode] = useState<FlowMode>(initial.mode);
@@ -156,6 +157,7 @@ export default function ExchangeDownload() {
   const inviteCode = getInviteCode(exchange) || FALLBACK_INVITE;
   const rebateRate = getRebateRate(exchange);
   const partnerLink = getReferralLink(exchange);
+  const guideImages = getGuideImages(exchange);
   const steps = useMemo<GuideStep[]>(() => {
     if (exchange === "gate") {
       if (mode === "partner") {
@@ -203,7 +205,7 @@ export default function ExchangeDownload() {
           visualTitleEn: "Asset 1: Official homepage and domain",
           visualHintZh: "\u5bf9\u5e94\u4f60\u7ed9\u7684 Gate \u9996\u9875\u7d20\u6750\uff0c\u91cd\u70b9\u662f gate.com \u57df\u540d\u548c\u53f3\u4e0a\u89d2\u300c\u6ce8\u518c\u300d\u6309\u94ae\u3002",
           visualHintEn: "Use the Gate homepage screenshot to show the correct official domain.",
-          imageSrc: gateStepHome,
+          imageSrc: guideImages.step1 || GATE_GUIDE_DEFAULTS.step1,
           imageAltZh: "Gate \u5b98\u7f51\u9996\u9875\uff0c\u53f3\u4e0a\u89d2\u53ef\u4ee5\u770b\u5230\u6ce8\u518c\u6309\u94ae",
           imageAltEn: "Gate official homepage with the register button visible in the top-right corner",
         },
@@ -216,7 +218,7 @@ export default function ExchangeDownload() {
           visualTitleEn: "Asset 2: Enter getitpro",
           visualHintZh: "\u5bf9\u5e94\u4f60\u7ed9\u7684\u7b2c\u4e8c\u5f20\u7d20\u6750\uff0c\u91cd\u70b9\u5c31\u662f\u7ea2\u6846\u91cc\u7684 getitpro\u3002",
           visualHintEn: "Highlight the getitpro field so users can match it at a glance.",
-          imageSrc: gateStepInvite,
+          imageSrc: guideImages.step2 || GATE_GUIDE_DEFAULTS.step2,
           imageAltZh: "Gate \u6ce8\u518c\u9875\u7684\u9080\u8bf7\u7801\u533a\u57df\uff0c\u7ea2\u6846\u6807\u51fa getitpro",
           imageAltEn: "Gate registration page with the invite code field showing getitpro",
         },
@@ -229,7 +231,7 @@ export default function ExchangeDownload() {
           visualTitleEn: "Asset 3: Official download entry",
           visualHintZh: "\u5bf9\u5e94\u4f60\u7ed9\u7684\u7b2c\u4e09\u5f20\u7d20\u6750\uff0c\u7528\u6765\u544a\u8bc9\u7528\u6237\u6ce8\u518c\u540e\u8981\u4ece\u54ea\u91cc\u7ee7\u7eed\u4e0b\u8f7d\u3002",
           visualHintEn: "Show where the user should continue for the official download.",
-          imageSrc: gateStepDownload,
+          imageSrc: guideImages.step3 || GATE_GUIDE_DEFAULTS.step3,
           imageAltZh: "Gate \u5b98\u65b9\u4e0b\u8f7d\u9875\uff0c\u53ef\u4ee5\u7ee7\u7eed\u5b89\u88c5 App",
           imageAltEn: "Gate official download page for continuing the app installation",
         },
@@ -279,6 +281,7 @@ export default function ExchangeDownload() {
             visualTitleEn: "Screenshot 1: Native registration page",
             visualHintZh: "\u653e\u5b98\u7f51\u539f\u751f\u6ce8\u518c\u9875\u7684\u622a\u56fe\u3002",
             visualHintEn: "Place the official native registration page screenshot here.",
+            imageSrc: guideImages.step1 || undefined,
           },
           {
             titleZh: "\u627e\u5230\u9080\u8bf7\u7801\u4f4d\u7f6e\u5e76\u586b\u5199",
@@ -289,6 +292,7 @@ export default function ExchangeDownload() {
             visualTitleEn: "Screenshot 2: Enter the referral code",
             visualHintZh: "\u7528\u622a\u56fe\u628a\u9080\u8bf7\u7801\u4f4d\u7f6e\u5708\u51fa\u6765\u3002",
             visualHintEn: "Use a marked screenshot to show the exact field position.",
+            imageSrc: guideImages.step2 || undefined,
           },
           {
             titleZh: "\u5b8c\u6210\u6ce8\u518c\u540e\u518d\u4e0b\u8f7d",
@@ -299,9 +303,10 @@ export default function ExchangeDownload() {
             visualTitleEn: "Screenshot 3: Official download",
             visualHintZh: "\u4f7f\u7528\u5b98\u65b9\u4e0b\u8f7d\u9875\u6216 App \u5165\u53e3\u622a\u56fe\u3002",
             visualHintEn: "Use the official download page or app entry screenshot.",
+            imageSrc: guideImages.step3 || undefined,
           },
         ];
-  }, [exchange, inviteCode, meta.name, mode]);
+  }, [exchange, guideImages.step1, guideImages.step2, guideImages.step3, inviteCode, meta.name, mode]);
 
   const openOfficialGuide = () => {
     setMode("official");

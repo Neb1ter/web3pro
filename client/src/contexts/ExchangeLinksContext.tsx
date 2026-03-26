@@ -14,6 +14,9 @@ type ExchangeLinkData = {
   referralLink: string;
   inviteCode: string;
   rebateRate: string;
+  guideStep1ImageUrl: string;
+  guideStep2ImageUrl: string;
+  guideStep3ImageUrl: string;
 };
 
 type ExchangeLinksContextValue = {
@@ -23,6 +26,7 @@ type ExchangeLinksContextValue = {
   getInviteCode: (slug: string) => string;
   /** 获取指定交易所的返佣比例（数据库优先，fallback 到硬编码） */
   getRebateRate: (slug: string) => string;
+  getGuideImages: (slug: string) => { step1: string; step2: string; step3: string };
   /** 所有交易所的完整数据（合并数据库与 fallback） */
   allLinks: ExchangeLinkData[];
   /** 是否正在加载 */
@@ -39,7 +43,16 @@ export function ExchangeLinksProvider({ children }: { children: React.ReactNode 
     // 加载失败时不显示错误，直接使用 fallback
   });
 
-  type DbLink = { slug: string; name?: string | null; referralLink?: string | null; inviteCode?: string | null; rebateRate?: string | null };
+  type DbLink = {
+    slug: string;
+    name?: string | null;
+    referralLink?: string | null;
+    inviteCode?: string | null;
+    rebateRate?: string | null;
+    guideStep1ImageUrl?: string | null;
+    guideStep2ImageUrl?: string | null;
+    guideStep3ImageUrl?: string | null;
+  };
 
   const value = useMemo<ExchangeLinksContextValue>(() => {
     // 将数据库数据转为 slug → data 的 Map，方便 O(1) 查找
@@ -64,6 +77,15 @@ export function ExchangeLinksProvider({ children }: { children: React.ReactNode 
       return INVITE_CODES[slug as keyof typeof INVITE_CODES]?.rebateRate ?? "";
     };
 
+    const getGuideImages = (slug: string) => {
+      const db = dbMap.get(slug);
+      return {
+        step1: db?.guideStep1ImageUrl ?? "",
+        step2: db?.guideStep2ImageUrl ?? "",
+        step3: db?.guideStep3ImageUrl ?? "",
+      };
+    };
+
     // 合并所有交易所（以 INVITE_CODES 的 slug 列表为基准）
     const allLinks: ExchangeLinkData[] = Object.keys(INVITE_CODES).map(slug => ({
       slug,
@@ -71,9 +93,12 @@ export function ExchangeLinksProvider({ children }: { children: React.ReactNode 
       referralLink: getReferralLink(slug),
       inviteCode: getInviteCode(slug),
       rebateRate: getRebateRate(slug),
+      guideStep1ImageUrl: getGuideImages(slug).step1,
+      guideStep2ImageUrl: getGuideImages(slug).step2,
+      guideStep3ImageUrl: getGuideImages(slug).step3,
     }));
 
-    return { getReferralLink, getInviteCode, getRebateRate, allLinks, loading: isLoading };
+    return { getReferralLink, getInviteCode, getRebateRate, getGuideImages, allLinks, loading: isLoading };
   }, [dbLinks, isLoading]);
 
   return (

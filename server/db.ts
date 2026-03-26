@@ -102,6 +102,29 @@ export async function ensureCryptoToolsSchema(): Promise<void> {
   }
 }
 
+export async function ensureExchangeGuideImageSchema(): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  const columns = [
+    { name: "guideStep1ImageUrl", sql: "ALTER TABLE exchange_links ADD COLUMN guideStep1ImageUrl TEXT NULL" },
+    { name: "guideStep2ImageUrl", sql: "ALTER TABLE exchange_links ADD COLUMN guideStep2ImageUrl TEXT NULL" },
+    { name: "guideStep3ImageUrl", sql: "ALTER TABLE exchange_links ADD COLUMN guideStep3ImageUrl TEXT NULL" },
+  ] as const;
+
+  for (const column of columns) {
+    try {
+      await db.execute(column.sql);
+      console.log(`[Database] Added exchange_links.${column.name} column`);
+    } catch (error) {
+      const message = String(error).toLowerCase();
+      if (!message.includes("duplicate column")) {
+        console.warn(`[Database] Failed to ensure exchange_links.${column.name} column:`, error);
+      }
+    }
+  }
+}
+
 /**
  * 检查数据库中是否已有管理员账号。
  * 用于「首位注册用户自动成为管理员」逻辑。
@@ -290,7 +313,7 @@ export async function getExchangeLinks(): Promise<ExchangeLink[]> {
 
 export async function updateExchangeLink(
   slug: string,
-  data: Partial<Pick<InsertExchangeLink, 'referralLink' | 'inviteCode' | 'rebateRate' | 'name'>>
+  data: Partial<Pick<InsertExchangeLink, 'referralLink' | 'inviteCode' | 'rebateRate' | 'name' | 'guideStep1ImageUrl' | 'guideStep2ImageUrl' | 'guideStep3ImageUrl'>>
 ): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

@@ -7,6 +7,289 @@ import { ArticlesTab } from "./admin/AdminArticlesTab";
 import { PlatformsTab } from "./admin/AdminPlatformsTab";
 import { PublishLogsTab } from "./admin/AdminPublishLogsTab";
 
+
+function ExchangeGuideManager({ zh }: { zh: boolean }) {
+  type ExchangeRow = {
+    slug: string;
+    name?: string | null;
+    referralLink?: string | null;
+    inviteCode?: string | null;
+    rebateRate?: string | null;
+    guideStep1ImageUrl?: string | null;
+    guideStep2ImageUrl?: string | null;
+    guideStep3ImageUrl?: string | null;
+  };
+
+  type ExchangeForm = {
+    name: string;
+    referralLink: string;
+    inviteCode: string;
+    rebateRate: string;
+    guideStep1ImageUrl: string;
+    guideStep2ImageUrl: string;
+    guideStep3ImageUrl: string;
+  };
+
+  const stepMeta = [
+    { step: 1 as const, key: "guideStep1ImageUrl" as const, titleZh: "步骤 1：官网首页", titleEn: "Step 1: Official homepage" },
+    { step: 2 as const, key: "guideStep2ImageUrl" as const, titleZh: "步骤 2：邀请码位置", titleEn: "Step 2: Invite code field" },
+    { step: 3 as const, key: "guideStep3ImageUrl" as const, titleZh: "步骤 3：官方下载页", titleEn: "Step 3: Official download page" },
+  ];
+
+  const emptyForm: ExchangeForm = {
+    name: "",
+    referralLink: "",
+    inviteCode: "",
+    rebateRate: "",
+    guideStep1ImageUrl: "",
+    guideStep2ImageUrl: "",
+    guideStep3ImageUrl: "",
+  };
+
+  const exchangesQuery = trpc.exchanges.list.useQuery();
+  const updateMutation = trpc.exchanges.update.useMutation({
+    onSuccess: () => {
+      toast.success(zh ? "交易所设置已保存" : "Exchange settings saved");
+      exchangesQuery.refetch();
+      setEditing(null);
+      setForm(emptyForm);
+    },
+    onError: () => toast.error(zh ? "保存失败，请重试" : "Save failed"),
+  });
+  const uploadMutation = trpc.exchanges.uploadGuideImage.useMutation();
+
+  const [editing, setEditing] = useState<string | null>(null);
+  const [form, setForm] = useState<ExchangeForm>(emptyForm);
+  const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+
+  const startEdit = (ex: ExchangeRow) => {
+    setEditing(ex.slug);
+    setForm({
+      name: ex.name ?? "",
+      referralLink: ex.referralLink ?? "",
+      inviteCode: ex.inviteCode ?? "",
+      rebateRate: ex.rebateRate ?? "",
+      guideStep1ImageUrl: ex.guideStep1ImageUrl ?? "",
+      guideStep2ImageUrl: ex.guideStep2ImageUrl ?? "",
+      guideStep3ImageUrl: ex.guideStep3ImageUrl ?? "",
+    });
+  };
+
+  const resetEdit = () => {
+    setEditing(null);
+    setForm(emptyForm);
+  };
+
+  const readFileAsDataUrl = (file: File) =>
+    new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result ?? ""));
+      reader.onerror = () => reject(new Error("read-failed"));
+      reader.readAsDataURL(file);
+    });
+
+  const triggerFilePicker = (slug: string, step: 1 | 2 | 3) => {
+    fileInputRefs.current[`${slug}-${step}`]?.click();
+  };
+
+  const handleUpload = async (slug: string, step: 1 | 2 | 3, file?: File) => {
+    if (!file) return;
+    try {
+      const dataUrl = await readFileAsDataUrl(file);
+      const result = await uploadMutation.mutateAsync({
+        slug: slug as "gate" | "okx" | "binance" | "bybit" | "bitget",
+        step,
+        dataUrl,
+        fileName: file.name,
+      });
+
+      const fieldMap = {
+        1: "guideStep1ImageUrl",
+        2: "guideStep2ImageUrl",
+        3: "guideStep3ImageUrl",
+      } as const;
+
+      if (editing === slug) {
+        setForm(prev => ({ ...prev, [fieldMap[step]]: result.url }));
+      }
+
+      toast.success(zh ? `步骤 ${step} 图片已上传` : `Step ${step} image uploaded`);
+      exchangesQuery.refetch();
+    } catch {
+      toast.error(zh ? "图片上传失败，请重试" : "Image upload failed");
+    }
+  };
+
+  const handleSave = (slug: string) => {
+    updateMutation.mutate({ slug, ...form });
+  };
+
+  if (exchangesQuery.isLoading) return <LoadingSpinner />;
+
+  return (
+    <div className="space-y-5">
+      <div className="space-y-2">
+        <h2 className="text-xl font-bold text-white">{zh ? "交易所链接与教程图片管理" : "Exchange links and tutorial images"}</h2>
+        <p className="text-sm text-slate-400">
+          {zh
+            ? "在这里统一管理 5 家交易所的合作链接、邀请码、返佣标签，以及官网注册教程的三张步骤图。"
+            : "Manage the partner link, invite code, rebate label, and the three tutorial screenshots for each exchange here."}
+        </p>
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-2">
+        {((exchangesQuery.data ?? []) as ExchangeRow[]).map((ex) => {
+          const isEditing = editing === ex.slug;
+          const imageCount = [ex.guideStep1ImageUrl, ex.guideStep2ImageUrl, ex.guideStep3ImageUrl].filter(Boolean).length;
+
+          return (
+            <section key={ex.slug} className="rounded-2xl border border-slate-700/60 bg-slate-900/60 p-5 shadow-[0_20px_50px_rgba(2,8,23,0.25)]">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h3 className="text-lg font-semibold text-white">{ex.name ?? ex.slug}</h3>
+                  <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                    <span className="rounded-full border border-cyan-800/50 bg-cyan-950/40 px-2.5 py-1 text-cyan-300">
+                      {zh ? "邀请码" : "Invite"} {ex.inviteCode ?? "-"}
+                    </span>
+                    <span className="rounded-full border border-emerald-800/50 bg-emerald-950/40 px-2.5 py-1 text-emerald-300">
+                      {zh ? "返佣标签" : "Rebate"} {ex.rebateRate ?? "-"}
+                    </span>
+                    <span className="rounded-full border border-slate-700 bg-slate-800/80 px-2.5 py-1 text-slate-300">
+                      {zh ? "教程图" : "Guide images"} {imageCount}/3
+                    </span>
+                  </div>
+                </div>
+                {!isEditing ? (
+                  <button onClick={() => startEdit(ex)} className="admin-btn-ghost text-sm">
+                    {zh ? "编辑" : "Edit"}
+                  </button>
+                ) : (
+                  <div className="flex gap-2">
+                    <button onClick={() => handleSave(ex.slug)} disabled={updateMutation.isPending} className="admin-btn-primary text-sm">
+                      {zh ? "保存" : "Save"}
+                    </button>
+                    <button onClick={resetEdit} className="admin-btn-ghost text-sm">
+                      {zh ? "取消" : "Cancel"}
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {isEditing ? (
+                <div className="mt-5 space-y-5">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <LabeledInput label={zh ? "显示名称" : "Display name"} value={form.name} onChange={v => setForm(prev => ({ ...prev, name: v }))} />
+                    <LabeledInput label={zh ? "邀请码" : "Invite code"} value={form.inviteCode} onChange={v => setForm(prev => ({ ...prev, inviteCode: v }))} />
+                    <div className="sm:col-span-2">
+                      <LabeledInput
+                        label={zh ? "合作链接（官网分配域名）" : "Partner link (official assigned domain)"}
+                        value={form.referralLink}
+                        onChange={v => setForm(prev => ({ ...prev, referralLink: v }))}
+                        placeholder="https://..."
+                      />
+                    </div>
+                    <LabeledInput
+                      label={zh ? "返佣标签" : "Rebate label"}
+                      value={form.rebateRate}
+                      onChange={v => setForm(prev => ({ ...prev, rebateRate: v }))}
+                      placeholder="20%"
+                    />
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <h4 className="text-sm font-semibold text-white">{zh ? "官网注册三步教程图片" : "Three-step official registration images"}</h4>
+                      <p className="mt-1 text-xs text-slate-400">
+                        {zh
+                          ? "步骤 1 放官网首页，步骤 2 放邀请码位置，步骤 3 放官方下载页。上传后前台会自动引用。"
+                          : "Upload homepage, invite field, and official download screenshots. The front-end guide will use them automatically."}
+                      </p>
+                    </div>
+
+                    <div className="grid gap-3">
+                      {stepMeta.map(step => {
+                        const imageUrl = form[step.key];
+                        return (
+                          <div key={step.step} className="rounded-xl border border-slate-700/60 bg-slate-950/40 p-3">
+                            <div className="flex items-center justify-between gap-3">
+                              <div>
+                                <div className="text-sm font-medium text-white">{zh ? step.titleZh : step.titleEn}</div>
+                                <div className="text-xs text-slate-400">
+                                  {zh ? "可上传新图，也可手动粘贴外部图片链接。" : "Upload a new image or paste an external image URL."}
+                                </div>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => triggerFilePicker(ex.slug, step.step)}
+                                className="admin-btn-primary text-xs"
+                                disabled={uploadMutation.isPending}
+                              >
+                                {uploadMutation.isPending ? (zh ? "上传中..." : "Uploading...") : (zh ? "上传图片" : "Upload")}
+                              </button>
+                            </div>
+
+                            <input
+                              ref={node => {
+                                fileInputRefs.current[`${ex.slug}-${step.step}`] = node;
+                              }}
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={e => handleUpload(ex.slug, step.step, e.target.files?.[0])}
+                            />
+
+                            <div className="mt-3 grid gap-3 lg:grid-cols-[220px,1fr]">
+                              <div className="overflow-hidden rounded-xl border border-slate-700/60 bg-slate-900/80">
+                                {imageUrl ? (
+                                  <img src={imageUrl} alt={zh ? step.titleZh : step.titleEn} className="h-36 w-full object-cover" />
+                                ) : (
+                                  <div className="flex h-36 items-center justify-center px-4 text-center text-xs text-slate-500">
+                                    {zh ? "暂未上传图片" : "No image uploaded yet"}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="space-y-2">
+                                <LabeledInput
+                                  label={zh ? "图片链接" : "Image URL"}
+                                  value={imageUrl}
+                                  onChange={v => setForm(prev => ({ ...prev, [step.key]: v }))}
+                                  placeholder="https://..."
+                                />
+                                <div className="text-xs text-slate-500">
+                                  {zh
+                                    ? "如果你已经有外部图床链接，也可以直接贴在这里再点保存。"
+                                    : "If you already host the image elsewhere, paste the URL here and save."}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-xl border border-slate-800 bg-slate-950/35 p-3">
+                    <div className="text-xs uppercase tracking-[0.18em] text-slate-500">{zh ? "合作链接" : "Partner link"}</div>
+                    <div className="mt-2 break-all text-sm text-slate-300">{ex.referralLink || (zh ? "未设置" : "Not set")}</div>
+                  </div>
+                  <div className="rounded-xl border border-slate-800 bg-slate-950/35 p-3">
+                    <div className="text-xs uppercase tracking-[0.18em] text-slate-500">{zh ? "教程图状态" : "Guide image status"}</div>
+                    <div className="mt-2 text-sm text-slate-300">
+                      {zh ? `已配置 ${imageCount} / 3 张` : `${imageCount} / 3 images configured`}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </section>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ─── Types ─────────────────────────────────────────────────────────────────────
 type Tab = "exchanges" | "contacts" | "tools" | "news" | "articles" | "platforms" | "publishLogs" | "settings";
 
@@ -1060,7 +1343,7 @@ export default function AdminExchangeGuide() {
 
           {/* Tab content */}
           <div className="bg-slate-900/40 border border-slate-700/50 rounded-2xl p-6 backdrop-blur-sm">
-            {tab === "exchanges" && <ExchangesTab zh={zh} />}
+            {tab === "exchanges" && <ExchangeGuideManager zh={zh} />}
             {tab === "contacts" && <ContactsTab zh={zh} />}
             {tab === "tools" && <ToolsTab zh={zh} />}
             {tab === "news" && <NewsTab zh={zh} />}

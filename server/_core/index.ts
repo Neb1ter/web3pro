@@ -19,7 +19,7 @@ import {
 } from "./security";
 import { ENV } from "./env";
 import { sdk } from "./sdk";
-import { upsertUser, getDb, seedCryptoToolsIfEmpty, seedMediaPlatformsIfEmpty, getExchangeLinks, ensureCryptoToolsSchema, getSystemSetting, setSystemSetting } from "../db";
+import { upsertUser, getDb, seedCryptoToolsIfEmpty, seedMediaPlatformsIfEmpty, getExchangeLinks, ensureCryptoToolsSchema, ensureExchangeGuideImageSchema, getSystemSetting, setSystemSetting } from "../db";
 import { startRssScheduler } from "./rss";
 import { startWordUpdateScheduler } from "./sensitiveWordUpdater";
 import { startDailyContentScheduler } from "./dailyContent";
@@ -108,9 +108,11 @@ async function startServer() {
         await migrate(db as any, { migrationsFolder });
         console.log("[Database] Migrations completed successfully");
         await ensureCryptoToolsSchema();
+        await ensureExchangeGuideImageSchema();
         // 初始化默认数据（如果表为空则插入种子数据）
         await seedCryptoToolsIfEmpty();
         await ensureCryptoToolsSchema();
+        await ensureExchangeGuideImageSchema();
         await seedMediaPlatformsIfEmpty();
         console.log("[Database] Seed data initialized");
       }

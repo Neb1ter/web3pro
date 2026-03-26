@@ -7,6 +7,7 @@ import { submitContactForm, getContactSubmissions, getExchangeLinks, updateExcha
 import { TRPCError } from "@trpc/server";
 import { and, eq, asc } from "drizzle-orm";
 import { withCache, invalidateCache } from "./_core/cache";
+import { storagePut } from "./storage";
 
 export const appRouter = router({
   system: systemRouter,
@@ -70,14 +71,55 @@ export const appRouter = router({
         inviteCode: z.string().optional(),
         rebateRate: z.string().optional(),
         name: z.string().optional(),
+        guideStep1ImageUrl: z.string().url().optional().or(z.literal("")),
+        guideStep2ImageUrl: z.string().url().optional().or(z.literal("")),
+        guideStep3ImageUrl: z.string().url().optional().or(z.literal("")),
       }))
       .mutation(async ({ ctx, input }) => {
         if (ctx.user?.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN', message: '仅管理员可修改返佣链接' });
         const { slug, ...data } = input;
-        await updateExchangeLink(slug, data);
+        const normalized = Object.fromEntries(
+          Object.entries(data).map(([key, value]) => [key, value === "" ? null : value])
+        );
+        await updateExchangeLink(slug, normalized);
+        invalidateCache("exchanges:list");
         // 写操作后清除缓存，确保下次请求获取最新数据
         invalidateCache('exchanges:list');
         return { success: true } as const;
+      }),
+    uploadGuideImage: protectedProcedure
+      .input(z.object({
+        slug: z.enum(["gate", "okx", "binance", "bybit", "bitget"]),
+        step: z.union([z.literal(1), z.literal(2), z.literal(3)]),
+        dataUrl: z.string().min(1),
+        fileName: z.string().min(1).max(128),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user?.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Only admins can upload guide images" });
+        }
+
+        const match = input.dataUrl.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
+        if (!match) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Invalid image payload" });
+        }
+
+        const [, mimeType, base64] = match;
+        const ext = mimeType.split("/")[1]?.replace("jpeg", "jpg") || "png";
+        const safeFileName = input.fileName.replace(/[^a-zA-Z0-9._-]/g, "-").toLowerCase();
+        const key = `exchange-guides/${input.slug}/step-${input.step}-${Date.now()}-${safeFileName}.${ext}`;
+        const buffer = Buffer.from(base64, "base64");
+        const { url } = await storagePut(key, buffer, mimeType);
+
+        const fieldMap = {
+          1: "guideStep1ImageUrl",
+          2: "guideStep2ImageUrl",
+          3: "guideStep3ImageUrl",
+        } as const;
+
+        await updateExchangeLink(input.slug, { [fieldMap[input.step]]: url });
+        invalidateCache("exchanges:list");
+        return { success: true, url } as const;
       }),
   }),
 
