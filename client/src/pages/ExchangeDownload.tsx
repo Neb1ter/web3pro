@@ -122,6 +122,23 @@ const COMMON_TIPS = {
   ]
 };
 
+const GUIDE_ROUTE_COPY = {
+  zh: {
+    sectionLabel: "独立教学路由",
+    sectionTitle: "按交易所进入专属注册与下载教学",
+    sectionDesc: "如果你已经确定要注册哪一家，可以直接进入对应教学页，按照官网注册、邀请码填写和下载步骤一步步操作。",
+    button: "进入独立教学页",
+    helper: "每一页都会单独讲清楚官网注册、邀请码填写和官方下载入口。",
+  },
+  en: {
+    sectionLabel: "Dedicated guide routes",
+    sectionTitle: "Open the exchange-specific sign-up guide directly",
+    sectionDesc: "If you already know which exchange you want, jump straight into the dedicated guide for official sign-up, referral-code entry, and download steps.",
+    button: "Open dedicated guide",
+    helper: "Each page explains the official sign-up flow, referral field, and official download path separately.",
+  }
+};
+
 export default function ExchangeDownload() {
   useScrollMemory();
   const { language } = useLanguage();
@@ -133,6 +150,7 @@ export default function ExchangeDownload() {
   const meta = EXCHANGE_META[activeExchange];
   const exchangeData = exchangeLinksData.find(e => e.slug === activeExchange);
   const tips = COMMON_TIPS[zh ? "zh" : "en"];
+  const guideCopy = GUIDE_ROUTE_COPY[zh ? "zh" : "en"];
 
   return (
     <div className="min-h-screen text-white" style={{ background: 'linear-gradient(180deg, #0A192F 0%, #0d1f35 100%)' }}>
@@ -214,6 +232,44 @@ export default function ExchangeDownload() {
         </div>
 
         {/* ── Selected Exchange Detail ── */}
+        <div className="mb-8 rounded-2xl border border-cyan-500/20 bg-cyan-500/[0.04] p-5 sm:p-6">
+          <p className="mb-2 text-xs font-bold uppercase tracking-[0.22em] text-cyan-300">
+            {guideCopy.sectionLabel}
+          </p>
+          <h2 className="text-xl font-black text-white sm:text-2xl">
+            {guideCopy.sectionTitle}
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-300">
+            {guideCopy.sectionDesc}
+          </p>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+            {exchangeLinksData.map((ex) => {
+              const exchangeMeta = EXCHANGE_META[ex.slug];
+              return (
+                <Link
+                  key={ex.slug}
+                  href={`/exchange-registration/${ex.slug}`}
+                  className="tap-target rounded-2xl border border-white/10 bg-[#071422] px-4 py-4 transition hover:border-cyan-400/40 hover:bg-white/[0.04]"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-2xl">{exchangeMeta?.emoji ?? "🏦"}</p>
+                      <h3 className="mt-3 text-sm font-black text-white">{ex.name}</h3>
+                      <p className="mt-1 text-xs leading-6 text-slate-400">
+                        {guideCopy.helper}
+                      </p>
+                    </div>
+                    <ChevronRight className="mt-1 h-4 w-4 shrink-0 text-cyan-300" />
+                  </div>
+                  <div className="mt-4 inline-flex items-center gap-2 text-xs font-bold text-cyan-300">
+                    {guideCopy.button}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
         {meta && (
           <div className={`rounded-2xl border ${meta.borderColor} bg-gradient-to-br ${meta.color} p-6 mb-8`}>
             <div className="flex items-start gap-4 mb-6">
