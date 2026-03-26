@@ -17,7 +17,7 @@ Contact: muzi2629265049@Gmail.com
 - Futures Maker: 0.02% | Futures Taker: 0.04%
 - BNB Discount: 25% (effective spot rate: 0.075%)
 - Get8 Pro Rebate: 20% permanent rebate on all trades
-- Invite Code: GETITPRO
+- Invite Code: getitpro
 - Users: 250M+ | Daily Volume: $40-60B | CoinGlass Score: 94.33
 - Best For: High-volume traders, BNB ecosystem, best liquidity
 - Review: https://get8.pro/exchange/binance
@@ -26,7 +26,7 @@ Contact: muzi2629265049@Gmail.com
 - Spot Maker: 0.08% | Spot Taker: 0.10%
 - Futures Maker: 0.02% | Futures Taker: 0.05%
 - Get8 Pro Rebate: 20% permanent rebate
-- Invite Code: GETITPRO
+- Invite Code: getitpro
 - Users: 50M+ | Daily Volume: $20B+ | CoinGlass Score: 88.77
 - Special: Web3 wallet (100+ chains), X Layer zkEVM L2, Germany/Poland licensed
 - Best For: Web3 explorers, low-fee spot trading, EU-regulated users
@@ -36,7 +36,7 @@ Contact: muzi2629265049@Gmail.com
 - Spot Maker: 0.15% | Spot Taker: 0.15%
 - Futures Maker: 0.02% | Futures Taker: 0.05%
 - Get8 Pro Rebate: 60% permanent rebate (HIGHEST among all major exchanges)
-- Invite Code: GETITPRO
+- Invite Code: getitpro
 - Users: 14M+ | Daily Volume: $5B+ | Founded: 2013
 - Special: 3,600+ listed tokens (most among major exchanges), Merkle tree proof of reserves
 - Best For: New token discovery, maximum rebate seekers, TradFi asset investors
@@ -46,7 +46,7 @@ Contact: muzi2629265049@Gmail.com
 - Spot Maker: 0.10% | Spot Taker: 0.10%
 - Futures Maker: 0.01% (LOWEST among major exchanges) | Futures Taker: 0.055%
 - Get8 Pro Rebate: 30% permanent rebate
-- Invite Code: GETITPRO
+- Invite Code: getitpro
 - Users: 30M+ | Daily Volume: $10B+ | CoinGlass Score: 88.5
 - Special: Monthly Hacken Proof of Reserves (ETH 101%), Netherlands licensed
 - Best For: Derivatives traders, copy trading, lowest futures fees
@@ -56,7 +56,7 @@ Contact: muzi2629265049@Gmail.com
 - Spot Maker: 0.02% (LOWEST among major exchanges) | Spot Taker: 0.06%
 - Futures Maker: 0.02% | Futures Taker: 0.06%
 - Get8 Pro Rebate: 50% permanent rebate
-- Invite Code: GETITPRO
+- Invite Code: getitpro
 - Users: 25M+ | Daily Volume: $5B+
 - Special: World's largest copy trading platform (100K+ elite traders), full Chinese UI
 - Best For: High-frequency traders, copy trading, Chinese-speaking users

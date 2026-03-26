@@ -120,28 +120,28 @@ export interface ExchangeInviteData {
 
 export const INVITE_CODES: Record<ExchangeSlug, ExchangeInviteData> = {
   gate: {
-    inviteCode: "GETITPRO",
-    referralLink: "https://www.gateport.business/share/GETITPRO",
+    inviteCode: "getitpro",
+    referralLink: "https://www.gate.com/signup/getitpro?ref_type=103",
     rebateRate: "60%",
   },
   okx: {
-    inviteCode: "GETITPRO",
-    referralLink: "https://www.vmutkhamuut.com/join/GETITPRO",
+    inviteCode: "getitpro",
+    referralLink: "https://www.okx.com/join/getitpro",
     rebateRate: "20%",
   },
   binance: {
-    inviteCode: "GETITPRO",
-    referralLink: "https://www.gateport.company/share/GATEBITS",
+    inviteCode: "getitpro",
+    referralLink: "https://accounts.binance.com/register?ref=getitpro",
     rebateRate: "20%",
   },
   bybit: {
-    inviteCode: "GETITPRO",
-    referralLink: "https://partner.bybit.com/b/GETITPRO",
+    inviteCode: "getitpro",
+    referralLink: "https://partner.bybit.com/b/getitpro",
     rebateRate: "30%",
   },
   bitget: {
-    inviteCode: "GETITPRO",
-    referralLink: "https://partner.hdmune.cn/bg/u9qqgq4u",
+    inviteCode: "getitpro",
+    referralLink: "https://www.bitget.com/referral/register?clacCode=getitpro",
     rebateRate: "50%",
   },
 };
@@ -151,7 +151,7 @@ export const INVITE_CODES: Record<ExchangeSlug, ExchangeInviteData> = {
  * gate 使用独立邀请码 GETITPRO，其他交易所统一使用 GETITPRO
  */
 export function getFallbackInviteCode(slug: string): string {
-  return INVITE_CODES[slug as ExchangeSlug]?.inviteCode ?? "GETITPRO";
+  return INVITE_CODES[slug as ExchangeSlug]?.inviteCode ?? "getitpro";
 }
 
 /**

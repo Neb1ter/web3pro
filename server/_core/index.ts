@@ -457,11 +457,11 @@ preferred_citation_format = "Source: [Get8 Pro](${base})"
     };
     // 构建响应数据
     const fallbackLinks = [
-      { slug: 'gate',    name: 'Gate.io',  referralLink: 'https://www.gateport.business/share/GETITPRO', inviteCode: 'GETITPRO', rebateRate: '60%' },
-      { slug: 'okx',    name: 'OKX',      referralLink: 'https://www.vmutkhamuut.com/join/GETITPRO',       inviteCode: 'GETITPRO',    rebateRate: '20%' },
-      { slug: 'binance',name: 'Binance',  referralLink: 'https://www.bsmkweb.cc/join?ref=GETITPRO',  inviteCode: 'GETITPRO',    rebateRate: '20%' },
-      { slug: 'bybit',  name: 'Bybit',    referralLink: 'https://partner.bybit.com/b/GETITPRO',            inviteCode: 'GETITPRO',    rebateRate: '30%' },
-      { slug: 'bitget', name: 'Bitget',   referralLink: 'https://partner.hdmune.cn/bg/u9qqgq4u',        inviteCode: 'GETITPRO',    rebateRate: '50%' },
+      { slug: 'gate',    name: 'Gate.io',  referralLink: 'https://www.gate.com/signup/getitpro?ref_type=103', inviteCode: 'getitpro', rebateRate: '60%' },
+      { slug: 'okx',     name: 'OKX',      referralLink: 'https://www.okx.com/join/getitpro', inviteCode: 'getitpro', rebateRate: '20%' },
+      { slug: 'binance', name: 'Binance',  referralLink: 'https://accounts.binance.com/register?ref=getitpro', inviteCode: 'getitpro', rebateRate: '20%' },
+      { slug: 'bybit',   name: 'Bybit',    referralLink: 'https://partner.bybit.com/b/getitpro', inviteCode: 'getitpro', rebateRate: '30%' },
+      { slug: 'bitget',  name: 'Bitget',   referralLink: 'https://www.bitget.com/referral/register?clacCode=getitpro', inviteCode: 'getitpro', rebateRate: '50%' },
     ];
     const source = links && links.length > 0 ? links : fallbackLinks;
     const exchanges = source.map(link => {

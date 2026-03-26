@@ -748,7 +748,7 @@ export default function CryptoIntro() {
             </Button>
           </div>
           <p className="text-xs text-muted-foreground">
-            {zh ? "邀请码：GETITPRO（全平台统一）" : "Invite code: GETITPRO (all exchanges)"}
+            {zh ? "邀请码：getitpro（全平台统一）" : "Invite code: getitpro (all exchanges)"}
           </p>
         </section>
 

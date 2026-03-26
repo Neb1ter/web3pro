@@ -14,6 +14,7 @@ import {
   mediaPlatforms,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
+import { INVITE_CODES } from "@shared/exchangeFees";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let _db: any = null;
@@ -211,12 +212,37 @@ export async function getContactSubmissions(
 // ─── Exchange Links ────────────────────────────────────────────────────────────
 
 const DEFAULT_EXCHANGE_LINKS: InsertExchangeLink[] = [
-  { slug: 'gate', name: 'Gate.io', referralLink: 'https://www.gateport.business/share/GETITPRO', inviteCode: 'GETITPRO', rebateRate: '60%', sortOrder: 1 },
-  { slug: 'okx', name: 'OKX', referralLink: 'https://www.vmutkhamuut.com/join/GETITPRO', inviteCode: 'GETITPRO', rebateRate: '20%', sortOrder: 2 },
-  { slug: 'binance', name: 'Binance', referralLink: 'https://www.bsmkweb.cc/join?ref=GETITPRO', inviteCode: 'GETITPRO', rebateRate: '20%', sortOrder: 3 },
-  { slug: 'bybit', name: 'Bybit', referralLink: 'https://partner.bybit.com/b/GETITPRO', inviteCode: 'GETITPRO', rebateRate: '30%', sortOrder: 4 },
-  { slug: 'bitget', name: 'Bitget', referralLink: 'https://partner.hdmune.cn/bg/u9qqgq4u', inviteCode: 'GETITPRO', rebateRate: '50%', sortOrder: 5 },
+  { slug: 'gate', name: 'Gate.io', referralLink: INVITE_CODES.gate.referralLink, inviteCode: INVITE_CODES.gate.inviteCode, rebateRate: '60%', sortOrder: 1 },
+  { slug: 'okx', name: 'OKX', referralLink: INVITE_CODES.okx.referralLink, inviteCode: INVITE_CODES.okx.inviteCode, rebateRate: '20%', sortOrder: 2 },
+  { slug: 'binance', name: 'Binance', referralLink: INVITE_CODES.binance.referralLink, inviteCode: INVITE_CODES.binance.inviteCode, rebateRate: '20%', sortOrder: 3 },
+  { slug: 'bybit', name: 'Bybit', referralLink: INVITE_CODES.bybit.referralLink, inviteCode: INVITE_CODES.bybit.inviteCode, rebateRate: '30%', sortOrder: 4 },
+  { slug: 'bitget', name: 'Bitget', referralLink: INVITE_CODES.bitget.referralLink, inviteCode: INVITE_CODES.bitget.inviteCode, rebateRate: '50%', sortOrder: 5 },
 ];
+
+const LEGACY_EXCHANGE_LINKS: Record<string, string[]> = {
+  gate: [
+    "https://www.gateport.business/share/GETITPRO",
+    "https://www.gate.com/signup/GETITPRO?ref_type=103",
+    "https://www.gate.io/signup/GETITPRO?ref_type=103",
+  ],
+  okx: [
+    "https://www.vmutkhamuut.com/join/GETITPRO",
+    "https://www.okx.com/join/GETITPRO",
+  ],
+  binance: [
+    "https://www.bsmkweb.cc/join?ref=GETITPRO",
+    "https://www.gateport.company/share/GATEBITS",
+    "https://accounts.binance.com/register?ref=GETITPRO",
+    "https://accounts.binance.com/en/register?ref=GETITPRO",
+  ],
+  bybit: [
+    "https://partner.bybit.com/b/GETITPRO",
+  ],
+  bitget: [
+    "https://partner.hdmune.cn/bg/u9qqgq4u",
+    "https://www.bitget.com/referral/register?clacCode=GETITPRO",
+  ],
+};
 
 export async function getExchangeLinks(): Promise<ExchangeLink[]> {
   const db = await getDb();
@@ -229,6 +255,36 @@ export async function getExchangeLinks(): Promise<ExchangeLink[]> {
     await db.insert(exchangeLinks).values(DEFAULT_EXCHANGE_LINKS);
     return db.select().from(exchangeLinks).orderBy(exchangeLinks.sortOrder);
   }
+  let updated = false;
+  for (const row of existing) {
+    const fallback = DEFAULT_EXCHANGE_LINKS.find((item) => item.slug === row.slug);
+    if (!fallback) continue;
+
+    const legacyLinks = LEGACY_EXCHANGE_LINKS[row.slug] ?? [];
+    const patch: Partial<InsertExchangeLink> = {};
+
+    if (!row.referralLink || legacyLinks.includes(row.referralLink)) {
+      if (row.referralLink !== fallback.referralLink) {
+        patch.referralLink = fallback.referralLink;
+      }
+    }
+
+    if (!row.inviteCode || /^getitpro$/i.test(row.inviteCode)) {
+      if (row.inviteCode !== fallback.inviteCode) {
+        patch.inviteCode = fallback.inviteCode;
+      }
+    }
+
+    if (Object.keys(patch).length > 0) {
+      await db.update(exchangeLinks).set(patch).where(eq(exchangeLinks.slug, row.slug));
+      updated = true;
+    }
+  }
+
+  if (updated) {
+    return db.select().from(exchangeLinks).orderBy(exchangeLinks.sortOrder);
+  }
+
   return db.select().from(exchangeLinks).orderBy(exchangeLinks.sortOrder);
 }
 
