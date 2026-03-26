@@ -1,84 +1,93 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface ScrollToTopButtonProps {
-  /** 触发显示的滚动距离，默认 300px */
   threshold?: number;
-  /** 按钮颜色主题，默认 emerald */
-  color?: "emerald" | "yellow" | "blue" | "purple";
+  color?: "emerald" | "yellow" | "blue" | "purple" | "cyan";
 }
 
-// 颜色配置：按钮背景、进度环颜色、泛光颜色
 const colorConfig = {
+  cyan: {
+    ring: "#22d3ee",
+    glow: "rgba(34, 211, 238, 0.55)",
+    glowSoft: "rgba(34, 211, 238, 0.18)",
+    track: "rgba(34, 211, 238, 0.15)",
+    bg: "rgba(34, 211, 238, 0.12)",
+    border: "rgba(34, 211, 238, 0.35)",
+    text: "#a5f3fc",
+  },
   emerald: {
     ring: "#10b981",
-    glow: "rgba(16,185,129,0.55)",
-    glowSoft: "rgba(16,185,129,0.18)",
-    track: "rgba(16,185,129,0.15)",
-    bg: "rgba(16,185,129,0.12)",
-    border: "rgba(16,185,129,0.35)",
+    glow: "rgba(16, 185, 129, 0.55)",
+    glowSoft: "rgba(16, 185, 129, 0.18)",
+    track: "rgba(16, 185, 129, 0.15)",
+    bg: "rgba(16, 185, 129, 0.12)",
+    border: "rgba(16, 185, 129, 0.35)",
     text: "#6ee7b7",
   },
   yellow: {
     ring: "#eab308",
-    glow: "rgba(234,179,8,0.55)",
-    glowSoft: "rgba(234,179,8,0.18)",
-    track: "rgba(234,179,8,0.15)",
-    bg: "rgba(234,179,8,0.12)",
-    border: "rgba(234,179,8,0.35)",
+    glow: "rgba(234, 179, 8, 0.55)",
+    glowSoft: "rgba(234, 179, 8, 0.18)",
+    track: "rgba(234, 179, 8, 0.15)",
+    bg: "rgba(234, 179, 8, 0.12)",
+    border: "rgba(234, 179, 8, 0.35)",
     text: "#fde68a",
   },
   blue: {
     ring: "#3b82f6",
-    glow: "rgba(59,130,246,0.55)",
-    glowSoft: "rgba(59,130,246,0.18)",
-    track: "rgba(59,130,246,0.15)",
-    bg: "rgba(59,130,246,0.12)",
-    border: "rgba(59,130,246,0.35)",
+    glow: "rgba(59, 130, 246, 0.55)",
+    glowSoft: "rgba(59, 130, 246, 0.18)",
+    track: "rgba(59, 130, 246, 0.15)",
+    bg: "rgba(59, 130, 246, 0.12)",
+    border: "rgba(59, 130, 246, 0.35)",
     text: "#93c5fd",
   },
   purple: {
     ring: "#a855f7",
-    glow: "rgba(168,85,247,0.55)",
-    glowSoft: "rgba(168,85,247,0.18)",
-    track: "rgba(168,85,247,0.15)",
-    bg: "rgba(168,85,247,0.12)",
-    border: "rgba(168,85,247,0.35)",
+    glow: "rgba(168, 85, 247, 0.55)",
+    glowSoft: "rgba(168, 85, 247, 0.18)",
+    track: "rgba(168, 85, 247, 0.15)",
+    bg: "rgba(168, 85, 247, 0.12)",
+    border: "rgba(168, 85, 247, 0.35)",
     text: "#d8b4fe",
   },
-};
+} as const;
 
-// SVG 进度环参数
 const SIZE = 52;
 const STROKE = 3.5;
-const R = (SIZE - STROKE) / 2;
-const CIRCUMFERENCE = 2 * Math.PI * R;
+const RADIUS = (SIZE - STROKE) / 2;
+const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 export function ScrollToTopButton({
   threshold = 300,
   color = "emerald",
 }: ScrollToTopButtonProps) {
   const [visible, setVisible] = useState(false);
-  const [progress, setProgress] = useState(0); // 0~1
+  const [progress, setProgress] = useState(0);
   const [showTooltip, setShowTooltip] = useState(false);
   const [hovered, setHovered] = useState(false);
 
-  const cfg = colorConfig[color];
+  const cfg = colorConfig[color] ?? colorConfig.emerald;
 
   useEffect(() => {
     let ticking = false;
+
     const onScroll = () => {
       if (ticking) return;
       ticking = true;
+
       requestAnimationFrame(() => {
         const scrollY = window.scrollY;
-        const docH = document.documentElement.scrollHeight - window.innerHeight;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
         setVisible(scrollY > threshold);
-        setProgress(docH > 0 ? Math.min(scrollY / docH, 1) : 0);
+        setProgress(docHeight > 0 ? Math.min(scrollY / docHeight, 1) : 0);
         ticking = false;
       });
     };
+
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
+
     return () => window.removeEventListener("scroll", onScroll);
   }, [threshold]);
 
@@ -86,7 +95,6 @@ export function ScrollToTopButton({
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // 进度环 dash offset：从顶部开始顺时针
   const dashOffset = CIRCUMFERENCE * (1 - progress);
   const pct = Math.round(progress * 100);
 
@@ -100,14 +108,13 @@ export function ScrollToTopButton({
         pointerEvents: visible ? "auto" : "none",
       }}
     >
-      {/* Tooltip：进度百分比 + 提示文字 */}
       <div
         style={{
           transition: "opacity 0.2s ease, transform 0.2s ease",
           opacity: showTooltip ? 1 : 0,
           transform: showTooltip ? "scale(1)" : "scale(0.92)",
           pointerEvents: "none",
-          background: "rgba(15,23,42,0.88)",
+          background: "rgba(15, 23, 42, 0.88)",
           backdropFilter: "blur(8px)",
           border: `1px solid ${cfg.border}`,
           borderRadius: "10px",
@@ -120,8 +127,7 @@ export function ScrollToTopButton({
           position: "relative",
         }}
       >
-        已读 {pct}% · 点击回顶
-        {/* 小三角 */}
+        已浏览 {pct}% · 点击回到顶部
         <div
           style={{
             position: "absolute",
@@ -132,19 +138,25 @@ export function ScrollToTopButton({
             height: 0,
             borderLeft: "5px solid transparent",
             borderRight: "5px solid transparent",
-            borderTop: `5px solid rgba(15,23,42,0.88)`,
+            borderTop: "5px solid rgba(15, 23, 42, 0.88)",
           }}
         />
       </div>
 
-      {/* 按钮主体：SVG 进度环 + 中心图标 */}
       <button
+        type="button"
         onClick={handleClick}
-        onMouseEnter={() => { setShowTooltip(true); setHovered(true); }}
-        onMouseLeave={() => { setShowTooltip(false); setHovered(false); }}
+        onMouseEnter={() => {
+          setShowTooltip(true);
+          setHovered(true);
+        }}
+        onMouseLeave={() => {
+          setShowTooltip(false);
+          setHovered(false);
+        }}
         onFocus={() => setShowTooltip(true)}
         onBlur={() => setShowTooltip(false)}
-        aria-label={`回到顶部，当前已读 ${pct}%`}
+        aria-label={`回到顶部，当前已浏览 ${pct}%`}
         style={{
           position: "relative",
           width: SIZE,
@@ -158,13 +170,11 @@ export function ScrollToTopButton({
           outline: "none",
           transition: "transform 0.15s ease, box-shadow 0.3s ease",
           transform: hovered ? "scale(1.1)" : "scale(1)",
-          // 泛光效果：hover 时增强
           boxShadow: hovered
             ? `0 0 0 4px ${cfg.glowSoft}, 0 0 20px 6px ${cfg.glow}, 0 4px 16px ${cfg.glowSoft}`
             : `0 0 0 2px ${cfg.glowSoft}, 0 0 10px 2px ${cfg.glowSoft}, 0 2px 8px rgba(0,0,0,0.3)`,
         }}
       >
-        {/* SVG 进度环 */}
         <svg
           width={SIZE}
           height={SIZE}
@@ -173,10 +183,9 @@ export function ScrollToTopButton({
             position: "absolute",
             top: 0,
             left: 0,
-            transform: "rotate(-90deg)", // 从顶部开始
+            transform: "rotate(-90deg)",
           }}
         >
-          {/* 发光滤镜 */}
           <defs>
             <filter id={`glow-${color}`} x="-50%" y="-50%" width="200%" height="200%">
               <feGaussianBlur stdDeviation="2.5" result="blur" />
@@ -187,21 +196,19 @@ export function ScrollToTopButton({
             </filter>
           </defs>
 
-          {/* 轨道环 */}
           <circle
             cx={SIZE / 2}
             cy={SIZE / 2}
-            r={R}
+            r={RADIUS}
             fill="none"
             stroke={cfg.track}
             strokeWidth={STROKE}
           />
 
-          {/* 进度环 */}
           <circle
             cx={SIZE / 2}
             cy={SIZE / 2}
-            r={R}
+            r={RADIUS}
             fill="none"
             stroke={cfg.ring}
             strokeWidth={STROKE}
@@ -213,7 +220,6 @@ export function ScrollToTopButton({
           />
         </svg>
 
-        {/* 中心向上箭头 */}
         <svg
           width={20}
           height={20}
