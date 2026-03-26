@@ -40,6 +40,7 @@ const CryptoNews      = lazy(() => import("./pages/CryptoNews"));
 const ArticleDetail   = lazy(() => import("./pages/ArticleDetail"));
 const ArticleList     = lazy(() => import("./pages/ArticleList"));
 const ExchangeDetail  = lazy(() => import("./pages/ExchangeDetail"));
+const ExchangeRegistrationGuide = lazy(() => import("./pages/ExchangeRegistrationGuide"));
 const About           = lazy(() => import("./pages/About"));
 const Standards       = lazy(() => import("./pages/Standards"));
 const UiDemos         = lazy(() => import("./pages/UiDemos"));
@@ -353,6 +354,7 @@ function Router() {
           {/* 鈹€鈹€ 浜ゆ槗鎵€鎸囧崡 鈹€鈹€ */}
           <Route path="/exchange-guide"              component={ExchangeGuideIndex} />
           <Route path="/exchange-download"           component={ExchangeDownload} />
+          <Route path="/exchange-registration/:slug" component={ExchangeRegistrationGuide} />
           <Route path="/exchange-guide/:featureSlug" component={ExchangeFeatureDetail} />
 
           {/* 鈹€鈹€ 鍚庡彴绠＄悊 鈹€鈹€ */}

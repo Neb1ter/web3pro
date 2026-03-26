@@ -5,7 +5,7 @@
  * 从 /crypto-saving 点击「新手不知道怎么下载？」入口进入
  */
 import { useState } from "react";
-import { useLocation } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useExchangeLinks } from '@/contexts/ExchangeLinksContext';
 import { useScrollMemory, goBack } from "@/hooks/useScrollMemory";
@@ -276,6 +276,14 @@ export default function ExchangeDownload() {
                 {zh ? "邀请码已自动带入；如未带入请填写 getitpro" : "Referral code is prefilled; if not, enter getitpro"}
               </p>
             )}
+            <Link href={`/exchange-registration/${activeExchange}`} className="mt-4 block">
+              <button
+                type="button"
+                className="tap-target w-full rounded-xl border border-white/12 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+              >
+                {zh ? "查看完整注册与下载教学" : "View Full Sign-up Guide"}
+              </button>
+            </Link>
           </div>
         )}
 

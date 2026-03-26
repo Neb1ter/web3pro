@@ -405,10 +405,10 @@ export default function ExchangeDetail() {
                   <ExternalLink className="w-4 h-4 ml-2" />
                 </a>
               </Button>
-              <Link href="/exchange-download" className="sm:w-auto">
+              <Link href={`/exchange-registration/${slug}`} className="sm:w-auto">
                 <Button variant="outline" className="w-full border-white/20 text-white hover:bg-white/10 py-5">
                   <Download className="w-4 h-4 mr-2" />
-                  {zh ? "下载教程" : "Download Guide"}
+                  {zh ? "注册与下载教学" : "Sign-up Guide"}
                 </Button>
               </Link>
             </div>
@@ -430,9 +430,9 @@ export default function ExchangeDetail() {
                   onClick: () => window.open(invite.referralLink, "_blank", "noopener,noreferrer"),
                 },
                 {
-                  title: zh ? "先看怎么下载" : "See download steps",
-                  desc: zh ? "App、官网和下载入口都在这里。" : "Jump to app and official download links.",
-                  onClick: () => scrollTo("download-links"),
+                  title: zh ? "查看完整注册教学" : "Open full sign-up guide",
+                  desc: zh ? "带邀请码的官网注册步骤会单独讲清楚。" : "A dedicated guide covers the official sign-up flow with the referral code.",
+                  onClick: () => (window.location.href = `/exchange-registration/${slug}`),
                 },
                 {
                   title: zh ? "先看常见问题" : "Read the FAQ first",
@@ -598,8 +598,8 @@ export default function ExchangeDetail() {
               <Link href="/exchanges" className="text-slate-400 hover:text-white transition">
                 {zh ? "交易所对比" : "Exchange Comparison"}
               </Link>
-              <Link href="/exchange-download" className="text-slate-400 hover:text-white transition">
-                {zh ? "下载教程" : "Download Guide"}
+              <Link href={`/exchange-registration/${slug}`} className="text-slate-400 hover:text-white transition">
+                {zh ? "注册与下载教学" : "Sign-up Guide"}
               </Link>
               <Link href="/crypto-saving" className="text-slate-400 hover:text-white transition">
                 {zh ? "交易成本指南" : "Trading Cost Guide"}
