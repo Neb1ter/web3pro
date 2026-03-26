@@ -6,6 +6,9 @@ import { ScrollToTopButton } from "@/components/ScrollToTopButton";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useExchangeLinks } from "@/contexts/ExchangeLinksContext";
 import { goBack, useScrollMemory } from "@/hooks/useScrollMemory";
+import gateStepHome from "@/assets/exchange/gate/step-1-home.png";
+import gateStepInvite from "@/assets/exchange/gate/step-2-invite.png";
+import gateStepDownload from "@/assets/exchange/gate/step-3-download.png";
 
 type ExchangeSlug = "gate" | "okx" | "binance" | "bybit" | "bitget";
 type FlowMode = "partner" | "official";
@@ -28,6 +31,9 @@ type GuideStep = {
   visualTitleEn: string;
   visualHintZh: string;
   visualHintEn: string;
+  imageSrc?: string;
+  imageAltZh?: string;
+  imageAltEn?: string;
 };
 
 const FALLBACK_INVITE = "getitpro";
@@ -37,7 +43,7 @@ const EXCHANGES: Record<ExchangeSlug, ExchangeMeta> = {
     name: "Gate.io",
     accent: "#00B173",
     officialSignup: "https://www.gate.com/signup",
-    officialDownload: "https://www.gate.com/mobileapp",
+    officialDownload: "https://www.gate.com/zh/appdownload",
     blockerZh: [
       "\u8bf7\u5148\u786e\u8ba4\u4f60\u6253\u5f00\u7684\u662f Gate \u5b98\u65b9\u57df\u540d\u3002",
       "\u63d0\u4ea4\u524d\u518d\u68c0\u67e5\u4e00\u904d Referral code \u662f\u5426\u5df2\u5e26\u5165\u3002",
@@ -197,6 +203,9 @@ export default function ExchangeDownload() {
           visualTitleEn: "Asset 1: Official homepage and domain",
           visualHintZh: "\u5bf9\u5e94\u4f60\u7ed9\u7684 Gate \u9996\u9875\u7d20\u6750\uff0c\u91cd\u70b9\u662f gate.com \u57df\u540d\u548c\u53f3\u4e0a\u89d2\u300c\u6ce8\u518c\u300d\u6309\u94ae\u3002",
           visualHintEn: "Use the Gate homepage screenshot to show the correct official domain.",
+          imageSrc: gateStepHome,
+          imageAltZh: "Gate \u5b98\u7f51\u9996\u9875\uff0c\u53f3\u4e0a\u89d2\u53ef\u4ee5\u770b\u5230\u6ce8\u518c\u6309\u94ae",
+          imageAltEn: "Gate official homepage with the register button visible in the top-right corner",
         },
         {
           titleZh: "\u5728\u6ce8\u518c\u9875\u624b\u52a8\u586b\u5199\u9080\u8bf7\u7801",
@@ -207,6 +216,9 @@ export default function ExchangeDownload() {
           visualTitleEn: "Asset 2: Enter getitpro",
           visualHintZh: "\u5bf9\u5e94\u4f60\u7ed9\u7684\u7b2c\u4e8c\u5f20\u7d20\u6750\uff0c\u91cd\u70b9\u5c31\u662f\u7ea2\u6846\u91cc\u7684 getitpro\u3002",
           visualHintEn: "Highlight the getitpro field so users can match it at a glance.",
+          imageSrc: gateStepInvite,
+          imageAltZh: "Gate \u6ce8\u518c\u9875\u7684\u9080\u8bf7\u7801\u533a\u57df\uff0c\u7ea2\u6846\u6807\u51fa getitpro",
+          imageAltEn: "Gate registration page with the invite code field showing getitpro",
         },
         {
           titleZh: "\u6ce8\u518c\u5b8c\u6210\u540e\u56de\u5230\u5b98\u65b9\u4e0b\u8f7d\u9875",
@@ -217,6 +229,9 @@ export default function ExchangeDownload() {
           visualTitleEn: "Asset 3: Official download entry",
           visualHintZh: "\u5bf9\u5e94\u4f60\u7ed9\u7684\u7b2c\u4e09\u5f20\u7d20\u6750\uff0c\u7528\u6765\u544a\u8bc9\u7528\u6237\u6ce8\u518c\u540e\u8981\u4ece\u54ea\u91cc\u7ee7\u7eed\u4e0b\u8f7d\u3002",
           visualHintEn: "Show where the user should continue for the official download.",
+          imageSrc: gateStepDownload,
+          imageAltZh: "Gate \u5b98\u65b9\u4e0b\u8f7d\u9875\uff0c\u53ef\u4ee5\u7ee7\u7eed\u5b89\u88c5 App",
+          imageAltEn: "Gate official download page for continuing the app installation",
         },
       ];
     }
@@ -435,44 +450,57 @@ export default function ExchangeDownload() {
               </div>
             </div>
 
-            <div className="mt-6 space-y-5">
+            <div className="mt-6 space-y-6">
               {steps.map((step, index) => (
-                <div key={`${step.titleZh}-${index}`} className="relative grid gap-4 border-l border-white/10 pl-5 md:pl-7 lg:grid-cols-[0.4fr_0.6fr]">
-                  <div className="absolute -left-4 top-0 flex h-8 w-8 items-center justify-center rounded-full text-sm font-black text-black" style={{ background: meta.accent }}>
-                      {index + 1}
-                  </div>
-                  <div className="rounded-[20px] border border-white/10 bg-black/20 p-4">
-                    <h3 className="text-lg font-black text-white">{zh ? step.titleZh : step.titleEn}</h3>
-                    <p className="mt-3 text-sm leading-7 text-slate-300">{zh ? step.bodyZh : step.bodyEn}</p>
-                    <div className="mt-4 space-y-2.5 text-sm leading-6 text-slate-300">
-                      <div className="flex gap-2">
-                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" style={{ color: meta.accent }} />
-                        <span>{zh ? step.visualHintZh : step.visualHintEn}</span>
+                <div key={`${step.titleZh}-${index}`} className="relative border-l border-white/10 pl-5 md:pl-7">
+                  <div className="absolute -left-4 top-1 flex h-8 w-8 items-center justify-center rounded-full text-sm font-black text-black" style={{ background: meta.accent }}>
+                        {index + 1}
                       </div>
-                      <div className="flex gap-2">
-                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" style={{ color: meta.accent }} />
-                        <span>{zh ? "\u4e00\u6b65\u53ea\u770b\u4e00\u5f20\u56fe\uff0c\u907f\u514d\u6765\u56de\u7ffb\u770b\u3002" : "Keep one screenshot for one step."}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="rounded-[20px] border border-white/10 bg-[#0a0f18] p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-black text-white">{zh ? step.visualTitleZh : step.visualTitleEn}</p>
-                        <p className="mt-1 text-xs text-slate-500">{zh ? "\u4f60\u7a0d\u540e\u7ed9\u6211\u7d20\u6750\uff0c\u6211\u4f1a\u76f4\u63a5\u586b\u8fdb\u8fd9\u4e00\u683c" : "Screenshot slot for this step"}</p>
-                      </div>
-                      <ImagePlus className="h-5 w-5 text-slate-500" />
-                    </div>
-                    <div className="mt-4 flex aspect-[16/9] items-center justify-center rounded-[18px] border border-dashed border-white/10 bg-white/[0.04] px-6 text-center">
-                      <div>
-                        <p className="text-sm font-semibold text-slate-200">{zh ? step.visualTitleZh : step.visualTitleEn}</p>
-                        <p className="mt-2 text-xs leading-6 text-slate-500">{zh ? step.visualHintZh : step.visualHintEn}</p>
+                  <div className="space-y-4">
+                    <div className="max-w-2xl">
+                      <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-500">
+                        {zh ? `\u7b2c ${index + 1} \u6b65` : `Step ${index + 1}`}
+                      </p>
+                      <h3 className="mt-2 text-lg font-black text-white">{zh ? step.titleZh : step.titleEn}</h3>
+                      <p className="mt-3 text-sm leading-7 text-slate-300">{zh ? step.bodyZh : step.bodyEn}</p>
+                      <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-300">
+                        <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5">
+                          {zh ? step.visualTitleZh : step.visualTitleEn}
+                        </span>
                         {exchange === "gate" ? (
-                          <p className="mt-3 text-[11px] leading-5 text-emerald-300">
-                            {zh ? "\u8fd9\u4e00\u683c\u5df2\u6309\u4f60\u521a\u7ed9\u7684 Gate \u7d20\u6750\u987a\u5e8f\u56fa\u5b9a\uff1a\u9996\u9875 -> \u9080\u8bf7\u7801 -> \u4e0b\u8f7d\u9875\u3002" : "This slot is mapped to the Gate material you provided."}
-                          </p>
+                          <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-emerald-200">
+                            {zh ? "\u5df2\u5957\u7528\u4f60\u63d0\u4f9b\u7684 Gate \u5b98\u65b9\u7d20\u6750" : "Mapped to your Gate screenshots"}
+                          </span>
                         ) : null}
+                      </div>
+                    </div>
+
+                    <div className="overflow-hidden rounded-[24px] border border-white/10 bg-[#050b13]">
+                      <div className="border-b border-white/8 bg-white/[0.03] px-4 py-3">
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-black text-white">{zh ? step.visualTitleZh : step.visualTitleEn}</p>
+                            <p className="mt-1 text-xs leading-5 text-slate-500">{zh ? step.visualHintZh : step.visualHintEn}</p>
+                          </div>
+                          {step.imageSrc ? null : <ImagePlus className="h-5 w-5 text-slate-500" />}
+                        </div>
+                      </div>
+                      <div className="bg-[#03070d] p-3 sm:p-4">
+                        {step.imageSrc ? (
+                          <img
+                            src={step.imageSrc}
+                            alt={zh ? step.imageAltZh || step.visualTitleZh : step.imageAltEn || step.visualTitleEn}
+                            className="w-full rounded-[18px] border border-white/6 object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="flex aspect-[16/9] items-center justify-center rounded-[18px] border border-dashed border-white/10 bg-white/[0.04] px-6 text-center">
+                            <div>
+                              <p className="text-sm font-semibold text-slate-200">{zh ? step.visualTitleZh : step.visualTitleEn}</p>
+                              <p className="mt-2 text-xs leading-6 text-slate-500">{zh ? step.visualHintZh : step.visualHintEn}</p>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
