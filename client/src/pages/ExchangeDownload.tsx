@@ -408,6 +408,17 @@ export default function ExchangeDownload() {
                   <p className="mt-2 text-xs leading-5 text-emerald-300">
                     {zh ? "\u8fd9\u6761\u94fe\u63a5\u540c\u6837\u662f\u5b98\u7f51\u5206\u914d\u7684\u57df\u540d\u5165\u53e3\uff0c\u5168\u7a0b\u7eff\u8272\u5b89\u5168\u6807\u8bc6\uff0c\u53ef\u5728\u5b98\u7f51\u57df\u540d\u4e0b\u6838\u5bf9\u3002" : "This link still opens the official domain and can be verified on the official site."}
                   </p>
+                  <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-slate-300">
+                    <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-emerald-200">
+                      {zh ? "\u5b98\u65b9\u57df\u540d\u5165\u53e3" : "Official domain entry"}
+                    </span>
+                    <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1">
+                      {exchange === "gate" ? "gate.com" : new URL(partnerLink).hostname.replace("www.", "")}
+                    </span>
+                    <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1">
+                      {zh ? "\u70b9\u51fb\u540e\u76f4\u63a5\u8df3\u8f6c" : "Open and register directly"}
+                    </span>
+                  </div>
                 </div>
                 <div className="inline-flex h-10 w-10 items-center justify-center rounded-full text-black" style={{ background: meta.accent }}>
                   <ExternalLink className="h-4 w-4" />
@@ -444,6 +455,16 @@ export default function ExchangeDownload() {
                 <p className="mt-2 text-sm leading-7 text-slate-300">
                   {zh ? "\u8fd9\u4e00\u6bb5\u50cf\u5e2e\u52a9\u4e2d\u5fc3\u4e00\u6837\uff0c\u53ea\u6309\u987a\u5e8f\u5e26\u4f60\u770b\u5f53\u524d\u8fd9\u4e00\u6b65\u8be5\u64cd\u4f5c\u4ec0\u4e48\u3001\u5bf9\u5e94\u54ea\u5f20\u56fe\u3001\u9700\u8981\u68c0\u67e5\u4ec0\u4e48\u3002" : "A help-center style tutorial with one action and one screenshot per step."}
                 </p>
+                {exchange === "gate" ? (
+                  <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-slate-300">
+                    <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2.5 py-1 text-cyan-200">
+                      {zh ? "Gate \u624b\u52a8\u4e09\u6b65\u6559\u7a0b" : "Gate manual 3-step guide"}
+                    </span>
+                    <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1">
+                      {zh ? "\u5148\u770b\u5b98\u7f51 -> \u518d\u586b\u9080\u8bf7\u7801 -> \u6700\u540e\u4e0b\u8f7d App" : "Homepage -> invite code -> app download"}
+                    </span>
+                  </div>
+                ) : null}
               </div>
               <div className="rounded-2xl border border-amber-400/20 bg-amber-400/10 px-4 py-3 text-sm leading-6 text-amber-100">
                 {zh ? `\u9080\u8bf7\u7801\uff1a${inviteCode} \u3002\u5982\u679c\u6ca1\u81ea\u52a8\u5e26\u5165\uff0c\u5c31\u624b\u52a8\u586b\u5199\u3002` : `Invite code: ${inviteCode}. Enter it manually if needed.`}
