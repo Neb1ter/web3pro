@@ -267,9 +267,14 @@ export default function ExchangeDownload() {
                 style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', boxShadow: '0 4px 20px rgba(255,215,0,0.3)' }}
               >
                 <Download className="w-5 h-5" />
-                {zh ? `前往 ${activeExchange === "gate" ? "Gate.io" : activeExchange.charAt(0).toUpperCase() + activeExchange.slice(1)} 官网注册` : `Register on ${activeExchange === "gate" ? "Gate.io" : activeExchange.charAt(0).toUpperCase() + activeExchange.slice(1)}`}
+                {zh ? "前往官方注册链接" : "Open Official Sign-up Link"}
                 <ExternalLink className="w-4 h-4" />
               </a>
+            )}
+            {exchangeData?.referralLink && (
+              <p className="mt-3 text-center text-xs leading-relaxed text-slate-400">
+                {zh ? "邀请码已自动带入；如未带入请填写 getitpro" : "Referral code is prefilled; if not, enter getitpro"}
+              </p>
             )}
           </div>
         )}
@@ -325,7 +330,7 @@ export default function ExchangeDownload() {
                       rel="noopener noreferrer"
                       className="flex items-center gap-1 text-xs font-bold text-amber-400 hover:text-amber-300 transition-colors"
                     >
-                      {zh ? "注册" : "Register"}
+                      {zh ? "官方注册链接" : "Official Sign-up Link"}
                       <ExternalLink className="w-3 h-3" />
                     </a>
                   )}

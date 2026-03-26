@@ -401,7 +401,7 @@ export default function ExchangeDetail() {
               <Button asChild className={`w-full font-black text-base py-5 bg-gradient-to-r from-current/80 to-current/60 hover:opacity-90 ${data.accentCls}`}
                 style={{ background: `linear-gradient(135deg, ${data.color}33, ${data.color}22)`, border: `1px solid ${data.color}66`, color: data.color }}>
                 <a href={invite.referralLink} target="_blank" rel="noopener noreferrer" className="tap-target flex-1">
-                  {zh ? `注册 ${data.name} 享 ${fees.rebateRate} 返佣` : `Register ${data.nameEn} — ${fees.rebateRate} Rebate`}
+                  {zh ? "前往官方注册链接" : "Open Official Sign-up Link"}
                   <ExternalLink className="w-4 h-4 ml-2" />
                 </a>
               </Button>
@@ -414,16 +414,19 @@ export default function ExchangeDetail() {
             </div>
 
             {/* 邀请码 */}
-            <div className="mt-3 flex items-center gap-2 text-sm text-slate-400">
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-slate-400">
               <span>{zh ? "邀请码：" : "Referral Code: "}</span>
               <code className="font-mono font-black text-white bg-white/10 px-2 py-0.5 rounded">{invite.inviteCode}</code>
               <span className="text-xs">({zh ? "注册时填写" : "enter during registration"})</span>
             </div>
+            <p className="mt-2 text-xs leading-relaxed text-slate-400">
+              {zh ? "邀请码已自动带入；如未带入请填写 getitpro" : "Referral code is prefilled; if not, enter getitpro"}
+            </p>
             <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {[
                 {
-                  title: zh ? "先注册拿返佣" : "Register for rebate",
-                  desc: zh ? `${fees.rebateRate} 的入口就在这里。` : `${fees.rebateRate} starts here.`,
+                  title: zh ? "前往官方注册链接" : "Open official sign-up link",
+                  desc: zh ? "开户链接使用交易所官方域名，并会优先带入邀请码。" : "This uses the exchange's official domain and usually pre-fills the referral code.",
                   onClick: () => window.open(invite.referralLink, "_blank", "noopener,noreferrer"),
                 },
                 {
@@ -574,15 +577,15 @@ export default function ExchangeDetail() {
           <div className={`rounded-2xl border ${data.borderCls} bg-gradient-to-br ${data.bgGrad} p-6 text-center`}>
             <div className="text-3xl mb-3">{data.emoji}</div>
             <h3 className="text-xl font-black text-white mb-2">
-              {zh ? `立即注册 ${data.name}，享受 ${fees.rebateRate} 永久返佣` : `Register ${data.nameEn} Now — ${fees.rebateRate} Permanent Rebate`}
+              {zh ? `前往 ${data.name} 官方注册链接` : `Open ${data.nameEn} Official Sign-up Link`}
             </h3>
             <p className="text-slate-400 text-sm mb-4">
-              {zh ? `通过 Get8 Pro 官方邀请码注册，每笔交易自动返佣，终身有效。` : `Register via Get8 Pro's official referral code. Auto rebate on every trade, lifetime valid.`}
+              {zh ? "邀请码通常会自动带入；如未带入，请手动填写 getitpro。" : "The referral code is usually prefilled; if not, manually enter getitpro."}
             </p>
             <Button asChild className="font-black px-8 py-5 text-base"
               style={{ background: `linear-gradient(135deg, ${data.color}44, ${data.color}22)`, border: `1px solid ${data.color}66`, color: data.color }}>
               <a href={invite.referralLink} target="_blank" rel="noopener noreferrer" className="tap-target">
-                {zh ? `注册 ${data.name}` : `Register ${data.nameEn}`}
+                {zh ? "前往官方注册链接" : "Open Official Sign-up Link"}
                 <ExternalLink className="w-4 h-4 ml-2" />
               </a>
             </Button>
