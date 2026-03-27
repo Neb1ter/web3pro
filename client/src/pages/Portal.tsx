@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
 import { useScrollMemory } from '@/hooks/useScrollMemory';
 import OnboardingPrompt from "@/components/OnboardingPrompt";
+import IndexingPriorityLinks from "@/components/IndexingPriorityLinks";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { preloadRoute } from "@/lib/routePreload";
 import { Compass, ShieldCheck, Sparkles } from "lucide-react";
@@ -536,6 +537,9 @@ export default function Portal() {
 
         <QuizBanner lang={lang} />
         <QuickStartPaths lang={lang} />
+        <div className="mb-10">
+          <IndexingPriorityLinks zh={lang === "zh"} />
+        </div>
 
         <div className="pb-16">
           <div className="text-center mb-10">

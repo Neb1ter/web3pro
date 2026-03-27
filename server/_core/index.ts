@@ -285,6 +285,93 @@ async function startServer() {
   });
 
   // ── robots.txt（完整版，显式允许所有 AI 爬虫）─────────────────────────────
+  const buildCoreSitemapXml = async (base: string) => {
+    const now = new Date().toISOString().split("T")[0];
+    const staticRoutes = [
+      { path: "/", priority: "1.0", changefreq: "daily" },
+      { path: "/exchange-download", priority: "0.95", changefreq: "daily" },
+      { path: "/exchanges", priority: "0.9", changefreq: "weekly" },
+      { path: "/crypto-news", priority: "0.9", changefreq: "hourly" },
+      { path: "/articles", priority: "0.9", changefreq: "daily" },
+      { path: "/crypto-saving", priority: "0.85", changefreq: "weekly" },
+      { path: "/exchange-guide", priority: "0.85", changefreq: "weekly" },
+      { path: "/web3-guide", priority: "0.85", changefreq: "weekly" },
+      { path: "/tools", priority: "0.8", changefreq: "weekly" },
+      { path: "/about", priority: "0.7", changefreq: "monthly" },
+      { path: "/standards", priority: "0.65", changefreq: "monthly" },
+      { path: "/legal", priority: "0.6", changefreq: "monthly" },
+      { path: "/contact", priority: "0.6", changefreq: "monthly" },
+    ];
+
+    const staticUrls = staticRoutes.map((route) => `
+  <url>
+    <loc>${base}${route.path}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>${route.changefreq}</changefreq>
+    <priority>${route.priority}</priority>
+  </url>`).join("");
+
+    let exchangeUrls = "";
+    try {
+      const exchangeLinks = await getExchangeLinks();
+      const exchangePaths = [...new Set(exchangeLinks.map((item) => item.slug).filter(Boolean))];
+      exchangeUrls = exchangePaths.map((slug) => `
+  <url>
+    <loc>${base}/exchange/${slug}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`).join("");
+    } catch (error) {
+      console.error("[Sitemap] Failed to build core exchange urls:", error);
+    }
+
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${staticUrls}${exchangeUrls}
+</urlset>`;
+  };
+
+  const buildContentSitemapXml = async (base: string) => {
+    const now = new Date().toISOString().split("T")[0];
+    let articleUrls = "";
+    try {
+      const { getPublishedArticles } = await import("./articles");
+      const publishedArticles = await getPublishedArticles({ limit: 500 });
+      articleUrls = publishedArticles.map((article: { slug: string; publishedAt: Date | null }) => {
+        const lastmod = article.publishedAt
+          ? new Date(article.publishedAt).toISOString().split("T")[0]
+          : now;
+        return `
+  <url>
+    <loc>${base}/article/${article.slug}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>`;
+      }).join("");
+    } catch (error) {
+      console.error("[Sitemap] Failed to build content article urls:", error);
+    }
+
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${articleUrls}
+</urlset>`;
+  };
+
+  app.get("/sitemap-core.xml", async (_req: Request, res: Response) => {
+    const base = ENV.siteUrl ?? "https://get8.pro";
+    res.header("Content-Type", "application/xml");
+    res.header("Cache-Control", "public, max-age=3600");
+    res.send(await buildCoreSitemapXml(base));
+  });
+
+  app.get("/sitemap-content.xml", async (_req: Request, res: Response) => {
+    const base = ENV.siteUrl ?? "https://get8.pro";
+    res.header("Content-Type", "application/xml");
+    res.header("Cache-Control", "public, max-age=3600");
+    res.send(await buildContentSitemapXml(base));
+  });
+
   app.get("/robots.txt", (_req: Request, res: Response) => {
     const base = ENV.siteUrl ?? "https://get8.pro";
     res.header("Content-Type", "text/plain; charset=utf-8");
@@ -347,6 +434,8 @@ Allow: /
 # Sitemap Location
 # --------------------------------------------------------------------
 Sitemap: ${base}/sitemap.xml
+Sitemap: ${base}/sitemap-core.xml
+Sitemap: ${base}/sitemap-content.xml
 `);
   });
 

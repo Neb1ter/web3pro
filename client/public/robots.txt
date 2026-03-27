@@ -58,3 +58,5 @@ Allow: /
 # Sitemap Location
 # --------------------------------------------------------------------
 Sitemap: https://get8.pro/sitemap.xml
+Sitemap: https://get8.pro/sitemap-core.xml
+Sitemap: https://get8.pro/sitemap-content.xml

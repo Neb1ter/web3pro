@@ -77,7 +77,7 @@ const SEO_BY_PATH: Record<string, SeoEntry> = {
       en: "Exchange Registration & Download Guide | Get8 Pro",
     },
     description: {
-      zh: "在一个页面内完成交易所选择、注册链接确认、邀请码填写和官方下载流程查看。",
+      zh: "在一个页面内完成交易所选择、注册路径确认、邀请码填写和官方下载安装流程查看。",
       en: "Choose an exchange, confirm the registration path, verify the invite code, and follow the official download flow in one place.",
     },
     keywords: {
@@ -137,7 +137,7 @@ const SEO_BY_PATH: Record<string, SeoEntry> = {
       en: "Browse in-depth articles, exchange reviews, invite explanations, and Web3 tutorials.",
     },
     keywords: {
-      zh: "深度文章,交易所评测,邀请说明,Web3教程,币圈长文,加密分析",
+      zh: "深度文章,交易所评测,邀请文章,Web3教程,币圈长文,加密分析",
       en: "crypto articles,exchange reviews,invite guide,web3 tutorials,crypto analysis,in-depth articles",
     },
   },
@@ -338,9 +338,7 @@ export function getSiteKeywords(language: SeoLanguage) {
   return BASE_KEYWORDS[language];
 }
 
-export function detectSeoLanguage(acceptLanguageHeader?: string | null): SeoLanguage {
-  const header = acceptLanguageHeader?.toLowerCase() ?? "";
-  if (header.includes("zh")) return "zh";
-  if (header.includes("en")) return "en";
-  return "zh";
+export function detectSeoLanguage(path: string): SeoLanguage {
+  const rawPath = path.toLowerCase();
+  return rawPath.includes("/en") || rawPath.includes("lang=en") ? "en" : "zh";
 }
