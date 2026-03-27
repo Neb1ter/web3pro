@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
-import { ArrowLeft, CheckCircle2, ChevronRight, Download, ExternalLink, ImagePlus, Shield } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ExternalLink, Globe, Shield } from "lucide-react";
 import { SeoManager } from "@/components/SeoManager";
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useExchangeLinks } from "@/contexts/ExchangeLinksContext";
 import { goBack, useScrollMemory } from "@/hooks/useScrollMemory";
+
 type ExchangeSlug = "gate" | "okx" | "binance" | "bybit" | "bitget";
 type FlowMode = "partner" | "official";
 
@@ -14,8 +15,11 @@ type ExchangeMeta = {
   accent: string;
   officialSignup: string;
   officialDownload: string;
-  blockerZh: string[];
-  blockerEn: string[];
+  officialDomain: string;
+  partnerNoteZh: string;
+  partnerNoteEn: string;
+  officialIntroZh: string;
+  officialIntroEn: string;
 };
 
 type GuideStep = {
@@ -23,16 +27,17 @@ type GuideStep = {
   titleEn: string;
   bodyZh: string;
   bodyEn: string;
-  visualTitleZh: string;
-  visualTitleEn: string;
-  visualHintZh: string;
-  visualHintEn: string;
+  imageTitleZh: string;
+  imageTitleEn: string;
+  imageHintZh: string;
+  imageHintEn: string;
   imageSrc?: string;
   imageAltZh?: string;
   imageAltEn?: string;
 };
 
 const FALLBACK_INVITE = "getitpro";
+
 const GATE_GUIDE_DEFAULTS = {
   step1: "/images/exchange-guides/gate/step-1-home.png",
   step2: "/images/exchange-guides/gate/step-2-invite.png",
@@ -45,80 +50,55 @@ const EXCHANGES: Record<ExchangeSlug, ExchangeMeta> = {
     accent: "#00B173",
     officialSignup: "https://www.gate.com/signup",
     officialDownload: "https://www.gate.com/zh/appdownload",
-    blockerZh: [
-      "\u8bf7\u5148\u786e\u8ba4\u4f60\u6253\u5f00\u7684\u662f Gate \u5b98\u65b9\u57df\u540d\u3002",
-      "\u63d0\u4ea4\u524d\u518d\u68c0\u67e5\u4e00\u904d Referral code \u662f\u5426\u5df2\u5e26\u5165\u3002",
-      "\u5f00\u59cb KYC \u524d\u5148\u51c6\u5907\u8bc1\u4ef6\u548c\u7a33\u5b9a\u5149\u7ebf\u3002",
-    ],
-    blockerEn: [
-      "Confirm that you are on Gate's official domain first.",
-      "Double-check the referral field before you submit the form.",
-      "Prepare your ID and stable lighting before starting KYC.",
-    ],
+    officialDomain: "gate.com",
+    partnerNoteZh: "这是 Gate 官方分配的合作入口，点击后会直接进入官方域名体系内的注册流程。",
+    partnerNoteEn: "This partner link stays inside Gate's official domain system and opens the official registration flow directly.",
+    officialIntroZh: "如果你想从 Gate 官网原生页面手动注册，下方会按帮助中心的方式一步步告诉你在哪里点击、在哪里填写邀请码、最后去哪里下载 App。",
+    officialIntroEn: "If you prefer the native official page, the guide below shows exactly where to click, where to enter the invite code, and where to download the app.",
   },
   okx: {
     name: "OKX",
     accent: "#7EA7FF",
     officialSignup: "https://www.okx.com/account/register",
     officialDownload: "https://www.okx.com/download",
-    blockerZh: [
-      "\u90e8\u5206\u5730\u533a\u7684 App Store \u5165\u53e3\u53d7\u9650\uff0c\u4f18\u5148\u53c2\u8003 OKX \u5b98\u7f51\u4e0b\u8f7d\u9875\u3002",
-      "\u9080\u8bf7\u7801\u4e00\u822c\u4e0d\u80fd\u5728\u6ce8\u518c\u540e\u8865\u586b\u3002",
-      "\u5982\u679c\u5207\u5230 App \u5185\u7ee7\u7eed\u6ce8\u518c\uff0c\u8bf7\u91cd\u65b0\u68c0\u67e5 Referral code\u3002",
-    ],
-    blockerEn: [
-      "In some regions the App Store entry is limited, so use the official OKX download page first.",
-      "The referral code usually cannot be added after registration.",
-      "If you continue in the app, re-check the referral code there.",
-    ],
+    officialDomain: "okx.com",
+    partnerNoteZh: "这是 OKX 官方分配的合作入口，点击后会直接进入官方注册流程。",
+    partnerNoteEn: "This partner link opens OKX's official registration flow directly.",
+    officialIntroZh: "如果你更想从 OKX 官网原生页面手动注册，下方会按帮助中心方式展示邀请码和下载流程。",
+    officialIntroEn: "If you prefer the native OKX page, the guide below shows where to enter the invite code and continue downloading.",
   },
   binance: {
     name: "Binance",
     accent: "#F0B90B",
     officialSignup: "https://accounts.binance.com/register",
     officialDownload: "https://www.binance.com/download",
-    blockerZh: [
-      "\u4e0d\u8981\u4ece\u5e7f\u544a\u9875\u6216\u77ed\u94fe\u5165\u53e3\u8df3\u8f6c\uff0c\u907f\u514d\u4e22\u6389\u9080\u8bf7\u7801\u3002",
-      "\u9080\u8bf7\u7801\u680f\u6709\u65f6\u9ed8\u8ba4\u6298\u53e0\uff0c\u63d0\u4ea4\u524d\u9700\u8981\u624b\u52a8\u5c55\u5f00\u786e\u8ba4\u3002",
-      "\u90e8\u5206\u5730\u533a\u4e0b\u8f7d\u5165\u53e3\u53d7\u9650\uff0c\u4ee5\u5b98\u7f51\u8bf4\u660e\u4e3a\u51c6\u3002",
-    ],
-    blockerEn: [
-      "Avoid ad pages or short links so the referral context is not lost.",
-      "The referral field may be collapsed by default.",
-      "In some regions, app access is limited and the official page should be treated as the source of truth.",
-    ],
+    officialDomain: "binance.com",
+    partnerNoteZh: "这是 Binance 官方分配的合作入口，点击后会直接打开官方注册链接。",
+    partnerNoteEn: "This partner link opens Binance's official registration page directly.",
+    officialIntroZh: "如果你更想从 Binance 官网原生页面手动注册，下方会按步骤展示邀请码填写与下载方式。",
+    officialIntroEn: "If you prefer the native Binance page, the guide below shows the manual registration flow.",
   },
   bybit: {
     name: "Bybit",
     accent: "#6EA8FF",
     officialSignup: "https://www.bybit.com/register",
     officialDownload: "https://www.bybit.com/download",
-    blockerZh: [
-      "\u6ce8\u518c\u5b8c\u6210\u540e\u901a\u5e38\u4e0d\u80fd\u8865\u5f55\u9080\u8bf7\u7801\uff0c\u6240\u4ee5\u521b\u5efa\u8d26\u6237\u524d\u8981\u5148\u68c0\u67e5\u3002",
-      "\u5982\u679c\u5148\u5728 App \u5185\u7ee7\u7eed\u6ce8\u518c\uff0c\u8bf7\u518d\u786e\u8ba4\u4e00\u6b21\u9080\u8bf7\u7801\u3002",
-      "\u4e0b\u8f7d\u524d\u8bf7\u6838\u5bf9\u5b98\u65b9\u56fe\u6807\u548c\u5f00\u53d1\u8005\u4fe1\u606f\u3002",
-    ],
-    blockerEn: [
-      "The code usually cannot be added after registration, so verify it before creating the account.",
-      "If you continue in the app, re-check the referral field there too.",
-      "Verify the official icon and developer information before downloading.",
-    ],
+    officialDomain: "bybit.com",
+    partnerNoteZh: "这是 Bybit 官方分配的合作入口，点击后会直接跳转到官方域名页面。",
+    partnerNoteEn: "This partner link opens a Bybit page under the official domain.",
+    officialIntroZh: "如果你更想从 Bybit 官网原生页面手动注册，下方会按帮助中心样式一步步展示。",
+    officialIntroEn: "If you prefer the native Bybit flow, follow the help-center style steps below.",
   },
   bitget: {
     name: "Bitget",
     accent: "#9C6CFF",
     officialSignup: "https://www.bitget.com/account/register",
     officialDownload: "https://www.bitget.com/download",
-    blockerZh: [
-      "\u4e0d\u8981\u4ece\u6765\u8def\u4e0d\u660e\u7684\u955c\u50cf\u7ad9\u4e0b\u8f7d\u3002",
-      "\u6d4f\u89c8\u5668\u81ea\u52a8\u7ffb\u8bd1\u65f6\uff0c\u8bf7\u5148\u786e\u8ba4 Invite code \u6216 Referral code \u5b57\u6bb5\u4f4d\u7f6e\u6ca1\u53d8\u3002",
-      "\u65e7\u8d26\u6237\u901a\u5e38\u65e0\u6cd5\u8865\u5f55\u9080\u8bf7\u7801\uff0c\u9996\u6b21\u6ce8\u518c\u9700\u8981\u68c0\u67e5\u6e05\u695a\u3002",
-    ],
-    blockerEn: [
-      "Do not download from unofficial mirrors.",
-      "If the browser auto-translates the page, verify the referral field position first.",
-      "Existing accounts usually cannot add the code later, so check carefully on first registration.",
-    ],
+    officialDomain: "bitget.com",
+    partnerNoteZh: "这是 Bitget 官方分配的合作入口，点击后会直接进入官方域名下的注册流程。",
+    partnerNoteEn: "This partner link opens the registration flow under Bitget's official domain.",
+    officialIntroZh: "如果你更想从 Bitget 官网原生页面手动注册，下方会按步骤告诉你邀请码和下载入口。",
+    officialIntroEn: "If you prefer the native Bitget page, the guide below shows where to enter the code and download the app.",
   },
 };
 
@@ -126,13 +106,117 @@ function readQuery() {
   if (typeof window === "undefined") {
     return { exchange: "gate" as ExchangeSlug, mode: "partner" as FlowMode };
   }
+
   const params = new URLSearchParams(window.location.search);
   const rawExchange = params.get("exchange") || "gate";
   const rawMode = params.get("mode") || "partner";
+
   return {
     exchange: (["gate", "okx", "binance", "bybit", "bitget"].includes(rawExchange) ? rawExchange : "gate") as ExchangeSlug,
     mode: (rawMode === "official" ? "official" : "partner") as FlowMode,
   };
+}
+
+function ExchangeChip({
+  active,
+  accent,
+  name,
+  rebateRate,
+  onClick,
+}: {
+  active: boolean;
+  accent: string;
+  name: string;
+  rebateRate: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`tap-target rounded-2xl border p-4 text-left transition ${
+        active ? "border-white/30 bg-white/10 shadow-[0_12px_28px_rgba(0,0,0,0.22)]" : "border-white/10 bg-white/[0.03] hover:bg-white/[0.05]"
+      }`}
+    >
+      <div className="mb-4 h-12 w-12 rounded-full shadow-[inset_0_0_24px_rgba(255,255,255,0.18)]" style={{ background: `radial-gradient(circle at 30% 30%, ${accent}, rgba(255,255,255,0.12))` }} />
+      <div className="text-xl font-black text-white">{name}</div>
+      <div className="mt-3 inline-flex rounded-full border border-[#FFD700]/40 bg-[#FFD700]/10 px-3 py-1 text-sm font-bold text-[#FFD700]">
+        默认返佣 {rebateRate}
+      </div>
+    </button>
+  );
+}
+
+function ModeCard({
+  active,
+  title,
+  body,
+  badge,
+  onClick,
+}: {
+  active: boolean;
+  title: string;
+  body: string;
+  badge?: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`tap-target w-full rounded-3xl border p-5 text-left transition ${
+        active ? "border-[#8DB5FF] bg-[#152d4f] shadow-[0_18px_40px_rgba(0,0,0,0.24)]" : "border-white/12 bg-white/[0.03] hover:bg-white/[0.05]"
+      }`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className="text-xl font-black text-white">{title}</div>
+          <p className="mt-3 text-sm leading-7 text-slate-300">{body}</p>
+        </div>
+        {badge ? (
+          <span className="inline-flex rounded-full bg-[#7FB3FF] px-3 py-1 text-xs font-bold text-[#081a30]">
+            {badge}
+          </span>
+        ) : null}
+      </div>
+    </button>
+  );
+}
+
+function GuideImage({
+  src,
+  alt,
+  title,
+  hint,
+}: {
+  src?: string;
+  alt: string;
+  title: string;
+  hint: string;
+}) {
+  return (
+    <div className="overflow-hidden rounded-[28px] border border-white/10 bg-[#0B111B]">
+      <div className="border-b border-white/10 px-5 py-4">
+        <div className="text-base font-black text-white">{title}</div>
+        <div className="mt-1 text-sm text-slate-400">{hint}</div>
+      </div>
+      <div className="p-4">
+        {src ? (
+          <img
+            src={src}
+            alt={alt}
+            className="w-full rounded-2xl border border-white/10 bg-black object-contain"
+            loading="lazy"
+            decoding="async"
+          />
+        ) : (
+          <div className="flex min-h-[280px] items-center justify-center rounded-2xl border border-dashed border-white/15 bg-[#0E1725] px-6 text-center text-sm leading-7 text-slate-400">
+            暂未上传这一张截图。你可以在后台补图后，这里会直接显示真实操作截图。
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default function ExchangeDownload() {
@@ -149,7 +233,7 @@ export default function ExchangeDownload() {
     const params = new URLSearchParams(window.location.search);
     params.set("exchange", exchange);
     params.set("mode", mode);
-    const hash = window.location.hash || "#registration-guide";
+    const hash = mode === "official" ? "#official-guide" : "#partner-link";
     window.history.replaceState({}, "", `${window.location.pathname}?${params.toString()}${hash}`);
   }, [exchange, mode]);
 
@@ -158,155 +242,94 @@ export default function ExchangeDownload() {
   const rebateRate = getRebateRate(exchange);
   const partnerLink = getReferralLink(exchange);
   const guideImages = getGuideImages(exchange);
+
   const steps = useMemo<GuideStep[]>(() => {
     if (exchange === "gate") {
-      if (mode === "partner") {
-        return [
-          {
-            titleZh: "\u5148\u786e\u8ba4 Gate \u5b98\u7f51\u9875\u9762",
-            titleEn: "Confirm the official Gate page first",
-            bodyZh: "\u5148\u901a\u8fc7\u6211\u4eec\u63d0\u4f9b\u7684\u5b98\u65b9\u5408\u4f5c\u94fe\u63a5\u8fdb\u5165 Gate\uff0c\u5148\u770b\u57df\u540d\u662f gate.com\uff0c\u518d\u7ee7\u7eed\u6ce8\u518c\u3002",
-            bodyEn: "Open Gate through the official partner link we provide and confirm the domain is gate.com before you continue.",
-            visualTitleZh: "\u7d20\u6750 1\uff1a\u5b98\u7f51\u9996\u9875\u4e0e\u57df\u540d",
-            visualTitleEn: "Asset 1: Official homepage and domain",
-            visualHintZh: "\u653e\u4f60\u7684 Gate \u5b98\u7f51\u9996\u9875\u7d20\u6750\uff0c\u91cd\u70b9\u662f\u8ba9\u7528\u6237\u770b\u5230 gate.com \u8fd9\u4e2a\u5730\u5740\u3002",
-            visualHintEn: "Place the homepage screenshot here and highlight gate.com in the address bar.",
-          },
-          {
-            titleZh: "\u8fdb\u5165\u6ce8\u518c\u9875\u540e\u68c0\u67e5\u9080\u8bf7\u7801",
-            titleEn: "Check the invite field on the sign-up page",
-            bodyZh: "\u6253\u5f00\u6ce8\u518c\u9875\u540e\uff0c\u5148\u5c55\u5f00\u9080\u8bf7\u7801\u4f4d\u7f6e\u3002\u5982\u679c\u6ca1\u6709\u81ea\u52a8\u5e26\u5165\uff0c\u5c31\u624b\u52a8\u586b\u5199 getitpro\u3002",
-            bodyEn: "Open the registration form and expand the invite field. If the code is not prefilled, enter getitpro manually.",
-            visualTitleZh: "\u7d20\u6750 2\uff1a\u9080\u8bf7\u7801\u586b\u5199\u4f4d\u7f6e",
-            visualTitleEn: "Asset 2: Invite code field",
-            visualHintZh: "\u7528\u56fe\u7247\u628a getitpro \u5e94\u8be5\u586b\u5165\u7684\u4f4d\u7f6e\u5708\u51fa\u6765\u3002",
-            visualHintEn: "Use the screenshot that shows where getitpro should be entered.",
-          },
-          {
-            titleZh: "\u5b8c\u6210\u6ce8\u518c\u540e\u518d\u4e0b\u8f7d App",
-            titleEn: "Download the app after registration",
-            bodyZh: "\u6ce8\u518c\u6210\u529f\u540e\uff0c\u518d\u56de\u5230 Gate \u5b98\u65b9\u4e0b\u8f7d\u5165\u53e3\uff0c\u6309\u4f60\u7684\u8bbe\u5907\u7cfb\u7edf\u9009\u62e9 App \u4e0b\u8f7d\u3002",
-            bodyEn: "After registration, return to the official Gate download page and pick the app version that matches your device.",
-            visualTitleZh: "\u7d20\u6750 3\uff1a\u5b98\u65b9\u4e0b\u8f7d\u5165\u53e3",
-            visualTitleEn: "Asset 3: Official download entry",
-            visualHintZh: "\u653e\u4e0b\u8f7d\u5165\u53e3\u622a\u56fe\uff0c\u8ba9\u7528\u6237\u77e5\u9053\u4e0b\u4e00\u6b65\u53bb\u54ea\u91cc\u5b89\u88c5\u3002",
-            visualHintEn: "Place the official download entry screenshot here.",
-          },
-        ];
-      }
-
       return [
         {
-          titleZh: "\u5148\u5728 Gate \u5b98\u7f51\u9996\u9875\u70b9\u51fb\u6ce8\u518c",
-          titleEn: "Confirm that you are on the official Gate site",
-          bodyZh: "\u5148\u6253\u5f00 Gate \u5b98\u7f51\u9996\u9875\uff0c\u786e\u8ba4\u5730\u5740\u680f\u662f gate.com \u540e\uff0c\u518d\u70b9\u51fb\u53f3\u4e0a\u89d2\u7684\u300c\u6ce8\u518c\u300d\u8fdb\u5165\u539f\u751f\u6ce8\u518c\u9875\u3002",
-          bodyEn: "Open Gate's official homepage, confirm the domain is gate.com, and then click Register in the top-right corner.",
-          visualTitleZh: "\u7d20\u6750 1\uff1aGate \u5b98\u7f51\u9996\u9875",
-          visualTitleEn: "Asset 1: Official homepage and domain",
-          visualHintZh: "\u5bf9\u5e94\u4f60\u7ed9\u7684 Gate \u9996\u9875\u7d20\u6750\uff0c\u91cd\u70b9\u662f gate.com \u57df\u540d\u548c\u53f3\u4e0a\u89d2\u300c\u6ce8\u518c\u300d\u6309\u94ae\u3002",
-          visualHintEn: "Use the Gate homepage screenshot to show the correct official domain.",
+          titleZh: "先在 Gate 官网首页点击注册",
+          titleEn: "Open Gate homepage and tap Register",
+          bodyZh: "先确认地址栏是 gate.com，然后点击右上角的“注册”，进入官网原生注册页。",
+          bodyEn: "Confirm the domain is gate.com, then tap Register in the top-right corner.",
+          imageTitleZh: "素材 1：Gate 官网首页",
+          imageTitleEn: "Asset 1: Gate homepage",
+          imageHintZh: "这一步重点看 gate.com 域名，以及右上角的“注册”按钮。",
+          imageHintEn: "Focus on the official domain and the top-right Register button.",
           imageSrc: guideImages.step1 || GATE_GUIDE_DEFAULTS.step1,
-          imageAltZh: "Gate \u5b98\u7f51\u9996\u9875\uff0c\u53f3\u4e0a\u89d2\u53ef\u4ee5\u770b\u5230\u6ce8\u518c\u6309\u94ae",
-          imageAltEn: "Gate official homepage with the register button visible in the top-right corner",
+          imageAltZh: "Gate 官网首页与注册入口",
+          imageAltEn: "Gate homepage and register entry",
         },
         {
-          titleZh: "\u5728\u6ce8\u518c\u9875\u624b\u52a8\u586b\u5199\u9080\u8bf7\u7801",
-          titleEn: "Expand the invite field and enter the code",
-          bodyZh: "\u8fdb\u5165\u521b\u5efa\u8d26\u53f7\u9875\u9762\u540e\uff0c\u627e\u5230\u300c\u9080\u8bf7\u7801\u300d\u533a\u57df\uff0c\u5c06 getitpro \u624b\u52a8\u586b\u5165\uff0c\u518d\u7ee7\u7eed\u4e0b\u4e00\u6b65\u3002",
-          bodyEn: "On the account creation page, locate the invite code field and enter getitpro manually before continuing.",
-          visualTitleZh: "\u7d20\u6750 2\uff1a\u6ce8\u518c\u9875\u586b\u5199 getitpro",
-          visualTitleEn: "Asset 2: Enter getitpro",
-          visualHintZh: "\u5bf9\u5e94\u4f60\u7ed9\u7684\u7b2c\u4e8c\u5f20\u7d20\u6750\uff0c\u91cd\u70b9\u5c31\u662f\u7ea2\u6846\u91cc\u7684 getitpro\u3002",
-          visualHintEn: "Highlight the getitpro field so users can match it at a glance.",
+          titleZh: "在注册页手动填写邀请码",
+          titleEn: "Enter the invite code on the registration page",
+          bodyZh: "进入创建账号页面后，找到“邀请码”区域。如果系统没有自动带入，就手动填写 getitpro，然后再继续下一步。",
+          bodyEn: "On the registration page, locate the invite field and enter getitpro if it is not already filled in.",
+          imageTitleZh: "素材 2：邀请码填写 getitpro",
+          imageTitleEn: "Asset 2: Invite code getitpro",
+          imageHintZh: "这一张图重点看邀请码区域和 getitpro 的填写位置。",
+          imageHintEn: "Highlight the invite field and the getitpro value.",
           imageSrc: guideImages.step2 || GATE_GUIDE_DEFAULTS.step2,
-          imageAltZh: "Gate \u6ce8\u518c\u9875\u7684\u9080\u8bf7\u7801\u533a\u57df\uff0c\u7ea2\u6846\u6807\u51fa getitpro",
-          imageAltEn: "Gate registration page with the invite code field showing getitpro",
+          imageAltZh: "Gate 注册页的邀请码输入区域",
+          imageAltEn: "Gate registration page with invite code field",
         },
         {
-          titleZh: "\u6ce8\u518c\u5b8c\u6210\u540e\u56de\u5230\u5b98\u65b9\u4e0b\u8f7d\u9875",
-          titleEn: "Download after the account is created",
-          bodyZh: "\u6ce8\u518c\u6210\u529f\u540e\uff0c\u56de\u5230 Gate \u5b98\u65b9\u4e0b\u8f7d\u9875\uff0c\u6839\u636e\u4f60\u7684\u8bbe\u5907\u7ee7\u7eed\u5b89\u88c5 App\u3002",
-          bodyEn: "After the account is created, return to Gate's official download page and continue with the app installation.",
-          visualTitleZh: "\u7d20\u6750 3\uff1aGate \u5b98\u65b9\u4e0b\u8f7d\u9875",
-          visualTitleEn: "Asset 3: Official download entry",
-          visualHintZh: "\u5bf9\u5e94\u4f60\u7ed9\u7684\u7b2c\u4e09\u5f20\u7d20\u6750\uff0c\u7528\u6765\u544a\u8bc9\u7528\u6237\u6ce8\u518c\u540e\u8981\u4ece\u54ea\u91cc\u7ee7\u7eed\u4e0b\u8f7d\u3002",
-          visualHintEn: "Show where the user should continue for the official download.",
+          titleZh: "注册完成后从官方页面下载 App",
+          titleEn: "Download the app from the official page",
+          bodyZh: "账号创建完成后，回到 Gate 官方下载页，选择对应设备继续下载和安装 App。",
+          bodyEn: "After registration, continue from Gate's official download page and choose the correct app package for your device.",
+          imageTitleZh: "素材 3：Gate 官方下载页",
+          imageTitleEn: "Asset 3: Gate official download page",
+          imageHintZh: "这一张图告诉用户注册完成后，去哪里继续下载官方 App。",
+          imageHintEn: "Show users where to continue for the official app download.",
           imageSrc: guideImages.step3 || GATE_GUIDE_DEFAULTS.step3,
-          imageAltZh: "Gate \u5b98\u65b9\u4e0b\u8f7d\u9875\uff0c\u53ef\u4ee5\u7ee7\u7eed\u5b89\u88c5 App",
-          imageAltEn: "Gate official download page for continuing the app installation",
+          imageAltZh: "Gate 官方下载页",
+          imageAltEn: "Gate official download page",
         },
       ];
     }
 
-    return mode === "partner"
-      ? [
-          {
-            titleZh: `\u5148\u901a\u8fc7 ${meta.name} \u5b98\u65b9\u5408\u4f5c\u94fe\u63a5\u8fdb\u5165`,
-            titleEn: `Enter through the official ${meta.name} partner link`,
-            bodyZh: "\u5148\u68c0\u67e5\u8df3\u8f6c\u540e\u7684\u9875\u9762\u662f\u5426\u4ecd\u5728\u5b98\u65b9\u57df\u540d\u4e0b\uff0c\u7136\u540e\u518d\u586b\u5199\u6ce8\u518c\u4fe1\u606f\u3002",
-            bodyEn: "Confirm that the redirected page still uses the official domain before you continue.",
-            visualTitleZh: "\u622a\u56fe 1\uff1a\u5b98\u65b9\u6ce8\u518c\u5165\u53e3",
-            visualTitleEn: "Screenshot 1: Official sign-up entry",
-            visualHintZh: "\u53ef\u4ee5\u653e\u5b98\u7f51\u6ce8\u518c\u9875\u6216\u5408\u4f5c\u8df3\u8f6c\u9875\u7684\u622a\u56fe\u3002",
-            visualHintEn: "Place the sign-up entry screenshot here.",
-          },
-          {
-            titleZh: "\u786e\u8ba4\u9080\u8bf7\u7801\u4f4d\u7f6e",
-            titleEn: "Confirm the referral field",
-            bodyZh: `\u5982\u679c\u7cfb\u7edf\u6ca1\u6709\u81ea\u52a8\u5e26\u5165\uff0c\u624b\u52a8\u586b\u5199 ${inviteCode}\u3002`,
-            bodyEn: `If the field is not prefilled, enter ${inviteCode} manually.`,
-            visualTitleZh: "\u622a\u56fe 2\uff1a\u9080\u8bf7\u7801\u533a\u57df",
-            visualTitleEn: "Screenshot 2: Referral field",
-            visualHintZh: "\u5c06\u9080\u8bf7\u7801\u683c\u5b50\u5708\u51fa\u6765\uff0c\u8ba9\u7528\u6237\u4e0d\u7528\u731c\u3002",
-            visualHintEn: "Highlight the field so users can match it quickly.",
-          },
-          {
-            titleZh: "\u6ce8\u518c\u540e\u518d\u8fdb\u5165\u5b98\u65b9\u4e0b\u8f7d",
-            titleEn: "Open the official download page after registration",
-            bodyZh: "\u5b8c\u6210\u6ce8\u518c\u518d\u4e0b\u8f7d App\uff0c\u6d41\u7a0b\u4f1a\u66f4\u7ebf\u6027\u3002",
-            bodyEn: "Finish sign-up first, then move to the official download page.",
-            visualTitleZh: "\u622a\u56fe 3\uff1a\u4e0b\u8f7d\u5165\u53e3",
-            visualTitleEn: "Screenshot 3: Download entry",
-            visualHintZh: "\u7528\u5b98\u65b9\u4e0b\u8f7d\u9875\u622a\u56fe\u4f5c\u4e3a\u6700\u540e\u4e00\u6b65\u7684\u5bf9\u7167\u3002",
-            visualHintEn: "Use the official download page screenshot as the last visual step.",
-          },
-        ]
-      : [
-          {
-            titleZh: `\u6253\u5f00 ${meta.name} \u5b98\u7f51\u539f\u751f\u6ce8\u518c\u9875`,
-            titleEn: `Open ${meta.name}'s native registration page`,
-            bodyZh: "\u5148\u6838\u5bf9\u5b98\u7f51\u57df\u540d\u548c\u9875\u9762\u62ac\u5934\uff0c\u518d\u5f00\u59cb\u586b\u5199\u8d26\u53f7\u4fe1\u606f\u3002",
-            bodyEn: "Confirm the official domain and page header, then start filling in your account details.",
-            visualTitleZh: "\u622a\u56fe 1\uff1a\u5b98\u7f51\u6ce8\u518c\u9875",
-            visualTitleEn: "Screenshot 1: Native registration page",
-            visualHintZh: "\u653e\u5b98\u7f51\u539f\u751f\u6ce8\u518c\u9875\u7684\u622a\u56fe\u3002",
-            visualHintEn: "Place the official native registration page screenshot here.",
-            imageSrc: guideImages.step1 || undefined,
-          },
-          {
-            titleZh: "\u627e\u5230\u9080\u8bf7\u7801\u4f4d\u7f6e\u5e76\u586b\u5199",
-            titleEn: "Locate the referral field and enter the code",
-            bodyZh: `\u5c06 ${inviteCode} \u586b\u5165 Referral code \u6216 Invite code \u4f4d\u7f6e\uff0c\u518d\u7ee7\u7eed\u9a8c\u8bc1\u6d41\u7a0b\u3002`,
-            bodyEn: `Enter ${inviteCode} in the referral field before continuing.`,
-            visualTitleZh: "\u622a\u56fe 2\uff1a\u9080\u8bf7\u7801\u586b\u5199",
-            visualTitleEn: "Screenshot 2: Enter the referral code",
-            visualHintZh: "\u7528\u622a\u56fe\u628a\u9080\u8bf7\u7801\u4f4d\u7f6e\u5708\u51fa\u6765\u3002",
-            visualHintEn: "Use a marked screenshot to show the exact field position.",
-            imageSrc: guideImages.step2 || undefined,
-          },
-          {
-            titleZh: "\u5b8c\u6210\u6ce8\u518c\u540e\u518d\u4e0b\u8f7d",
-            titleEn: "Download after the account is created",
-            bodyZh: "\u8d26\u53f7\u521b\u5efa\u6210\u529f\u540e\uff0c\u518d\u4ece\u5b98\u65b9\u4e0b\u8f7d\u9875\u6216 App \u5165\u53e3\u7ee7\u7eed\u3002",
-            bodyEn: "After registration, continue from the official download page or app entry.",
-            visualTitleZh: "\u622a\u56fe 3\uff1a\u5b98\u65b9\u4e0b\u8f7d",
-            visualTitleEn: "Screenshot 3: Official download",
-            visualHintZh: "\u4f7f\u7528\u5b98\u65b9\u4e0b\u8f7d\u9875\u6216 App \u5165\u53e3\u622a\u56fe\u3002",
-            visualHintEn: "Use the official download page or app entry screenshot.",
-            imageSrc: guideImages.step3 || undefined,
-          },
-        ];
-  }, [exchange, guideImages.step1, guideImages.step2, guideImages.step3, inviteCode, meta.name, mode]);
+    return [
+      {
+        titleZh: `先打开 ${meta.name} 官网注册页`,
+        titleEn: `Open ${meta.name}'s registration page`,
+        bodyZh: `先确认你看到的是 ${meta.officialDomain} 官方域名，再进入注册表单。`,
+        bodyEn: `Confirm the official domain ${meta.officialDomain} before continuing to the registration form.`,
+        imageTitleZh: "步骤 1：官网注册页",
+        imageTitleEn: "Step 1: Official registration page",
+        imageHintZh: "这里会显示官方注册页截图。",
+        imageHintEn: "The official registration page screenshot will appear here.",
+        imageSrc: guideImages.step1 || undefined,
+        imageAltZh: `${meta.name} 官方注册页`,
+        imageAltEn: `${meta.name} official registration page`,
+      },
+      {
+        titleZh: "找到邀请码位置并手动填写",
+        titleEn: "Find the invite field and enter the code",
+        bodyZh: `如果系统没有自动带入，请手动填写邀请码 ${inviteCode}，然后继续下一步。`,
+        bodyEn: `If the field is not auto-filled, enter ${inviteCode} manually and continue.`,
+        imageTitleZh: "步骤 2：填写邀请码",
+        imageTitleEn: "Step 2: Enter the invite code",
+        imageHintZh: "这里会显示邀请码填写位置截图。",
+        imageHintEn: "The invite code field screenshot will appear here.",
+        imageSrc: guideImages.step2 || undefined,
+        imageAltZh: `${meta.name} 邀请码填写位置`,
+        imageAltEn: `${meta.name} invite code field`,
+      },
+      {
+        titleZh: "注册完成后回到官方下载页",
+        titleEn: "Continue from the official download page",
+        bodyZh: "完成注册后，再从官方下载入口继续安装 App。",
+        bodyEn: "After registration, continue from the official download entry to install the app.",
+        imageTitleZh: "步骤 3：官方下载入口",
+        imageTitleEn: "Step 3: Official download entry",
+        imageHintZh: "这里会显示官方下载页截图。",
+        imageHintEn: "The official download page screenshot will appear here.",
+        imageSrc: guideImages.step3 || undefined,
+        imageAltZh: `${meta.name} 官方下载页`,
+        imageAltEn: `${meta.name} official download page`,
+      },
+    ];
+  }, [exchange, guideImages.step1, guideImages.step2, guideImages.step3, inviteCode, meta.name, meta.officialDomain]);
 
   const openOfficialGuide = () => {
     setMode("official");
@@ -326,11 +349,11 @@ export default function ExchangeDownload() {
   return (
     <div className="min-h-screen bg-[#081a30] text-white">
       <SeoManager
-        title={zh ? "\u4ea4\u6613\u6240\u6ce8\u518c\u4e0e\u4e0b\u8f7d\u6559\u7a0b | Get8 Pro" : "Exchange registration and download guide | Get8 Pro"}
+        title={zh ? "交易所注册与下载教程 | Get8 Pro" : "Exchange registration and download guide | Get8 Pro"}
         description={
           zh
-            ? "\u5728\u4e00\u4e2a\u9875\u9762\u5b8c\u6210\u4ea4\u6613\u6240\u9009\u62e9\u3001\u6ce8\u518c\u8def\u5f84\u9009\u62e9\u3001\u9080\u8bf7\u7801\u586b\u5199\u4e0e\u5b98\u65b9\u4e0b\u8f7d\u6559\u7a0b\u3002"
-            : "Choose an exchange, select a registration path, confirm the invite code, and follow the official download tutorial in one place."
+            ? "先选择交易所，再决定是直接使用官方合作链接，还是按官网原生页面一步步完成注册、填写邀请码和下载。"
+            : "Choose an exchange first, then decide whether to open the official partner link directly or follow the native official tutorial step by step."
         }
         path="/exchange-download"
       />
@@ -339,210 +362,176 @@ export default function ExchangeDownload() {
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
           <button type="button" onClick={() => goBack()} className="tap-target inline-flex items-center gap-2 text-sm text-slate-300 transition hover:text-white">
             <ArrowLeft className="h-4 w-4" />
-            {zh ? "\u8fd4\u56de" : "Back"}
+            {zh ? "返回" : "Back"}
           </button>
-          <div className="text-sm font-semibold text-slate-300">
-            {zh ? "\u4ea4\u6613\u6240\u6ce8\u518c\u4e0e\u4e0b\u8f7d\u6559\u7a0b" : "Exchange registration and download guide"}
-          </div>
+          <div className="text-sm font-semibold text-slate-300">{zh ? "交易所注册与下载教程" : "Exchange registration and download guide"}</div>
           <Link href="/" className="tap-target text-sm text-slate-400 transition hover:text-white">
-            {zh ? "\u9996\u9875" : "Home"}
+            {zh ? "首页" : "Home"}
           </Link>
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-4 py-5 sm:py-8">
-        <section className="rounded-[22px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))] p-4 sm:p-5">
+      <main className="mx-auto max-w-6xl px-4 py-8 md:px-6 md:py-10">
+        <section className="overflow-hidden rounded-[32px] border border-white/10 bg-[linear-gradient(135deg,rgba(15,39,70,0.98),rgba(8,22,42,0.96))] p-6 shadow-[0_22px_60px_rgba(0,0,0,0.28)] md:p-8">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/15 px-3 py-1 text-[11px] font-semibold text-slate-300">
-              <Shield className="h-3.5 w-3.5 text-cyan-300" />
-              <span>{zh ? "\u6309\u5e2e\u52a9\u4e2d\u5fc3\u7684\u6d41\u7a0b\u7ed9\u4f60\u4e00\u6b65\u6b65\u64cd\u4f5c" : "A linear help-center style guide"}</span>
+            <div className="inline-flex rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-1 text-xs font-bold uppercase tracking-[0.22em] text-cyan-200">
+              {zh ? "官方注册与下载流程" : "Official registration flow"}
             </div>
-            <h1 className="mt-3 text-[1.7rem] font-black tracking-tight text-white sm:text-[2rem]">
-              {zh ? "\u4ea4\u6613\u6240\u6ce8\u518c\u4e0e\u4e0b\u8f7d\u6559\u7a0b" : "Exchange registration and download guide"}
+            <h1 className="mt-5 text-3xl font-black tracking-tight text-white md:text-5xl">
+              {zh ? "先选交易所，再决定走哪条注册路径" : "Choose the exchange, then decide the registration path"}
             </h1>
-            <p className="mt-3 text-sm leading-7 text-slate-300">
+            <p className="mt-4 max-w-2xl text-base leading-8 text-slate-300 md:text-lg">
               {zh
-                ? "\u5148\u9009\u4ea4\u6613\u6240\u3002\u5982\u679c\u4f60\u60f3\u8d70\u6211\u4eec\u7684\u5b98\u65b9\u5408\u4f5c\u94fe\u63a5\uff0c\u70b9\u51fb\u540e\u5c31\u4f1a\u76f4\u63a5\u8df3\u8f6c\u3002\u5982\u679c\u4f60\u60f3\u4ece\u5b98\u7f51\u539f\u751f\u9875\u9762\u6ce8\u518c\uff0c\u4e0b\u9762\u4f1a\u7528\u56fe\u6587\u4e00\u6b65\u6b65\u5e26\u4f60\u64cd\u4f5c\u3002"
-                : "Choose the exchange first. If you want the partner link, it opens immediately. If you prefer the native official page, the guide below walks you through it step by step."}
+                ? "如果你希望最快完成注册，可以直接打开我们的官方合作链接；如果你更想从官网原生页面手动操作，我们会像帮助中心一样一步步告诉你怎么点、怎么填邀请码、最后去哪里下载。"
+                : "If you want the fastest path, open the official partner link directly. If you prefer the native official flow, follow the help-center style tutorial with screenshots."}
             </p>
+            <div className="mt-6 flex flex-wrap gap-3 text-sm text-slate-300">
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2">
+                <Shield className="h-4 w-4 text-emerald-300" />
+                {zh ? "合作链接仍在官方域名体系内" : "Partner links stay inside official domains"}
+              </span>
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2">
+                <CheckCircle2 className="h-4 w-4 text-cyan-300" />
+                {zh ? "官网注册路径会展示图文步骤" : "Manual path shows image-by-image steps"}
+              </span>
+            </div>
           </div>
         </section>
 
-        <section className="mt-4 rounded-[22px] border border-white/10 bg-white/[0.03] p-4 sm:p-5">
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">{zh ? "\u7b2c\u4e00\u6b65" : "Step 1"}</p>
-          <h2 className="mt-2 text-xl font-black text-white">{zh ? "\u5148\u9009\u4ea4\u6613\u6240" : "Choose the exchange first"}</h2>
-          <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
-            {(Object.keys(EXCHANGES) as ExchangeSlug[]).map((slug) => {
-              const item = EXCHANGES[slug];
-              const active = slug === exchange;
-              return (
-                <button
-                  key={slug}
-                  type="button"
-                  onClick={() => setExchange(slug)}
-                  className={`tap-target min-w-[132px] rounded-full border px-3 py-2.5 text-left transition ${active ? "border-white/40 bg-white/[0.09]" : "border-white/10 bg-black/15 hover:bg-white/[0.05]"}`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className="h-6 w-6 rounded-full border border-white/10" style={{ background: `radial-gradient(circle at 30% 30%, ${item.accent}, rgba(255,255,255,0.08))` }} />
-                    <div>
-                      <p className="text-sm font-black text-white">{item.name}</p>
-                      <p className="mt-0.5 text-[10px] font-semibold text-yellow-300">{zh ? `\u8fd4\u4f63 ${getRebateRate(slug)}` : `Rebate ${getRebateRate(slug)}`}</p>
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
+        <section className="mt-8">
+          <div className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-slate-400">{zh ? "第一步" : "Step 1"}</div>
+          <div className="text-3xl font-black text-white">{zh ? "选择交易所" : "Choose the exchange"}</div>
+          <p className="mt-3 max-w-3xl text-base leading-8 text-slate-300">
+            {zh ? "先选定你要注册的平台。选完后，下面会直接切换成该交易所对应的注册链接和手动教程。" : "Pick the exchange first. The sections below will switch to that platform's direct link and manual guide."}
+          </p>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+            {(Object.keys(EXCHANGES) as ExchangeSlug[]).map((slug) => (
+              <ExchangeChip
+                key={slug}
+                active={exchange === slug}
+                accent={EXCHANGES[slug].accent}
+                name={EXCHANGES[slug].name}
+                rebateRate={getRebateRate(slug)}
+                onClick={() => setExchange(slug)}
+              />
+            ))}
           </div>
         </section>
 
-        <section className="mt-4 rounded-[22px] border border-white/10 bg-white/[0.03] p-4 sm:p-5">
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">{zh ? "\u7b2c\u4e8c\u6b65" : "Step 2"}</p>
-          <h2 className="mt-2 text-xl font-black text-white">{zh ? "\u518d\u9009\u8def\u5f84" : "Choose the path"}</h2>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <section className="mt-10">
+          <div className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-slate-400">{zh ? "第二步" : "Step 2"}</div>
+          <div className="text-3xl font-black text-white">{zh ? "选择注册路径" : "Choose the registration path"}</div>
+          <p className="mt-3 max-w-3xl text-base leading-8 text-slate-300">
+            {zh ? "如果你想直接完成注册，点击官方合作链接即可；如果你更想自己从官网一步步操作，就看下方的图文教程。" : "Use the partner link for the fastest route, or choose the native official path if you prefer to register manually step by step."}
+          </p>
+
+          <div className="mt-6 grid gap-5 lg:grid-cols-[1.05fr_1.1fr]">
+            <ModeCard
+              active={mode === "partner"}
+              title={zh ? "使用我们的官方合作链接" : "Use our official partner link"}
+              body={zh ? meta.partnerNoteZh : meta.partnerNoteEn}
+              badge={zh ? "直接打开" : "Direct open"}
+              onClick={openPartnerLink}
+            />
+            <ModeCard
+              active={mode === "official"}
+              title={zh ? "从官网原生页面手动注册" : "Register from the native official page"}
+              body={zh ? meta.officialIntroZh : meta.officialIntroEn}
+              badge={zh ? "看教程" : "Show guide"}
+              onClick={openOfficialGuide}
+            />
+          </div>
+        </section>
+
+        <section id="partner-link" className="mt-8 rounded-[30px] border border-emerald-400/18 bg-[linear-gradient(135deg,rgba(7,33,34,0.95),rgba(8,26,48,0.96))] p-6 shadow-[0_20px_40px_rgba(0,0,0,0.2)] md:p-7">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="max-w-3xl">
+              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-400/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-emerald-200">
+                <Shield className="h-3.5 w-3.5" />
+                {zh ? "官方合作链接" : "Official partner link"}
+              </div>
+              <h2 className="mt-4 text-2xl font-black text-white md:text-3xl">
+                {zh ? `想省步骤的话，直接打开 ${meta.name} 的合作链接` : `Open ${meta.name}'s partner link directly`}
+              </h2>
+              <p className="mt-4 text-base leading-8 text-slate-300">
+                {zh ? meta.partnerNoteZh : meta.partnerNoteEn}
+              </p>
+              <div className="mt-5 flex flex-wrap gap-3 text-sm">
+                <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-slate-200">
+                  <Globe className="h-4 w-4 text-cyan-300" />
+                  {zh ? `官方域名：${meta.officialDomain}` : `Official domain: ${meta.officialDomain}`}
+                </span>
+                <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-slate-200">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-300" />
+                  {zh ? "点击后直接进入注册，不需要再看三步教程" : "No step-by-step tutorial needed on this path"}
+                </span>
+              </div>
+            </div>
             <button
               type="button"
               onClick={openPartnerLink}
-              className="tap-target rounded-[20px] border border-white/10 bg-black/15 px-4 py-4 text-left transition hover:bg-white/[0.05]"
+              className="tap-target inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#3BA0FF] to-[#7B6CFF] px-6 py-4 text-base font-black text-white shadow-[0_18px_40px_rgba(50,110,255,0.28)] transition hover:translate-y-[-1px]"
             >
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-sm font-black text-white">{zh ? "\u4f7f\u7528\u6211\u4eec\u7684\u5b98\u65b9\u5408\u4f5c\u94fe\u63a5" : "Use our official partner link"}</p>
-                  <p className="mt-1.5 text-sm leading-6 text-slate-300">
-                    {zh ? "\u70b9\u51fb\u540e\u5c31\u76f4\u63a5\u8df3\u5230\u5b98\u65b9\u6ce8\u518c\u5165\u53e3\uff0c\u4e0d\u9700\u8981\u518d\u770b\u4e0b\u9762\u7684\u624b\u52a8\u6559\u7a0b\u3002" : "Opens the official sign-up page immediately."}
-                  </p>
-                  <p className="mt-2 text-xs leading-5 text-emerald-300">
-                    {zh ? "\u8fd9\u6761\u94fe\u63a5\u540c\u6837\u662f\u5b98\u7f51\u5206\u914d\u7684\u57df\u540d\u5165\u53e3\uff0c\u5168\u7a0b\u7eff\u8272\u5b89\u5168\u6807\u8bc6\uff0c\u53ef\u5728\u5b98\u7f51\u57df\u540d\u4e0b\u6838\u5bf9\u3002" : "This link still opens the official domain and can be verified on the official site."}
-                  </p>
-                  <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-slate-300">
-                    <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-emerald-200">
-                      {zh ? "\u5b98\u65b9\u57df\u540d\u5165\u53e3" : "Official domain entry"}
-                    </span>
-                    <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1">
-                      {exchange === "gate" ? "gate.com" : new URL(partnerLink).hostname.replace("www.", "")}
-                    </span>
-                    <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1">
-                      {zh ? "\u70b9\u51fb\u540e\u76f4\u63a5\u8df3\u8f6c" : "Open and register directly"}
-                    </span>
-                  </div>
-                </div>
-                <div className="inline-flex h-10 w-10 items-center justify-center rounded-full text-black" style={{ background: meta.accent }}>
-                  <ExternalLink className="h-4 w-4" />
-                </div>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={openOfficialGuide}
-              className={`tap-target rounded-[20px] border px-4 py-4 text-left transition ${mode === "official" ? "border-white/35 bg-white/[0.08]" : "border-white/10 bg-black/15 hover:bg-white/[0.05]"}`}
-            >
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-sm font-black text-white">{zh ? "\u4ece\u5b98\u7f51\u9875\u9762\u624b\u52a8\u6ce8\u518c" : "Register on the official page manually"}</p>
-                  <p className="mt-1.5 text-sm leading-6 text-slate-300">
-                    {zh ? "\u6211\u4eec\u4f1a\u50cf\u5e2e\u52a9\u4e2d\u5fc3\u4e00\u6837\uff0c\u5206\u6b65\u544a\u8bc9\u4f60\u5728\u5b98\u7f51\u600e\u4e48\u586b\u9080\u8bf7\u7801\u548c\u4e0b\u8f7d\u3002" : "Follow the step-by-step official tutorial below."}
-                  </p>
-                </div>
-                <div className={`inline-flex h-10 min-w-[92px] items-center justify-center rounded-full px-3 text-xs font-bold ${mode === "official" ? "text-black" : "border border-white/12 bg-white/5 text-white"}`} style={mode === "official" ? { background: meta.accent } : undefined}>
-                  {mode === "official" ? (zh ? "\u6b63\u5728\u67e5\u770b" : "Viewing") : zh ? "\u67e5\u770b\u6559\u7a0b" : "View guide"}
-                </div>
-              </div>
+              {zh ? "立即打开官方合作注册链接" : "Open the official partner link"}
+              <ExternalLink className="h-4 w-4" />
             </button>
           </div>
         </section>
 
         {mode === "official" ? (
-          <section id="official-guide" className="mt-4 rounded-[22px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(0,0,0,0.16))] p-4 sm:p-5">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div className="max-w-2xl">
-                <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">{zh ? "\u5b98\u7f51\u624b\u52a8\u8def\u5f84" : "Official manual flow"}</p>
-                <h2 className="mt-2 text-xl font-black text-white">{zh ? `${meta.name} \u5b98\u7f51\u56fe\u6587\u6559\u7a0b` : `${meta.name} step-by-step guide`}</h2>
-                <p className="mt-2 text-sm leading-7 text-slate-300">
-                  {zh ? "\u8fd9\u4e00\u6bb5\u50cf\u5e2e\u52a9\u4e2d\u5fc3\u4e00\u6837\uff0c\u53ea\u6309\u987a\u5e8f\u5e26\u4f60\u770b\u5f53\u524d\u8fd9\u4e00\u6b65\u8be5\u64cd\u4f5c\u4ec0\u4e48\u3001\u5bf9\u5e94\u54ea\u5f20\u56fe\u3001\u9700\u8981\u68c0\u67e5\u4ec0\u4e48\u3002" : "A help-center style tutorial with one action and one screenshot per step."}
-                </p>
-                {exchange === "gate" ? (
-                  <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-slate-300">
-                    <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2.5 py-1 text-cyan-200">
-                      {zh ? "Gate \u624b\u52a8\u4e09\u6b65\u6559\u7a0b" : "Gate manual 3-step guide"}
-                    </span>
-                    <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1">
-                      {zh ? "\u5148\u770b\u5b98\u7f51 -> \u518d\u586b\u9080\u8bf7\u7801 -> \u6700\u540e\u4e0b\u8f7d App" : "Homepage -> invite code -> app download"}
-                    </span>
-                  </div>
-                ) : null}
+          <section id="official-guide" className="mt-10 overflow-hidden rounded-[34px] border border-white/10 bg-[#05080F] shadow-[0_28px_70px_rgba(0,0,0,0.34)]">
+            <div className="border-b border-white/10 bg-[#070B13] px-6 py-6 md:px-8">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-slate-300">
+                {zh ? "官网手动路径" : "Official manual path"}
               </div>
-              <div className="rounded-2xl border border-amber-400/20 bg-amber-400/10 px-4 py-3 text-sm leading-6 text-amber-100">
-                {zh ? `\u9080\u8bf7\u7801\uff1a${inviteCode} \u3002\u5982\u679c\u6ca1\u81ea\u52a8\u5e26\u5165\uff0c\u5c31\u624b\u52a8\u586b\u5199\u3002` : `Invite code: ${inviteCode}. Enter it manually if needed.`}
+              <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
+                <div className="max-w-3xl">
+                  <h2 className="text-2xl font-black text-white md:text-3xl">
+                    {zh ? `${meta.name} 官网注册图文教程` : `${meta.name} official registration guide`}
+                  </h2>
+                  <p className="mt-3 text-base leading-8 text-slate-300">
+                    {zh ? meta.officialIntroZh : meta.officialIntroEn}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-[#FFD700]/25 bg-[#FFD700]/10 px-4 py-3 text-sm font-bold text-[#FFD700]">
+                  {zh ? `邀请码：${inviteCode}` : `Invite code: ${inviteCode}`}
+                </div>
               </div>
             </div>
 
-            <div className="mt-6 space-y-6">
-              {steps.map((step, index) => (
-                <div key={`${step.titleZh}-${index}`} className="relative border-l border-white/10 pl-5 md:pl-7">
-                  <div className="absolute -left-4 top-1 flex h-8 w-8 items-center justify-center rounded-full text-sm font-black text-black" style={{ background: meta.accent }}>
+            <div className="px-6 py-6 md:px-8 md:py-8">
+              <div className="grid gap-6 lg:grid-cols-[0.92fr_1.08fr]">
+                {steps.map((step, index) => (
+                  <div key={`${exchange}-${index}`} className="contents">
+                    <div className="relative rounded-[28px] border border-white/10 bg-[#081626] p-6">
+                      <div className="absolute left-6 top-6 flex h-10 w-10 items-center justify-center rounded-full border border-emerald-400/35 bg-emerald-400/10 text-sm font-black text-emerald-300">
                         {index + 1}
                       </div>
-                  <div className="space-y-4">
-                    <div className="max-w-2xl">
-                      <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-500">
-                        {zh ? `\u7b2c ${index + 1} \u6b65` : `Step ${index + 1}`}
-                      </p>
-                      <h3 className="mt-2 text-lg font-black text-white">{zh ? step.titleZh : step.titleEn}</h3>
-                      <p className="mt-3 text-sm leading-7 text-slate-300">{zh ? step.bodyZh : step.bodyEn}</p>
-                      <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-300">
-                        <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5">
-                          {zh ? step.visualTitleZh : step.visualTitleEn}
-                        </span>
-                        {exchange === "gate" ? (
-                          <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-emerald-200">
-                            {zh ? "\u5df2\u5957\u7528\u4f60\u63d0\u4f9b\u7684 Gate \u5b98\u65b9\u7d20\u6750" : "Mapped to your Gate screenshots"}
-                          </span>
-                        ) : null}
-                      </div>
-                    </div>
-
-                    <div className="overflow-hidden rounded-[24px] border border-white/10 bg-[#050b13]">
-                      <div className="border-b border-white/8 bg-white/[0.03] px-4 py-3">
-                        <div className="flex items-center justify-between gap-3">
-                          <div>
-                            <p className="text-sm font-black text-white">{zh ? step.visualTitleZh : step.visualTitleEn}</p>
-                            <p className="mt-1 text-xs leading-5 text-slate-500">{zh ? step.visualHintZh : step.visualHintEn}</p>
+                      {index < steps.length - 1 ? <div className="absolute left-[43px] top-16 hidden h-[calc(100%+28px)] w-px bg-white/10 lg:block" /> : null}
+                      <div className="pl-14">
+                        <div className="text-2xl font-black text-white">{zh ? step.titleZh : step.titleEn}</div>
+                        <p className="mt-4 text-base leading-8 text-slate-300">{zh ? step.bodyZh : step.bodyEn}</p>
+                        <div className="mt-5 space-y-3 text-sm text-slate-300">
+                          <div className="flex items-start gap-3">
+                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
+                            <span>{zh ? `当前邀请码：${inviteCode}` : `Current invite code: ${inviteCode}`}</span>
                           </div>
-                          {step.imageSrc ? null : <ImagePlus className="h-5 w-5 text-slate-500" />}
+                          <div className="flex items-start gap-3">
+                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
+                            <span>{zh ? "按截图位置逐步操作，不需要来回翻找。" : "Follow the screenshot one step at a time without scrolling back and forth."}</span>
+                          </div>
                         </div>
                       </div>
-                      <div className="bg-[#03070d] p-3 sm:p-4">
-                        {step.imageSrc ? (
-                          <img
-                            src={step.imageSrc}
-                            alt={zh ? step.imageAltZh || step.visualTitleZh : step.imageAltEn || step.visualTitleEn}
-                            className="w-full rounded-[18px] border border-white/6 object-cover"
-                            loading="lazy"
-                          />
-                        ) : (
-                          <div className="flex aspect-[16/9] items-center justify-center rounded-[18px] border border-dashed border-white/10 bg-white/[0.04] px-6 text-center">
-                            <div>
-                              <p className="text-sm font-semibold text-slate-200">{zh ? step.visualTitleZh : step.visualTitleEn}</p>
-                              <p className="mt-2 text-xs leading-6 text-slate-500">{zh ? step.visualHintZh : step.visualHintEn}</p>
-                            </div>
-                          </div>
-                        )}
-                      </div>
                     </div>
+                    <GuideImage
+                      src={step.imageSrc}
+                      alt={zh ? step.imageAltZh || step.titleZh : step.imageAltEn || step.titleEn}
+                      title={zh ? step.imageTitleZh : step.imageTitleEn}
+                      hint={zh ? step.imageHintZh : step.imageHintEn}
+                    />
                   </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-6 flex flex-wrap gap-3">
-              <a href={meta.officialSignup} target="_blank" rel="noopener noreferrer" className="tap-target inline-flex items-center gap-2 rounded-2xl px-4 py-3 text-sm font-black text-black transition hover:scale-[1.01]" style={{ background: meta.accent }}>
-                {zh ? "\u524d\u5f80\u5b98\u7f51\u6ce8\u518c\u9875" : "Open official registration"}
-                <ExternalLink className="h-4 w-4" />
-              </a>
-              <a href={meta.officialDownload} target="_blank" rel="noopener noreferrer" className="tap-target inline-flex items-center gap-2 rounded-2xl border border-white/12 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
-                {zh ? "\u524d\u5f80\u5b98\u65b9\u4e0b\u8f7d\u9875" : "Open official download"}
-                <Download className="h-4 w-4" />
-              </a>
+                ))}
+              </div>
             </div>
           </section>
         ) : null}
