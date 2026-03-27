@@ -14,7 +14,7 @@ export const BASE_TITLE: LocalizedSeo = {
 };
 
 export const BASE_DESCRIPTION: LocalizedSeo = {
-  zh: "Get8 Pro 整理 Web3 学习资源、交易所信息、KYC 指南、风险提示与实用工具，帮助用户更系统地了解相关主题。",
+  zh: "Get8 Pro 整理 Web3 学习资源、交易所信息、KYC 指南、风险提示和实用工具，帮助用户更系统地了解相关主题。",
   en: "Get8 Pro organizes Web3 learning resources, exchange information, KYC guidance, risk disclosures, and practical tools for users exploring the space.",
 };
 
@@ -77,7 +77,7 @@ const SEO_BY_PATH: Record<string, SeoEntry> = {
       en: "Exchange Registration & Download Guide | Get8 Pro",
     },
     description: {
-      zh: "在一个页面内完成交易所选择、注册路径确认、邀请码填写和官方下载安装流程查看。",
+      zh: "在一个页面内完成交易所选择、注册路径确认、邀请码填写和官方下载流程查看。",
       en: "Choose an exchange, confirm the registration path, verify the invite code, and follow the official download flow in one place.",
     },
     keywords: {

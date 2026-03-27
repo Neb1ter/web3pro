@@ -14,8 +14,8 @@ export function SchemaManager() {
     url: BASE_URL,
     logo: `${BASE_URL}/logo.png`,
     description: isZh
-      ? "Get8 Pro 是一个面向 Web3 新手与交易用户的教育、导航和信息核对站点。"
-      : "Get8 Pro is an educational and navigation website for Web3 beginners and trading users.",
+      ? "Get8 Pro 是一个面向 Web3 学习、交易所信息整理、KYC 说明和工具导航的内容网站。"
+      : "Get8 Pro is a content website focused on Web3 learning, exchange information, KYC guidance, and tool navigation.",
     email: "contact@get8.pro",
     contactPoint: {
       "@type": "ContactPoint",
@@ -39,8 +39,8 @@ export function SchemaManager() {
     url: BASE_URL,
     name: "Get8 Pro",
     description: isZh
-      ? "提供 Web3 教程、交易所对比、KYC 流程、工具导航和快讯聚合。"
-      : "Provides Web3 guides, exchange comparisons, KYC workflows, tool navigation, and crypto news aggregation.",
+      ? "提供 Web3 指南、交易所信息、KYC 流程、工具导航和加密资讯内容。"
+      : "Provides Web3 guides, exchange information, KYC workflows, tool navigation, and crypto news content.",
     inLanguage: [isZh ? "zh-CN" : "en", isZh ? "en" : "zh-CN"],
     publisher: {
       "@type": "Organization",
@@ -56,10 +56,10 @@ export function SchemaManager() {
   const collectionPageSchema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: isZh ? "Get8 Pro 内容与导航入口" : "Get8 Pro guides and navigation hub",
+    name: isZh ? "Get8 Pro 导航与内容中心" : "Get8 Pro guides and navigation hub",
     url: BASE_URL,
     description: isZh
-      ? "聚合 Web3 教程、交易所信息、KYC 流程、工具和风险披露。"
+      ? "聚合 Web3 指南、交易所信息、KYC 流程、工具与风险提示。"
       : "A hub for Web3 education, exchange information, KYC guidance, tools, and risk disclosures.",
     isPartOf: {
       "@type": "WebSite",
@@ -80,8 +80,8 @@ export function SchemaManager() {
     name: isZh ? "关于 Get8 Pro" : "About Get8 Pro",
     url: `${BASE_URL}/about`,
     description: isZh
-      ? "介绍站点定位、合作披露、信息核对方式和风险说明。"
-      : "Explains site purpose, partnership disclosures, information verification, and risk notes.",
+      ? "介绍站点定位、合作披露、信息整理方法和风险说明。"
+      : "Explains site purpose, partnership disclosures, information organization, and risk notes.",
     isPartOf: {
       "@type": "WebSite",
       name: "Get8 Pro",
