@@ -1,11 +1,10 @@
-import { useState, useDeferredValue, useMemo } from 'react';
+import { useState, useDeferredValue } from 'react';
 import { Link } from 'wouter';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ChevronDown, ChevronUp, Search, BookOpen, Newspaper, ArrowLeft } from 'lucide-react';
 import { useScrollMemory, goBack } from '@/hooks/useScrollMemory';
 import { trpc } from '@/lib/trpc';
 import { preloadRoute } from '@/lib/routePreload';
-import { Helmet } from "react-helmet-async";
 
 const CATEGORY_MAP: Record<string, { zh: string; en: string }> = {
   basic:    { zh: '区块链基础', en: 'Blockchain Basics' },
@@ -31,23 +30,7 @@ export default function Beginner() {
     { search: deferredSearch.trim() || undefined }
   );
 
-  // 注入 FAQPage 结构化数据（SEO）
-  const faqSchemaJson = useMemo(() => {
-    if (!rawFaqs.length) return '';
-    return JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: rawFaqs.map((faq) => ({
-        "@type": "Question",
-        name: faq.question,
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: faq.answer,
-        },
-      })),
-    });
-  }, [rawFaqs]);
-
+  // FAQ 列表筛选
   const faqs = rawFaqs.filter(f => {
     if (activeCategory === 'all') return true;
     return f.category === activeCategory;
@@ -64,16 +47,6 @@ export default function Beginner() {
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #0A192F 0%, #0d2137 50%, #0A192F 100%)' }}>
-      {faqSchemaJson && (
-        <Helmet>
-          <script
-            id="faq-schema"
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: faqSchemaJson }}
-          />
-        </Helmet>
-      )}
-
       {/* Sticky header */}
       <header className="sticky top-0 z-40 border-b border-yellow-500/20 backdrop-blur-md" style={{ background: 'rgba(10,25,47,0.92)' }}>
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-3">

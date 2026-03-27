@@ -134,13 +134,13 @@ function ExchangeChip({
     <button
       type="button"
       onClick={onClick}
-      className={`tap-target rounded-2xl border p-4 text-left transition ${
+      className={`tap-target rounded-2xl border p-3 text-left transition sm:p-4 ${
         active ? "border-white/30 bg-white/10 shadow-[0_12px_28px_rgba(0,0,0,0.22)]" : "border-white/10 bg-white/[0.03] hover:bg-white/[0.05]"
       }`}
     >
-      <div className="mb-4 h-12 w-12 rounded-full shadow-[inset_0_0_24px_rgba(255,255,255,0.18)]" style={{ background: `radial-gradient(circle at 30% 30%, ${accent}, rgba(255,255,255,0.12))` }} />
-      <div className="text-xl font-black text-white">{name}</div>
-      <div className="mt-3 inline-flex rounded-full border border-[#FFD700]/40 bg-[#FFD700]/10 px-3 py-1 text-sm font-bold text-[#FFD700]">
+      <div className="mb-3 h-10 w-10 rounded-full shadow-[inset_0_0_24px_rgba(255,255,255,0.18)] sm:mb-4 sm:h-12 sm:w-12" style={{ background: `radial-gradient(circle at 30% 30%, ${accent}, rgba(255,255,255,0.12))` }} />
+      <div className="text-lg font-black text-white sm:text-xl">{name}</div>
+      <div className="mt-2 inline-flex rounded-full border border-[#FFD700]/40 bg-[#FFD700]/10 px-2.5 py-0.5 text-xs font-bold text-[#FFD700] sm:mt-3 sm:px-3 sm:py-1 sm:text-sm">
         默认返佣 {rebateRate}
       </div>
     </button>
@@ -404,7 +404,7 @@ export default function ExchangeDownload() {
           <p className="mt-3 max-w-3xl text-base leading-8 text-slate-300">
             {zh ? "先选定你要注册的平台。选完后，下面会直接切换成该交易所对应的注册链接和手动教程。" : "Pick the exchange first. The sections below will switch to that platform's direct link and manual guide."}
           </p>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-5">
             {(Object.keys(EXCHANGES) as ExchangeSlug[]).map((slug) => (
               <ExchangeChip
                 key={slug}

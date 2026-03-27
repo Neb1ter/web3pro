@@ -5,7 +5,6 @@
  */
 import { useState } from "react";
 import { Link } from "wouter";
-import IndexingPriorityLinks from "@/components/IndexingPriorityLinks";
 import { SeoManager } from "@/components/SeoManager";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { trpc } from "@/lib/trpc";
@@ -208,10 +207,6 @@ export default function ArticleList() {
           )}
 
           {/* ── 底部导航 ── */}
-          <div className="mt-12">
-            <IndexingPriorityLinks zh={zh} compact />
-          </div>
-
           <div className="mt-12 border-t border-white/10 pt-8">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <Link href="/exchanges" className="tap-target block">

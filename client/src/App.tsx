@@ -477,6 +477,47 @@ function GlobalSwipeBlocker() {
   return null;
 }
 
+function CrawlPriorityLinks() {
+  const links = [
+    "/",
+    "/exchange-download",
+    "/exchanges",
+    "/exchange-guide",
+    "/articles",
+    "/crypto-news",
+    "/crypto-saving",
+    "/web3-guide",
+    "/tools",
+    "/about",
+    "/standards",
+    "/legal",
+    "/contact",
+  ];
+
+  return (
+    <nav
+      aria-label="Crawl priority links"
+      style={{
+        position: "absolute",
+        width: 1,
+        height: 1,
+        margin: -1,
+        padding: 0,
+        overflow: "hidden",
+        clip: "rect(0, 0, 0, 0)",
+        whiteSpace: "nowrap",
+        border: 0,
+      }}
+    >
+      {links.map((href) => (
+        <a key={href} href={href}>
+          {href}
+        </a>
+      ))}
+    </nav>
+  );
+}
+
 function AppInner() {
   const [showFloatNav, setShowFloatNav] = useState(false);
   const [location] = useLocation();
@@ -520,6 +561,7 @@ function AppInner() {
             <TooltipProvider>
               <Toaster />
               <Router />
+              <CrawlPriorityLinks />
               {showFloatNav && !hideFloatNav ? (
                 <Suspense fallback={null}>
                   <MobileFloatNav />
