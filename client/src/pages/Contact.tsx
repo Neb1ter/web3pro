@@ -8,7 +8,6 @@ import {
   ArrowLeft,
   CheckCircle2,
   ChevronRight,
-  Clock3,
   ExternalLink,
   Mail,
   MessageCircle,
@@ -22,259 +21,138 @@ type ChannelId = "telegram" | "x" | "wechat" | "email" | "discord";
 type FormPlatform = "telegram" | "x" | "wechat" | "email" | "other";
 type UseCaseId = "new-user" | "existing-account" | "higher-tier" | "content-feedback";
 
-const DiscordIcon = ({ size = 22 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className="text-indigo-300">
+type UseCase = {
+  id: UseCaseId;
+  title: string;
+  desc: string;
+  recommendedChannel: ChannelId;
+  details: string[];
+  prompt: string;
+};
+
+type Channel = {
+  id: ChannelId;
+  name: string;
+  handle: string;
+  desc: string;
+  href?: string;
+};
+
+const DiscordIcon = ({ size = 20 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className="text-indigo-500">
     <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.033.055a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
   </svg>
 );
 
 const copy = {
   zh: {
-    seoTitle: "联系 Get8 Pro | 移动端支持台",
-    seoDesc: "先选事项，再看推荐渠道，最后补充资料，减少手机浏览时的信息遗失。",
+    seoTitle: "联系 Get8 Pro | 更清晰的移动端支持页",
+    seoDesc: "先选问题，再看推荐渠道，最后提交必要信息，减少来回翻看。",
     back: "返回上一页",
     badge: "联系与支持",
-    title: "先锁定问题，再进入正确入口",
-    subtitle: "这页按移动端工具站思路重排，先选问题类型，再给推荐渠道和精简表单。",
-    intro: "目标不是把内容堆得更满，而是让你在手机上更快做决定，减少一路下滑之后还要回想前面看过什么的问题。",
-    flowTitle: "移动端更顺手的顺序",
-    flow: [
-      { id: "1", title: "选问题", desc: "先确定场景，页面保持上下文。" },
-      { id: "2", title: "看推荐渠道", desc: "按事项给更合适的入口。" },
-      { id: "3", title: "补资料", desc: "先填必要字段，再决定是否补充更多。" },
-    ],
-    selectorTitle: "你现在想处理什么",
-    selectorDesc: "点一个最接近的场景，右侧会同步给出建议路径、准备项和推荐联系渠道。",
-    currentIssue: "当前事项",
-    recommendedChannel: "推荐渠道",
-    prepare: "建议先准备",
-    reply: "回复预期",
-    toForm: "去填写资料",
-    toChannels: "看渠道说明",
-    useCases: [
-      {
-        id: "new-user",
-        title: "新用户返佣配置",
-        desc: "确认默认返佣、注册链接和注册前注意事项。",
-        recommendedChannel: "telegram",
-        routeTitle: "适合快速确认路径",
-        routeDesc: "先说明你打算使用的平台，以及是否还没有注册，通常会更快进入正确流程。",
-        checklist: ["准备交易所名称", "说明是否未注册", "确认你关心默认方案还是高额度"],
-        response: "新用户路径确认通常会优先处理。",
-        prompt: "我准备注册 ______，想确认默认返佣和注册链接，目前还未注册 / 已注册未完成 KYC。",
-      },
-      {
-        id: "existing-account",
-        title: "老账户限制确认",
-        desc: "先判断是否还能处理，再决定是否要用其他方案。",
-        recommendedChannel: "wechat",
-        routeTitle: "适合先补充账户信息",
-        routeDesc: "老账户通常要先确认 UID、用户名和当前状态，信息越完整，判断越快。",
-        checklist: ["准备 UID 或注册用户名", "说明是否完成 KYC", "说明要确认限制还是替代方案"],
-        response: "这类问题通常需要先核对条件，节奏会稍慢一点。",
-        prompt: "我已有 ______ 账户，UID / 用户名是 ______，想确认还能否处理返佣或是否需要别的方案。",
-      },
-      {
-        id: "higher-tier",
-        title: "更高额度或其他平台",
-        desc: "当五家平台不够，或者你需要更高额度时使用。",
-        recommendedChannel: "email",
-        routeTitle: "适合一次性说明完整诉求",
-        routeDesc: "更高额度、其他平台或更复杂的需求，邮件和完整表单更利于后续跟进。",
-        checklist: ["说明目标平台或额度", "说明你的交易体量或背景", "留下稳定联系方式"],
-        response: "这类需求通常会进入单独评估。",
-        prompt: "我想咨询 ______ 平台 / 更高额度方案，主要诉求是 ______，预计交易规模或背景是 ______。",
-      },
-      {
-        id: "content-feedback",
-        title: "内容修正与合作",
-        desc: "反馈页面问题、链接异常，或者沟通合作。",
-        recommendedChannel: "email",
-        routeTitle: "适合结构化表达",
-        routeDesc: "页面修正和合作需求更适合文字化说明，这样后续确认时不会遗漏上下文。",
-        checklist: ["指出具体页面或链接", "说明问题或合作方向", "有时效性就标出优先级"],
-        response: "内容问题会先核实来源，合作请求会按主题继续跟进。",
-        prompt: "我想反馈 / 合作的页面是 ______，具体问题或方向是 ______。",
-      },
-    ],
-    channelsTitle: "联系渠道",
-    channelsDesc: "推荐渠道会随着事项切换，其它渠道保留为备用入口，方便你直接切换而不是反复回看。",
-    featured: "当前更推荐的入口",
-    others: "其它可选渠道",
-    pickChannel: "选择这个渠道",
-    openLink: "打开链接",
-    channels: [
-      { id: "telegram", name: "Telegram", handle: "私信咨询", desc: "适合返佣、路径确认和快速沟通。", icon: "telegram" },
-      { id: "x", name: "X (Twitter)", handle: "发送私信", desc: "适合公开关注后继续私聊。", icon: "twitter" },
-      { id: "wechat", name: "微信", handle: "联系 Get8 Pro", desc: "适合中文环境下沟通返佣和注册问题。", icon: "wechat" },
-      { id: "email", name: "Email", handle: "contact@get8.pro", desc: "适合合作、修正反馈和需要留档的事项。", icon: "email", href: "mailto:contact@get8.pro" },
-      { id: "discord", name: "Discord", handle: "discord.gg/wgvetpH6Un", desc: "适合进入社区继续交流。", icon: "discord", href: "https://discord.gg/wgvetpH6Un" },
-    ],
-    formTitle: "提交你的关键信息",
-    formDesc: "手机上先展示必要输入，其它信息折叠起来，减少第一眼的压力。",
+    title: "简单内容简单显示，复杂问题再展开说明",
+    subtitle: "这页专门按移动端高效浏览重做。先做选择，再看大块详情，不再一开始堆满长卡片和深色内容。",
+    step1: "先选事项",
+    step2: "再看渠道",
+    step3: "最后提交",
+    issueTitle: "你现在想处理什么",
+    issueHint: "只保留高频入口，先快速定位，再展开当前事项的完整说明。",
+    summaryTitle: "当前事项",
+    detailsTitle: "建议先准备",
+    focusTitle: "推荐处理方式",
+    chooseForm: "去填资料",
+    chooseChannels: "查看渠道",
+    channelsTitle: "推荐联系渠道",
+    channelsDesc: "优先把最适合的渠道放在上面，其它方式只保留为补充入口。",
+    formTitle: "提交你的基本信息",
+    formDesc: "先填写必要字段。可选信息默认收起，避免手机端一次看到太多内容。",
     platform: "联系平台",
     platformSelect: "请选择联系平台",
     accountName: "你的账号名称",
     accountPlaceholder: "填写你在该平台上的用户名",
-    accountExample: "例如 Telegram @username、微信号、邮箱地址等",
+    accountExample: "例如 Telegram @username、微信号或邮箱地址",
     message: "补充说明",
-    fallbackMessage: "简要描述你的问题、状态和希望确认的点",
+    messageFallback: "简要说明你的问题、当前状态和你想确认的内容",
     optionalShow: "展开可选信息",
     optionalHide: "收起可选信息",
     uid: "交易所 UID（可选）",
-    uidPlaceholder: "如有，可填写 UID",
-    userName: "交易所用户名（可选）",
-    userNamePlaceholder: "如有，可填写注册用户名",
+    uidPlaceholder: "如果有，可以填写 UID",
+    username: "交易所用户名（可选）",
+    usernamePlaceholder: "如果有，可以填写注册用户名",
     submit: "提交信息",
     submitting: "提交中...",
-    privacy: "你的信息仅用于联系跟进、返佣配置或内容修正。",
     success: "提交成功，我们会尽快联系你。",
-    required: "请先填写必填项。",
     failed: "提交失败，请稍后重试",
-    noteTitle: "处理方式说明",
-    noteDesc: "工作日通常会在 24 小时内回复，简单路径确认通常会更快。",
-    improveTitle: "这版为什么更适合手机",
-    improve: [
-      { title: "信息先分层", desc: "不再把大量卡片并排堆在一个长页面里。" },
-      { title: "当前事项持续可见", desc: "用户不会因为滚动太久而忘掉自己最初选了什么。" },
-      { title: "先完成最少动作", desc: "默认只展示关键输入，降低提交前阻力。" },
-    ],
-    footerTitle: "先确认路径，再继续操作",
-    footerDesc: "比起一路滑到底再回头确认，这种结构更像真正的支持工具页。",
-    mobileIssue: "当前事项",
-    mobileAction: "去填写资料",
+    required: "请先填写必填项。",
+    noteTitle: "填写建议",
+    note1: "简单问题先写结论，例如你想绑定哪家交易所、是否已注册。",
+    note2: "复杂需求再补背景，例如额度、限制、当前账号状态。",
+    note3: "如果你有更稳定的联系方式，可以在可选信息里补充。",
+    mobileCurrent: "当前事项",
+    mobileAction: "去填资料",
   },
   en: {
-    seoTitle: "Contact Get8 Pro | Mobile Support Console",
-    seoDesc: "Choose the issue first, see the recommended channel, and submit only the details that matter on mobile.",
+    seoTitle: "Contact Get8 Pro | Cleaner Mobile Support",
+    seoDesc: "Choose the issue first, see the recommended channel, then submit the key details.",
     back: "Back",
     badge: "Contact & Support",
-    title: "Lock the issue first, then move into the right entry point",
-    subtitle: "This page is reordered like a mobile tool page: issue first, recommended channel second, compact form last.",
-    intro: "The goal is not to show more content. The goal is to help people decide faster on mobile without losing context while scrolling.",
-    flowTitle: "A faster mobile order",
-    flow: [
-      { id: "1", title: "Pick the issue", desc: "Keep the context visible first." },
-      { id: "2", title: "See the best channel", desc: "The entry changes with the issue type." },
-      { id: "3", title: "Fill key details", desc: "Required fields first, optional later." },
-    ],
-    selectorTitle: "What do you want to handle right now",
-    selectorDesc: "Pick the closest scenario first. The panel on the right will sync the suggested path, checklist, and best contact channel.",
-    currentIssue: "Current issue",
-    recommendedChannel: "Recommended channel",
-    prepare: "Prepare first",
-    reply: "Response expectation",
-    toForm: "Go to form",
-    toChannels: "See channels",
-    useCases: [
-      {
-        id: "new-user",
-        title: "New-user rebate setup",
-        desc: "Confirm the default rebate, referral link, and pre-registration notes.",
-        recommendedChannel: "telegram",
-        routeTitle: "Best for a quick path check",
-        routeDesc: "Share the exchange you plan to use and whether you have not registered yet. That usually leads to the fastest answer.",
-        checklist: ["Prepare the exchange name", "State whether you are still unregistered", "Clarify whether you want the default plan or a higher tier"],
-        response: "New-user path questions are usually handled first.",
-        prompt: "I plan to register on ______ and want to confirm the default rebate and referral link. I have not registered yet / I registered but have not completed KYC.",
-      },
-      {
-        id: "existing-account",
-        title: "Existing-account limits",
-        desc: "Check whether it is still possible first, then decide on an alternative path.",
-        recommendedChannel: "wechat",
-        routeTitle: "Best when account details are shared early",
-        routeDesc: "Existing-account questions usually depend on UID, username, and account state. More context means faster answers.",
-        checklist: ["Prepare UID or registered username", "State whether KYC is completed", "Clarify whether you want a limit check or another path"],
-        response: "This usually needs a condition check first, so it may take a bit longer.",
-        prompt: "I already have an account on ______, my UID / username is ______, and I want to know whether rebate handling is still possible or whether I need another path.",
-      },
-      {
-        id: "higher-tier",
-        title: "Higher tier or other platforms",
-        desc: "Use this when the current five exchanges are not enough, or when you need a stronger plan.",
-        recommendedChannel: "email",
-        routeTitle: "Best for a complete written request",
-        routeDesc: "Higher-tier, extra-platform, or more complex requests work better through email and a fuller form.",
-        checklist: ["State the target platform or tier", "Share your trading size or background", "Leave a stable contact method"],
-        response: "These requests usually go through a separate review path.",
-        prompt: "I want to discuss ______ exchange / a higher-tier plan. My main request is ______ and my expected trading size or background is ______.",
-      },
-      {
-        id: "content-feedback",
-        title: "Corrections and cooperation",
-        desc: "Report page issues, broken links, or discuss cooperation.",
-        recommendedChannel: "email",
-        routeTitle: "Best for structured context",
-        routeDesc: "Corrections and cooperation are easier to follow when the written context is clear from the start.",
-        checklist: ["Point to the exact page or link", "Describe the issue or cooperation direction", "Mark urgency if timing matters"],
-        response: "Corrections are verified first, while cooperation requests continue based on topic fit.",
-        prompt: "I want to report / discuss ______ on page ______. The issue or direction is ______.",
-      },
-    ],
-    channelsTitle: "Contact channels",
-    channelsDesc: "The recommended channel changes with the issue. Other channels stay visible as fallback options so you do not need to scroll back and compare.",
-    featured: "Recommended for this issue",
-    others: "Other available channels",
-    pickChannel: "Use this channel",
-    openLink: "Open link",
-    channels: [
-      { id: "telegram", name: "Telegram", handle: "Direct message", desc: "Best for rebates, path checks, and quick follow-up.", icon: "telegram" },
-      { id: "x", name: "X (Twitter)", handle: "Send a DM", desc: "Useful if you prefer continuing the conversation there.", icon: "twitter" },
-      { id: "wechat", name: "WeChat", handle: "Contact Get8 Pro", desc: "Good for Chinese-language registration and rebate questions.", icon: "wechat" },
-      { id: "email", name: "Email", handle: "contact@get8.pro", desc: "Best for cooperation, corrections, and recorded communication.", icon: "email", href: "mailto:contact@get8.pro" },
-      { id: "discord", name: "Discord", handle: "discord.gg/wgvetpH6Un", desc: "Best for community access and further discussion.", icon: "discord", href: "https://discord.gg/wgvetpH6Un" },
-    ],
-    formTitle: "Submit the key details",
-    formDesc: "Only the most important inputs are visible first on mobile. Optional fields stay collapsed until needed.",
+    title: "Show the simple parts simply, expand only the complex parts",
+    subtitle: "This page is redesigned for faster mobile browsing. Choose first, then open the larger detail areas only when you need them.",
+    step1: "Pick issue",
+    step2: "See channel",
+    step3: "Submit info",
+    issueTitle: "What do you want to handle right now",
+    issueHint: "High-frequency entry points stay short and scannable. The selected issue gets the larger explanation area.",
+    summaryTitle: "Current issue",
+    detailsTitle: "Prepare first",
+    focusTitle: "Recommended path",
+    chooseForm: "Go to form",
+    chooseChannels: "See channels",
+    channelsTitle: "Recommended contact channels",
+    channelsDesc: "The best-fit channel stays at the top. Other options remain available as secondary paths.",
+    formTitle: "Submit the basics",
+    formDesc: "Show the required inputs first. Optional details stay collapsed so the page remains easy to scan on mobile.",
     platform: "Contact Platform",
     platformSelect: "Select a contact platform",
     accountName: "Your Account Name",
     accountPlaceholder: "Enter your username on that platform",
     accountExample: "For example: Telegram @username, WeChat ID, or an email address",
     message: "Additional Notes",
-    fallbackMessage: "Briefly describe your issue, current status, and what you want to confirm",
+    messageFallback: "Briefly describe your issue, current status, and what you want to confirm",
     optionalShow: "Show optional fields",
     optionalHide: "Hide optional fields",
     uid: "Exchange UID (Optional)",
     uidPlaceholder: "If available, enter your UID",
-    userName: "Exchange Username (Optional)",
-    userNamePlaceholder: "If available, enter your registered username",
+    username: "Exchange Username (Optional)",
+    usernamePlaceholder: "If available, enter your registered username",
     submit: "Submit Information",
     submitting: "Submitting...",
-    privacy: "Your information is used only for follow-up, rebate setup, or content corrections.",
     success: "Submitted successfully. We will follow up soon.",
+    failed: "Submission failed, please try again later.",
     required: "Please fill in the required fields first.",
-    failed: "Submission failed, please try again later",
-    noteTitle: "Processing note",
-    noteDesc: "We usually reply within 24 hours on business days, and simple path checks are often handled faster.",
-    improveTitle: "Why this version works better on mobile",
-    improve: [
-      { title: "Information is layered", desc: "The page no longer stacks too many equal-weight cards in one long scroll." },
-      { title: "Selected issue stays visible", desc: "The user does not lose the original context after scrolling." },
-      { title: "Minimal first action", desc: "Only the key inputs are shown by default." },
-    ],
-    footerTitle: "Confirm the path first, then continue",
-    footerDesc: "This behaves more like a real support tool page than a long article page.",
-    mobileIssue: "Current issue",
+    noteTitle: "What to include",
+    note1: "For simple issues, state the goal first, such as the exchange you want to use.",
+    note2: "For complex requests, add context like account status, limit, or platform requirements.",
+    note3: "If you have a more stable contact method, add it in the optional fields.",
+    mobileCurrent: "Current issue",
     mobileAction: "Go to form",
   },
 } as const;
 
-function renderChannelIcon(icon: string) {
+function renderChannelIcon(icon: ChannelId) {
   switch (icon) {
     case "telegram":
-      return <MessageCircle className="h-5 w-5 text-cyan-300" />;
-    case "twitter":
-      return <Twitter className="h-5 w-5 text-slate-200" />;
+      return <MessageCircle className="h-5 w-5 text-sky-600" />;
+    case "x":
+      return <Twitter className="h-5 w-5 text-slate-700" />;
     case "wechat":
-      return <Phone className="h-5 w-5 text-emerald-300" />;
+      return <Phone className="h-5 w-5 text-emerald-600" />;
     case "email":
-      return <Mail className="h-5 w-5 text-amber-300" />;
+      return <Mail className="h-5 w-5 text-amber-600" />;
     case "discord":
       return <DiscordIcon />;
     default:
-      return <UserRound className="h-5 w-5 text-white" />;
+      return <UserRound className="h-5 w-5 text-slate-700" />;
   }
 }
 
@@ -282,15 +160,24 @@ function toPlatform(channelId: ChannelId): FormPlatform {
   return channelId === "discord" ? "other" : channelId;
 }
 
-function SendButton({ isPending, label, pendingLabel }: { isPending: boolean; label: string; pendingLabel: string }) {
+function SubmitButton({ isPending, label, pendingLabel }: { isPending: boolean; label: string; pendingLabel: string }) {
   return (
     <button
       type="submit"
       disabled={isPending}
-      className="tap-target flex min-h-[52px] w-full items-center justify-center rounded-2xl border border-amber-300/30 bg-amber-300 px-5 py-3 font-semibold text-slate-950 transition hover:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-70"
+      className="tap-target flex min-h-[52px] w-full items-center justify-center rounded-2xl bg-sky-600 px-5 py-3 font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-70"
     >
       {isPending ? pendingLabel : label}
     </button>
+  );
+}
+
+function SectionPill({ index, label }: { index: string; label: string }) {
+  return (
+    <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/90 px-3 py-2 text-xs font-semibold text-slate-600 shadow-sm">
+      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-900 text-[11px] text-white">{index}</span>
+      {label}
+    </div>
   );
 }
 
@@ -302,16 +189,111 @@ export default function Contact() {
   const channelsRef = useRef<HTMLDivElement | null>(null);
   const formRef = useRef<HTMLDivElement | null>(null);
 
-  const [activeUseCaseId, setActiveUseCaseId] = useState<UseCaseId>(t.useCases[0].id);
-  const [platform, setPlatform] = useState<FormPlatform>(toPlatform(t.useCases[0].recommendedChannel));
+  const [activeUseCaseId, setActiveUseCaseId] = useState<UseCaseId>("new-user");
+  const [platform, setPlatform] = useState<FormPlatform>("telegram");
   const [accountName, setAccountName] = useState("");
   const [exchangeUid, setExchangeUid] = useState("");
   const [exchangeUsername, setExchangeUsername] = useState("");
   const [message, setMessage] = useState("");
   const [showOptional, setShowOptional] = useState(false);
-  const activeUseCase = t.useCases.find((item) => item.id === activeUseCaseId) ?? t.useCases[0];
-  const featuredChannel = t.channels.find((item) => item.id === activeUseCase.recommendedChannel) ?? t.channels[0];
-  const otherChannels = t.channels.filter((item) => item.id !== featuredChannel.id);
+
+  const useCases: Record<UseCaseId, UseCase> = {
+    "new-user": {
+      id: "new-user",
+      title: language === "zh" ? "新用户返佣配置" : "New-user rebate setup",
+      desc: language === "zh" ? "先确认默认方案、注册链接和基础流程。" : "Confirm the default setup, signup link, and the basic flow first.",
+      recommendedChannel: "telegram",
+      details:
+        language === "zh"
+          ? ["你打算使用哪家交易所", "是否已经注册过账号", "是否还需要更高额度或额外方案"]
+          : ["Which exchange you plan to use", "Whether you already registered", "Whether you also need a higher-tier plan"],
+      prompt:
+        language === "zh"
+          ? "我准备注册 ______，想确认默认返佣方案和注册链接。"
+          : "I plan to register on ______ and want to confirm the default rebate setup and signup link.",
+    },
+    "existing-account": {
+      id: "existing-account",
+      title: language === "zh" ? "老账号限制确认" : "Existing-account limits",
+      desc: language === "zh" ? "先看账号状态，再决定是否还有可行路径。" : "Check the current account status before deciding the next workable path.",
+      recommendedChannel: "wechat",
+      details:
+        language === "zh"
+          ? ["准备好 UID 或注册用户名", "说明账号是否完成 KYC", "说明你是要确认限制还是询问替代方案"]
+          : ["Prepare your UID or username", "State whether KYC is completed", "Clarify whether you need a limit check or an alternative path"],
+      prompt:
+        language === "zh"
+          ? "我已经有 ______ 账号，UID / 用户名是 ______，想确认现在还能怎么处理。"
+          : "I already have an account on ______. My UID / username is ______ and I want to know what path is still possible.",
+    },
+    "higher-tier": {
+      id: "higher-tier",
+      title: language === "zh" ? "更高额度或其他平台" : "Higher tier or other platforms",
+      desc: language === "zh" ? "这类需求通常更复杂，建议直接进入完整沟通。" : "These cases are usually more complex and should move into a fuller conversation quickly.",
+      recommendedChannel: "email",
+      details:
+        language === "zh"
+          ? ["目标平台或目标额度", "你的大致交易规模或使用背景", "你最稳定的联系方法"]
+          : ["Target platform or target tier", "Your approximate trading size or context", "Your most stable contact method"],
+      prompt:
+        language === "zh"
+          ? "我想咨询 ______ 平台 / 更高额度方案，主要需求是 ______。"
+          : "I want to discuss ______ exchange / a higher-tier plan. My main request is ______.",
+    },
+    "content-feedback": {
+      id: "content-feedback",
+      title: language === "zh" ? "内容修正与合作" : "Corrections and cooperation",
+      desc: language === "zh" ? "页面问题、链接异常或合作需求都走这里。" : "Use this for page issues, broken links, and cooperation requests.",
+      recommendedChannel: "email",
+      details:
+        language === "zh"
+          ? ["指出具体页面、链接或内容位置", "说明你发现的问题或合作方向", "如果有时效要求，请直接标注"]
+          : ["Point to the exact page, link, or content block", "Describe the issue or cooperation direction", "Mark urgency directly if timing matters"],
+      prompt:
+        language === "zh"
+          ? "我想反馈 / 沟通 ______，相关页面或内容是 ______。"
+          : "I want to report or discuss ______ on page / content ______.",
+    },
+  };
+
+  const channels: Channel[] = [
+    {
+      id: "telegram",
+      name: "Telegram",
+      handle: language === "zh" ? "私信咨询" : "Direct message",
+      desc: language === "zh" ? "适合返佣、路径确认和快速沟通。" : "Best for rebates, path checks, and fast follow-up.",
+    },
+    {
+      id: "wechat",
+      name: language === "zh" ? "微信" : "WeChat",
+      handle: language === "zh" ? "联系 Get8 Pro" : "Contact Get8 Pro",
+      desc: language === "zh" ? "适合中文环境下的持续沟通。" : "Good for sustained Chinese-language communication.",
+    },
+    {
+      id: "email",
+      name: "Email",
+      handle: "contact@get8.pro",
+      desc: language === "zh" ? "适合详细需求、合作和修正反馈。" : "Best for detailed requests, cooperation, and corrections.",
+      href: "mailto:contact@get8.pro",
+    },
+    {
+      id: "x",
+      name: "X (Twitter)",
+      handle: language === "zh" ? "发送私信" : "Send a DM",
+      desc: language === "zh" ? "适合作为补充入口使用。" : "Useful as a secondary contact path.",
+    },
+    {
+      id: "discord",
+      name: "Discord",
+      handle: "discord.gg/wgvetpH6Un",
+      desc: language === "zh" ? "适合进入社区继续交流。" : "Useful for continued community discussion.",
+      href: "https://discord.gg/wgvetpH6Un",
+    },
+  ];
+
+  const activeUseCase = useCases[activeUseCaseId];
+  const featuredChannel = channels.find((item) => item.id === activeUseCase.recommendedChannel) ?? channels[0];
+  const otherChannels = channels.filter((item) => item.id !== featuredChannel.id);
 
   const submitContact = trpc.contact.submit.useMutation({
     onSuccess: () => {
@@ -326,20 +308,18 @@ export default function Contact() {
     onError: () => toast.error(t.failed),
   });
 
-  const scrollToRef = (ref: RefObject<HTMLDivElement | null>) => {
+  const scrollToSection = (ref: RefObject<HTMLDivElement | null>) => {
     ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const chooseUseCase = (id: UseCaseId) => {
-    const nextCase = t.useCases.find((item) => item.id === id);
-    if (!nextCase) return;
+  const handleUseCaseSelect = (id: UseCaseId) => {
     setActiveUseCaseId(id);
-    setPlatform(toPlatform(nextCase.recommendedChannel));
+    setPlatform(toPlatform(useCases[id].recommendedChannel));
   };
 
-  const chooseChannel = (channelId: ChannelId) => {
+  const handleChannelSelect = (channelId: ChannelId) => {
     setPlatform(toPlatform(channelId));
-    scrollToRef(formRef);
+    scrollToSection(formRef);
   };
 
   const handleSubmit = (e: FormEvent) => {
@@ -348,6 +328,7 @@ export default function Contact() {
       toast.error(t.required);
       return;
     }
+
     submitContact.mutate({
       platform,
       accountName: accountName.trim(),
@@ -360,175 +341,219 @@ export default function Contact() {
   return (
     <>
       <SeoManager path="/contact" title={t.seoTitle} description={t.seoDesc} />
-      <div className="min-h-screen bg-[#06101d] text-white">
-        <nav className="sticky top-0 z-30 border-b border-white/10 bg-[#06101d]/90 backdrop-blur-md">
+      <div className="min-h-screen bg-slate-50 text-slate-900">
+        <nav className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/90 backdrop-blur-md">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-            <button type="button" onClick={goBack} className="tap-target inline-flex items-center gap-2 text-sm font-semibold text-slate-300 transition hover:text-white">
+            <button
+              type="button"
+              onClick={goBack}
+              className="tap-target inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-slate-900"
+            >
               <ArrowLeft className="h-4 w-4" />
               {t.back}
             </button>
+
             <div className="flex items-center gap-2">
-              <button type="button" onClick={() => setLanguage("zh")} className={`tap-target rounded-xl px-3 py-2 text-sm font-medium transition ${language === "zh" ? "bg-cyan-400/20 text-cyan-300" : "text-slate-400 hover:text-white"}`}>{"\u4E2D\u6587"}</button>
-              <button type="button" onClick={() => setLanguage("en")} className={`tap-target rounded-xl px-3 py-2 text-sm font-medium transition ${language === "en" ? "bg-cyan-400/20 text-cyan-300" : "text-slate-400 hover:text-white"}`}>EN</button>
+              <button
+                type="button"
+                onClick={() => setLanguage("zh")}
+                className={`tap-target rounded-xl px-3 py-2 text-sm font-medium transition ${
+                  language === "zh" ? "bg-sky-600 text-white" : "bg-slate-100 text-slate-500 hover:text-slate-900"
+                }`}
+              >
+                中文
+              </button>
+              <button
+                type="button"
+                onClick={() => setLanguage("en")}
+                className={`tap-target rounded-xl px-3 py-2 text-sm font-medium transition ${
+                  language === "en" ? "bg-sky-600 text-white" : "bg-slate-100 text-slate-500 hover:text-slate-900"
+                }`}
+              >
+                EN
+              </button>
             </div>
           </div>
         </nav>
-        <section className="border-b border-white/10 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.15),transparent_42%),radial-gradient(circle_at_85%_8%,rgba(251,191,36,0.1),transparent_24%),linear-gradient(180deg,#081220_0%,#06101d_100%)] px-4 py-10 sm:py-14">
-          <div className="mx-auto max-w-6xl">
-            <div className="grid gap-6 lg:grid-cols-[1.08fr_0.92fr]">
-              <div>
-                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300">
-                  <ShieldCheck className="h-3.5 w-3.5" />
-                  {t.badge}
-                </div>
-                <h1 className="max-w-3xl text-3xl font-black leading-tight sm:text-5xl">{t.title}</h1>
-                <p className="mt-4 max-w-3xl text-base leading-8 text-slate-200 sm:text-lg">{t.subtitle}</p>
-                <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-400 sm:text-base">{t.intro}</p>
-              </div>
 
-              <div className="rounded-3xl border border-white/10 bg-black/20 p-5">
-                <p className="text-sm font-semibold text-slate-200">{t.flowTitle}</p>
-                <div className="mt-4 grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
-                  {t.flow.map((step) => (
-                    <div key={step.id} className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
-                      <div className="mb-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-cyan-400/15 text-sm font-black text-cyan-300">{step.id}</div>
-                      <p className="text-sm font-bold text-white">{step.title}</p>
-                      <p className="mt-1 text-xs leading-6 text-slate-400">{step.desc}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
+        <section className="relative overflow-hidden border-b border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f4f9ff_100%)] px-4 py-10 sm:py-14">
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute -right-12 top-8 h-40 w-40 rounded-full bg-sky-100 blur-3xl" />
+            <div className="absolute left-[-3rem] top-20 h-28 w-28 rounded-full bg-cyan-100 blur-3xl" />
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 520 220"
+              className="absolute right-0 top-0 h-full w-[70%] min-w-[260px] text-sky-200/70"
+            >
+              <path d="M24 82H178L224 36H356L410 90H496" fill="none" stroke="currentColor" strokeWidth="2" />
+              <path d="M54 162H196L248 116H332L388 168H476" fill="none" stroke="currentColor" strokeWidth="2" />
+              <circle cx="178" cy="82" r="6" fill="currentColor" />
+              <circle cx="224" cy="36" r="6" fill="currentColor" />
+              <circle cx="410" cy="90" r="6" fill="currentColor" />
+              <circle cx="248" cy="116" r="6" fill="currentColor" />
+              <circle cx="388" cy="168" r="6" fill="currentColor" />
+            </svg>
+          </div>
+
+          <div className="relative mx-auto max-w-6xl">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              {t.badge}
+            </div>
+
+            <h1 className="max-w-3xl text-3xl font-black leading-tight text-slate-950 sm:text-5xl">{t.title}</h1>
+            <p className="mt-4 max-w-3xl text-base leading-8 text-slate-600 sm:text-lg">{t.subtitle}</p>
+
+            <div className="mt-6 flex flex-wrap gap-3">
+              <SectionPill index="1" label={t.step1} />
+              <SectionPill index="2" label={t.step2} />
+              <SectionPill index="3" label={t.step3} />
             </div>
           </div>
         </section>
 
         <section className="px-4 py-8 sm:py-12">
-          <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1fr_0.92fr]">
-            <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-5 sm:p-6">
-              <h2 className="text-2xl font-black text-white">{t.selectorTitle}</h2>
-              <p className="mt-2 text-sm leading-7 text-slate-400">{t.selectorDesc}</p>
-              <div className="mt-6 grid gap-3">
-                {t.useCases.map((item) => {
+          <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+            <div className="rounded-[28px] border border-slate-200 bg-white p-5 sm:p-6">
+              <h2 className="text-2xl font-black text-slate-950">{t.issueTitle}</h2>
+              <p className="mt-2 text-sm leading-7 text-slate-500">{t.issueHint}</p>
+
+              <div className="mt-6 space-y-3">
+                {Object.values(useCases).map((item) => {
                   const active = item.id === activeUseCaseId;
                   return (
                     <button
                       key={item.id}
                       type="button"
-                      onClick={() => chooseUseCase(item.id)}
-                      className={`tap-target rounded-3xl border p-5 text-left transition ${active ? "border-cyan-400/35 bg-cyan-400/10" : "border-white/8 bg-[#0a1526] hover:border-white/15 hover:bg-[#0d1a2f]"}`}
+                      onClick={() => handleUseCaseSelect(item.id)}
+                      className={`tap-target flex w-full items-start justify-between gap-4 rounded-3xl border px-5 py-4 text-left transition ${
+                        active
+                          ? "border-sky-200 bg-sky-50 text-slate-950 shadow-[0_10px_30px_rgba(14,165,233,0.08)]"
+                          : "border-slate-200 bg-slate-50 text-slate-900 hover:border-slate-300 hover:bg-white"
+                      }`}
                     >
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <p className="text-lg font-black text-white">{item.title}</p>
-                          <p className="mt-2 text-sm leading-7 text-slate-400">{item.desc}</p>
-                        </div>
-                        <div className={`mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border ${active ? "border-cyan-300/40 bg-cyan-300/15 text-cyan-200" : "border-white/10 text-slate-500"}`}>
-                          <ChevronRight className="h-4 w-4" />
-                        </div>
+                      <div>
+                        <p className="text-base font-black">{item.title}</p>
+                        <p className={`mt-1 text-sm leading-7 ${active ? "text-slate-600" : "text-slate-500"}`}>{item.desc}</p>
                       </div>
+                      <ChevronRight className={`mt-1 h-4 w-4 shrink-0 ${active ? "text-sky-600" : "text-slate-400"}`} />
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            <div className="lg:sticky lg:top-24 lg:self-start">
-              <div className="overflow-hidden rounded-[30px] border border-cyan-400/20 bg-[linear-gradient(180deg,rgba(34,211,238,0.12),rgba(7,18,32,0.96))]">
-                <div className="border-b border-white/10 px-5 py-4 sm:px-6">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300">{t.currentIssue}</p>
-                  <h3 className="mt-2 text-2xl font-black text-white">{activeUseCase.title}</h3>
-                  <p className="mt-2 text-sm leading-7 text-slate-300">{activeUseCase.routeDesc}</p>
-                </div>
-                <div className="space-y-5 px-5 py-5 sm:px-6 sm:py-6">
-                  <div className="rounded-3xl border border-white/10 bg-black/20 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{t.recommendedChannel}</p>
-                    <div className="mt-3 flex items-center gap-3">
-                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/5">{renderChannelIcon(featuredChannel.icon)}</div>
-                      <div>
-                        <p className="text-base font-black text-white">{featuredChannel.name}</p>
-                        <p className="text-sm text-cyan-300">{featuredChannel.handle}</p>
+            <div className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-[0_18px_60px_rgba(15,23,42,0.06)] sm:p-7">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{t.summaryTitle}</p>
+              <h2 className="mt-3 text-3xl font-black text-slate-950">{activeUseCase.title}</h2>
+              <p className="mt-3 text-sm leading-7 text-slate-600">{activeUseCase.desc}</p>
+
+              <div className="mt-6 grid gap-4 md:grid-cols-[1fr_0.9fr]">
+                <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{t.detailsTitle}</p>
+                  <div className="mt-3 space-y-3">
+                    {activeUseCase.details.map((item) => (
+                      <div key={item} className="flex items-start gap-3">
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                        <p className="text-sm leading-7 text-slate-700">{item}</p>
                       </div>
-                    </div>
-                    <p className="mt-3 text-sm leading-7 text-slate-300">{activeUseCase.routeTitle}</p>
-                  </div>
-
-                  <div>
-                    <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{t.prepare}</p>
-                    <div className="space-y-3">
-                      {activeUseCase.checklist.map((item) => (
-                        <div key={item} className="flex items-start gap-3 rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-3">
-                          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
-                          <p className="text-sm leading-7 text-slate-300">{item}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="rounded-3xl border border-amber-300/15 bg-amber-300/[0.06] p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-200">{t.reply}</p>
-                    <p className="mt-2 text-sm leading-7 text-slate-200">{activeUseCase.response}</p>
-                  </div>
-
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <button type="button" onClick={() => scrollToRef(formRef)} className="tap-target inline-flex min-h-[48px] items-center justify-center rounded-2xl border border-cyan-400/25 bg-cyan-400/10 px-4 py-3 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/15">{t.toForm}</button>
-                    <button type="button" onClick={() => scrollToRef(channelsRef)} className="tap-target inline-flex min-h-[48px] items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.08]">{t.toChannels}</button>
+                    ))}
                   </div>
                 </div>
+
+                <div className="rounded-3xl border border-sky-100 bg-[linear-gradient(180deg,#f0f9ff_0%,#ffffff_100%)] p-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{t.focusTitle}</p>
+                  <div className="mt-3 flex items-start gap-3">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white shadow-sm">
+                      {renderChannelIcon(featuredChannel.id)}
+                    </div>
+                    <div>
+                      <p className="text-base font-black text-slate-950">{featuredChannel.name}</p>
+                      <p className="mt-1 text-sm text-slate-500">{featuredChannel.handle}</p>
+                      <p className="mt-2 text-sm leading-7 text-slate-600">{featuredChannel.desc}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={() => scrollToSection(formRef)}
+                  className="tap-target rounded-2xl bg-sky-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-700"
+                >
+                  {t.chooseForm}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => scrollToSection(channelsRef)}
+                  className="tap-target rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950"
+                >
+                  {t.chooseChannels}
+                </button>
               </div>
             </div>
           </div>
         </section>
-
-        <section ref={channelsRef} className="border-y border-white/10 bg-white/[0.03] px-4 py-8 sm:py-12">
+        <section ref={channelsRef} className="border-y border-slate-200 bg-white px-4 py-8 sm:py-12">
           <div className="mx-auto max-w-6xl">
-            <h2 className="text-2xl font-black text-white">{t.channelsTitle}</h2>
-            <p className="mt-2 max-w-4xl text-sm leading-7 text-slate-400">{t.channelsDesc}</p>
-            <div className="mt-6 grid gap-4 lg:grid-cols-[1.02fr_0.98fr]">
-              <div className="rounded-[30px] border border-white/10 bg-[#091425] p-6">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300">{t.featured}</p>
-                <div className="mt-4 flex items-start gap-4">
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/[0.05]">{renderChannelIcon(featuredChannel.icon)}</div>
-                  <div>
-                    <div className="flex flex-wrap items-center gap-3">
-                      <h3 className="text-xl font-black text-white">{featuredChannel.name}</h3>
-                      <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-semibold text-cyan-200">{featuredChannel.handle}</span>
-                    </div>
-                    <p className="mt-3 text-sm leading-7 text-slate-300">{featuredChannel.desc}</p>
+            <h2 className="text-2xl font-black text-slate-950">{t.channelsTitle}</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-500">{t.channelsDesc}</p>
+
+            <div className="mt-6 grid gap-3 lg:grid-cols-[1.08fr_0.92fr]">
+              <div className="rounded-[28px] border border-sky-100 bg-[linear-gradient(180deg,#f8fcff_0%,#ffffff_100%)] p-6 shadow-[0_12px_40px_rgba(14,165,233,0.06)]">
+                <div className="flex items-start gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm">{renderChannelIcon(featuredChannel.id)}</div>
+                  <div className="min-w-0">
+                    <p className="text-lg font-black text-slate-950">{featuredChannel.name}</p>
+                    <p className="mt-1 text-sm text-slate-500">{featuredChannel.handle}</p>
+                    <p className="mt-3 text-sm leading-7 text-slate-600">{featuredChannel.desc}</p>
                   </div>
                 </div>
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <button type="button" onClick={() => chooseChannel(featuredChannel.id)} className="tap-target inline-flex min-h-[46px] items-center justify-center rounded-2xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-3 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/15">{t.pickChannel}</button>
+
+                <div className="mt-5 flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={() => handleChannelSelect(featuredChannel.id)}
+                    className="tap-target rounded-2xl bg-sky-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-sky-700"
+                  >
+                    {t.chooseForm}
+                  </button>
                   {featuredChannel.href ? (
-                    <a href={featuredChannel.href} target="_blank" rel="noopener noreferrer" className="tap-target inline-flex min-h-[46px] items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.08]">
-                      {t.openLink}
+                    <a
+                      href={featuredChannel.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="tap-target inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950"
+                    >
+                      {t.chooseChannels}
                       <ExternalLink className="h-4 w-4" />
                     </a>
                   ) : null}
                 </div>
               </div>
 
-              <div className="rounded-[30px] border border-white/10 bg-[#091425] p-5 sm:p-6">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{t.others}</p>
-                <div className="mt-4 space-y-3">
+              <div className="rounded-[28px] border border-slate-200 bg-slate-50 p-5">
+                <div className="space-y-3">
                   {otherChannels.map((channel) => (
-                    <div key={channel.id} className="flex flex-col gap-4 rounded-3xl border border-white/8 bg-white/[0.03] p-4 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="flex items-start gap-3">
-                        <div className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-black/20">{renderChannelIcon(channel.icon)}</div>
-                        <div>
-                          <p className="text-sm font-bold text-white">{channel.name}</p>
-                          <p className="mt-1 text-sm text-slate-300">{channel.handle}</p>
-                          <p className="mt-1 text-xs leading-6 text-slate-500">{channel.desc}</p>
+                    <div key={channel.id} className="flex items-center justify-between gap-4 rounded-3xl border border-slate-200 bg-white px-4 py-4">
+                      <div className="flex min-w-0 items-start gap-3">
+                        <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-100">
+                          {renderChannelIcon(channel.id)}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-bold text-slate-900">{channel.name}</p>
+                          <p className="mt-1 truncate text-sm text-slate-500">{channel.handle}</p>
                         </div>
                       </div>
-                      <div className="flex gap-2">
-                        <button type="button" onClick={() => chooseChannel(channel.id)} className="tap-target inline-flex min-h-[42px] items-center justify-center rounded-2xl border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/[0.06]">{t.pickChannel}</button>
-                        {channel.href ? (
-                          <a href={channel.href} target="_blank" rel="noopener noreferrer" className="tap-target inline-flex min-h-[42px] items-center justify-center gap-1 rounded-2xl border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/[0.06]">
-                            {t.openLink}
-                            <ExternalLink className="h-3.5 w-3.5" />
-                          </a>
-                        ) : null}
-                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleChannelSelect(channel.id)}
+                        className="tap-target shrink-0 rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950"
+                      >
+                        {t.chooseForm}
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -538,14 +563,21 @@ export default function Contact() {
         </section>
 
         <section className="px-4 py-8 pb-28 sm:py-12 sm:pb-16">
-          <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1.02fr_0.98fr]">
-            <div ref={formRef} className="rounded-[30px] border border-amber-300/20 bg-[#0b1525] p-6 sm:p-7">
-              <h2 className="text-2xl font-black text-white">{t.formTitle}</h2>
-              <p className="mt-2 text-sm leading-7 text-slate-400">{t.formDesc}</p>
+          <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1fr_0.86fr]">
+            <div ref={formRef} className="rounded-[30px] border border-slate-200 bg-white p-6 shadow-[0_18px_60px_rgba(15,23,42,0.06)] sm:p-7">
+              <h2 className="text-2xl font-black text-slate-950">{t.formTitle}</h2>
+              <p className="mt-2 text-sm leading-7 text-slate-500">{t.formDesc}</p>
+
               <form onSubmit={handleSubmit} className="mt-6 space-y-5">
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-white">{t.platform} <span className="text-amber-300">*</span></label>
-                  <select value={platform} onChange={(e) => setPlatform(e.target.value as FormPlatform)} className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-cyan-400/40">
+                  <label className="mb-2 block text-sm font-semibold text-slate-900">
+                    {t.platform} <span className="text-rose-500">*</span>
+                  </label>
+                  <select
+                    value={platform}
+                    onChange={(e) => setPlatform(e.target.value as FormPlatform)}
+                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-sky-400"
+                  >
                     <option value="">{t.platformSelect}</option>
                     <option value="telegram">Telegram</option>
                     <option value="x">X (Twitter)</option>
@@ -556,83 +588,102 @@ export default function Contact() {
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-white">{t.accountName} <span className="text-amber-300">*</span></label>
-                  <input type="text" value={accountName} onChange={(e) => setAccountName(e.target.value)} placeholder={t.accountPlaceholder} className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 outline-none transition focus:border-cyan-400/40" />
+                  <label className="mb-2 block text-sm font-semibold text-slate-900">
+                    {t.accountName} <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={accountName}
+                    onChange={(e) => setAccountName(e.target.value)}
+                    placeholder={t.accountPlaceholder}
+                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-sky-400"
+                  />
                   <p className="mt-2 text-xs leading-6 text-slate-500">{t.accountExample}</p>
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-white">{t.message}</label>
-                  <textarea rows={5} value={message} onChange={(e) => setMessage(e.target.value)} placeholder={activeUseCase.prompt || t.fallbackMessage} className="w-full resize-none rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 outline-none transition focus:border-cyan-400/40" />
+                  <label className="mb-2 block text-sm font-semibold text-slate-900">{t.message}</label>
+                  <textarea
+                    rows={5}
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder={activeUseCase.prompt || t.messageFallback}
+                    className="w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-sky-400"
+                  />
                 </div>
 
-                <div className="rounded-3xl border border-white/8 bg-white/[0.03] p-4">
-                  <button type="button" onClick={() => setShowOptional((value) => !value)} className="tap-target flex w-full items-center justify-between gap-3 text-left text-sm font-semibold text-slate-200">
+                <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowOptional((value) => !value)}
+                    className="tap-target flex w-full items-center justify-between gap-3 text-left text-sm font-semibold text-slate-700"
+                  >
                     <span>{showOptional ? t.optionalHide : t.optionalShow}</span>
                     <ChevronRight className={`h-4 w-4 transition ${showOptional ? "rotate-90" : ""}`} />
                   </button>
+
                   {showOptional ? (
                     <div className="mt-4 space-y-4">
                       <div>
-                        <label className="mb-2 block text-sm font-semibold text-white">{t.uid}</label>
-                        <input type="text" value={exchangeUid} onChange={(e) => setExchangeUid(e.target.value)} placeholder={t.uidPlaceholder} className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 outline-none transition focus:border-cyan-400/40" />
+                        <label className="mb-2 block text-sm font-semibold text-slate-900">{t.uid}</label>
+                        <input
+                          type="text"
+                          value={exchangeUid}
+                          onChange={(e) => setExchangeUid(e.target.value)}
+                          placeholder={t.uidPlaceholder}
+                          className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-sky-400"
+                        />
                       </div>
+
                       <div>
-                        <label className="mb-2 block text-sm font-semibold text-white">{t.userName}</label>
-                        <input type="text" value={exchangeUsername} onChange={(e) => setExchangeUsername(e.target.value)} placeholder={t.userNamePlaceholder} className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 outline-none transition focus:border-cyan-400/40" />
+                        <label className="mb-2 block text-sm font-semibold text-slate-900">{t.username}</label>
+                        <input
+                          type="text"
+                          value={exchangeUsername}
+                          onChange={(e) => setExchangeUsername(e.target.value)}
+                          placeholder={t.usernamePlaceholder}
+                          className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-sky-400"
+                        />
                       </div>
                     </div>
                   ) : null}
                 </div>
 
-                <SendButton isPending={submitContact.isPending} label={t.submit} pendingLabel={t.submitting} />
-                <p className="text-center text-xs leading-6 text-slate-500">{t.privacy}</p>
+                <SubmitButton isPending={submitContact.isPending} label={t.submit} pendingLabel={t.submitting} />
               </form>
             </div>
 
-            <div className="space-y-6">
-              <div className="rounded-[30px] border border-cyan-400/15 bg-cyan-400/[0.05] p-6">
-                <div className="mb-3 flex items-center gap-2 text-cyan-300">
-                  <Clock3 className="h-5 w-5" />
-                  <h2 className="text-xl font-black">{t.noteTitle}</h2>
-                </div>
-                <p className="text-sm leading-7 text-slate-300">{t.noteDesc}</p>
+            <div className="rounded-[30px] border border-slate-200 bg-white p-6 sm:p-7">
+              <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50">
+                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
               </div>
 
-              <div className="rounded-[30px] border border-white/10 bg-white/[0.03] p-6">
-                <h2 className="text-xl font-black text-white">{t.improveTitle}</h2>
-                <div className="mt-4 space-y-3">
-                  {t.improve.map((item) => (
-                    <div key={item.title} className="rounded-2xl border border-white/8 bg-black/15 p-4">
-                      <p className="text-sm font-black text-white">{item.title}</p>
-                      <p className="mt-1 text-sm leading-7 text-slate-400">{item.desc}</p>
-                    </div>
-                  ))}
-                </div>
+              <h2 className="text-2xl font-black text-slate-950">{t.noteTitle}</h2>
+              <div className="mt-5 space-y-4">
+                {[t.note1, t.note2, t.note3].map((item) => (
+                  <div key={item} className="flex items-start gap-3 rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                    <p className="text-sm leading-7 text-slate-700">{item}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </section>
 
-        <footer className="border-t border-white/10 bg-white/[0.03] px-4 py-12">
-          <div className="mx-auto max-w-4xl text-center">
-            <h3 className="text-2xl font-black text-white">{t.footerTitle}</h3>
-            <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-slate-400">{t.footerDesc}</p>
-            <a href="mailto:contact@get8.pro" className="tap-target mt-5 inline-flex items-center gap-2 text-sm font-semibold text-cyan-300 transition hover:text-cyan-200">
-              <Mail className="h-4 w-4" />
-              contact@get8.pro
-            </a>
-          </div>
-        </footer>
-
         <div className="fixed inset-x-4 bottom-4 z-40 md:hidden">
-          <div className="rounded-3xl border border-cyan-400/20 bg-[#071220]/95 p-3 shadow-[0_18px_50px_rgba(2,8,23,0.5)] backdrop-blur-md">
+          <div className="rounded-3xl border border-slate-200 bg-white/95 p-3 shadow-[0_18px_50px_rgba(15,23,42,0.12)] backdrop-blur-md">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">{t.mobileIssue}</p>
-                <p className="truncate text-sm font-semibold text-white">{activeUseCase.title}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">{t.mobileCurrent}</p>
+                <p className="truncate text-sm font-semibold text-slate-900">{activeUseCase.title}</p>
               </div>
-              <button type="button" onClick={() => scrollToRef(formRef)} className="tap-target inline-flex min-h-[44px] shrink-0 items-center justify-center rounded-2xl border border-cyan-400/25 bg-cyan-400/10 px-4 py-2 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/15">
+
+              <button
+                type="button"
+                onClick={() => scrollToSection(formRef)}
+                className="tap-target rounded-2xl bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-700"
+              >
                 {t.mobileAction}
               </button>
             </div>
