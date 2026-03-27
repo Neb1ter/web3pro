@@ -7,6 +7,19 @@ import { ArticlesTab } from "./admin/AdminArticlesTab";
 import { PlatformsTab } from "./admin/AdminPlatformsTab";
 import { PublishLogsTab } from "./admin/AdminPublishLogsTab";
 
+const GUIDE_FALLBACKS = {
+  gate: {
+    1: "/images/exchange-guides/gate/step-1-home.png",
+    2: "/images/exchange-guides/gate/step-2-invite.png",
+    3: "/images/exchange-guides/gate/step-3-download.png",
+  },
+} as const;
+
+function getFallbackGuideImage(slug: string, step: 1 | 2 | 3): string {
+  const fallback = GUIDE_FALLBACKS[slug as keyof typeof GUIDE_FALLBACKS];
+  return fallback?.[step] ?? "";
+}
+
 
 function ExchangeGuideManager({ zh }: { zh: boolean }) {
   type ExchangeRow = {
@@ -115,8 +128,9 @@ function ExchangeGuideManager({ zh }: { zh: boolean }) {
 
       toast.success(zh ? `步骤 ${step} 图片已上传` : `Step ${step} image uploaded`);
       exchangesQuery.refetch();
-    } catch {
-      toast.error(zh ? "图片上传失败，请重试" : "Image upload failed");
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : (zh ? "未知错误" : "Unknown error");
+      toast.error(zh ? `图片上传失败：${reason}` : `Image upload failed: ${reason}`);
     }
   };
 
@@ -140,7 +154,11 @@ function ExchangeGuideManager({ zh }: { zh: boolean }) {
       <div className="grid gap-4 xl:grid-cols-2">
         {((exchangesQuery.data ?? []) as ExchangeRow[]).map((ex) => {
           const isEditing = editing === ex.slug;
-          const imageCount = [ex.guideStep1ImageUrl, ex.guideStep2ImageUrl, ex.guideStep3ImageUrl].filter(Boolean).length;
+          const persistedImages = [ex.guideStep1ImageUrl, ex.guideStep2ImageUrl, ex.guideStep3ImageUrl];
+          const imageCount = persistedImages.filter(Boolean).length;
+          const renderedCount = persistedImages
+            .map((url, index) => url || getFallbackGuideImage(ex.slug, (index + 1) as 1 | 2 | 3))
+            .filter(Boolean).length;
 
           return (
             <section key={ex.slug} className="rounded-2xl border border-slate-700/60 bg-slate-900/60 p-5 shadow-[0_20px_50px_rgba(2,8,23,0.25)]">
@@ -209,6 +227,9 @@ function ExchangeGuideManager({ zh }: { zh: boolean }) {
                     <div className="grid gap-3">
                       {stepMeta.map(step => {
                         const imageUrl = form[step.key];
+                        const fallbackImageUrl = getFallbackGuideImage(ex.slug, step.step);
+                        const previewImageUrl = imageUrl || fallbackImageUrl;
+                        const usingFallback = !imageUrl && Boolean(fallbackImageUrl);
                         return (
                           <div key={step.step} className="rounded-xl border border-slate-700/60 bg-slate-950/40 p-3">
                             <div className="flex items-center justify-between gap-3">
@@ -240,8 +261,8 @@ function ExchangeGuideManager({ zh }: { zh: boolean }) {
 
                             <div className="mt-3 grid gap-3 lg:grid-cols-[220px,1fr]">
                               <div className="overflow-hidden rounded-xl border border-slate-700/60 bg-slate-900/80">
-                                {imageUrl ? (
-                                  <img src={imageUrl} alt={zh ? step.titleZh : step.titleEn} className="h-36 w-full object-cover" />
+                                {previewImageUrl ? (
+                                  <img src={previewImageUrl} alt={zh ? step.titleZh : step.titleEn} className="h-36 w-full object-cover" />
                                 ) : (
                                   <div className="flex h-36 items-center justify-center px-4 text-center text-xs text-slate-500">
                                     {zh ? "暂未上传图片" : "No image uploaded yet"}
@@ -249,6 +270,11 @@ function ExchangeGuideManager({ zh }: { zh: boolean }) {
                                 )}
                               </div>
                               <div className="space-y-2">
+                                {usingFallback ? (
+                                  <div className="rounded-lg border border-amber-700/40 bg-amber-950/20 px-3 py-2 text-xs text-amber-300">
+                                    {zh ? "当前前台使用默认图。上传后会自动覆盖默认图。" : "Front-end is using a built-in fallback image. Upload to override it."}
+                                  </div>
+                                ) : null}
                                 <LabeledInput
                                   label={zh ? "图片链接" : "Image URL"}
                                   value={imageUrl}
@@ -277,7 +303,10 @@ function ExchangeGuideManager({ zh }: { zh: boolean }) {
                   <div className="rounded-xl border border-slate-800 bg-slate-950/35 p-3">
                     <div className="text-xs uppercase tracking-[0.18em] text-slate-500">{zh ? "教程图状态" : "Guide image status"}</div>
                     <div className="mt-2 text-sm text-slate-300">
-                      {zh ? `已配置 ${imageCount} / 3 张` : `${imageCount} / 3 images configured`}
+                      {zh ? `数据库已配置 ${imageCount} / 3 张` : `DB configured ${imageCount} / 3 images`}
+                    </div>
+                    <div className="mt-1 text-xs text-slate-500">
+                      {zh ? `前台当前可显示 ${renderedCount} / 3 张（含默认图）` : `Front-end renders ${renderedCount} / 3 (includes defaults)`}
                     </div>
                   </div>
                 </div>

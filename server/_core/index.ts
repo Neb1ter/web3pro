@@ -132,8 +132,19 @@ async function startServer() {
   registerSecurityMiddleware(app);
 
   // ── Body Parser（收紧为 1mb，防止超大请求体攻击）───────────────────────────
-  app.use(express.json({ limit: "1mb" }));
-  app.use(express.urlencoded({ limit: "1mb", extended: true }));
+  app.use(express.json({ limit: "12mb" }));
+  app.use(express.urlencoded({ limit: "12mb", extended: true }));
+
+  const uploadsDir = path.resolve(process.cwd(), "uploads");
+  app.use(
+    "/uploads",
+    express.static(uploadsDir, {
+      maxAge: "30d",
+      etag: true,
+      immutable: false,
+      index: false,
+    }),
+  );
 
   // ── 管理员密码登录（每 IP 每 15 分钟 20 次，防暴力破解）──────────────────
   app.use("/api/admin-login", authLimiter);

@@ -8,6 +8,8 @@ import { TRPCError } from "@trpc/server";
 import { and, eq, asc } from "drizzle-orm";
 import { withCache, invalidateCache } from "./_core/cache";
 import { storagePut } from "./storage";
+import fs from "fs/promises";
+import path from "path";
 
 export const appRouter = router({
   system: systemRouter,
@@ -106,10 +108,35 @@ export const appRouter = router({
 
         const [, mimeType, base64] = match;
         const ext = mimeType.split("/")[1]?.replace("jpeg", "jpg") || "png";
-        const safeFileName = input.fileName.replace(/[^a-zA-Z0-9._-]/g, "-").toLowerCase();
-        const key = `exchange-guides/${input.slug}/step-${input.step}-${Date.now()}-${safeFileName}.${ext}`;
+        const safeFileName = input.fileName
+          .replace(/\.[^.]+$/, "")
+          .replace(/[^a-zA-Z0-9._-]/g, "-")
+          .toLowerCase();
+        const uploadName = `step-${input.step}-${Date.now()}-${safeFileName || "guide"}.${ext}`;
+        const key = `exchange-guides/${input.slug}/${uploadName}`;
         const buffer = Buffer.from(base64, "base64");
-        const { url } = await storagePut(key, buffer, mimeType);
+        let url = "";
+
+        try {
+          const uploaded = await storagePut(key, buffer, mimeType);
+          url = uploaded.url;
+        } catch (storageError) {
+          // Fallback: write to local /uploads when storage proxy is unavailable.
+          try {
+            const uploadDir = path.resolve(process.cwd(), "uploads", "exchange-guides", input.slug);
+            await fs.mkdir(uploadDir, { recursive: true });
+            const filePath = path.join(uploadDir, uploadName);
+            await fs.writeFile(filePath, buffer);
+            url = `/uploads/exchange-guides/${input.slug}/${uploadName}`;
+          } catch (diskError) {
+            const storageReason = storageError instanceof Error ? storageError.message : String(storageError);
+            const diskReason = diskError instanceof Error ? diskError.message : String(diskError);
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: `Image upload failed. storage=${storageReason}; local=${diskReason}`,
+            });
+          }
+        }
 
         const fieldMap = {
           1: "guideStep1ImageUrl",
