@@ -21,7 +21,7 @@ const LANG = {
     stat2v: "5+", stat2u: "家交易所", stat2l: "合作平台",
     stat3v: "永久", stat3u: "个性化返佣", stat3l: "终身有效",
     sectionTitle: "选择你的学习路径",
-    sectionSub: "五大核心板块，覆盖从入门到实操的完整旅程",
+    sectionSub: "六大核心板块，覆盖从入门、实操到自动化管理的完整路径",
     comingSoonBadge: "即将推出",
     comingSoonTitle: "更多板块正在建设中",
     lockLabel: "敬请期待",
@@ -70,6 +70,14 @@ const LANG = {
         cta: "查看最新快讯 →",
         stats: [{ label: "更新频率", value: "30分钟" }, { label: "快讯来源", value: "3家" }, { label: "分类标签", value: "6种" }],
       },
+      {
+        badge: "AUTO",
+        subtitle: "CODEX BUSINESS",
+        title: "Codex Business 自动化中心",
+        description: "把媒体运营、任务调度、执行状态与日志追踪收进同一个业务入口。首页只保留轻入口，真正的 UI 和后端状态在访问后再懒加载，不拖慢首屏。",
+        cta: "进入自动化中心 →",
+        stats: [{ label: "接入方式", value: "模块化" }, { label: "运行状态", value: "实时" }, { label: "加载策略", value: "按需" }],
+      },
     ],
     comingSoon: [
       { icon: "📊", title: "量化策略指南", desc: "自动化交易策略与量化工具介绍" },
@@ -99,7 +107,7 @@ const LANG = {
     stat2v: "5+", stat2u: "Exchanges", stat2l: "Partners",
     stat3v: "Lifetime", stat3u: "Personalized Rebates", stat3l: "Forever Valid",
     sectionTitle: "Choose Your Learning Path",
-    sectionSub: "Five core modules plus Module 6 automation, covering the full path from onboarding to execution",
+    sectionSub: "Six core modules covering onboarding, execution, and automation operations",
     comingSoonBadge: "Coming Soon",
     comingSoonTitle: "More Modules Under Construction",
     lockLabel: "Stay Tuned",
@@ -147,6 +155,14 @@ const LANG = {
         description: "Real-time aggregation from BlockBeats, TechFlow and other authoritative sources. Auto-categorized into market, policy, exchange, and DeFi — never miss a signal that matters.",
         cta: "View Latest News →",
         stats: [{ label: "Update Cycle", value: "30 min" }, { label: "Sources", value: "3" }, { label: "Categories", value: "6" }],
+      },
+      {
+        badge: "AUTO",
+        subtitle: "CODEX BUSINESS",
+        title: "Codex Business Automation Hub",
+        description: "Keep media operations, task scheduling, runtime status, and logs inside one business entry. The homepage stays light while the full UI and backend state load only after visit.",
+        cta: "Open Automation Hub →",
+        stats: [{ label: "Integration", value: "Modular" }, { label: "Status", value: "Live" }, { label: "Load", value: "On demand" }],
       },
     ],
     comingSoon: [
@@ -524,6 +540,28 @@ const moduleColors = [
       </svg>
     ),
   },
+  {
+    accentColor: "from-sky-500/20 to-cyan-500/10",
+    borderColor: "border-sky-500/30 hover:border-sky-400/60",
+    titleColor: "text-sky-300",
+    badgeColor: "bg-sky-400",
+    ctaColor: "bg-sky-400 hover:bg-sky-300 text-slate-950",
+    href: "/codex-business",
+    preload: false,
+    icon: (
+      <svg viewBox="0 0 64 64" fill="none" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="14" width="44" height="36" rx="8" stroke="#7DD3FC" strokeWidth="2" opacity="0.32"/>
+        <rect x="16" y="20" width="14" height="10" rx="3" fill="#38BDF8" opacity="0.8"/>
+        <rect x="34" y="20" width="14" height="4" rx="2" fill="#7DD3FC" opacity="0.65"/>
+        <rect x="34" y="27" width="10" height="4" rx="2" fill="#7DD3FC" opacity="0.35"/>
+        <path d="M20 40H44" stroke="#7DD3FC" strokeWidth="2" opacity="0.45" strokeLinecap="round"/>
+        <path d="M20 46H36" stroke="#7DD3FC" strokeWidth="2" opacity="0.28" strokeLinecap="round"/>
+        <circle cx="50" cy="48" r="8" fill="#082032" stroke="#38BDF8" strokeWidth="1.5"/>
+        <path d="M50 44V52" stroke="#38BDF8" strokeWidth="1.5" strokeLinecap="round"/>
+        <path d="M46 48H54" stroke="#38BDF8" strokeWidth="1.5" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
 ];
 
 export default function Portal() {
@@ -602,7 +640,6 @@ export default function Portal() {
 
         <QuizBanner lang={lang} />
         <QuickStartPaths lang={lang} />
-        <SixthModuleEntryV2 lang={lang} />
 
         <div className="pb-16">
           <div className="text-center mb-10">
@@ -625,8 +662,12 @@ export default function Portal() {
                     hover:scale-[1.02] hover:shadow-2xl
                     ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}
                   `}
-                  onMouseEnter={() => preloadRoute(colors.href)}
-                  onTouchStart={() => preloadRoute(colors.href)}
+                  onMouseEnter={() => {
+                    if (colors.preload !== false) preloadRoute(colors.href);
+                  }}
+                  onTouchStart={() => {
+                    if (colors.preload !== false) preloadRoute(colors.href);
+                  }}
                   style={{
                     transitionDelay: `${index * 100}ms`,
                     background: "rgba(10, 25, 47, 0.7)",
