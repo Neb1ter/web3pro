@@ -233,6 +233,11 @@ function FloatChapterMenu({ activeId }: { activeId: string }) {
 
   useEffect(() => {
     if (!open) return;
+    setOpen(false);
+  }, [activeId]);
+
+  useEffect(() => {
+    if (!open) return;
 
     const handlePointerDown = (event: PointerEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
