@@ -30,6 +30,9 @@ import { migrate } from "drizzle-orm/mysql2/migrator";
 
 // 管理员 session 有效期：8 小时（替代原来的 1 年）
 const ADMIN_SESSION_MS = 1000 * 60 * 60 * 8;
+const CODEX_BUSINESS_PROXY_PREFIX = "/codex-business/app";
+const CODEX_BUSINESS_PROXY_TARGET =
+  process.env.CODEX_BUSINESS_PROXY_TARGET ?? "http://127.0.0.1:3100";
 
 /** 防时序攻击的密码比较 */
 function safeComparePassword(input: string, expected: string): boolean {
@@ -93,6 +96,74 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
     }
   }
   throw new Error(`No available port found starting from ${startPort}`);
+}
+
+async function proxyCodexBusinessRequest(req: Request, res: Response) {
+  const fullUrl = req.originalUrl || req.url;
+  const [pathname, search = ""] = fullUrl.split("?");
+
+  if (pathname === CODEX_BUSINESS_PROXY_PREFIX) {
+    res.redirect(302, `${CODEX_BUSINESS_PROXY_PREFIX}/`);
+    return;
+  }
+
+  const remainder = pathname.slice(CODEX_BUSINESS_PROXY_PREFIX.length) || "/";
+  const upstreamUrl = new URL(
+    `${remainder.startsWith("/") ? remainder : `/${remainder}`}${search ? `?${search}` : ""}`,
+    CODEX_BUSINESS_PROXY_TARGET,
+  );
+
+  const headers = new Headers();
+  const passthroughHeaders = [
+    "accept",
+    "content-type",
+    "user-agent",
+    "accept-language",
+    "cache-control",
+    "pragma",
+  ];
+
+  for (const headerName of passthroughHeaders) {
+    const headerValue = req.header(headerName);
+    if (headerValue) headers.set(headerName, headerValue);
+  }
+
+  headers.set("x-forwarded-host", req.get("host") ?? "get8.pro");
+  headers.set("x-forwarded-proto", req.protocol);
+
+  const requestInit: RequestInit = {
+    method: req.method,
+    headers,
+    redirect: "manual",
+  };
+
+  if (!["GET", "HEAD"].includes(req.method.toUpperCase())) {
+    const isJson =
+      typeof req.body === "object" &&
+      req.body !== null &&
+      !Buffer.isBuffer(req.body);
+    requestInit.body = isJson ? JSON.stringify(req.body) : (req.body as BodyInit);
+  }
+
+  try {
+    const upstreamResponse = await fetch(upstreamUrl, requestInit);
+    const contentType = upstreamResponse.headers.get("content-type");
+    const cacheControl = upstreamResponse.headers.get("cache-control");
+    const location = upstreamResponse.headers.get("location");
+
+    if (contentType) res.setHeader("Content-Type", contentType);
+    if (cacheControl) res.setHeader("Cache-Control", cacheControl);
+    if (location) res.setHeader("Location", location);
+
+    const body = Buffer.from(await upstreamResponse.arrayBuffer());
+    res.status(upstreamResponse.status).send(body);
+  } catch (error) {
+    console.error("[CodexBusinessProxy] Failed:", error);
+    res.status(503).json({
+      success: false,
+      error: "Codex Business service is temporarily unavailable.",
+    });
+  }
 }
 
 async function startServer() {
@@ -617,6 +688,8 @@ preferred_citation_format = "Source: [Get8 Pro](${base})"
     res.header("Content-Type", "text/plain; charset=utf-8");
     res.send(INDEXNOW_KEY);
   });
+
+  app.use(CODEX_BUSINESS_PROXY_PREFIX, proxyCodexBusinessRequest);
 
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
