@@ -33,9 +33,15 @@ function resolveRequestPath(url: string) {
   }
 }
 
+function getAcceptLanguage(header: string | string[] | undefined): string | undefined {
+  if (typeof header === "string") return header;
+  if (Array.isArray(header)) return header[0];
+  return undefined;
+}
+
 function injectSeoTemplate(template: string, url: string, acceptLanguageHeader?: string | null) {
   const pathname = resolveRequestPath(url);
-  const language = detectSeoLanguage(acceptLanguageHeader);
+  const language = detectSeoLanguage(acceptLanguageHeader ?? "");
   const meta = getSeoForPath(pathname, language);
   const canonicalUrl = resolveCanonicalUrl(pathname);
   const htmlLang = language === "zh" ? "zh-CN" : "en";
@@ -70,7 +76,7 @@ export async function setupVite(app: Express, server: Server) {
         const clientTemplate = path.resolve(import.meta.dirname, "../..", "client", "index.html");
         let template = await fs.promises.readFile(clientTemplate, "utf-8");
         template = template.replace(`src="/src/main.tsx"`, `src="/src/main.tsx?v=${nanoid()}"`);
-        template = injectSeoTemplate(template, req.originalUrl, req.headers["accept-language"]);
+        template = injectSeoTemplate(template, req.originalUrl, getAcceptLanguage(req.headers["accept-language"]));
         const page = await instance.transformIndexHtml(req.originalUrl, template);
         res.status(200).set({ "Content-Type": "text/html" }).end(page);
       } catch (error) {
@@ -127,7 +133,7 @@ export function serveStatic(app: Express) {
       res
         .set(noCache)
         .type("html")
-        .send(injectSeoTemplate(template, req.originalUrl, req.headers["accept-language"]));
+        .send(injectSeoTemplate(template, req.originalUrl, getAcceptLanguage(req.headers["accept-language"])));
     } catch (error) {
       next(error);
     }
@@ -139,7 +145,7 @@ export function serveStatic(app: Express) {
       res
         .set(noCache)
         .type("html")
-        .send(injectSeoTemplate(template, req.originalUrl, req.headers["accept-language"]));
+        .send(injectSeoTemplate(template, req.originalUrl, getAcceptLanguage(req.headers["accept-language"])));
     } catch (error) {
       next(error);
     }

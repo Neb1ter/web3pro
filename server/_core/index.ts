@@ -73,7 +73,7 @@ async function getAcceptedAdminPasswords(): Promise<string[]> {
     console.warn("[AdminLogin] Failed to read admin password from system settings:", error);
   }
 
-  return [...candidates].filter(Boolean);
+  return Array.from(candidates).filter(Boolean);
 }
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -262,7 +262,7 @@ async function startServer() {
     let exchangeUrls = "";
     try {
       const exchangeLinks = await getExchangeLinks();
-      const exchangePaths = [...new Set(exchangeLinks.map((item) => item.slug).filter(Boolean))];
+      const exchangePaths = Array.from(new Set(exchangeLinks.map((item) => item.slug).filter(Boolean)));
       exchangeUrls = exchangePaths.map((slug) => `
   <url>
     <loc>${base}/exchange/${slug}</loc>
@@ -337,7 +337,7 @@ async function startServer() {
     let exchangeUrls = "";
     try {
       const exchangeLinks = await getExchangeLinks();
-      const exchangePaths = [...new Set(exchangeLinks.map((item) => item.slug).filter(Boolean))];
+      const exchangePaths = Array.from(new Set(exchangeLinks.map((item) => item.slug).filter(Boolean)));
       exchangeUrls = exchangePaths.map((slug) => `
   <url>
     <loc>${base}/exchange/${slug}</loc>

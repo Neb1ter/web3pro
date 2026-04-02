@@ -458,7 +458,7 @@ export async function autoPublishArticle(articleId: number, articleUrl: string):
       excerpt: article.excerpt,
       url: articleUrl,
     },
-    enabledPlatforms.map((platform) => platform.platform),
+    enabledPlatforms.map((platform: { platform: string }) => platform.platform),
   );
 }
 

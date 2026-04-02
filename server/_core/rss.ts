@@ -313,7 +313,7 @@ async function fetchAndIngest(source: typeof RSS_SOURCES[number]): Promise<numbe
       .from(cryptoNews)
       .orderBy(desc(cryptoNews.createdAt))
       .limit(200);
-    existingTitles = new Set(existing.map(item => item.title));
+    existingTitles = new Set(existing.map((item: { title: string }) => item.title));
   } catch (error) {
     console.warn(`[RSS] ${source.name} 查询去重列表失败，跳过本轮`, error);
     return 0;
@@ -388,7 +388,7 @@ export async function retranslateEnglishNews(): Promise<number> {
     .orderBy(desc(cryptoNews.publishedAt))
     .limit(100);
 
-  const englishNews = allNews.filter(item => isEnglish(item.title));
+  const englishNews = allNews.filter((item: { title: string }) => isEnglish(item.title));
   if (!englishNews.length) {
     console.log("[RSS重译] 没有需要翻译的英文快讯");
     return 0;

@@ -110,7 +110,7 @@ export default function ArticleDetail() {
 
   const catInfo = ARTICLE_CATEGORY_LABELS[article.category] ?? ARTICLE_CATEGORY_LABELS.analysis;
   const catLabel = zh ? catInfo.zh : catInfo.en;
-  const tags = article.tags ? article.tags.split(",").map((t: string) => t.trim()).filter(Boolean) : [];
+  const tags = article.tags ? article.tags.split(",").map((tag: string) => tag.trim()).filter(Boolean) : [];
   const articleDisclosure = zh
     ? `本文用于信息整理与学习参考${article.isAiGenerated ? "，初稿包含 AI 辅助生成并已做人工复核" : ""}，不构成投资建议；涉及费率、活动或政策时，请以对应平台的最新官方页面为准。`
     : `This page is for learning and information reference${article.isAiGenerated ? ", with AI-assisted drafting and editorial review" : ""}. It is not investment advice. Re-check the latest official page when fees, policies, or campaigns matter.`;
@@ -151,7 +151,7 @@ export default function ArticleDetail() {
 
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${catInfo.color}`}>{catLabel}</span>
-          {tags.map((tag) => (
+          {tags.map((tag: string) => (
             <span key={tag} className="rounded-full bg-gray-700/40 px-2 py-0.5 text-xs text-gray-300">
               {tag}
             </span>
@@ -203,7 +203,7 @@ export default function ArticleDetail() {
           <div className="mt-8 border-t border-gray-700/50 pt-6">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs text-gray-400">{zh ? "标签：" : "Tags:"}</span>
-              {tags.map((tag) => (
+              {tags.map((tag: string) => (
                 <span
                   key={tag}
                   className="rounded-full border border-cyan-500/20 bg-cyan-900/20 px-3 py-1 text-xs text-cyan-400 transition-colors hover:border-cyan-500/50"
