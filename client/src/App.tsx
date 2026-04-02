@@ -76,6 +76,7 @@ const BotSim     = lazy(() => import("./pages/sim/BotSim"));
 
 // Tool collection
 const CryptoTools    = lazy(() => import("./pages/CryptoTools"));
+const CodexBusiness  = lazy(() => import("./pages/CodexBusiness"));
 
 // Quiz and learning path pages
 const Web3Quiz       = lazy(() => import("./pages/Web3Quiz"));
@@ -414,6 +415,7 @@ function Router() {
 
           {/* tool routes */}
           <Route path="/tools" component={CryptoTools} />
+          <Route path="/codex-business" component={CodexBusiness} />
 
           {/* quiz and learning path routes */}
           <Route path="/web3-quiz"        component={Web3Quiz} />
@@ -488,6 +490,7 @@ function CrawlPriorityLinks() {
     "/crypto-saving",
     "/web3-guide",
     "/tools",
+    "/codex-business",
     "/about",
     "/standards",
     "/legal",

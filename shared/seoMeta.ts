@@ -169,6 +169,20 @@ const SEO_BY_PATH: Record<string, SeoEntry> = {
       en: "crypto tools,on-chain tools,market tools,security tools,research tools",
     },
   },
+  "/codex-business": {
+    title: {
+      zh: "Codex Business 板块 | Get8 Pro",
+      en: "Codex Business Module | Get8 Pro",
+    },
+    description: {
+      zh: "Get8 Pro 第六板块，聚焦自动化业务流程、任务执行、日志可观测与风险追踪。",
+      en: "Get8 Pro Module 6 focused on automation workflows, execution runtime, observability, and risk tracking.",
+    },
+    keywords: {
+      zh: "自动化业务,运营自动化,任务调度,流程编排,业务可观测,Web3运营",
+      en: "automation module,operations automation,task scheduling,workflow orchestration,observability,business module",
+    },
+  },
   "/about": {
     title: {
       zh: "关于 Get8 Pro | Get8 Pro",
