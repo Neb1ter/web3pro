@@ -4,14 +4,13 @@ on:
   push:
     branches:
       - main
-      - master
   workflow_dispatch:
 
 jobs:
   build-and-deploy:
     name: Build & Deploy to Baidu Cloud Windows Server
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
 
     steps:
       - name: Checkout code
@@ -23,8 +22,8 @@ jobs:
       - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'pnpm'
+          node-version: "22"
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -39,24 +38,24 @@ jobs:
         env:
           NODE_ENV: production
 
-      - name: Package dist for transfer
+      - name: Package deployment bundle for transfer
         run: |
-          tar -czf dist.tar.gz dist/
-          echo "Package size: $(du -sh dist.tar.gz | cut -f1)"
+          tar -czf deploy-bundle.tar.gz dist ecosystem.config.cjs services/codex-business
+          echo "Package size: $(du -sh deploy-bundle.tar.gz | cut -f1)"
 
       - name: Prepare runtime override env
         run: |
           printf '%s\n' "${{ secrets.SERVER_ENV_OVERRIDE }}" > runtime.override.env
           echo "Runtime override env prepared"
 
-      - name: Upload dist to server via SCP
+      - name: Upload deployment bundle to server via SCP
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
-          source: "dist.tar.gz,runtime.override.env"
+          source: "deploy-bundle.tar.gz,runtime.override.env"
           target: "C:/web3pro/"
 
       - name: Deploy on server via SSH
@@ -67,24 +66,33 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
           script_stop: true
-          script: cd C:\web3pro && tar -xzf dist.tar.gz && del dist.tar.gz && if exist runtime.override.env copy /Y runtime.override.env .env.runtime >nul && npx pm2 restart ecosystem.config.cjs --update-env && npx pm2 save
+          script: |
+            cd C:\web3pro
+            tar -xzf deploy-bundle.tar.gz
+            del deploy-bundle.tar.gz
+            if exist runtime.override.env copy /Y runtime.override.env .env.runtime >nul
+            npx pm2 startOrReload ecosystem.config.cjs --update-env
+            npx pm2 save
 
       - name: Purge Cloudflare cache
         run: |
           curl -s -X POST "https://api.cloudflare.com/client/v4/zones/${{ secrets.CF_ZONE_ID }}/purge_cache" \
             -H "Authorization: Bearer ${{ secrets.CF_API_TOKEN }}" \
             -H "Content-Type: application/json" \
-            --data '{"purge_everything":true}' | python3 -c "import sys,json; r=json.load(sys.stdin ); print('Cloudflare cache purged OK' if r.get('success') else 'Cache purge failed: ' + str(r))"
+            --data '{"purge_everything":true}' | python3 -c "import sys,json; r=json.load(sys.stdin); print('Cloudflare cache purged OK' if r.get('success') else 'Cache purge failed: ' + str(r))"
 
       - name: Verify deployment
         run: |
           sleep 25
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 15 "https://get8.pro/" )
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 15 "https://get8.pro/")
+          CODEX_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 15 "https://get8.pro/codex-business/app/api/health")
           echo "HTTP Status: $STATUS"
-          ONLINE_REACT=$(curl -s https://get8.pro/ | grep -oP 'vendor-react-[a-zA-Z0-9_-]+\.js' | head -1 )
+          echo "Codex Business Status: $CODEX_STATUS"
+          ONLINE_REACT=$(curl -s https://get8.pro/ | grep -oP 'vendor-react-[a-zA-Z0-9_-]+\.js' | head -1)
           echo "Online vendor-react: $ONLINE_REACT"
-          if [ "$STATUS" = "200" ]; then
-            echo "✅ Deployment successful!"
+          if [ "$STATUS" = "200" ] && [ "$CODEX_STATUS" = "200" ]; then
+            echo "Deployment successful"
           else
-            echo "⚠️ Deployment may have issues, status: $STATUS"
+            echo "Deployment may have issues, status: $STATUS, codex: $CODEX_STATUS"
+            exit 1
           fi

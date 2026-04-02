@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>兑换与质保中心</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <h1>兑换与质保中心</h1>
+        </div>
+        <div class="status" id="health-pill">检测中</div>
+      </header>
+
+      <section class="layout">
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>兑换区</h2>
+              <p class="panel-copy">输入邮箱和兑换码后，直接提交即可。</p>
+            </div>
+            <div class="metric">
+              <span class="metric-label">当前车位</span>
+              <strong id="spot-count">--</strong>
+            </div>
+          </div>
+
+          <div id="global-maintenance" class="maintenance hidden"></div>
+
+          <form id="redeem-form" class="form">
+            <label class="field">
+              <span>邮箱</span>
+              <input id="redeem-email" name="email" type="email" required placeholder="请输入邮箱" />
+            </label>
+            <label class="field">
+              <span>兑换码</span>
+              <input id="redeem-code" name="code" type="text" required placeholder="请输入兑换码" />
+            </label>
+            <button class="button" type="submit">立即兑换</button>
+          </form>
+
+          <div id="manual-warranty-guide" class="guide"></div>
+          <div id="saved-codes" class="saved-codes hidden"></div>
+          <div id="redeem-result" class="result hidden"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>质保区</h2>
+              <p class="panel-copy">查询状态、提交重兑，并查看本地记录。</p>
+            </div>
+          </div>
+
+          <section class="subpanel">
+            <h3>质保查询</h3>
+            <form id="warranty-query-form" class="form">
+              <label class="field">
+                <span>兑换码</span>
+                <input id="warranty-query-code" name="code" type="text" required placeholder="请输入兑换码" />
+              </label>
+              <button class="button button-secondary" type="submit">查询</button>
+            </form>
+            <div id="warranty-query-result" class="result hidden"></div>
+          </section>
+
+          <section class="subpanel">
+            <h3>质保重兑</h3>
+            <form id="warranty-redeem-form" class="form">
+              <label class="field">
+                <span>邮箱</span>
+                <input id="warranty-redeem-email" name="email" type="email" required placeholder="请输入邮箱" />
+              </label>
+              <label class="field">
+                <span>兑换码</span>
+                <input id="warranty-redeem-code" name="code" type="text" required placeholder="请输入兑换码" />
+              </label>
+              <button class="button button-secondary" type="submit">提交重兑</button>
+            </form>
+            <div id="warranty-redeem-result" class="result hidden"></div>
+          </section>
+
+          <section class="subpanel">
+            <div class="history-head">
+              <h3>质保记录</h3>
+              <button id="clear-history" class="text-button" type="button">清空记录</button>
+            </div>
+            <div id="warranty-history" class="history-list"></div>
+          </section>
+        </article>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
