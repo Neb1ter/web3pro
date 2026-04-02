@@ -1065,6 +1065,28 @@ export const appRouter = router({
       }),
   }),
 
+  codexBusiness: router({
+    overview: publicProcedure.query(async () => {
+      const [enabledRaw, mode, version, operator, lastUpdatedAt] = await Promise.all([
+        getSystemSetting("codexBusiness.enabled", "true"),
+        getSystemSetting("codexBusiness.mode", "production"),
+        getSystemSetting("codexBusiness.version", "v1.0.0"),
+        getSystemSetting("codexBusiness.operator", "Get8 Pro Team"),
+        getSystemSetting("codexBusiness.lastUpdatedAt", ""),
+      ]);
+
+      return {
+        enabled: enabledRaw !== "false",
+        mode,
+        version,
+        operator,
+        lastUpdatedAt: lastUpdatedAt || null,
+        serverTime: new Date().toISOString(),
+        env: process.env.NODE_ENV ?? "development",
+      } as const;
+    }),
+  }),
+
   settings: router({
     /** Admin: get all system settings */
     getAll: protectedProcedure.query(async () => {

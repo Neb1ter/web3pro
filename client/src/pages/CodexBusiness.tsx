@@ -1,14 +1,25 @@
-import { ArrowLeft, Bot, Cable, Gauge, Layers, Route as RouteIcon, ShieldCheck } from "lucide-react";
+import {
+  Activity,
+  ArrowLeft,
+  Bot,
+  Cable,
+  Gauge,
+  Layers,
+  Route as RouteIcon,
+  Server,
+  ShieldCheck,
+} from "lucide-react";
 import { Link } from "wouter";
 import { SeoManager } from "@/components/SeoManager";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { goBack, useScrollMemory } from "@/hooks/useScrollMemory";
+import { trpc } from "@/lib/trpc";
 
 const MODULES = {
   zh: [
     {
       title: "业务接入层",
-      desc: "把注册、返佣、内容分发、用户运营拆成可复用的业务模块，减少重复操作。",
+      desc: "把注册、返佣、内容分发、用户运营拆成可复用能力，减少重复配置与重复操作。",
       icon: Layers,
     },
     {
@@ -18,24 +29,24 @@ const MODULES = {
     },
     {
       title: "数据与风控层",
-      desc: "统一记录执行日志、状态与失败原因，便于排障、复盘和合规披露。",
+      desc: "统一沉淀日志、状态和失败原因，便于排障、复盘与合规披露。",
       icon: ShieldCheck,
     },
   ],
   en: [
     {
       title: "Business Integration",
-      desc: "Split registration, rebates, content distribution, and operations into reusable modules.",
+      desc: "Split registration, rebates, content distribution, and user operations into reusable modules.",
       icon: Layers,
     },
     {
       title: "Automation Runtime",
-      desc: "Support scheduler jobs, rule-triggered flows, and manual fallback with traceability.",
+      desc: "Support scheduled jobs, rule-based triggers, and manual fallback with full traceability.",
       icon: Bot,
     },
     {
       title: "Data & Risk Layer",
-      desc: "Unify logs, statuses, and failures for faster debugging, review, and compliance disclosure.",
+      desc: "Unify logs, status, and failures for faster debugging, review, and compliance disclosure.",
       icon: ShieldCheck,
     },
   ],
@@ -43,32 +54,66 @@ const MODULES = {
 
 const FLOWS = {
   zh: [
-    { title: "输入", detail: "用户访问 → 场景识别", icon: RouteIcon },
-    { title: "处理", detail: "规则匹配 → 自动任务分发", icon: Cable },
-    { title: "输出", detail: "页面响应 + 后台日志沉淀", icon: Gauge },
+    { title: "输入", detail: "用户访问 -> 场景识别", icon: RouteIcon },
+    { title: "处理", detail: "规则匹配 -> 自动任务分发", icon: Cable },
+    { title: "输出", detail: "页面响应 + 后台可观测日志", icon: Gauge },
   ],
   en: [
-    { title: "Input", detail: "Visit event -> Scenario detection", icon: RouteIcon },
+    { title: "Input", detail: "User visit -> Scenario detection", icon: RouteIcon },
     { title: "Process", detail: "Rule matching -> Automated dispatch", icon: Cable },
-    { title: "Output", detail: "Response + backend observability", icon: Gauge },
+    { title: "Output", detail: "Page response + backend observability logs", icon: Gauge },
   ],
 } as const;
+
+function formatDate(dateIso: string | null | undefined, language: "zh" | "en") {
+  if (!dateIso) return language === "zh" ? "未设置" : "Not set";
+
+  const date = new Date(dateIso);
+  if (Number.isNaN(date.getTime())) {
+    return language === "zh" ? "格式异常" : "Invalid";
+  }
+
+  return new Intl.DateTimeFormat(language === "zh" ? "zh-CN" : "en-US", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
+}
 
 export default function CodexBusiness() {
   useScrollMemory();
   const { language } = useLanguage();
   const zh = language === "zh";
+
+  const overviewQuery = trpc.codexBusiness.overview.useQuery(undefined, {
+    staleTime: 60 * 1000,
+    refetchInterval: 60 * 1000,
+  });
+
+  const data = overviewQuery.data;
+
   const copy = zh
     ? {
         title: "Codex Business",
         subtitle: "第六板块",
         lead:
           "这个板块用于承载自动化业务能力：把高频运营动作整理为标准化流程，让执行更快、更稳、更可审计。",
-        sectionA: "能力结构",
-        sectionB: "执行流程",
-        sectionC: "使用方式",
+        structureTitle: "能力结构",
+        flowTitle: "执行流程",
+        deployTitle: "部署与运行状态",
+        deployDesc:
+          "后端状态由实时接口返回，便于你在服务器部署后快速判断第六板块是否在线、版本是否同步。",
+        statusOnline: "服务在线",
+        statusOffline: "服务关闭",
+        mode: "运行模式",
+        version: "当前版本",
+        operator: "维护主体",
+        lastUpdated: "最近更新",
+        serverTime: "服务时间",
+        usageTitle: "使用方式",
         usage:
-          "建议把它作为“运营自动化中心”，后续可继续接入你现有媒体站、后台任务和渠道分发逻辑。当前页面已经独立路由懒加载，不会拖慢首页首屏。",
+          "建议把它作为“自动化业务中心”：后续继续接入你已有的媒体后台、任务系统和渠道分发逻辑。该页面为独立路由懒加载，仅在访问时加载，不影响首页首屏。",
+        loading: "正在获取后端状态...",
+        loadFailed: "后端状态获取失败，已降级显示静态内容。",
         back: "返回",
         home: "首页",
       }
@@ -76,12 +121,24 @@ export default function CodexBusiness() {
         title: "Codex Business",
         subtitle: "Module 6",
         lead:
-          "This module hosts automation-centric business capabilities so repeated operations can run as standardized, observable workflows.",
-        sectionA: "Capability Structure",
-        sectionB: "Execution Flow",
-        sectionC: "How To Use",
+          "This module hosts automation-centric capabilities so repeated operations can run as standardized, observable workflows.",
+        structureTitle: "Capability Structure",
+        flowTitle: "Execution Flow",
+        deployTitle: "Deployment & Runtime",
+        deployDesc:
+          "Backend status is returned from a live API so you can verify online health and version sync after server deployment.",
+        statusOnline: "Online",
+        statusOffline: "Disabled",
+        mode: "Mode",
+        version: "Version",
+        operator: "Operator",
+        lastUpdated: "Last Update",
+        serverTime: "Server Time",
+        usageTitle: "How To Use",
         usage:
-          "Use this as your operations-automation hub. You can keep integrating media workflows, backend jobs, and channel delivery. This route is lazy-loaded and does not increase homepage first paint cost.",
+          "Use this as your operations automation hub. You can keep integrating your media backend, task engine, and channel delivery workflows. This route is lazy-loaded and fetched only when visited.",
+        loading: "Fetching backend status...",
+        loadFailed: "Failed to fetch backend status. Static content is still available.",
         back: "Back",
         home: "Home",
       };
@@ -89,11 +146,11 @@ export default function CodexBusiness() {
   return (
     <div className="min-h-screen bg-[#07142A] text-white">
       <SeoManager
-        title={zh ? "Codex Business | Get8 Pro" : "Codex Business | Get8 Pro"}
+        title={zh ? "Codex Business 第六板块 | Get8 Pro" : "Codex Business Module 6 | Get8 Pro"}
         description={
           zh
-            ? "Get8 Pro 第六板块：自动化业务模块，覆盖流程编排、任务执行、日志可观测与风控沉淀。"
-            : "Get8 Pro Module 6: automation business capabilities for orchestration, execution, observability, and risk tracking."
+            ? "Get8 Pro 第六板块：自动化业务能力中心，覆盖流程编排、任务执行、日志可观测与风控追踪。"
+            : "Get8 Pro Module 6: automation business hub covering orchestration, task execution, observability, and risk tracking."
         }
         path="/codex-business"
       />
@@ -125,7 +182,7 @@ export default function CodexBusiness() {
         </section>
 
         <section className="mt-8">
-          <h2 className="text-2xl font-black text-white">{copy.sectionA}</h2>
+          <h2 className="text-2xl font-black text-white">{copy.structureTitle}</h2>
           <div className="mt-5 grid gap-4 md:grid-cols-3">
             {MODULES[zh ? "zh" : "en"].map((item) => {
               const Icon = item.icon;
@@ -146,7 +203,7 @@ export default function CodexBusiness() {
         </section>
 
         <section className="mt-10 rounded-[26px] border border-white/10 bg-[#0A1D39]/85 p-6 md:p-7">
-          <h2 className="text-2xl font-black text-white">{copy.sectionB}</h2>
+          <h2 className="text-2xl font-black text-white">{copy.flowTitle}</h2>
           <div className="mt-5 grid gap-3 md:grid-cols-3">
             {FLOWS[zh ? "zh" : "en"].map((step, index) => {
               const Icon = step.icon;
@@ -166,8 +223,69 @@ export default function CodexBusiness() {
           </div>
         </section>
 
+        <section className="mt-8 rounded-[26px] border border-cyan-400/25 bg-cyan-400/[0.05] p-6 md:p-7">
+          <h2 className="inline-flex items-center gap-2 text-2xl font-black text-white">
+            <Server className="h-6 w-6 text-cyan-300" />
+            {copy.deployTitle}
+          </h2>
+          <p className="mt-3 text-sm leading-8 text-slate-200">{copy.deployDesc}</p>
+
+          <div className="mt-5 rounded-2xl border border-white/10 bg-[#08162C] p-4">
+            {overviewQuery.isLoading ? (
+              <p className="text-sm text-slate-300">{copy.loading}</p>
+            ) : overviewQuery.isError ? (
+              <p className="text-sm text-rose-300">{copy.loadFailed}</p>
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+                  <div className="mb-1 inline-flex items-center gap-2 text-xs text-slate-400">
+                    <Activity className="h-3.5 w-3.5" />
+                    {zh ? "服务状态" : "Service Status"}
+                  </div>
+                  <div
+                    className={`text-sm font-black ${
+                      data?.enabled ? "text-emerald-300" : "text-rose-300"
+                    }`}
+                  >
+                    {data?.enabled ? copy.statusOnline : copy.statusOffline}
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+                  <div className="mb-1 text-xs text-slate-400">{copy.mode}</div>
+                  <div className="text-sm font-black text-white">{data?.mode ?? "--"}</div>
+                </div>
+
+                <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+                  <div className="mb-1 text-xs text-slate-400">{copy.version}</div>
+                  <div className="text-sm font-black text-white">{data?.version ?? "--"}</div>
+                </div>
+
+                <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+                  <div className="mb-1 text-xs text-slate-400">{copy.operator}</div>
+                  <div className="text-sm font-black text-white">{data?.operator ?? "--"}</div>
+                </div>
+
+                <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+                  <div className="mb-1 text-xs text-slate-400">{copy.lastUpdated}</div>
+                  <div className="text-sm font-black text-white">
+                    {formatDate(data?.lastUpdatedAt, zh ? "zh" : "en")}
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+                  <div className="mb-1 text-xs text-slate-400">{copy.serverTime}</div>
+                  <div className="text-sm font-black text-white">
+                    {formatDate(data?.serverTime, zh ? "zh" : "en")}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
         <section className="mt-8 rounded-[26px] border border-emerald-400/20 bg-emerald-400/[0.05] p-6 md:p-7">
-          <h2 className="text-2xl font-black text-white">{copy.sectionC}</h2>
+          <h2 className="text-2xl font-black text-white">{copy.usageTitle}</h2>
           <p className="mt-3 text-sm leading-8 text-slate-200">{copy.usage}</p>
         </section>
       </main>

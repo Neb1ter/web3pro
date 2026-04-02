@@ -14,12 +14,12 @@ export const BASE_TITLE: LocalizedSeo = {
 };
 
 export const BASE_DESCRIPTION: LocalizedSeo = {
-  zh: "Get8 Pro 整理 Web3 学习资源、交易所信息、KYC 指南、风险提示和实用工具，帮助用户更系统地了解相关主题。",
-  en: "Get8 Pro organizes Web3 learning resources, exchange information, KYC guidance, risk disclosures, and practical tools for users exploring the space.",
+  zh: "Get8 Pro 提供 Web3 学习路径、交易所信息、KYC 指南、风险披露与实用工具，帮助用户更系统地理解加密市场。",
+  en: "Get8 Pro provides Web3 learning paths, exchange information, KYC guidance, risk disclosures, and practical tools to help users navigate crypto with clarity.",
 };
 
 export const BASE_KEYWORDS: LocalizedSeo = {
-  zh: "Web3导航,交易所对比,KYC流程,加密货币教程,Web3入门,币圈工具,风险提示,交易所指南",
+  zh: "Web3导航,交易所对比,KYC流程,加密货币教程,Web3入门,币圈工具,风险披露,交易所指南",
   en: "web3 navigation,exchange comparison,kyc guide,crypto education,web3 onboarding,crypto tools,risk disclosure,exchange guide",
 };
 
@@ -35,12 +35,12 @@ const SEO_BY_PATH: Record<string, SeoEntry> = {
       en: "Trading Cost Optimization Guide | Get8 Pro",
     },
     description: {
-      zh: "查看交易所费用差异、默认 20% 邀请规则、下载路径和老账户限制，更清楚地评估交易成本。",
-      en: "Review exchange fee differences, default 20% invite rules, download paths, and existing-account limits with clearer context.",
+      zh: "查看交易手续费差异、默认返佣规则、账户限制与下载入口，快速评估真实交易成本。",
+      en: "Review fee differences, default rebate rules, account limitations, and download paths to assess real trading costs.",
     },
     keywords: {
-      zh: "交易成本优化,返佣规则,交易所费用说明,老账户限制,平台费用对比,手续费指南",
-      en: "trading cost optimization,invite rules,exchange fee guide,existing account limits,platform fee comparison,fee guide",
+      zh: "交易成本优化,返佣规则,手续费说明,平台费率对比,账户限制,加密交易费用",
+      en: "trading cost optimization,rebate rules,fee guide,exchange fee comparison,account limits,crypto trading fees",
     },
   },
   "/exchanges": {
@@ -49,11 +49,11 @@ const SEO_BY_PATH: Record<string, SeoEntry> = {
       en: "Exchange Comparison | Get8 Pro",
     },
     description: {
-      zh: "对比主流交易所的费用、流动性、安全性、KYC 要求与功能覆盖，帮助用户更快完成选择。",
-      en: "Compare major exchanges across fees, liquidity, security, KYC requirements, and feature coverage.",
+      zh: "对比主流交易所的费率、流动性、KYC 要求与功能覆盖，帮助你更快做出选择。",
+      en: "Compare major exchanges by fee structure, liquidity, KYC requirements, and feature coverage.",
     },
     keywords: {
-      zh: "交易所对比,币安对比,OKX对比,Gate对比,Bybit对比,Bitget对比,交易所手续费",
+      zh: "交易所对比,币安对比,OKX对比,Gate对比,Bybit对比,Bitget对比,交易所费率",
       en: "exchange comparison,binance vs okx,gate vs bybit,bitget review,exchange fees,crypto exchange comparison",
     },
   },
@@ -63,11 +63,11 @@ const SEO_BY_PATH: Record<string, SeoEntry> = {
       en: "Exchange Guide | Get8 Pro",
     },
     description: {
-      zh: "快速了解交易所功能、产品差异、下载流程、KYC 准备与新手常见问题。",
-      en: "Learn exchange features, product differences, download paths, KYC preparation, and common beginner questions.",
+      zh: "快速了解交易所功能、产品差异、注册下载流程与 KYC 准备，覆盖新手常见问题。",
+      en: "Understand exchange features, product differences, onboarding steps, and KYC preparation with beginner-focused guidance.",
     },
     keywords: {
-      zh: "交易所扫盲,交易所教程,KYC准备,交易所下载,现货合约区别,新手交易所指南",
+      zh: "交易所教程,交易所扫盲,KYC准备,交易所下载,现货合约区别,新手交易所指南",
       en: "exchange guide,exchange tutorial,kyc preparation,exchange download,spot vs futures,beginner exchange guide",
     },
   },
@@ -77,8 +77,8 @@ const SEO_BY_PATH: Record<string, SeoEntry> = {
       en: "Exchange Registration & Download Guide | Get8 Pro",
     },
     description: {
-      zh: "在一个页面内完成交易所选择、注册路径确认、邀请码填写和官方下载流程查看。",
-      en: "Choose an exchange, confirm the registration path, verify the invite code, and follow the official download flow in one place.",
+      zh: "在一个页面完成交易所选择、注册链接确认、邀请码填写和官方下载步骤查看。",
+      en: "Complete exchange selection, registration path confirmation, invite-code guidance, and official app download steps in one page.",
     },
     keywords: {
       zh: "交易所下载,交易所注册,官方注册链接,邀请码填写,币安下载,OKX下载,Gate下载,Bybit下载,Bitget下载",
@@ -91,12 +91,12 @@ const SEO_BY_PATH: Record<string, SeoEntry> = {
       en: "Beginner Guide | Get8 Pro",
     },
     description: {
-      zh: "用更清晰的顺序理解加密货币基础、交易概念、风险边界和第一次操作前需要知道的内容。",
-      en: "Learn crypto basics, trading concepts, risk boundaries, and what to know before your first action.",
+      zh: "按清晰顺序学习加密货币基础、交易概念与风险边界，降低新手首次操作的不确定性。",
+      en: "Learn crypto basics, trading concepts, and risk boundaries in a clear sequence.",
     },
     keywords: {
-      zh: "币圈新手,加密货币入门,交易基础,风险提示,第一次买币,Web3新手指南",
-      en: "crypto beginner,crypto basics,trading fundamentals,risk disclosure,first crypto purchase,web3 beginner guide",
+      zh: "币圈新手,加密货币入门,交易基础,风险提示,Web3新手指南",
+      en: "crypto beginner,crypto basics,trading fundamentals,risk disclosure,web3 beginner guide",
     },
   },
   "/crypto-intro": {
@@ -105,8 +105,8 @@ const SEO_BY_PATH: Record<string, SeoEntry> = {
       en: "Crypto Intro | Get8 Pro",
     },
     description: {
-      zh: "理解比特币、以太坊、DeFi、钱包和链上概念，建立更稳的加密认知框架。",
-      en: "Understand Bitcoin, Ethereum, DeFi, wallets, and on-chain concepts with a clearer mental model.",
+      zh: "理解比特币、以太坊、DeFi、钱包和链上概念，建立更稳健的加密认知框架。",
+      en: "Understand Bitcoin, Ethereum, DeFi, wallets, and on-chain concepts through a structured primer.",
     },
     keywords: {
       zh: "加密货币入门,比特币教程,以太坊教程,DeFi入门,钱包基础,链上知识",
@@ -119,8 +119,8 @@ const SEO_BY_PATH: Record<string, SeoEntry> = {
       en: "Crypto News Hub | Get8 Pro",
     },
     description: {
-      zh: "追踪加密快讯、市场更新、交易所公告和政策变化，帮助用户更快了解正在发生的内容。",
-      en: "Track crypto news, market updates, exchange announcements, and policy changes in one place.",
+      zh: "追踪市场更新、交易所公告与政策变化，集中查看加密快讯和重点动态。",
+      en: "Track market updates, exchange announcements, and policy shifts in one streamlined crypto news hub.",
     },
     keywords: {
       zh: "加密快讯,币圈新闻,市场动态,交易所公告,政策消息,加密资讯",
@@ -133,12 +133,12 @@ const SEO_BY_PATH: Record<string, SeoEntry> = {
       en: "Articles | Get8 Pro",
     },
     description: {
-      zh: "浏览交易所评测、邀请说明、Web3 教程和深度解读文章，获取更完整的背景与方法。",
-      en: "Browse in-depth articles, exchange reviews, invite explanations, and Web3 tutorials.",
+      zh: "浏览交易所评测、教程解析与深度内容，获取更完整的背景信息和操作逻辑。",
+      en: "Browse exchange reviews, educational explainers, and in-depth analysis with richer context.",
     },
     keywords: {
-      zh: "深度文章,交易所评测,邀请文章,Web3教程,币圈长文,加密分析",
-      en: "crypto articles,exchange reviews,invite guide,web3 tutorials,crypto analysis,in-depth articles",
+      zh: "深度文章,交易所评测,Web3教程,加密分析,币圈长文",
+      en: "crypto articles,exchange reviews,web3 tutorials,crypto analysis,in-depth articles",
     },
   },
   "/web3-guide": {
@@ -147,8 +147,8 @@ const SEO_BY_PATH: Record<string, SeoEntry> = {
       en: "Web3 Guide | Get8 Pro",
     },
     description: {
-      zh: "从 Web3 概念、区块链、钱包、KYC 到交易所实操，按更适合新手的路径逐步学习。",
-      en: "Learn Web3 step by step, from concepts and wallets to KYC and exchange onboarding.",
+      zh: "从 Web3 概念、钱包、私钥到 KYC 与交易所实操，按路径逐步学习。",
+      en: "Learn Web3 step by step from concepts and wallets to KYC and exchange onboarding.",
     },
     keywords: {
       zh: "Web3教程,Web3学习路径,钱包私钥,KYC流程,区块链基础,Web3新手",
@@ -161,8 +161,8 @@ const SEO_BY_PATH: Record<string, SeoEntry> = {
       en: "Crypto Tools | Get8 Pro",
     },
     description: {
-      zh: "按用途整理加密行情、链上、安全、数据与研究工具，帮助用户更快找到合适的工具。",
-      en: "Browse curated crypto tools for market data, on-chain analysis, security, and research by use case.",
+      zh: "按用途整理行情、链上、安全与研究工具，帮助你更快找到适合当前场景的工具。",
+      en: "Discover curated tools for market tracking, on-chain analysis, security checks, and research workflows.",
     },
     keywords: {
       zh: "币圈工具,加密工具,链上工具,行情工具,安全工具,研究工具",
@@ -171,16 +171,16 @@ const SEO_BY_PATH: Record<string, SeoEntry> = {
   },
   "/codex-business": {
     title: {
-      zh: "Codex Business 板块 | Get8 Pro",
-      en: "Codex Business Module | Get8 Pro",
+      zh: "Codex Business 第六板块 | Get8 Pro",
+      en: "Codex Business Module 6 | Get8 Pro",
     },
     description: {
-      zh: "Get8 Pro 第六板块，聚焦自动化业务流程、任务执行、日志可观测与风险追踪。",
-      en: "Get8 Pro Module 6 focused on automation workflows, execution runtime, observability, and risk tracking.",
+      zh: "Get8 Pro 第六板块，聚焦自动化业务流程、任务执行、可观测日志与部署状态监控。",
+      en: "Get8 Pro Module 6 focused on automation workflows, runtime execution, observability logs, and deployment status.",
     },
     keywords: {
-      zh: "自动化业务,运营自动化,任务调度,流程编排,业务可观测,Web3运营",
-      en: "automation module,operations automation,task scheduling,workflow orchestration,observability,business module",
+      zh: "自动化业务,运营自动化,任务调度,流程编排,业务可观测,部署状态",
+      en: "automation module,operations automation,task scheduling,workflow orchestration,observability,deployment status",
     },
   },
   "/about": {
@@ -189,8 +189,8 @@ const SEO_BY_PATH: Record<string, SeoEntry> = {
       en: "About Get8 Pro | Get8 Pro",
     },
     description: {
-      zh: "了解 Get8 Pro 的站点定位、信息边界、合作披露和内容整理方式。",
-      en: "Learn about Get8 Pro, including its scope, disclosures, and approach to organizing information.",
+      zh: "了解 Get8 Pro 的站点定位、内容边界、合作披露与信息组织方式。",
+      en: "Learn about Get8 Pro's positioning, content boundaries, and disclosure standards.",
     },
     keywords: {
       zh: "关于Get8 Pro,站点说明,合作披露,内容原则",
@@ -203,8 +203,8 @@ const SEO_BY_PATH: Record<string, SeoEntry> = {
       en: "Contact | Get8 Pro",
     },
     description: {
-      zh: "通过联系页面提交合作、反馈或内容勘误需求，帮助 Get8 Pro 持续完善。",
-      en: "Use the contact page for feedback, collaboration requests, or content corrections.",
+      zh: "提交合作咨询、使用反馈或内容勘误请求，帮助我们持续优化站点体验。",
+      en: "Submit collaboration requests, feedback, or correction needs to help us improve the site.",
     },
     keywords: {
       zh: "联系Get8 Pro,反馈,合作,内容勘误",
@@ -218,11 +218,11 @@ const SEO_BY_PATH: Record<string, SeoEntry> = {
     },
     description: {
       zh: "查看 Get8 Pro 的法律说明、风险提示与信息使用边界。",
-      en: "Read Get8 Pro's legal notes, risk disclosures, and information boundaries.",
+      en: "Review Get8 Pro legal notices, risk statements, and information boundaries.",
     },
     keywords: {
-      zh: "法律说明,风险提示,免责声明",
-      en: "legal notice,risk disclosure,disclaimer",
+      zh: "法律说明,风险提示,免责声明,合规说明",
+      en: "legal notice,risk disclosure,disclaimer,compliance notice",
     },
   },
   "/standards": {
@@ -231,12 +231,12 @@ const SEO_BY_PATH: Record<string, SeoEntry> = {
       en: "Editorial Standards & Transparency | Get8 Pro",
     },
     description: {
-      zh: "查看 Get8 Pro 如何处理来源、审核、披露和内容更新。",
-      en: "See how Get8 Pro handles sourcing, review, disclosure, and content updates.",
+      zh: "查看 Get8 Pro 如何处理来源、审核、披露与内容更新。",
+      en: "See how Get8 Pro handles source validation, review flow, disclosures, and updates.",
     },
     keywords: {
-      zh: "编辑原则,透明度,来源说明,审核说明",
-      en: "editorial standards,transparency,source notes,review policy",
+      zh: "编辑原则,透明度,来源说明,审核规则",
+      en: "editorial standards,transparency,source policy,review policy",
     },
   },
 };
@@ -246,15 +246,15 @@ const PREFIX_DEFAULTS: Array<{ prefix: string; entry: SeoEntry }> = [
     prefix: "/exchange/",
     entry: {
       title: {
-        zh: "交易所说明 | Get8 Pro",
+        zh: "交易所详情 | Get8 Pro",
         en: "Exchange Detail | Get8 Pro",
       },
       description: {
-        zh: "查看交易所费用、邀请规则、KYC、下载入口和常见问题。",
-        en: "Review exchange fees, invite notes, KYC guidance, download links, and FAQs.",
+        zh: "查看交易所费率、KYC 要求、注册链接、下载入口与常见问题说明。",
+        en: "Review exchange fees, KYC requirements, registration links, download options, and FAQs.",
       },
       keywords: {
-        zh: "交易所说明,手续费,邀请规则,下载入口,KYC说明,交易所FAQ",
+        zh: "交易所详情,手续费,邀请码,下载入口,KYC说明,交易所FAQ",
         en: "exchange detail,fees,invite notes,download links,kyc notes,exchange faq",
       },
     },
@@ -267,12 +267,12 @@ const PREFIX_DEFAULTS: Array<{ prefix: string; entry: SeoEntry }> = [
         en: "Article | Get8 Pro",
       },
       description: {
-        zh: "浏览与交易所、邀请规则、Web3 教程和市场解读相关的深度内容。",
-        en: "Read in-depth content about exchanges, invite rules, Web3 tutorials, and market interpretation.",
+        zh: "浏览交易所、Web3 教程与市场解读相关文章，获取结构化内容。",
+        en: "Read structured long-form content about exchanges, Web3 learning, and market interpretation.",
       },
       keywords: {
-        zh: "深度文章,交易所文章,邀请文章,Web3文章,市场解读",
-        en: "article,exchange article,invite article,web3 article,market interpretation",
+        zh: "深度文章,交易所文章,Web3文章,市场解读",
+        en: "article,exchange article,web3 article,market interpretation",
       },
     },
   },
@@ -284,8 +284,8 @@ const PREFIX_DEFAULTS: Array<{ prefix: string; entry: SeoEntry }> = [
         en: "Trading Simulators | Get8 Pro",
       },
       description: {
-        zh: "通过模拟器练习现货、合约、杠杆、期权和机器人策略，更安全地熟悉交易界面。",
-        en: "Practice spot, futures, margin, options, and bot strategies with trading simulators.",
+        zh: "通过现货、合约、杠杆、期权和机器人模拟器练习交易流程。",
+        en: "Practice spot, futures, margin, options, and bot strategies with interactive simulators.",
       },
       keywords: {
         zh: "模拟交易,现货模拟,合约模拟,期权模拟,交易练习,交易游戏",
@@ -301,8 +301,8 @@ const PREFIX_DEFAULTS: Array<{ prefix: string; entry: SeoEntry }> = [
         en: "Web3 Tutorial | Get8 Pro",
       },
       description: {
-        zh: "逐步学习钱包、私钥、区块链、KYC 和交易所相关基础知识。",
-        en: "Learn wallets, private keys, blockchain, KYC, and exchange onboarding step by step.",
+        zh: "逐步学习钱包、私钥、区块链、KYC 和交易所实操基础。",
+        en: "Learn wallets, private keys, blockchain basics, KYC, and exchange onboarding step by step.",
       },
       keywords: {
         zh: "Web3教程,钱包教程,私钥安全,KYC教程,区块链基础",
@@ -356,3 +356,4 @@ export function detectSeoLanguage(path: string): SeoLanguage {
   const rawPath = path.toLowerCase();
   return rawPath.includes("/en") || rawPath.includes("lang=en") ? "en" : "zh";
 }
+

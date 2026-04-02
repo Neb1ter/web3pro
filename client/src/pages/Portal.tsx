@@ -99,7 +99,7 @@ const LANG = {
     stat2v: "5+", stat2u: "Exchanges", stat2l: "Partners",
     stat3v: "Lifetime", stat3u: "Personalized Rebates", stat3l: "Forever Valid",
     sectionTitle: "Choose Your Learning Path",
-    sectionSub: "Five core modules covering the complete journey from beginner to trader",
+    sectionSub: "Five core modules plus Module 6 automation, covering the full path from onboarding to execution",
     comingSoonBadge: "Coming Soon",
     comingSoonTitle: "More Modules Under Construction",
     lockLabel: "Stay Tuned",
@@ -275,6 +275,46 @@ function SixthModuleEntry({ lang }: { lang: string }) {
             ? "自动化业务能力中心：把运营流程、任务调度和执行日志整合为可复用模块。该页面为独立路由懒加载，仅在访问时加载，不拖慢首页。"
             : "Automation business hub for reusable operation flows, scheduling, and execution logs. This route is lazy-loaded and only fetched on visit."}
         </p>
+        <Link
+          href="/codex-business"
+          className="tap-target mt-5 inline-flex items-center gap-2 rounded-xl border border-cyan-400/40 bg-cyan-400/15 px-4 py-2 text-sm font-bold text-cyan-200 transition hover:border-cyan-300 hover:bg-cyan-400/25"
+        >
+          {zh ? "进入第六板块" : "Open Module 6"}
+          <span aria-hidden>→</span>
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+function SixthModuleEntryV2({ lang }: { lang: string }) {
+  const zh = lang === "zh";
+
+  return (
+    <section className="mb-10">
+      <div className="rounded-3xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/[0.08] via-blue-500/[0.05] to-slate-900/50 p-5 sm:p-6">
+        <div className="mb-3 inline-flex rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-cyan-300">
+          {zh ? "第六板块" : "Module 6"}
+        </div>
+        <h3 className="text-xl font-black text-white sm:text-2xl">
+          {zh ? "Codex Business 自动化中心" : "Codex Business Automation Hub"}
+        </h3>
+        <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-300 sm:text-base">
+          {zh
+            ? "把高频运营动作沉淀为可复用流程：任务调度、执行状态、日志追踪统一在一个入口管理，并保持懒加载，不影响首页首屏速度。"
+            : "Consolidate high-frequency operations into reusable flows with unified scheduling, runtime status, and logs. The route stays lazy-loaded to avoid homepage slowdown."}
+        </p>
+        <div className="mt-4 grid gap-2 text-xs text-slate-300 sm:grid-cols-3">
+          <div className="rounded-lg border border-white/10 bg-black/20 px-3 py-2">
+            {zh ? "仅访问时加载" : "Loaded on visit only"}
+          </div>
+          <div className="rounded-lg border border-white/10 bg-black/20 px-3 py-2">
+            {zh ? "后端状态可见" : "Live backend status"}
+          </div>
+          <div className="rounded-lg border border-white/10 bg-black/20 px-3 py-2">
+            {zh ? "支持服务器部署" : "Server deployment ready"}
+          </div>
+        </div>
         <Link
           href="/codex-business"
           className="tap-target mt-5 inline-flex items-center gap-2 rounded-xl border border-cyan-400/40 bg-cyan-400/15 px-4 py-2 text-sm font-bold text-cyan-200 transition hover:border-cyan-300 hover:bg-cyan-400/25"
@@ -562,7 +602,7 @@ export default function Portal() {
 
         <QuizBanner lang={lang} />
         <QuickStartPaths lang={lang} />
-        <SixthModuleEntry lang={lang} />
+        <SixthModuleEntryV2 lang={lang} />
 
         <div className="pb-16">
           <div className="text-center mb-10">
