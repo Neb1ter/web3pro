@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>兑换与质保中心</title>
+    <title>兑换中心</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <main class="shell">
       <header class="topbar">
         <div>
-          <h1>兑换与质保中心</h1>
+          <h1>兑换中心</h1>
         </div>
         <div class="status" id="health-pill">检测中</div>
       </header>
@@ -20,7 +20,7 @@
           <div class="panel-head">
             <div>
               <h2>兑换区</h2>
-              <p class="panel-copy">输入邮箱和兑换码后，直接提交即可。</p>
+              <p class="panel-copy">输入邮箱和兑换码后直接提交兑换。</p>
             </div>
             <div class="metric">
               <span class="metric-label">当前车位</span>
@@ -69,6 +69,9 @@
 
           <section class="subpanel">
             <h3>质保重兑</h3>
+            <div id="warranty-redeem-note" class="inline-note">
+              请先完成“质保查询”。只有上游返回可重兑状态时，才建议继续提交重兑。
+            </div>
             <form id="warranty-redeem-form" class="form">
               <label class="field">
                 <span>邮箱</span>

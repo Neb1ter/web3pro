@@ -71,6 +71,7 @@ jobs:
             tar -xzf deploy-bundle.tar.gz
             del deploy-bundle.tar.gz
             if exist runtime.override.env copy /Y runtime.override.env .env.runtime >nul
+            npx pm2 delete codexbiuness >nul 2>&1
             npx pm2 startOrReload ecosystem.config.cjs --update-env
             npx pm2 save
 

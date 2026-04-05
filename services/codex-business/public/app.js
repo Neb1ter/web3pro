@@ -1,16 +1,19 @@
 const STORAGE_KEYS = {
   codes: "teamxz_saved_codes_v1",
-  warrantyHistory: "teamxz_warranty_history_v1"
+  warrantyHistory: "teamxz_warranty_history_v1",
 };
 
 const API_BASE = (() => {
   if (typeof window === "undefined") return "/api";
-  const { pathname } = window.location;
-  if (pathname.includes("/codex-business/app/")) {
-    return "./api";
-  }
-  return "/api";
+  return window.location.pathname.includes("/codex-business/app/") ? "./api" : "/api";
 })();
+
+let lastWarrantyQuery = null;
+
+function apiUrl(pathname) {
+  const normalized = pathname.startsWith("/") ? pathname.slice(1) : pathname;
+  return `${API_BASE}/${normalized}`;
+}
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -29,19 +32,19 @@ function isValidCode(value) {
   return typeof value === "string" && value.trim().length >= 4;
 }
 
-async function requestJson(url, options = {}) {
-  const response = await fetch(url, options);
+async function requestJson(pathname, options = {}) {
+  const response = await fetch(apiUrl(pathname), options);
   const data = await response.json().catch(() => ({}));
   return { ok: response.ok, status: response.status, data };
 }
 
-async function postJson(url, payload) {
-  return requestJson(url, {
+async function postJson(pathname, payload) {
+  return requestJson(pathname, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify(payload)
+    body: JSON.stringify(payload),
   });
 }
 
@@ -83,7 +86,7 @@ function formatDateTime(value) {
       month: "2-digit",
       day: "2-digit",
       hour: "2-digit",
-      minute: "2-digit"
+      minute: "2-digit",
     }).format(date);
   } catch (_error) {
     return String(value);
@@ -101,7 +104,7 @@ function getMaintenanceInfo(data) {
   return {
     title: data.title || data.detail || "系统维护中",
     detail: data.content || data.detail || "系统正在维护，请稍后再试。",
-    endTime: data.end_time || null
+    endTime: data.end_time || null,
   };
 }
 
@@ -167,7 +170,7 @@ function renderResult(target, ok, title, summary, data) {
                 <dt>${escapeHtml(label)}</dt>
                 <dd>${escapeHtml(value)}</dd>
               </div>
-            `
+            `,
           )
           .join("")}
       </dl>
@@ -220,7 +223,7 @@ function renderSavedCodes() {
             <button class="saved-chip" type="button" data-code="${escapeHtml(code)}">
               <code>${escapeHtml(code)}</code>
             </button>
-          `
+          `,
         )
         .join("")}
     </div>
@@ -264,16 +267,43 @@ function renderWarrantyHistory() {
           <p class="history-meta">兑换码：${escapeHtml(item.code)}</p>
           ${item.email ? `<p class="history-meta">邮箱：${escapeHtml(item.email)}</p>` : ""}
         </article>
-      `
+      `,
     )
     .join("");
+}
+
+function setWarrantyRedeemAvailability(info) {
+  const form = document.getElementById("warranty-redeem-form");
+  const note = document.getElementById("warranty-redeem-note");
+  const emailInput = document.getElementById("warranty-redeem-email");
+
+  if (!form || !note) return;
+
+  const allowed = Boolean(info?.can_warranty_redeem);
+  form.classList.toggle("is-disabled", !allowed);
+  Array.from(form.elements).forEach((element) => {
+    if (element.tagName === "BUTTON" || element.tagName === "INPUT") {
+      element.disabled = !allowed;
+    }
+  });
+
+  if (allowed) {
+    note.textContent = "查询结果显示当前可重兑。请使用原邮箱和原兑换码提交。";
+    if (info.used_by_email && emailInput && !emailInput.value.trim()) {
+      emailInput.value = info.used_by_email;
+    }
+  } else if (info) {
+    note.textContent = "查询结果显示当前不可重兑，请以右侧质保查询结果为准。";
+  } else {
+    note.textContent = "请先完成“质保查询”。只有上游返回可重兑状态时，才建议继续提交重兑。";
+  }
 }
 
 async function loadHealth() {
   const pill = document.getElementById("health-pill");
 
   try {
-    const result = await requestJson(`${API_BASE}/health`);
+    const result = await requestJson("/health");
     pill.textContent = result.data.upstreamReachable ? "服务正常" : "服务异常";
   } catch (_error) {
     pill.textContent = "状态未知";
@@ -285,10 +315,7 @@ async function loadFreeSpots() {
   const maintenance = document.getElementById("global-maintenance");
 
   try {
-    const [pageMeta, result] = await Promise.all([
-      requestJson(`${API_BASE}/page-meta`),
-      requestJson(`${API_BASE}/free-spots`)
-    ]);
+    const [pageMeta, result] = await Promise.all([requestJson("/page-meta"), requestJson("/free-spots")]);
     const maintenanceInfo = getMaintenanceInfo(result.data);
 
     if (maintenanceInfo) {
@@ -335,7 +362,7 @@ function bindRedeemForm() {
     setPending(button, "提交中...");
 
     try {
-      const result = await postJson(`${API_BASE}/redeem/confirm`, { email, code, team_id: null });
+      const result = await postJson("/redeem/confirm", { email, code, team_id: null });
       const maintenanceInfo = getMaintenanceInfo(result.data);
       saveCode(code);
       renderSavedCodes();
@@ -353,7 +380,7 @@ function bindRedeemForm() {
         result.ok,
         result.ok ? "兑换已提交" : "兑换失败",
         summarize(result.data, result.ok ? "请求已完成。" : "请求未成功，请稍后再试。"),
-        result.data
+        result.data,
       );
 
       if (result.ok) {
@@ -386,7 +413,7 @@ function bindWarrantyQueryForm() {
     setPending(button, "查询中...");
 
     try {
-      const result = await postJson(`${API_BASE}/warranty/query`, { code });
+      const result = await postJson("/warranty/query", { code });
       saveCode(code);
       renderSavedCodes();
 
@@ -396,6 +423,9 @@ function bindWarrantyQueryForm() {
         ? maintenanceInfo.detail
         : summarize(result.data, result.ok ? "查询已完成。" : "查询失败，请稍后再试。");
 
+      lastWarrantyQuery = result.data?.warranty_info || null;
+      setWarrantyRedeemAvailability(maintenanceInfo ? null : lastWarrantyQuery);
+
       renderResult(resultBox, result.ok && !maintenanceInfo, title, summary, result.data);
 
       recordWarrantyHistory({
@@ -403,17 +433,19 @@ function bindWarrantyQueryForm() {
         ok: result.ok && !maintenanceInfo,
         summary,
         code,
-        time: formatDateTime(new Date().toISOString())
+        time: formatDateTime(new Date().toISOString()),
       });
       renderWarrantyHistory();
     } catch (error) {
       renderResult(resultBox, false, "请求失败", error.message || "发生未知错误", {});
+      lastWarrantyQuery = null;
+      setWarrantyRedeemAvailability(null);
       recordWarrantyHistory({
         type: "质保查询",
         ok: false,
         summary: error.message || "发生未知错误",
         code,
-        time: formatDateTime(new Date().toISOString())
+        time: formatDateTime(new Date().toISOString()),
       });
       renderWarrantyHistory();
     } finally {
@@ -442,10 +474,21 @@ function bindWarrantyRedeemForm() {
       return;
     }
 
+    if (!lastWarrantyQuery?.can_warranty_redeem || lastWarrantyQuery.code !== code) {
+      renderResult(
+        resultBox,
+        false,
+        "暂不可重兑",
+        "请先对当前兑换码完成质保查询，并且仅在查询结果显示可重兑时再提交。",
+        {},
+      );
+      return;
+    }
+
     setPending(button, "提交中...");
 
     try {
-      const result = await postJson(`${API_BASE}/warranty/redeem`, { email, code });
+      const result = await postJson("/warranty/redeem", { email, code });
       saveCode(code);
       renderSavedCodes();
 
@@ -456,14 +499,13 @@ function bindWarrantyRedeemForm() {
         : summarize(result.data, result.ok ? "请求已完成。" : "请求未成功，请稍后再试。");
 
       renderResult(resultBox, result.ok && !maintenanceInfo, title, summary, result.data);
-
       recordWarrantyHistory({
         type: "质保重兑",
         ok: result.ok && !maintenanceInfo,
         summary,
         code,
         email,
-        time: formatDateTime(new Date().toISOString())
+        time: formatDateTime(new Date().toISOString()),
       });
       renderWarrantyHistory();
     } catch (error) {
@@ -474,7 +516,7 @@ function bindWarrantyRedeemForm() {
         summary: error.message || "发生未知错误",
         code,
         email,
-        time: formatDateTime(new Date().toISOString())
+        time: formatDateTime(new Date().toISOString()),
       });
       renderWarrantyHistory();
     } finally {
@@ -508,6 +550,7 @@ if (typeof document !== "undefined") {
   renderGuide(document.getElementById("manual-warranty-guide"));
   renderSavedCodes();
   renderWarrantyHistory();
+  setWarrantyRedeemAvailability(null);
   loadHealth();
   loadFreeSpots();
 }
