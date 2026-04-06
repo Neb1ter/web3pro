@@ -307,9 +307,10 @@ async function forwardGetWithFallback(cacheKey) {
 
 function buildApp() {
   const app = express();
+  const publicDir = path.join(__dirname, "public");
 
   app.use(express.json());
-  app.use(express.static(path.join(__dirname, "public")));
+  app.use(express.static(publicDir));
 
   function validateEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -318,6 +319,10 @@ function buildApp() {
   function validateCode(code) {
     return typeof code === "string" && code.trim().length >= 4;
   }
+
+  app.get("/", (_req, res) => {
+    res.sendFile(path.join(publicDir, "index.html"));
+  });
 
   app.get("/api/health", async (_req, res) => {
     let upstreamOk = false;

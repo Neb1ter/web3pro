@@ -44,10 +44,10 @@ export default function CodexBusiness() {
         title: "Codex Business 自动化中心",
         subtitle: "第六板块",
         lead:
-          "这里现在是可直接使用的业务入口，不再只是展示页。用户在 get8.pro 内就能完成兑换、质保查询和质保重兑，不需要再跳去其他域名。",
+          "这里是第六板块的实际业务入口，不是静态展示页。用户可以在 get8.pro 内直接完成兑换、质保查询和质保重兑，前后端路由与主站保持同域对齐。",
         statusTitle: "运行状态",
         statusDesc:
-          "这里读取实时部署信息，用来确认第六板块是否已经和主站同进程运行、当前版本是否为最新、最近一次更新时间是否正常。",
+          "这里会读取第六板块的实时部署信息，用来确认当前模块是否已经挂载在主站进程内，以及最近一次版本更新时间是否正常。",
         statusLabel: "当前状态",
         statusOnline: "已启用",
         statusOffline: "未启用",
@@ -56,18 +56,18 @@ export default function CodexBusiness() {
         operator: "维护主体",
         lastUpdated: "最近更新时间",
         serverTime: "服务时间",
-        quickTitle: "实际业务入口",
+        quickTitle: "业务入口说明",
         quickDesc:
-          "下方嵌入的是第六板块真实控制台。只要这里能加载，说明前端、后端和同域路由都已经对齐；用户可以直接在主站内操作。",
+          "下方嵌入的是第六板块真实控制台。只要这里能正常加载，就说明主站同域挂载、业务接口和前端资源都已经对齐。",
         quickPoints: [
           "兑换、质保查询、质保重兑统一在一个界面完成",
-          "只有访问第六板块时才加载，不拖慢首页速度",
-          "现在直接挂在主站进程里，少掉一层单独代理和额外 PM2 子服务",
+          "只有访问第六板块时才会加载控制台资源，不拖慢首页",
+          "现在由主站直接挂载，不再依赖脆弱的额外代理链路",
         ],
         openConsole: "单独打开控制台",
         embedTitle: "同域业务控制台",
         embedDesc:
-          "如果这里能正常显示，就说明 get8.pro 内部已经直接挂载了 Codex Business 应用，不再依赖额外的 3100 子服务代理链。",
+          "如果下方控制台可以正常显示，就说明 Codex Business 已经作为 get8.pro 的同域子应用运行，而不是独立失联的外部页面。",
         loading: "正在获取运行状态...",
         loadFailed: "运行状态读取失败，但你仍然可以尝试直接打开下方控制台。",
         back: "返回",
@@ -77,10 +77,10 @@ export default function CodexBusiness() {
         title: "Codex Business Automation Hub",
         subtitle: "Module 6",
         lead:
-          "This is now a working business entry inside get8.pro. Users can redeem, query warranty, and submit warranty reissues without leaving the main site.",
+          "This is the live business entry for Module 6 inside get8.pro. Users can redeem, query warranty, and submit warranty reissues without leaving the main site.",
         statusTitle: "Runtime Status",
         statusDesc:
-          "This panel checks whether the sixth module is running inside the main site process and whether the latest version is online.",
+          "This panel reads the live deployment state to confirm the module is mounted inside the main site process and updated correctly.",
         statusLabel: "Current Status",
         statusOnline: "Enabled",
         statusOffline: "Disabled",
@@ -89,18 +89,18 @@ export default function CodexBusiness() {
         operator: "Operator",
         lastUpdated: "Last Updated",
         serverTime: "Server Time",
-        quickTitle: "Live Business Entry",
+        quickTitle: "Business Entry Notes",
         quickDesc:
-          "The embedded console below is the real module. If it loads, the frontend, backend, and same-domain routing are aligned.",
+          "The embedded console below is the real module. If it loads, the frontend assets, backend handlers, and same-domain routing are aligned.",
         quickPoints: [
           "Redeem, warranty query, and warranty reissue stay in one flow",
           "Loads only when this module is opened",
-          "Runs inside the main site process instead of relying on an extra child service",
+          "Mounted directly inside the main site instead of relying on an extra proxy chain",
         ],
         openConsole: "Open Console",
         embedTitle: "Same-Domain Business Console",
         embedDesc:
-          "If this frame loads, Codex Business is mounted directly inside get8.pro and no longer depends on a separate 3100 proxy chain.",
+          "If the console below renders correctly, Codex Business is running as a same-domain child app inside get8.pro.",
         loading: "Fetching runtime status...",
         loadFailed: "Runtime status failed to load, but you can still try the console below.",
         back: "Back",
@@ -114,7 +114,7 @@ export default function CodexBusiness() {
         description={
           zh
             ? "Get8 Pro 第六板块：同域运行的 Codex Business 控制台，可直接完成兑换、质保查询与质保重兑。"
-            : "Get8 Pro Module 6: a same-domain Codex Business console for redeem, warranty query, and reissue workflows."
+            : "Get8 Pro Module 6: a same-domain Codex Business console for redeem, warranty query, and warranty reissue workflows."
         }
         path="/codex-business"
       />
@@ -151,9 +151,7 @@ export default function CodexBusiness() {
               </div>
               <div className="text-sm font-black text-white">{zh ? "同域访问" : "Same-Domain Access"}</div>
               <div className="mt-1 text-sm text-slate-300">
-                {zh
-                  ? "用户继续停留在 get8.pro 内即可完成操作，不需要额外跳域名。"
-                  : "Users stay inside get8.pro for the full workflow."}
+                {zh ? "用户停留在 get8.pro 内即可完成操作，不需要跳转到其他域名。" : "Users stay inside get8.pro for the full workflow."}
               </div>
             </div>
 
@@ -163,9 +161,7 @@ export default function CodexBusiness() {
               </div>
               <div className="text-sm font-black text-white">{zh ? "按访问加载" : "Visit-Only Loading"}</div>
               <div className="mt-1 text-sm text-slate-300">
-                {zh
-                  ? "只有打开第六板块时才会加载控制台资源，不会拖慢首页。"
-                  : "Console resources load only when this module is opened."}
+                {zh ? "只在打开第六板块时加载控制台资源，不会拖慢首页。" : "Console resources load only when this module is opened."}
               </div>
             </div>
 
@@ -176,7 +172,7 @@ export default function CodexBusiness() {
               <div className="text-sm font-black text-white">{zh ? "主站内挂载" : "Mounted In Main App"}</div>
               <div className="mt-1 text-sm text-slate-300">
                 {zh
-                  ? "业务控制台直接挂进主站进程，少掉一层容易失效的独立代理链。"
+                  ? "第六板块直接挂在主站进程里，避免独立代理失联导致页面失效。"
                   : "The console is mounted inside the main app instead of relying on a fragile extra proxy layer."}
               </div>
             </div>
@@ -222,16 +218,12 @@ export default function CodexBusiness() {
 
                   <div className="rounded-xl border border-white/10 bg-black/20 p-3">
                     <div className="mb-1 text-xs text-slate-400">{copy.lastUpdated}</div>
-                    <div className="text-sm font-black text-white">
-                      {formatDate(data?.lastUpdatedAt, zh ? "zh" : "en")}
-                    </div>
+                    <div className="text-sm font-black text-white">{formatDate(data?.lastUpdatedAt, zh ? "zh" : "en")}</div>
                   </div>
 
                   <div className="rounded-xl border border-white/10 bg-black/20 p-3">
                     <div className="mb-1 text-xs text-slate-400">{copy.serverTime}</div>
-                    <div className="text-sm font-black text-white">
-                      {formatDate(data?.serverTime, zh ? "zh" : "en")}
-                    </div>
+                    <div className="text-sm font-black text-white">{formatDate(data?.serverTime, zh ? "zh" : "en")}</div>
                   </div>
                 </div>
               )}

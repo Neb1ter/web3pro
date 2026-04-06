@@ -475,13 +475,7 @@ function bindWarrantyRedeemForm() {
     }
 
     if (!lastWarrantyQuery?.can_warranty_redeem || lastWarrantyQuery.code !== code) {
-      renderResult(
-        resultBox,
-        false,
-        "暂不可重兑",
-        "请先对当前兑换码完成质保查询，并且仅在查询结果显示可重兑时再提交。",
-        {},
-      );
+      renderResult(resultBox, false, "暂不可重兑", "请先对当前兑换码完成质保查询，并且仅在查询结果显示可重兑时再提交。", {});
       return;
     }
 
@@ -499,6 +493,7 @@ function bindWarrantyRedeemForm() {
         : summarize(result.data, result.ok ? "请求已完成。" : "请求未成功，请稍后再试。");
 
       renderResult(resultBox, result.ok && !maintenanceInfo, title, summary, result.data);
+
       recordWarrantyHistory({
         type: "质保重兑",
         ok: result.ok && !maintenanceInfo,
