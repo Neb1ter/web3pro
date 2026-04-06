@@ -48,32 +48,88 @@ jobs:
           printf '%s\n' "${{ secrets.SERVER_ENV_OVERRIDE }}" > runtime.override.env
           echo "Runtime override env prepared"
 
+      - name: Install SSH tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sshpass
+
+      - name: Prepare remote deployment directory
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
+        run: |
+          REMOTE_PREP="powershell -NoProfile -Command \"New-Item -ItemType Directory -Force -Path 'C:\\web3pro' | Out-Null\""
+          sshpass -p "$SERVER_PASSWORD" ssh \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=/dev/null \
+            -o ServerAliveInterval=15 \
+            -o ServerAliveCountMax=6 \
+            -p 22 \
+            "$SERVER_USER@$SERVER_HOST" \
+            "$REMOTE_PREP"
+
       - name: Upload deployment bundle to server via SCP
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }}
-          port: 22
-          source: "deploy-bundle.tar.gz,runtime.override.env"
-          target: "C:/web3pro/"
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
+        run: |
+          for attempt in 1 2 3; do
+            echo "SCP attempt $attempt"
+            if sshpass -p "$SERVER_PASSWORD" scp \
+              -O \
+              -o StrictHostKeyChecking=no \
+              -o UserKnownHostsFile=/dev/null \
+              -o ServerAliveInterval=15 \
+              -o ServerAliveCountMax=6 \
+              -P 22 \
+              deploy-bundle.tar.gz runtime.override.env \
+              "$SERVER_USER@$SERVER_HOST:/C:/web3pro/"; then
+              echo "Upload completed"
+              break
+            fi
+
+            if [ "$attempt" -eq 3 ]; then
+              echo "Upload failed after 3 attempts"
+              exit 1
+            fi
+
+            sleep 20
+          done
 
       - name: Deploy on server via SSH
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }}
-          port: 22
-          script_stop: true
-          script: |
-            cd C:\web3pro
-            tar -xzf deploy-bundle.tar.gz
-            del deploy-bundle.tar.gz
-            if exist runtime.override.env copy /Y runtime.override.env .env.runtime >nul
-            npx pm2 delete codexbiuness >nul 2>&1
-            npx pm2 startOrReload ecosystem.config.cjs --update-env
-            npx pm2 save
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
+        run: |
+          REMOTE_DEPLOY=$(cat <<'EOF'
+          powershell -NoProfile -Command "$ErrorActionPreference='Stop'; Set-Location 'C:\web3pro'; tar -xzf 'deploy-bundle.tar.gz'; Remove-Item -Force 'deploy-bundle.tar.gz'; if (Test-Path 'runtime.override.env') { Copy-Item 'runtime.override.env' '.env.runtime' -Force }; npx pm2 delete codexbiuness 2>$null; npx pm2 startOrReload ecosystem.config.cjs --update-env; npx pm2 save"
+          EOF
+          )
+
+          for attempt in 1 2 3; do
+            echo "SSH deploy attempt $attempt"
+            if sshpass -p "$SERVER_PASSWORD" ssh \
+              -o StrictHostKeyChecking=no \
+              -o UserKnownHostsFile=/dev/null \
+              -o ServerAliveInterval=15 \
+              -o ServerAliveCountMax=6 \
+              -p 22 \
+              "$SERVER_USER@$SERVER_HOST" \
+              "$REMOTE_DEPLOY"; then
+              echo "Remote deploy completed"
+              break
+            fi
+
+            if [ "$attempt" -eq 3 ]; then
+              echo "Remote deploy failed after 3 attempts"
+              exit 1
+            fi
+
+            sleep 20
+          done
 
       - name: Purge Cloudflare cache
         run: |

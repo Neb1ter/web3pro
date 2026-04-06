@@ -44,7 +44,7 @@ export default function CodexBusiness() {
         title: "Codex Business 自动化中心",
         subtitle: "第六板块",
         lead:
-          "这里是第六板块的实际业务入口，不是静态展示页。用户可以在 get8.pro 内直接完成兑换、质保查询和质保重兑，前后端路由与主站保持同域对齐。",
+          "这里是第六板块的真实业务入口，不是静态展示页。用户可以在 get8.pro 内直接完成兑换、质保查询和质保重兑，前后端路由与主站保持同域对齐。",
         statusTitle: "运行状态",
         statusDesc:
           "这里会读取第六板块的实时部署信息，用来确认当前模块是否已经挂载在主站进程内，以及最近一次版本更新时间是否正常。",
@@ -58,20 +58,26 @@ export default function CodexBusiness() {
         serverTime: "服务时间",
         quickTitle: "业务入口说明",
         quickDesc:
-          "下方嵌入的是第六板块真实控制台。只要这里能正常加载，就说明主站同域挂载、业务接口和前端资源都已经对齐。",
+          "下方嵌入的是实际控制台。只要这里能正常加载，就说明同域挂载、业务接口和前端资源都已经对齐。",
         quickPoints: [
           "兑换、质保查询、质保重兑统一在一个界面完成",
-          "只有访问第六板块时才会加载控制台资源，不拖慢首页",
-          "现在由主站直接挂载，不再依赖脆弱的额外代理链路",
+          "只在访问第六板块时才加载控制台资源，不拖慢首页",
+          "由主站直接挂载，不再依赖额外代理链路",
         ],
         openConsole: "单独打开控制台",
         embedTitle: "同域业务控制台",
         embedDesc:
-          "如果下方控制台可以正常显示，就说明 Codex Business 已经作为 get8.pro 的同域子应用运行，而不是独立失联的外部页面。",
+          "如果下方控制台可以正常显示，就说明 Codex Business 已经作为 get8.pro 的同域子应用运行，而不是失联的外部页面。",
         loading: "正在获取运行状态...",
         loadFailed: "运行状态读取失败，但你仍然可以尝试直接打开下方控制台。",
         back: "返回",
         home: "首页",
+        sameDomainTitle: "同域访问",
+        sameDomainDesc: "用户停留在 get8.pro 内即可完成操作，不需要跳转到其他域名。",
+        lazyTitle: "按访问加载",
+        lazyDesc: "只有打开第六板块时才加载控制台资源，不会拖慢首页。",
+        mountedTitle: "主站内挂载",
+        mountedDesc: "第六板块直接挂在主站进程里，避免独立代理失联导致页面失效。",
       }
     : {
         title: "Codex Business Automation Hub",
@@ -105,6 +111,12 @@ export default function CodexBusiness() {
         loadFailed: "Runtime status failed to load, but you can still try the console below.",
         back: "Back",
         home: "Home",
+        sameDomainTitle: "Same-Domain Access",
+        sameDomainDesc: "Users stay inside get8.pro for the full workflow.",
+        lazyTitle: "Visit-Only Loading",
+        lazyDesc: "Console resources load only when this module is opened.",
+        mountedTitle: "Mounted In Main App",
+        mountedDesc: "The console is mounted inside the main app instead of relying on a fragile extra proxy layer.",
       };
 
   return (
@@ -149,32 +161,24 @@ export default function CodexBusiness() {
               <div className="mb-2 inline-flex rounded-xl border border-cyan-400/30 bg-cyan-400/10 p-2">
                 <ShieldCheck className="h-5 w-5 text-cyan-300" />
               </div>
-              <div className="text-sm font-black text-white">{zh ? "同域访问" : "Same-Domain Access"}</div>
-              <div className="mt-1 text-sm text-slate-300">
-                {zh ? "用户停留在 get8.pro 内即可完成操作，不需要跳转到其他域名。" : "Users stay inside get8.pro for the full workflow."}
-              </div>
+              <div className="text-sm font-black text-white">{copy.sameDomainTitle}</div>
+              <div className="mt-1 text-sm text-slate-300">{copy.sameDomainDesc}</div>
             </div>
 
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
               <div className="mb-2 inline-flex rounded-xl border border-cyan-400/30 bg-cyan-400/10 p-2">
                 <Zap className="h-5 w-5 text-cyan-300" />
               </div>
-              <div className="text-sm font-black text-white">{zh ? "按访问加载" : "Visit-Only Loading"}</div>
-              <div className="mt-1 text-sm text-slate-300">
-                {zh ? "只在打开第六板块时加载控制台资源，不会拖慢首页。" : "Console resources load only when this module is opened."}
-              </div>
+              <div className="text-sm font-black text-white">{copy.lazyTitle}</div>
+              <div className="mt-1 text-sm text-slate-300">{copy.lazyDesc}</div>
             </div>
 
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
               <div className="mb-2 inline-flex rounded-xl border border-cyan-400/30 bg-cyan-400/10 p-2">
                 <Server className="h-5 w-5 text-cyan-300" />
               </div>
-              <div className="text-sm font-black text-white">{zh ? "主站内挂载" : "Mounted In Main App"}</div>
-              <div className="mt-1 text-sm text-slate-300">
-                {zh
-                  ? "第六板块直接挂在主站进程里，避免独立代理失联导致页面失效。"
-                  : "The console is mounted inside the main app instead of relying on a fragile extra proxy layer."}
-              </div>
+              <div className="text-sm font-black text-white">{copy.mountedTitle}</div>
+              <div className="mt-1 text-sm text-slate-300">{copy.mountedDesc}</div>
             </div>
           </div>
         </section>

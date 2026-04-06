@@ -197,7 +197,7 @@ async function discoverEndpoints() {
 
     endpointCache.discoveredAt = new Date().toISOString();
   } catch (_error) {
-    // Keep last-known candidates when discovery fails.
+    // Keep the last-known candidates when discovery fails.
   }
 }
 
