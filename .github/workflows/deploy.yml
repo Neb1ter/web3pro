@@ -75,17 +75,31 @@ jobs:
           SERVER_USER: ${{ secrets.SERVER_USER }}
           SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
         run: |
+          REMOTE_BUNDLE="C:/web3pro/deploy-bundle.tar.gz"
+          REMOTE_ENV="C:/web3pro/runtime.override.env"
+
           for attempt in 1 2 3; do
             echo "SCP attempt $attempt"
             if sshpass -p "$SERVER_PASSWORD" scp \
               -O \
               -o StrictHostKeyChecking=no \
               -o UserKnownHostsFile=/dev/null \
+              -o ConnectTimeout=20 \
               -o ServerAliveInterval=15 \
               -o ServerAliveCountMax=6 \
               -P 22 \
-              deploy-bundle.tar.gz runtime.override.env \
-              "$SERVER_USER@$SERVER_HOST:/C:/web3pro/"; then
+              deploy-bundle.tar.gz \
+              "$SERVER_USER@$SERVER_HOST:$REMOTE_BUNDLE" && \
+              sshpass -p "$SERVER_PASSWORD" scp \
+              -O \
+              -o StrictHostKeyChecking=no \
+              -o UserKnownHostsFile=/dev/null \
+              -o ConnectTimeout=20 \
+              -o ServerAliveInterval=15 \
+              -o ServerAliveCountMax=6 \
+              -P 22 \
+              runtime.override.env \
+              "$SERVER_USER@$SERVER_HOST:$REMOTE_ENV"; then
               echo "Upload completed"
               break
             fi
