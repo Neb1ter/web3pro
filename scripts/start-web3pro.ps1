@@ -27,6 +27,12 @@ function Stop-ExistingProcess {
     }
   } catch {
   }
+
+  try {
+    Stop-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue | Out-Null
+    Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue | Out-Null
+  } catch {
+  }
 }
 
 function Start-Web3Pro {
@@ -39,11 +45,18 @@ function Start-Web3Pro {
   $nodePath = (Get-Command node).Source
   $useScheduledTask = $projectPath -ieq "C:\web3pro"
 
+  if (Test-Path $StdOut) { Clear-Content $StdOut -ErrorAction SilentlyContinue }
+  if (Test-Path $StdErr) { Clear-Content $StdErr -ErrorAction SilentlyContinue }
+
   if ($useScheduledTask) {
-    $cmdLine = "cmd.exe /c cd /d `"$projectPath`" && set NODE_ENV=production && set PORT=3000 && `"$nodePath`" dist/index.js 1>> `"$StdOut`" 2>> `"$StdErr`""
-    schtasks /Delete /TN $TaskName /F *> $null
-    schtasks /Create /TN $TaskName /SC ONCE /ST 00:00 /RL HIGHEST /RU SYSTEM /TR $cmdLine /F | Out-Null
-    schtasks /Run /TN $TaskName | Out-Null
+    $actionArgs = "/c cd /d `"$projectPath`" && set NODE_ENV=production && set PORT=3000 && `"$nodePath`" dist/index.js 1>> `"$StdOut`" 2>> `"$StdErr`""
+    $action = New-ScheduledTaskAction -Execute "cmd.exe" -Argument $actionArgs
+    $trigger = New-ScheduledTaskTrigger -Once -At ((Get-Date).AddMinutes(1))
+    $principal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -RunLevel Highest -LogonType ServiceAccount
+    $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -MultipleInstances IgnoreNew
+    $task = New-ScheduledTask -Action $action -Trigger $trigger -Principal $principal -Settings $settings
+    Register-ScheduledTask -TaskName $TaskName -InputObject $task -Force | Out-Null
+    Start-ScheduledTask -TaskName $TaskName
   } else {
     $proc = Start-Process `
       -FilePath $nodePath `
@@ -57,7 +70,7 @@ function Start-Web3Pro {
     Set-Content -Path $PidFile -Value $proc.Id
   }
 
-  Start-Sleep -Seconds 8
+  Start-Sleep -Seconds 10
 
   try {
     $listenerPid = Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction Stop |
@@ -75,6 +88,30 @@ function Start-Web3Pro {
       Get-Content $StdErr -Tail 120
     }
     throw "web3pro failed to bind to port 3000"
+  }
+
+  try {
+    $rootResponse = Invoke-WebRequest "http://127.0.0.1:3000/" -UseBasicParsing -TimeoutSec 15
+    $codexHealth = Invoke-WebRequest "http://127.0.0.1:3000/codex-business/app/api/health" -UseBasicParsing -TimeoutSec 15
+    if ($rootResponse.StatusCode -ne 200 -or $codexHealth.StatusCode -ne 200) {
+      throw "unexpected localhost status root=$($rootResponse.StatusCode) codex=$($codexHealth.StatusCode)"
+    }
+  } catch {
+    Write-Host "--- scheduled task detail ---"
+    try {
+      Get-ScheduledTask -TaskName $TaskName | Format-List *
+      Get-ScheduledTaskInfo -TaskName $TaskName | Format-List *
+    } catch {
+    }
+    Write-Host "--- web3pro stdout tail ---"
+    if (Test-Path $StdOut) {
+      Get-Content $StdOut -Tail 120
+    }
+    Write-Host "--- web3pro stderr tail ---"
+    if (Test-Path $StdErr) {
+      Get-Content $StdErr -Tail 120
+    }
+    throw "web3pro started process but localhost probes failed: $($_.Exception.Message)"
   }
 
   $runtimePid = if (Test-Path $PidFile) { Get-Content $PidFile | Select-Object -First 1 } else { "unknown" }
