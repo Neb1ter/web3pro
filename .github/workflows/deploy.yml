@@ -48,53 +48,15 @@ jobs:
           printf '%s\n' "${{ secrets.SERVER_ENV_OVERRIDE }}" > runtime.override.env
           echo "Runtime override env prepared"
 
-      - name: Install SSH tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y sshpass
-
       - name: Upload deployment bundle to server via SCP
-        env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-          SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
-        run: |
-          REMOTE_BUNDLE="C:/web3pro/deploy-bundle.tar.gz"
-          REMOTE_ENV="C:/web3pro/runtime.override.env"
-
-          for attempt in 1 2 3; do
-            echo "SCP attempt $attempt"
-            if sshpass -p "$SERVER_PASSWORD" scp \
-              -O \
-              -o StrictHostKeyChecking=no \
-              -o UserKnownHostsFile=/dev/null \
-              -o ConnectTimeout=20 \
-              -o ServerAliveInterval=15 \
-              -o ServerAliveCountMax=6 \
-              -P 22 \
-              deploy-bundle.tar.gz \
-              "$SERVER_USER@$SERVER_HOST:$REMOTE_BUNDLE" && \
-              sshpass -p "$SERVER_PASSWORD" scp \
-              -O \
-              -o StrictHostKeyChecking=no \
-              -o UserKnownHostsFile=/dev/null \
-              -o ConnectTimeout=20 \
-              -o ServerAliveInterval=15 \
-              -o ServerAliveCountMax=6 \
-              -P 22 \
-              runtime.override.env \
-              "$SERVER_USER@$SERVER_HOST:$REMOTE_ENV"; then
-              echo "Upload completed"
-              break
-            fi
-
-            if [ "$attempt" -eq 3 ]; then
-              echo "Upload failed after 3 attempts"
-              exit 1
-            fi
-
-            sleep 20
-          done
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          source: "deploy-bundle.tar.gz,runtime.override.env"
+          target: "C:/web3pro/"
 
       - name: Deploy on server via SSH
         uses: appleboy/ssh-action@v1.2.0
@@ -105,12 +67,11 @@ jobs:
           port: 22
           script_stop: true
           script: |
-            if (!(Test-Path "C:\web3pro")) { New-Item -ItemType Directory -Force -Path "C:\web3pro" | Out-Null }
-            Set-Location C:\web3pro
+            cd C:\web3pro
             tar -xzf deploy-bundle.tar.gz
-            Remove-Item -Force deploy-bundle.tar.gz
-            if (Test-Path runtime.override.env) { Copy-Item runtime.override.env .env.runtime -Force }
-            npx pm2 delete codexbiuness > $null 2>&1
+            del deploy-bundle.tar.gz
+            if exist runtime.override.env copy /Y runtime.override.env .env.runtime >nul
+            npx pm2 delete codexbiuness >nul 2>&1
             npx pm2 startOrReload ecosystem.config.cjs --update-env
             npx pm2 save
 
