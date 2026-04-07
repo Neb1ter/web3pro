@@ -84,17 +84,4 @@ jobs:
       - name: Verify deployment
         run: |
           sleep 35
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 15 "https://get8.pro/")
-          CODEX_APP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 15 "https://get8.pro/codex-business/app/")
-          CODEX_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 15 "https://get8.pro/codex-business/app/api/health")
-          echo "HTTP Status: $STATUS"
-          echo "Codex Business App Status: $CODEX_APP_STATUS"
-          echo "Codex Business Status: $CODEX_STATUS"
-          ONLINE_REACT=$(curl -s https://get8.pro/ | grep -oP 'vendor-react-[a-zA-Z0-9_-]+\.js' | head -1)
-          echo "Online vendor-react: $ONLINE_REACT"
-          if [ "$STATUS" = "200" ] && [ "$CODEX_APP_STATUS" = "200" ] && [ "$CODEX_STATUS" = "200" ]; then
-            echo "Deployment successful"
-          else
-            echo "Deployment may have issues, status: $STATUS, codex app: $CODEX_APP_STATUS, codex health: $CODEX_STATUS"
-            exit 1
-          fi
+          pwsh -NoProfile -File ./scripts/smoke-site.ps1 -BaseUrl "https://get8.pro"
