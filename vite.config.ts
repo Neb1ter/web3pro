@@ -10,6 +10,8 @@ const PROJECT_ROOT = import.meta.dirname;
 const LOG_DIR = path.join(PROJECT_ROOT, ".manus-logs");
 const MAX_LOG_SIZE_BYTES = 1 * 1024 * 1024;
 const TRIM_TARGET_BYTES = Math.floor(MAX_LOG_SIZE_BYTES * 0.6);
+const STREAMDOWN_BUNDLED_CODEBLOCK_IMPORT = "./code-block-IT6T5CEO.js";
+const STREAMDOWN_CDN_CODEBLOCK_IMPORT = "./code-block-LUI4OL5H.js";
 
 type LogSource = "browserConsole" | "networkRequests" | "sessionReplay";
 
@@ -128,6 +130,28 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
+function vitePluginStreamdownCodeCdn(): Plugin {
+  return {
+    name: "streamdown-code-cdn",
+    enforce: "pre",
+    transform(code, id) {
+      const normalized = id.replaceAll("\\", "/");
+      if (!normalized.endsWith("/node_modules/streamdown/dist/chunk-JAPRZBRM.js")) {
+        return null;
+      }
+
+      if (!code.includes(STREAMDOWN_BUNDLED_CODEBLOCK_IMPORT)) {
+        return null;
+      }
+
+      return {
+        code: code.replace(STREAMDOWN_BUNDLED_CODEBLOCK_IMPORT, STREAMDOWN_CDN_CODEBLOCK_IMPORT),
+        map: null,
+      };
+    },
+  };
+}
+
 function getNodeModulePackageName(id: string): string | null {
   const normalized = id.replaceAll("\\", "/");
   const marker = "/node_modules/";
@@ -144,6 +168,7 @@ function getNodeModulePackageName(id: string): string | null {
 
 const isDev = process.env.NODE_ENV !== "production";
 const plugins = [
+  vitePluginStreamdownCodeCdn(),
   react(),
   tailwindcss(),
   jsxLocPlugin(),

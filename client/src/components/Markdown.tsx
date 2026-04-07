@@ -1,6 +1,7 @@
-import { memo, useEffect, useState, type ComponentProps, type ReactNode } from "react";
+import { memo, useEffect, useState, type ComponentProps, type ComponentType, type ReactNode } from "react";
 import { scheduleIdle } from "@/lib/routePreload";
 import { cn } from "@/lib/utils";
+import { ZoomableImage } from "@/components/ZoomableImage";
 
 const components = {
   h1: ({ children }: { children?: ReactNode }) => (
@@ -74,18 +75,49 @@ const components = {
     <td className="border border-border px-4 py-2">{children}</td>
   ),
   img: ({ src, alt }: { src?: string; alt?: string }) => (
-    <img
+    <ZoomableImage
       src={src}
       alt={alt || ""}
       className="max-w-full h-auto rounded-lg my-4"
       loading="lazy"
       decoding="async"
+      objectFit="contain"
+      buttonLabel={alt ? `放大查看 ${alt}` : "放大查看图片"}
     />
   ),
 };
 
+type PlainCodeProps = {
+  children?: ReactNode;
+  className?: string;
+};
+
+function PlainCode({ children, className }: PlainCodeProps) {
+  const text = typeof children === "string"
+    ? children
+    : Array.isArray(children)
+      ? children.join("")
+      : children;
+  const isBlock = typeof text === "string" && text.includes("\n");
+
+  if (isBlock) {
+    return (
+      <pre className="my-4 overflow-x-auto rounded-2xl border border-border/70 bg-slate-950/80 p-4 text-sm leading-6 text-slate-100">
+        <code className={cn("font-mono", className)}>{text}</code>
+      </pre>
+    );
+  }
+
+  return (
+    <code className={cn("rounded bg-muted px-1.5 py-0.5 font-mono text-sm", className)}>
+      {children}
+    </code>
+  );
+}
+
 type StreamdownModule = typeof import("streamdown");
 type StreamdownProps = ComponentProps<StreamdownModule["Streamdown"]>;
+type StreamdownRuntimeProps = StreamdownProps & { cdnUrl?: string | null };
 type MarkdownControls = StreamdownProps["controls"];
 
 type MarkdownProps = Omit<StreamdownProps, "components"> & {
@@ -96,6 +128,7 @@ type MarkdownProps = Omit<StreamdownProps, "components"> & {
 
 const MERMAID_FENCE_RE = /(?:^|\n)(```|~~~)\s*mermaid\b[^\n]*\n/i;
 const CODE_FENCE_RE = /(?:^|\n)(```|~~~)(?!\s*mermaid\b)[^\n]*\n/i;
+const SHIKI_LANG_CDN_URL = "https://cdn.jsdelivr.net/npm/@shikijs/langs@3.23.0/dist";
 
 let streamdownModulePromise: Promise<StreamdownModule> | null = null;
 
@@ -157,6 +190,11 @@ export const Markdown = memo(function Markdown({
   const shouldEnableCode = enableCode ?? featureFlags?.hasCodeFence ?? false;
   const shouldEnableMermaid = enableMermaid ?? featureFlags?.hasMermaidFence ?? false;
   const resolvedControls = resolveControlsConfig(controls, shouldEnableCode, shouldEnableMermaid);
+  const RuntimeStreamdown = StreamdownComp as unknown as ComponentType<StreamdownRuntimeProps>;
+  const usePlainCodeRenderer = !shouldEnableCode && !(featureFlags?.hasMermaidFence ?? false);
+  const runtimeComponents = usePlainCodeRenderer
+    ? { ...components, code: PlainCode, pre: ({ children }: { children?: ReactNode }) => <>{children}</>, ...customComponents }
+    : { ...components, ...customComponents };
 
   useEffect(() => {
     let isCancelled = false;
@@ -186,18 +224,19 @@ export const Markdown = memo(function Markdown({
   }
 
   return (
-    <StreamdownComp
+    <RuntimeStreamdown
       className={cn("text-foreground leading-relaxed", className)}
-      components={{ ...components, ...customComponents }}
+      components={runtimeComponents}
       mode={mode}
       parseIncompleteMarkdown={parseIncompleteMarkdown}
       shikiTheme={shouldEnableCode ? shikiTheme : undefined}
+      cdnUrl={shouldEnableCode ? SHIKI_LANG_CDN_URL : null}
       mermaid={shouldEnableMermaid ? mermaid : undefined}
       controls={resolvedControls}
       {...props}
     >
       {children}
-    </StreamdownComp>
+    </RuntimeStreamdown>
   );
 });
 

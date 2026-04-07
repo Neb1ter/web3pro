@@ -7,9 +7,11 @@ import { goBack } from "@/hooks/useScrollMemory";
 import { preloadRoute, scheduleIdle } from "@/lib/routePreload";
 import { TRUST_LAST_REVIEWED, getArticleSourceList } from "@/lib/trust";
 import { trpc } from "@/lib/trpc";
+import { ZoomableImage } from "@/components/ZoomableImage";
 
 const Markdown = lazy(() => import("@/components/Markdown"));
 const MERMAID_FENCE_RE = /(?:^|\n)(```|~~~)\s*mermaid\b[^\n]*\n/i;
+const CODE_FENCE_RE = /(?:^|\n)(```|~~~)(?!\s*mermaid\b)[^\n]*\n/i;
 
 function ArticleMarkdownSkeleton() {
   return (
@@ -55,6 +57,38 @@ function MermaidDeferredNotice({
   );
 }
 
+function CodeHighlightDeferredNotice({
+  zh,
+  onLoad,
+}: {
+  zh: boolean;
+  onLoad: () => void;
+}) {
+  return (
+    <div className="mb-5 rounded-2xl border border-violet-500/20 bg-violet-500/6 px-4 py-4 not-prose">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm font-semibold text-violet-300">
+            {zh ? "代码高亮已延后加载，先保证正文和结构更快出现" : "Code highlighting is deferred so body text and structure appear first"}
+          </p>
+          <p className="mt-1 text-xs leading-6 text-gray-400">
+            {zh
+              ? "如果这篇文章包含代码片段，你可以先看正文，再按需启用语法高亮。"
+              : "If this article includes code samples, enable syntax highlighting only when you need it."}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onLoad}
+          className="tap-target inline-flex items-center justify-center rounded-xl border border-violet-400/30 bg-violet-500/12 px-4 py-2 text-sm font-medium text-violet-300 transition-colors hover:bg-violet-500/20"
+        >
+          {zh ? "启用高亮" : "Enable Highlighting"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 const ARTICLE_CATEGORY_LABELS: Record<string, { zh: string; en: string; color: string }> = {
   analysis: { zh: "市场分析", en: "Analysis", color: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30" },
   tutorial: { zh: "使用教程", en: "Tutorial", color: "bg-green-500/20 text-green-300 border-green-500/30" },
@@ -71,11 +105,17 @@ export default function ArticleDetail() {
   const slug = params?.slug ?? "";
   const { data: article, isLoading, error } = trpc.articles.bySlug.useQuery({ slug }, { enabled: !!slug });
   const articleHasMermaid = useMemo(() => MERMAID_FENCE_RE.test(article?.content || ""), [article?.content]);
+  const articleHasCodeFence = useMemo(() => CODE_FENCE_RE.test(article?.content || ""), [article?.content]);
   const [mermaidReady, setMermaidReady] = useState(false);
+  const [codeHighlightReady, setCodeHighlightReady] = useState(false);
 
   useEffect(() => {
     setMermaidReady(!articleHasMermaid);
   }, [articleHasMermaid, slug]);
+
+  useEffect(() => {
+    setCodeHighlightReady(!articleHasCodeFence);
+  }, [articleHasCodeFence, slug]);
 
   useEffect(() => {
     if (!articleHasMermaid || mermaidReady || typeof window === "undefined") {
@@ -98,6 +138,28 @@ export default function ArticleDetail() {
       cancelIdle();
     };
   }, [articleHasMermaid, mermaidReady]);
+
+  useEffect(() => {
+    if (!articleHasCodeFence || codeHighlightReady || typeof window === "undefined") {
+      return;
+    }
+
+    const isMobileViewport = window.matchMedia("(max-width: 768px)").matches;
+    const connection = navigator as Navigator & { connection?: { saveData?: boolean } };
+    const idleTimeout = isMobileViewport || connection.connection?.saveData ? 7200 : 4800;
+
+    let cancelled = false;
+    const cancelIdle = scheduleIdle(() => {
+      if (!cancelled) {
+        setCodeHighlightReady(true);
+      }
+    }, idleTimeout);
+
+    return () => {
+      cancelled = true;
+      cancelIdle();
+    };
+  }, [articleHasCodeFence, codeHighlightReady]);
 
   useEffect(() => {
     if (!article) return;
@@ -213,13 +275,15 @@ export default function ArticleDetail() {
       <main className="mx-auto max-w-3xl px-4 py-8">
         {article.coverImage ? (
           <div className="mb-6 h-48 overflow-hidden rounded-2xl sm:h-64">
-            <img
+            <ZoomableImage
               src={article.coverImage}
               alt={article.title}
               className="h-full w-full object-cover"
               decoding="async"
               fetchPriority="high"
               sizes="(max-width: 640px) 100vw, 768px"
+              loading="eager"
+              buttonLabel={zh ? "全屏查看文章头图" : "View article cover fullscreen"}
             />
           </div>
         ) : null}
@@ -269,9 +333,12 @@ export default function ArticleDetail() {
             prose-table:text-gray-300 prose-th:bg-gray-800 prose-th:text-white prose-td:border-gray-700
             sm:prose-base"
         >
+          {articleHasCodeFence && !codeHighlightReady ? (
+            <CodeHighlightDeferredNotice zh={zh} onLoad={() => setCodeHighlightReady(true)} />
+          ) : null}
           {articleHasMermaid && !mermaidReady ? <MermaidDeferredNotice zh={zh} onLoad={() => setMermaidReady(true)} /> : null}
           <Suspense fallback={<ArticleMarkdownSkeleton />}>
-            <Markdown mode="static" parseIncompleteMarkdown={false} enableMermaid={mermaidReady}>
+            <Markdown mode="static" parseIncompleteMarkdown={false} enableCode={codeHighlightReady} enableMermaid={mermaidReady}>
               {article.content || ""}
             </Markdown>
           </Suspense>
