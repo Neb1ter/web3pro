@@ -46,24 +46,25 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
           script_stop: true
-          script: |
-            powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-              "$ErrorActionPreference = 'Stop'; ^
-              $repoPath = 'C:\web3pro'; ^
-              if (-not (Test-Path $repoPath)) { New-Item -ItemType Directory -Path $repoPath | Out-Null }; ^
-              Set-Location $repoPath; ^
-              if (-not (Test-Path '.git')) { git init | Out-Null }; ^
-              $remotes = @(git remote); ^
-              if ($remotes -contains 'origin') { git remote remove origin }; ^
-              git remote add origin https://github.com/Neb1ter/web3pro.git; ^
-              git fetch origin main --depth=1; ^
-              git reset --hard origin/main; ^
-              if (-not (Test-Path '.env.runtime') -and -not (Test-Path '.env')) { Write-Host 'Warning: .env.runtime and .env are both missing on server'; }; ^
-              corepack enable; ^
-              pnpm install --frozen-lockfile; ^
-              pnpm run build; ^
-              npx pm2 startOrReload ecosystem.config.cjs --update-env; ^
-              npx pm2 save"
+          script: >
+            powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "& {
+            $ErrorActionPreference = 'Stop';
+            $repoPath = 'C:\web3pro';
+            if (-not (Test-Path $repoPath)) { New-Item -ItemType Directory -Path $repoPath | Out-Null };
+            Set-Location $repoPath;
+            if (-not (Test-Path '.git')) { git init | Out-Null };
+            $remotes = @(git remote);
+            if ($remotes -contains 'origin') { git remote remove origin };
+            git remote add origin 'https://github.com/Neb1ter/web3pro.git';
+            git fetch origin main --depth=1;
+            git reset --hard origin/main;
+            if (-not (Test-Path '.env.runtime') -and -not (Test-Path '.env')) { Write-Host 'Warning: .env.runtime and .env are both missing on server' };
+            corepack enable;
+            pnpm install --frozen-lockfile;
+            pnpm run build;
+            npx pm2 startOrReload ecosystem.config.cjs --update-env;
+            npx pm2 save;
+            }"
 
       - name: Purge Cloudflare cache
         run: |
