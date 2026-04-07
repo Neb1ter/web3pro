@@ -38,42 +38,31 @@ jobs:
         env:
           NODE_ENV: production
 
-      - name: Package deployment bundle for transfer
-        run: |
-          tar -czf deploy-bundle.tar.gz dist ecosystem.config.cjs services/codex-business
-          echo "Package size: $(du -sh deploy-bundle.tar.gz | cut -f1)"
-
-      - name: Prepare runtime override env
-        run: |
-          printf '%s\n' "${{ secrets.SERVER_ENV_OVERRIDE }}" > runtime.override.env
-          echo "Runtime override env prepared"
-
-      - name: Upload deployment bundle to server via SCP
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }}
-          port: 22
-          source: "deploy-bundle.tar.gz,runtime.override.env"
-          target: "C:/web3pro/"
-
       - name: Deploy on server via SSH
         uses: appleboy/ssh-action@v1.2.0
+        env:
+          SERVER_ENV_OVERRIDE: ${{ secrets.SERVER_ENV_OVERRIDE }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
+          envs: SERVER_ENV_OVERRIDE
           script_stop: true
           script: |
-            cd C:\web3pro
-            tar -xzf deploy-bundle.tar.gz
-            del deploy-bundle.tar.gz
-            if exist runtime.override.env copy /Y runtime.override.env .env.runtime >nul
-            npx pm2 delete codexbiuness >nul 2>&1
-            npx pm2 startOrReload ecosystem.config.cjs --update-env
-            npx pm2 save
+            if not exist C:\web3pro mkdir C:\web3pro
+            cd /d C:\web3pro
+            if not exist .git git init
+            git remote remove origin 2>nul
+            git remote add origin https://github.com/Neb1ter/web3pro.git
+            git fetch origin main --depth=1
+            git reset --hard origin/main
+            powershell -NoProfile -Command "[System.IO.File]::WriteAllText('C:\web3pro\.env.runtime', $env:SERVER_ENV_OVERRIDE)"
+            call corepack enable
+            call pnpm install --frozen-lockfile
+            call pnpm run build
+            call npx pm2 startOrReload ecosystem.config.cjs --update-env
+            call npx pm2 save
 
       - name: Purge Cloudflare cache
         run: |
