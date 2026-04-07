@@ -237,18 +237,6 @@ export default defineConfig({
             return "vendor-forms";
           }
 
-          if (pkg === "streamdown") {
-            return "vendor-markdown-core";
-          }
-
-          if (pkg === "@streamdown/code") {
-            return "vendor-markdown-code";
-          }
-
-          if (["@streamdown/mermaid", "mermaid", "cytoscape"].includes(pkg)) {
-            return "vendor-markdown-mermaid";
-          }
-
           return undefined;
         },
         chunkFileNames: "assets/js/[name]-[hash].js",
