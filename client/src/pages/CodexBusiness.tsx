@@ -222,12 +222,16 @@ export default function CodexBusiness() {
 
                   <div className="rounded-xl border border-white/10 bg-black/20 p-3">
                     <div className="mb-1 text-xs text-slate-400">{copy.lastUpdated}</div>
-                    <div className="text-sm font-black text-white">{formatDate(data?.lastUpdatedAt, zh ? "zh" : "en")}</div>
+                    <div className="text-sm font-black text-white">
+                      {formatDate(data?.lastUpdatedAt, zh ? "zh" : "en")}
+                    </div>
                   </div>
 
                   <div className="rounded-xl border border-white/10 bg-black/20 p-3">
                     <div className="mb-1 text-xs text-slate-400">{copy.serverTime}</div>
-                    <div className="text-sm font-black text-white">{formatDate(data?.serverTime, zh ? "zh" : "en")}</div>
+                    <div className="text-sm font-black text-white">
+                      {formatDate(data?.serverTime, zh ? "zh" : "en")}
+                    </div>
                   </div>
                 </div>
               )}

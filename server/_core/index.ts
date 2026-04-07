@@ -107,6 +107,56 @@ function loadCodexBusinessApp() {
   return mod.buildApp();
 }
 
+function buildCodexBusinessFallbackApp(error: unknown) {
+  const fallback = express();
+  const detail =
+    error instanceof Error
+      ? error.message
+      : typeof error === "string"
+        ? error
+        : "Unknown bootstrap error";
+
+  fallback.get("/api/health", (_req, res) => {
+    res.status(503).json({
+      ok: false,
+      service: "codex-business",
+      mounted: false,
+      error: "Codex Business module failed to mount in the main server process.",
+      detail,
+    });
+  });
+
+  fallback.use((_req, res) => {
+    res.status(503).type("html").send(`<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Codex Business 暂时不可用</title>
+    <style>
+      body { margin: 0; background: #081426; color: #e2e8f0; font-family: Arial, sans-serif; }
+      main { max-width: 720px; margin: 0 auto; padding: 48px 24px; }
+      .card { border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 20px; background: rgba(15, 23, 42, 0.88); padding: 24px; }
+      h1 { margin: 0 0 12px; font-size: 28px; }
+      p { line-height: 1.7; color: #cbd5e1; }
+      code { display: block; margin-top: 16px; padding: 12px; border-radius: 12px; background: rgba(15, 23, 42, 0.95); color: #67e8f9; white-space: pre-wrap; word-break: break-word; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="card">
+        <h1>Codex Business 暂时不可用</h1>
+        <p>第六板块在主站进程中挂载失败，主站其余页面仍然可用。我们已经把失败原因保留下来，下一次部署会继续自动诊断。</p>
+        <code>${detail.replace(/[<&>]/g, "")}</code>
+      </section>
+    </main>
+  </body>
+</html>`);
+  });
+
+  return fallback;
+}
+
 async function startServer() {
   // ── 自动运行数据库迁移（首次部署或表结构变更时自动创建/更新表）──
   if (process.env.DATABASE_URL) {
@@ -136,7 +186,15 @@ async function startServer() {
 
   const app = express();
   const server = createServer(app);
-  const codexBusinessApp = loadCodexBusinessApp();
+  let codexBusinessApp: express.Express;
+
+  try {
+    codexBusinessApp = loadCodexBusinessApp();
+    console.log("[CodexBusiness] Mounted successfully inside main server process");
+  } catch (error) {
+    console.error("[CodexBusiness] Failed to mount inside main server process:", error);
+    codexBusinessApp = buildCodexBusinessFallbackApp(error);
+  }
 
   // ── 信任反向代理（Railway / Nginx 等），使 rate-limit 能正确识别真实 IP ──
   app.set('trust proxy', 1);
