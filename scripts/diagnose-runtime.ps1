@@ -7,6 +7,7 @@ $LogsDir = Join-Path $ProjectDir "logs"
 $PidFile = Join-Path $LogsDir "web3pro.pid"
 $StdOut = Join-Path $LogsDir "web3pro.out.log"
 $StdErr = Join-Path $LogsDir "web3pro.err.log"
+$TaskName = "web3pro-runtime"
 
 Write-Host "--- PID file ---"
 if (Test-Path $PidFile) {
@@ -17,6 +18,9 @@ if (Test-Path $PidFile) {
 
 Write-Host "--- Node processes ---"
 Get-Process node -ErrorAction SilentlyContinue | Select-Object Id, ProcessName, StartTime
+
+Write-Host "--- Scheduled task ---"
+schtasks /Query /TN $TaskName /FO LIST /V 2>$null
 
 Write-Host "--- Listening ports (3000/3100) ---"
 netstat -ano | findstr :3000
