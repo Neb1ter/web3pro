@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { ArrowLeft, CheckCircle2, ExternalLink, Globe, Shield } from "lucide-react";
 import { SeoManager } from "@/components/SeoManager";
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
+import { ZoomableImage } from "@/components/ZoomableImage";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useExchangeLinks } from "@/contexts/ExchangeLinksContext";
 import { goBack, useScrollMemory } from "@/hooks/useScrollMemory";
@@ -202,12 +203,14 @@ function GuideImage({
       </div>
       <div className="p-4">
         {src ? (
-          <img
+          <ZoomableImage
             src={src}
             alt={alt}
             className="w-full rounded-2xl border border-white/10 bg-black object-contain"
             loading="lazy"
             decoding="async"
+            objectFit="contain"
+            buttonLabel="全屏查看教程截图"
           />
         ) : (
           <div className="flex min-h-[280px] items-center justify-center rounded-2xl border border-dashed border-white/15 bg-[#0E1725] px-6 text-center text-sm leading-7 text-slate-400">

@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { Link } from "wouter";
 import { useScrollMemory } from '@/hooks/useScrollMemory';
-import OnboardingPrompt from "@/components/OnboardingPrompt";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { preloadRoute } from "@/lib/routePreload";
+import { preloadRoute, scheduleIdle } from "@/lib/routePreload";
 import { Compass, ShieldCheck, Sparkles } from "lucide-react";
+
+const OnboardingPrompt = lazy(() => import("@/components/OnboardingPrompt"));
 
 // ============================================================
 // 多语言文案
@@ -567,6 +568,8 @@ const moduleColors = [
 export default function Portal() {
   useScrollMemory();
   const [mounted, setMounted] = useState(false);
+  const [showAmbientEffects, setShowAmbientEffects] = useState(false);
+  const [showOnboardingPrompt, setShowOnboardingPrompt] = useState(false);
   const { language: lang, setLanguage: setLang } = useLanguage();
   const t = LANG[lang as "zh" | "en"] ?? LANG["zh"];
 
@@ -574,13 +577,43 @@ export default function Portal() {
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isMobileViewport = window.matchMedia("(max-width: 768px)").matches;
+
+    if (!prefersReducedMotion && !isMobileViewport) {
+      return scheduleIdle(() => {
+        setShowAmbientEffects(true);
+      }, 1200);
+    }
+
+    setShowAmbientEffects(false);
+    return undefined;
+  }, []);
+
+  useEffect(() => {
+    return scheduleIdle(() => {
+      setShowOnboardingPrompt(true);
+    }, 1800);
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#050D1A] text-white relative overflow-hidden">
-      <OnboardingPrompt lang={lang} />
-      <AnimatedBackground />
+      {showOnboardingPrompt ? (
+        <Suspense fallback={null}>
+          <OnboardingPrompt lang={lang} />
+        </Suspense>
+      ) : null}
+      {showAmbientEffects ? <AnimatedBackground /> : null}
 
-      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-emerald-600/8 rounded-full blur-[100px] pointer-events-none" />
+      {showAmbientEffects ? (
+        <>
+          <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
+          <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-emerald-600/8 rounded-full blur-[100px] pointer-events-none" />
+        </>
+      ) : null}
 
       <div className="fixed top-4 right-4 z-50">
         <button

@@ -5,7 +5,6 @@
  */
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useLocation, Link } from 'wouter';
-import { Button } from '@/components/ui/button';
 import { WelcomeGuide } from '@/components/WelcomeGuide';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { translations } from '@/lib/i18n';
@@ -448,22 +447,21 @@ export default function Home() {
             {texts.hero.description}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              size="lg"
-              className="text-base sm:text-lg px-8 font-black shadow-lg transition-all hover:scale-105"
+            <button
+              type="button"
+              className="inline-flex min-h-12 items-center justify-center rounded-xl px-8 text-base font-black shadow-lg transition-all hover:scale-105 sm:text-lg"
               style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', color: '#0A192F', boxShadow: '0 4px 20px rgba(255,215,0,0.35)' }}
               onClick={() => document.getElementById('what-is-rebate')?.scrollIntoView({ behavior: 'smooth' })}
             >
               {texts.hero.startBtn}
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-amber-500/50 text-amber-400 hover:bg-amber-500/10 text-base sm:text-lg px-8 font-bold"
+            </button>
+            <button
+              type="button"
+              className="inline-flex min-h-12 items-center justify-center rounded-xl border border-amber-500/50 px-8 text-base font-bold text-amber-400 transition-colors hover:bg-amber-500/10 sm:text-lg"
               onClick={() => navigate('/exchange-download')}
             >
               {zh ? '新手不知道怎么下载？' : 'How to Download an Exchange?'}
-            </Button>
+            </button>
           </div>
           <div className="mx-auto mt-6 max-w-3xl rounded-2xl border border-amber-500/25 bg-amber-500/10 p-4 text-left">
             <div className="flex items-start gap-3">
@@ -976,22 +974,21 @@ export default function Home() {
           {/* CTA 按钮组 */}
           <p className="text-base text-slate-400 italic mb-8 text-center">{texts.summary.cta}</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
-            <Button
-              size="lg"
-              className="font-black hover:scale-105 transition-transform"
+            <button
+              className="inline-flex min-h-12 items-center justify-center rounded-xl px-6 py-3 font-black transition-transform hover:scale-105"
               style={{ background: 'linear-gradient(135deg, #FFD700, #FFA500)', color: '#0A192F', boxShadow: '0 4px 20px rgba(255,215,0,0.3)' }}
               onClick={() => navigate('/contact')}
+              type="button"
             >
               {texts.summary.contactBtn}
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-amber-500/40 text-amber-400 hover:bg-amber-500/10 font-bold"
+            </button>
+            <button
+              className="inline-flex min-h-12 items-center justify-center rounded-xl border border-amber-500/40 px-6 py-3 font-bold text-amber-400 transition-colors hover:bg-amber-500/10"
               onClick={() => navigate('/exchanges')}
+              type="button"
             >
               {zh ? '查看交易所返佣对比' : 'View Exchange Rebate Comparison'}
-            </Button>
+            </button>
           </div>
           {/* Discord 社群入口 */}
           <div className="flex justify-center mb-10">

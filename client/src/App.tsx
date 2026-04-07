@@ -1,5 +1,3 @@
-﻿import { Toaster } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -14,6 +12,7 @@ import { getSeoForPath } from "@/lib/seo";
 // Delay loading large floating nav bundles until idle time.
 const MobileFloatNav = lazy(() => import("@/components/MobileFloatNav"));
 const DesktopFloatNav = lazy(() => import("@/components/DesktopFloatNav"));
+const Toaster = lazy(() => import("@/components/ui/sonner").then((mod) => ({ default: mod.Toaster })));
 import { SchemaManager } from "./components/SchemaManager";
 import { trpc } from "@/lib/trpc";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -523,6 +522,7 @@ function CrawlPriorityLinks() {
 
 function AppInner() {
   const [showFloatNav, setShowFloatNav] = useState(false);
+  const [showToaster, setShowToaster] = useState(false);
   const [location] = useLocation();
   const hideFloatNav =
     location.startsWith("/sim/") ||
@@ -539,6 +539,12 @@ function AppInner() {
     return scheduleIdle(() => {
       setShowFloatNav(true);
     }, 1500);
+  }, []);
+
+  useEffect(() => {
+    return scheduleIdle(() => {
+      setShowToaster(true);
+    }, 2200);
   }, []);
 
   useEffect(() => {
@@ -559,10 +565,13 @@ function AppInner() {
     <ErrorBoundary>
       <LanguageProvider>
         <ThemeProvider defaultTheme="dark">
-                <ExchangeLinksProvider>
-        <SchemaManager />
-            <TooltipProvider>
-              <Toaster />
+          <ExchangeLinksProvider>
+            <SchemaManager />
+            {showToaster ? (
+              <Suspense fallback={null}>
+                <Toaster />
+              </Suspense>
+            ) : null}
               <Router />
               <CrawlPriorityLinks />
               {showFloatNav && !hideFloatNav ? (
@@ -572,7 +581,6 @@ function AppInner() {
                 </Suspense>
               ) : null}
               <GlobalSwipeBlocker />
-            </TooltipProvider>
           </ExchangeLinksProvider>
         </ThemeProvider>
       </LanguageProvider>

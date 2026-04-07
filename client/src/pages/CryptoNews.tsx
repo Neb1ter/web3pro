@@ -6,6 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { goBack, useScrollMemory } from "@/hooks/useScrollMemory";
 import { preloadRoute } from "@/lib/routePreload";
 import { trpc } from "@/lib/trpc";
+import { ZoomableImage } from "@/components/ZoomableImage";
 
 type NewsView = "flash" | "articles";
 type FlashFilter = "all" | "market" | "policy" | "exchange" | "defi" | "other";
@@ -364,7 +365,7 @@ function ArticlesPanel({ zh }: { zh: boolean }) {
                 <div className="group overflow-hidden rounded-xl border border-gray-700/60 bg-gray-800/40 transition-all duration-200 hover:border-cyan-500/40 hover:shadow-[0_0_20px_rgba(6,182,212,0.06)]">
                   {article.coverImage && (
                     <div className="h-36 overflow-hidden">
-                      <img
+                      <ZoomableImage
                         src={article.coverImage}
                         alt={article.title}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -372,6 +373,7 @@ function ArticlesPanel({ zh }: { zh: boolean }) {
                         decoding="async"
                         fetchPriority={index === 0 ? "high" : "auto"}
                         sizes="(max-width: 768px) 100vw, 480px"
+                        buttonLabel={zh ? "全屏查看资讯封面" : "View news cover fullscreen"}
                       />
                     </div>
                   )}
