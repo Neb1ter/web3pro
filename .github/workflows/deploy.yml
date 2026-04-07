@@ -40,29 +40,30 @@ jobs:
 
       - name: Deploy on server via SSH
         uses: appleboy/ssh-action@v1.2.0
-        env:
-          SERVER_ENV_OVERRIDE: ${{ secrets.SERVER_ENV_OVERRIDE }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
-          envs: SERVER_ENV_OVERRIDE
           script_stop: true
           script: |
-            if not exist C:\web3pro mkdir C:\web3pro
-            cd /d C:\web3pro
-            if not exist .git git init
-            git remote remove origin 2>nul
-            git remote add origin https://github.com/Neb1ter/web3pro.git
-            git fetch origin main --depth=1
-            git reset --hard origin/main
-            powershell -NoProfile -Command "[System.IO.File]::WriteAllText('C:\web3pro\.env.runtime', $env:SERVER_ENV_OVERRIDE)"
-            call corepack enable
-            call pnpm install --frozen-lockfile
-            call pnpm run build
-            call npx pm2 startOrReload ecosystem.config.cjs --update-env
-            call npx pm2 save
+            powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+              "$ErrorActionPreference = 'Stop'; ^
+              $repoPath = 'C:\web3pro'; ^
+              if (-not (Test-Path $repoPath)) { New-Item -ItemType Directory -Path $repoPath | Out-Null }; ^
+              Set-Location $repoPath; ^
+              if (-not (Test-Path '.git')) { git init | Out-Null }; ^
+              $remotes = @(git remote); ^
+              if ($remotes -contains 'origin') { git remote remove origin }; ^
+              git remote add origin https://github.com/Neb1ter/web3pro.git; ^
+              git fetch origin main --depth=1; ^
+              git reset --hard origin/main; ^
+              if (-not (Test-Path '.env.runtime') -and -not (Test-Path '.env')) { Write-Host 'Warning: .env.runtime and .env are both missing on server'; }; ^
+              corepack enable; ^
+              pnpm install --frozen-lockfile; ^
+              pnpm run build; ^
+              npx pm2 startOrReload ecosystem.config.cjs --update-env; ^
+              npx pm2 save"
 
       - name: Purge Cloudflare cache
         run: |
