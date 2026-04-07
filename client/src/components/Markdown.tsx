@@ -154,8 +154,8 @@ export const Markdown = memo(function Markdown({
 }: MarkdownProps) {
   const [StreamdownComp, setStreamdownComp] = useState<StreamdownModule["Streamdown"] | null>(null);
   const featureFlags = detectMarkdownFeatureFlags(children);
-  const shouldEnableCode = enableCode ?? featureFlags?.hasCodeFence ?? true;
-  const shouldEnableMermaid = enableMermaid ?? featureFlags?.hasMermaidFence ?? true;
+  const shouldEnableCode = enableCode ?? featureFlags?.hasCodeFence ?? false;
+  const shouldEnableMermaid = enableMermaid ?? featureFlags?.hasMermaidFence ?? false;
   const resolvedControls = resolveControlsConfig(controls, shouldEnableCode, shouldEnableMermaid);
 
   useEffect(() => {

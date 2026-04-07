@@ -1,13 +1,26 @@
-import { useEffect } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { Link, useRoute } from "wouter";
 import { ArrowLeft } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { goBack } from "@/hooks/useScrollMemory";
 import { trpc } from "@/lib/trpc";
-import { Markdown } from "@/components/Markdown";
 import { preloadRoute } from "@/lib/routePreload";
 import { TrustSignalsCard } from "@/components/TrustSignalsCard";
 import { TRUST_LAST_REVIEWED, getArticleSourceList } from "@/lib/trust";
+
+const Markdown = lazy(() => import("@/components/Markdown"));
+
+function ArticleMarkdownSkeleton() {
+  return (
+    <div className="space-y-3 animate-pulse">
+      <div className="h-4 w-10/12 rounded bg-gray-700/40" />
+      <div className="h-4 w-full rounded bg-gray-700/35" />
+      <div className="h-4 w-11/12 rounded bg-gray-700/35" />
+      <div className="h-4 w-9/12 rounded bg-gray-700/35" />
+      <div className="mt-6 h-32 rounded-2xl border border-cyan-500/10 bg-slate-900/35" />
+    </div>
+  );
+}
 
 const ARTICLE_CATEGORY_LABELS: Record<string, { zh: string; en: string; color: string }> = {
   analysis: { zh: "市场分析", en: "Analysis", color: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30" },
@@ -194,9 +207,11 @@ export default function ArticleDetail() {
             prose-table:text-gray-300 prose-th:bg-gray-800 prose-th:text-white prose-td:border-gray-700
             sm:prose-base"
         >
-          <Markdown mode="static" parseIncompleteMarkdown={false}>
-            {article.content || ""}
-          </Markdown>
+          <Suspense fallback={<ArticleMarkdownSkeleton />}>
+            <Markdown mode="static" parseIncompleteMarkdown={false}>
+              {article.content || ""}
+            </Markdown>
+          </Suspense>
         </div>
 
         {tags.length > 0 ? (

@@ -19,10 +19,34 @@ export default function OnboardingPrompt({ lang }: OnboardingPromptProps) {
     const dismissed = localStorage.getItem(DISMISSED_KEY);
     const hasProfile = localStorage.getItem(QUIZ_STORAGE_KEY);
     const hasPath = localStorage.getItem(LEARNING_PATH_KEY);
-    if (!dismissed && !hasProfile && !hasPath) {
-      const timer = setTimeout(() => setVisible(true), 1500);
-      return () => clearTimeout(timer);
-    }
+    if (dismissed || hasProfile || hasPath) return;
+
+    const prefersMobileDelay = window.matchMedia("(max-width: 768px)").matches;
+    const delay = prefersMobileDelay ? 3200 : 1800;
+    let hasInteracted = false;
+
+    const markInteraction = () => {
+      hasInteracted = true;
+    };
+
+    const timer = setTimeout(() => {
+      if (!hasInteracted) {
+        setVisible(true);
+      }
+    }, delay);
+
+    window.addEventListener("pointerdown", markInteraction, { passive: true });
+    window.addEventListener("touchstart", markInteraction, { passive: true });
+    window.addEventListener("keydown", markInteraction);
+    window.addEventListener("scroll", markInteraction, { passive: true });
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("pointerdown", markInteraction);
+      window.removeEventListener("touchstart", markInteraction);
+      window.removeEventListener("keydown", markInteraction);
+      window.removeEventListener("scroll", markInteraction);
+    };
   }, []);
 
   const handleDismiss = () => {
@@ -34,6 +58,7 @@ export default function OnboardingPrompt({ lang }: OnboardingPromptProps) {
   };
 
   const handleStart = () => {
+    localStorage.setItem(DISMISSED_KEY, Date.now().toString());
     navigate("/web3-quiz");
   };
 
