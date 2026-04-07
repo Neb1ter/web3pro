@@ -640,11 +640,17 @@ preferred_citation_format = "Source: [Get8 Pro](${base})"
   }
 
   const preferredPort = parseInt(process.env.PORT || "3000");
-  const port = await findAvailablePort(preferredPort);
+  const shouldFindFallbackPort = process.env.NODE_ENV !== "production";
+  const port = shouldFindFallbackPort ? await findAvailablePort(preferredPort) : preferredPort;
 
-  if (port !== preferredPort) {
+  if (shouldFindFallbackPort && port !== preferredPort) {
     console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
   }
+
+  server.on("error", (error: NodeJS.ErrnoException) => {
+    console.error(`[Server] Failed to listen on port ${port}:`, error);
+    process.exit(1);
+  });
 
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
