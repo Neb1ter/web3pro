@@ -1,14 +1,15 @@
-import { Suspense, lazy, useEffect } from "react";
+import { Suspense, lazy, useEffect, useMemo, useState } from "react";
 import { Link, useRoute } from "wouter";
 import { ArrowLeft } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { goBack } from "@/hooks/useScrollMemory";
-import { trpc } from "@/lib/trpc";
-import { preloadRoute } from "@/lib/routePreload";
 import { TrustSignalsCard } from "@/components/TrustSignalsCard";
+import { goBack } from "@/hooks/useScrollMemory";
+import { preloadRoute, scheduleIdle } from "@/lib/routePreload";
 import { TRUST_LAST_REVIEWED, getArticleSourceList } from "@/lib/trust";
+import { trpc } from "@/lib/trpc";
 
 const Markdown = lazy(() => import("@/components/Markdown"));
+const MERMAID_FENCE_RE = /(?:^|\n)(```|~~~)\s*mermaid\b[^\n]*\n/i;
 
 function ArticleMarkdownSkeleton() {
   return (
@@ -18,6 +19,38 @@ function ArticleMarkdownSkeleton() {
       <div className="h-4 w-11/12 rounded bg-gray-700/35" />
       <div className="h-4 w-9/12 rounded bg-gray-700/35" />
       <div className="mt-6 h-32 rounded-2xl border border-cyan-500/10 bg-slate-900/35" />
+    </div>
+  );
+}
+
+function MermaidDeferredNotice({
+  zh,
+  onLoad,
+}: {
+  zh: boolean;
+  onLoad: () => void;
+}) {
+  return (
+    <div className="mb-5 rounded-2xl border border-cyan-500/20 bg-cyan-500/6 px-4 py-4 not-prose">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm font-semibold text-cyan-300">
+            {zh ? "文中图表已延后加载，先保证正文更快出现" : "Diagrams are deferred so the article body appears faster first"}
+          </p>
+          <p className="mt-1 text-xs leading-6 text-gray-400">
+            {zh
+              ? "你可以先阅读正文；需要时再手动加载 Mermaid 图表，移动端会更顺。"
+              : "Read the article first, then load Mermaid diagrams only when you need them."}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onLoad}
+          className="tap-target inline-flex items-center justify-center rounded-xl border border-cyan-400/30 bg-cyan-500/12 px-4 py-2 text-sm font-medium text-cyan-300 transition-colors hover:bg-cyan-500/20"
+        >
+          {zh ? "加载图表" : "Load Diagrams"}
+        </button>
+      </div>
     </div>
   );
 }
@@ -37,29 +70,54 @@ export default function ArticleDetail() {
   const [, params] = useRoute("/article/:slug");
   const slug = params?.slug ?? "";
   const { data: article, isLoading, error } = trpc.articles.bySlug.useQuery({ slug }, { enabled: !!slug });
+  const articleHasMermaid = useMemo(() => MERMAID_FENCE_RE.test(article?.content || ""), [article?.content]);
+  const [mermaidReady, setMermaidReady] = useState(false);
+
+  useEffect(() => {
+    setMermaidReady(!articleHasMermaid);
+  }, [articleHasMermaid, slug]);
+
+  useEffect(() => {
+    if (!articleHasMermaid || mermaidReady || typeof window === "undefined") {
+      return;
+    }
+
+    const isMobileViewport = window.matchMedia("(max-width: 768px)").matches;
+    const connection = navigator as Navigator & { connection?: { saveData?: boolean } };
+    const idleTimeout = isMobileViewport || connection.connection?.saveData ? 6500 : 4200;
+
+    let cancelled = false;
+    const cancelIdle = scheduleIdle(() => {
+      if (!cancelled) {
+        setMermaidReady(true);
+      }
+    }, idleTimeout);
+
+    return () => {
+      cancelled = true;
+      cancelIdle();
+    };
+  }, [articleHasMermaid, mermaidReady]);
 
   useEffect(() => {
     if (!article) return;
+
     document.title = `${article.metaTitle || article.title} | Get8 Pro`;
-    document
-      .querySelector('meta[name="description"]')
-      ?.setAttribute("content", article.metaDescription || article.excerpt || "");
-    document
-      .querySelector('meta[name="keywords"]')
-      ?.setAttribute("content", article.metaKeywords || article.tags || "");
+    document.querySelector('meta[name="description"]')?.setAttribute("content", article.metaDescription || article.excerpt || "");
+    document.querySelector('meta[name="keywords"]')?.setAttribute("content", article.metaKeywords || article.tags || "");
     document.querySelector('meta[property="og:title"]')?.setAttribute("content", article.metaTitle || article.title);
-    document
-      .querySelector('meta[property="og:description"]')
-      ?.setAttribute("content", article.metaDescription || article.excerpt || "");
+    document.querySelector('meta[property="og:description"]')?.setAttribute("content", article.metaDescription || article.excerpt || "");
+    document.querySelector('meta[property="og:url"]')?.setAttribute("content", `https://get8.pro/article/${slug}`);
+    document.querySelector('meta[property="og:type"]')?.setAttribute("content", "article");
+
     if (article.coverImage) {
       document.querySelector('meta[property="og:image"]')?.setAttribute("content", article.coverImage);
     }
-    document.querySelector('meta[property="og:url"]')?.setAttribute("content", `https://get8.pro/article/${slug}`);
-    document.querySelector('meta[property="og:type"]')?.setAttribute("content", "article");
   }, [article, slug]);
 
   useEffect(() => {
     if (!article) return;
+
     const schema = {
       "@context": "https://schema.org",
       "@type": "Article",
@@ -79,6 +137,7 @@ export default function ArticleDetail() {
       keywords: article.tags || "",
       articleSection: ARTICLE_CATEGORY_LABELS[article.category]?.zh || article.category,
     };
+
     let el = document.getElementById("article-schema");
     if (!el) {
       el = document.createElement("script");
@@ -86,8 +145,11 @@ export default function ArticleDetail() {
       (el as HTMLScriptElement).type = "application/ld+json";
       document.head.appendChild(el);
     }
+
     el.textContent = JSON.stringify(schema);
-    return () => document.getElementById("article-schema")?.remove();
+    return () => {
+      document.getElementById("article-schema")?.remove();
+    };
   }, [article, slug]);
 
   if (isLoading) {
@@ -108,7 +170,7 @@ export default function ArticleDetail() {
         style={{ background: "linear-gradient(135deg, #0A192F 0%, #0d2137 50%, #0A192F 100%)" }}
       >
         <div className="text-5xl">📰</div>
-        <p className="text-gray-400">{zh ? "文章不存在或已下架" : "Article not found"}</p>
+        <p className="text-gray-400">{zh ? "文章不存在或已下线" : "Article not found"}</p>
         <Link
           href="/crypto-news"
           className="tap-target text-sm text-cyan-400 hover:text-cyan-300"
@@ -126,7 +188,7 @@ export default function ArticleDetail() {
   const tags = article.tags ? article.tags.split(",").map((tag: string) => tag.trim()).filter(Boolean) : [];
   const articleDisclosure = zh
     ? `本文用于信息整理与学习参考${article.isAiGenerated ? "，初稿包含 AI 辅助生成并已做人工复核" : ""}，不构成投资建议；涉及费率、活动或政策时，请以对应平台的最新官方页面为准。`
-    : `This page is for learning and information reference${article.isAiGenerated ? ", with AI-assisted drafting and editorial review" : ""}. It is not investment advice. Re-check the latest official page when fees, policies, or campaigns matter.`;
+    : `This page is for learning and reference${article.isAiGenerated ? ", with AI-assisted drafting and editorial review" : ""}. It is not investment advice. Re-check the latest official page when fees, policies, or campaigns matter.`;
   const articleSources = getArticleSourceList(article.category, zh).map((label) => ({ label }));
 
   return (
@@ -207,8 +269,9 @@ export default function ArticleDetail() {
             prose-table:text-gray-300 prose-th:bg-gray-800 prose-th:text-white prose-td:border-gray-700
             sm:prose-base"
         >
+          {articleHasMermaid && !mermaidReady ? <MermaidDeferredNotice zh={zh} onLoad={() => setMermaidReady(true)} /> : null}
           <Suspense fallback={<ArticleMarkdownSkeleton />}>
-            <Markdown mode="static" parseIncompleteMarkdown={false}>
+            <Markdown mode="static" parseIncompleteMarkdown={false} enableMermaid={mermaidReady}>
               {article.content || ""}
             </Markdown>
           </Suspense>
