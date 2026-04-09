@@ -1,3 +1,4 @@
+﻿
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import {
@@ -61,6 +62,9 @@ type Copy = {
   trustTitle: string;
   trustDescription: string;
   trustItems: { title: string; description: string }[];
+  provenanceTitle: string;
+  provenanceDescription: string;
+  provenanceItems: { label: string; title: string; description: string }[];
   pathsTitle: string;
   pathsDescription: string;
   paths: PathCard[];
@@ -80,10 +84,10 @@ const COPY: Record<LanguageKey, Copy> = {
   zh: {
     badge: "研究型交易导航",
     titleLineOne: "Get8 Pro",
-    titleHighlight: "让路径更清楚，让判断更可靠。",
-    subtitle: "官方入口、可信来源、交易决策与学习路径，整合在同一个首页。",
+    titleHighlight: "把路径讲清，把判断做稳。",
+    subtitle: "官方入口、可信来源、交易决策与学习路径，集中在一个更克制的首页。",
     description:
-      "我们不把首页做成噪声堆叠的流量页，而是把它整理成一个更像专业研究终端的入口。先帮你判断该从哪里开始，再把返佣、交易所、学习内容和实时信息按优先级排清楚。",
+      "首页不再堆满入口和说明，而是先帮你确认这是什么站、为什么值得继续看、你现在最该从哪里开始。返佣、交易所、学习内容和实时快讯都按优先级排好。",
     primaryCta: "开始 2 分钟测评",
     secondaryCta: "直接查看交易成本与返佣",
     primaryHref: "/web3-quiz",
@@ -91,28 +95,48 @@ const COPY: Record<LanguageKey, Copy> = {
     proofPoints: ["官方合作入口", "公开来源数据", "返佣规则透明", "移动端优先浏览"],
     trustTitle: "先建立信任，再引导动作",
     trustDescription:
-      "首页应该先回答“这个站值不值得继续看”，而不是急着把所有模块一次性推给用户。这里把来源、方法和路径先说清楚。",
+      "更像研究站的首页，应该先回答‘为什么值得继续看’，再告诉用户下一步去哪。这里把来源、方法和限制前置，让首屏就建立起可信框架。",
     trustItems: [
       {
-        title: "官方合作与公开路径",
-        description: "注册链接、返佣说明与下载路径都尽量采用可验证的官方来源，不把关键步骤藏起来。",
+        title: "官方合作与可验证路径",
+        description: "注册链接、返佣说明和下载路径尽量采用可核验的官方来源，不把关键步骤藏在深层页面里。",
       },
       {
-        title: "研究视角先于营销话术",
-        description: "重点模块先讲判断依据、适用人群和限制条件，帮助用户快速做出可信决策。",
+        title: "研究逻辑先于营销语气",
+        description: "重点模块先解释适用人群、限制条件和判断依据，再给出行动入口，减少被情绪化文案误导。",
       },
       {
         title: "首页只承担导航，不承担全部内容",
-        description: "复杂内容继续留在对应页面深入展开，首页只保留最有价值的入口与证据。",
+        description: "复杂说明留在对应页面深入展开，首页只保留最有价值的入口、证据和阅读节奏。",
+      },
+    ],
+    provenanceTitle: "可信来源 / 方法论 / 披露",
+    provenanceDescription:
+      "这是首页最重要的信任层。我们把内容从哪里来、怎么筛选、哪些地方需要你额外注意，直接可视化展示出来，让 GEO 和真实用户都能更快理解站点边界。",
+    provenanceItems: [
+      {
+        label: "来源",
+        title: "优先官方页面与公开公告",
+        description: "返佣、下载、交易所说明优先引用官方注册页、官方公告、帮助中心和公开活动页，再做路径整理与翻译说明。",
+      },
+      {
+        label: "方法",
+        title: "先限制，再入口，最后操作",
+        description: "每个重点板块都优先写清限制条件、适用对象和官方验证点，再给入口和实操步骤，避免误导式跳转。",
+      },
+      {
+        label: "披露",
+        title: "返佣与绑定结果以平台实际为准",
+        description: "默认 20% 返佣与更高额度方案会明确标注；老账户能否补绑、邀请码是否生效，均以平台显示和官方沟通结果为准。",
       },
     ],
     pathsTitle: "按你的情况进入",
     pathsDescription:
-      "不同用户的目标不一样。首页不再让所有入口同等说话，而是先把最短决策路径摆在前面。",
+      "不同用户来这里，不是为了同一件事。我们先把最短决策路径分出来，让首屏之后的阅读更线性，也更不容易迷路。",
     paths: [
       {
         title: "我是第一次接触币圈",
-        description: "先做测评，再按 Web3 基础、KYC、交易所下载这条线慢慢走，最不容易迷路。",
+        description: "先做测评，再按 Web3 基础、KYC、交易所下载这条线慢慢走，最不容易走偏。",
         href: "/web3-quiz",
         cta: "先做 2 分钟测评",
         tone: "cyan",
@@ -120,7 +144,7 @@ const COPY: Record<LanguageKey, Copy> = {
       },
       {
         title: "我已经会交易，只想省手续费",
-        description: "先确认返佣规则、合作交易所与下载路径，把默认 20% 的成本优化入口先拿到手。",
+        description: "先确认返佣规则、合作交易所和下载路径，把最直接的成本优化入口先拿到手。",
         href: "/crypto-saving?path=trader#action",
         cta: "直接看返佣路径",
         tone: "amber",
@@ -128,7 +152,7 @@ const COPY: Record<LanguageKey, Copy> = {
       },
       {
         title: "我是老用户，想知道还能不能绑定",
-        description: "先把老账户限制讲清楚，再给你新的开户方案和联络路径，避免走弯路。",
+        description: "先看老账户限制，再决定是否换新入口或联系人工获取更合适的方案。",
         href: "/crypto-saving?path=old#how-to-get",
         cta: "先看老用户方案",
         tone: "emerald",
@@ -137,13 +161,13 @@ const COPY: Record<LanguageKey, Copy> = {
     ],
     modulesTitle: "六个核心入口，按优先级排好",
     modulesDescription:
-      "不再把所有模块做成同级目录。先把最能产生判断与转化的入口放在前面，其余模块做辅助支撑。",
+      "首页不再把所有模块做成同级目录，而是把最可能产生判断与转化的入口前置，其余模块做辅助支撑。",
     modules: [
       {
         title: "交易成本与返佣指南",
         subtitle: "核心动作入口",
         description:
-          "默认返佣比例、适用限制、交易所合作入口、下载路径与实际节省逻辑都集中在这里，是大多数用户最先需要的主入口。",
+          "默认返佣比例、适用限制、合作交易所入口、下载路径和实际节省逻辑都集中在这里，是大多数用户最先需要的主入口。",
         href: "/crypto-saving",
         cta: "进入主入口",
         stat: "默认 20%",
@@ -163,7 +187,7 @@ const COPY: Record<LanguageKey, Copy> = {
       {
         title: "交易所扫盲指南",
         subtitle: "决策辅助",
-        description: "把平台差异、安全性、功能和使用场景讲明白，帮助你缩短选择时间。",
+        description: "把平台差异、安全性、功能和适用场景讲明白，帮你缩短筛选时间。",
         href: "/exchange-guide",
         cta: "开始筛选平台",
         stat: "5 家平台",
@@ -173,7 +197,7 @@ const COPY: Record<LanguageKey, Copy> = {
       {
         title: "币圈工具合集",
         subtitle: "效率工具",
-        description: "把图表、链上数据、DeFi、税务等工具按用途重新归类，不再靠零散收藏记忆。",
+        description: "把图表、链上数据、DeFi、税务和研究工具按用途归类，减少到处找工具的成本。",
         href: "/tools",
         cta: "查看工具清单",
         stat: "12+ 工具",
@@ -183,7 +207,7 @@ const COPY: Record<LanguageKey, Copy> = {
       {
         title: "加密快讯",
         subtitle: "实时动态",
-        description: "聚合重点行业动态，把市场、平台、政策和链上变化更清楚地分类给你。",
+        description: "聚合市场、交易所、政策和链上动态，把真正值得看的变化更快整理给你。",
         href: "/crypto-news",
         cta: "查看最新快讯",
         stat: "30 分钟更新",
@@ -202,24 +226,24 @@ const COPY: Record<LanguageKey, Copy> = {
         preload: false,
       },
     ],
-    methodTitle: "Get8 Pro 的方法，不靠堆叠卡片来显得专业",
+    methodTitle: "Get8 Pro 的方法，不靠堆卡片来显得专业",
     methodDescription:
-      "更有质感的首页，不是做更多模块，而是让用户先看到主命题、再看到证据、最后才进入目录。首页应该像一个清楚的研究入口，而不是功能堆栈。",
+      "更有质感的首页，不是做更多模块，而是让用户先看到主命题、再看到证据、最后才进入目录。首页应该像清晰的研究入口，而不是功能堆栈。",
     methodItems: [
       {
-        title: "一屏只说一个主命题",
+        title: "一屏只讲一个主命题",
         description: "首屏先讲你是谁、为什么可信、最该从哪开始，而不是把所有入口同时推到用户面前。",
       },
       {
-        title: "用层级取代大面积卡片",
-        description: "更多使用区块、分割线和留白，让主入口和辅助入口的权重自然分开。",
+        title: "用层级取代厚重卡片",
+        description: "更多使用区块、分割线和留白，让主入口和辅助入口自然分开，减少视觉噪声。",
       },
       {
         title: "让导航更像专业终端",
-        description: "保留深色交易氛围，但减少噪声，提升可扫描性，让首页更像研究工具而不是营销落地页。",
+        description: "保留深色交易氛围，但压低浮躁感，提升可扫描性和判断效率。",
       },
     ],
-    footerTagline: "Get8 Pro 旨在把学习、判断与执行入口整理得更清楚。",
+    footerTagline: "Get8 Pro 旨在把学习、判断与执行入口整理得更清晰。",
     footerLegal: "内容仅供参考，不构成投资建议。交易与投资均有风险，请结合自身情况谨慎判断。",
     footerColumns: [
       {
@@ -279,6 +303,29 @@ const COPY: Record<LanguageKey, Copy> = {
       {
         title: "Homepage as a navigator",
         description: "Complex content stays in deeper pages. The homepage keeps only the highest-value entry points and evidence.",
+      },
+    ],
+    provenanceTitle: "Sources / Method / Disclosure",
+    provenanceDescription:
+      "This is the trust layer that matters most. We make source quality, editorial method, and disclosure visible up front so both users and search systems can understand the boundaries of the site quickly.",
+    provenanceItems: [
+      {
+        label: "Sources",
+        title: "Official pages and public notices first",
+        description:
+          "Exchange entry flows, rebate explanations, and download guidance are built from official registration pages, help centers, public announcements, and campaign pages whenever possible.",
+      },
+      {
+        label: "Method",
+        title: "Limits first, entry second, actions last",
+        description:
+          "Each core module explains who it fits, what the limits are, and what to verify before presenting links and step-by-step actions.",
+      },
+      {
+        label: "Disclosure",
+        title: "Platform-side results always take priority",
+        description:
+          "Default 20% rebate paths and higher-tier options are clearly labeled, but actual binding results and invite-code behavior always depend on what the platform shows in real time.",
       },
     ],
     pathsTitle: "Start from your situation",
@@ -475,32 +522,42 @@ function getIcon(name: ModuleCard["icon"] | PathCard["icon"]) {
   }
 }
 
+function SectionHeader({ title, description }: { title: string; description: string }) {
+  return (
+    <div className="mb-6 max-w-3xl sm:mb-8">
+      <h2 className="text-[1.95rem] font-semibold tracking-tight text-white sm:text-4xl">{title}</h2>
+      <p className="mt-2.5 text-sm leading-7 text-slate-400 sm:mt-3 sm:text-base">{description}</p>
+    </div>
+  );
+}
 function PathSelector({ copy }: { copy: Copy }) {
   return (
-    <section className="mt-14 sm:mt-20">
+    <section className="mt-12 sm:mt-16 lg:mt-18">
       <SectionHeader title={copy.pathsTitle} description={copy.pathsDescription} />
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-3.5 lg:grid-cols-3 lg:gap-4">
         {copy.paths.map((item) => {
           const tone = toneClasses[item.tone as keyof typeof toneClasses];
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`group relative overflow-hidden rounded-[28px] border ${tone.border} bg-[#071525]/85 px-6 py-6 transition-all duration-300 hover:border-white/18 hover:bg-[#091b2f]`}
+              className={`group relative overflow-hidden rounded-[24px] border ${tone.border} bg-[#071525]/85 px-5 py-5 transition-all duration-300 hover:border-white/18 hover:bg-[#091b2f] sm:rounded-[28px] sm:px-6 sm:py-6`}
               onMouseEnter={() => preloadRoute(item.href)}
               onTouchStart={() => preloadRoute(item.href)}
             >
               <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${tone.glow} opacity-0 transition-opacity duration-300 group-hover:opacity-100`} />
               <div className="relative flex h-full flex-col">
-                <div className="mb-5 flex items-center gap-3">
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-2xl border ${tone.border} bg-white/[0.03] ${tone.text}`}>
+                <div className="mb-4 flex items-center gap-3 sm:mb-5">
+                  <div className={`flex h-9 w-9 items-center justify-center rounded-2xl border ${tone.border} bg-white/[0.03] ${tone.text} sm:h-10 sm:w-10`}>
                     {getIcon(item.icon)}
                   </div>
                   <div className={`h-px flex-1 ${tone.marker} opacity-25`} />
                 </div>
-                <h3 className="max-w-[16ch] text-xl font-semibold leading-tight text-white">{item.title}</h3>
-                <p className="mt-3 flex-1 text-sm leading-7 text-slate-350 sm:text-[15px]">{item.description}</p>
-                <div className={`mt-6 inline-flex items-center gap-2 text-sm font-semibold ${tone.text}`}>
+                <h3 className="max-w-[15ch] text-[1.35rem] font-semibold leading-tight text-white sm:text-xl">{item.title}</h3>
+                <p className="mt-2.5 flex-1 text-[13px] leading-6 text-slate-350 sm:mt-3 sm:text-[15px] sm:leading-7">
+                  {item.description}
+                </p>
+                <div className={`mt-4 inline-flex items-center gap-2 text-sm font-semibold ${tone.text} sm:mt-6`}>
                   <span>{item.cta}</span>
                   <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
                 </div>
@@ -513,12 +570,22 @@ function PathSelector({ copy }: { copy: Copy }) {
   );
 }
 
-function SectionHeader({ title, description }: { title: string; description: string }) {
+function ProvenanceSection({ copy }: { copy: Copy }) {
   return (
-    <div className="mb-8 max-w-3xl">
-      <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">{title}</h2>
-      <p className="mt-3 text-sm leading-7 text-slate-400 sm:text-base">{description}</p>
-    </div>
+    <section className="mt-12 sm:mt-16 lg:mt-18">
+      <div className="rounded-[28px] border border-white/8 bg-[#06121f]/88 px-5 py-6 sm:rounded-[34px] sm:px-7 sm:py-8">
+        <SectionHeader title={copy.provenanceTitle} description={copy.provenanceDescription} />
+        <div className="grid gap-4 lg:grid-cols-3 lg:gap-5">
+          {copy.provenanceItems.map((item) => (
+            <div key={item.title} className="border-t border-white/10 pt-4 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
+              <div className="text-[11px] uppercase tracking-[0.28em] text-cyan-300/90">{item.label}</div>
+              <h3 className="mt-3 text-lg font-semibold text-white">{item.title}</h3>
+              <p className="mt-3 text-sm leading-7 text-slate-400">{item.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -526,7 +593,7 @@ function ModuleGrid({ copy }: { copy: Copy }) {
   const [primary, secondaryA, secondaryB, ...rest] = copy.modules;
 
   return (
-    <section className="mt-18 sm:mt-24">
+    <section className="mt-16 sm:mt-20 lg:mt-24">
       <SectionHeader title={copy.modulesTitle} description={copy.modulesDescription} />
       <div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
         <ModuleSurface module={primary} kind="primary" />
@@ -551,9 +618,9 @@ function ModuleSurface({ module, kind }: { module: ModuleCard; kind: "primary" |
   return (
     <Link
       href={module.href}
-      className={`group relative overflow-hidden rounded-[32px] border border-white/8 bg-[#071525]/82 transition-all duration-300 hover:border-white/14 hover:bg-[#091a2d] ${
-        isCompact ? "px-5 py-5" : "px-6 py-6 sm:px-7 sm:py-7"
-      }`}
+      className={`group relative overflow-hidden rounded-[28px] border border-white/8 bg-[#071525]/82 transition-all duration-300 hover:border-white/14 hover:bg-[#091a2d] ${
+        isCompact ? "px-5 py-5" : "px-5 py-5 sm:px-7 sm:py-7"
+      } sm:rounded-[32px]`}
       onMouseEnter={() => {
         if (module.preload !== false) preloadRoute(module.href);
       }}
@@ -565,12 +632,12 @@ function ModuleSurface({ module, kind }: { module: ModuleCard; kind: "primary" |
       <div className="relative">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-4">
-            <div className="mt-0.5 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03] text-cyan-300">
+            <div className="mt-0.5 flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03] text-cyan-300 sm:h-12 sm:w-12">
               {getIcon(module.icon)}
             </div>
             <div>
               <div className="text-[11px] uppercase tracking-[0.28em] text-slate-500">{module.subtitle}</div>
-              <h3 className={`${isPrimary ? "mt-3 text-3xl sm:text-[2rem]" : "mt-2 text-2xl"} font-semibold tracking-tight text-white`}>
+              <h3 className={`${isPrimary ? "mt-3 text-[1.95rem] sm:text-[2rem]" : "mt-2 text-[1.6rem] sm:text-2xl"} font-semibold tracking-tight text-white`}>
                 {module.title}
               </h3>
             </div>
@@ -580,12 +647,12 @@ function ModuleSurface({ module, kind }: { module: ModuleCard; kind: "primary" |
           </div>
         </div>
 
-        <div className={`mt-5 grid ${isPrimary ? "gap-10 lg:grid-cols-[1fr_220px]" : "gap-5"} items-start`}>
+        <div className={`mt-5 grid ${isPrimary ? "items-start gap-8 lg:grid-cols-[1fr_220px]" : "gap-5"}`}>
           <div>
-            <p className={`text-slate-350 ${isCompact ? "text-sm leading-7" : "text-[15px] leading-8 sm:text-base"} max-w-[46rem]`}>
+            <p className={`max-w-[46rem] text-slate-350 ${isCompact ? "text-sm leading-7" : "text-[15px] leading-7 sm:text-base sm:leading-8"}`}>
               {module.description}
             </p>
-            <div className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-cyan-300">
+            <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-cyan-300 sm:mt-6">
               <span>{module.cta}</span>
               <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
             </div>
@@ -602,10 +669,10 @@ function ModuleSurface({ module, kind }: { module: ModuleCard; kind: "primary" |
 
 function MethodSection({ copy }: { copy: Copy }) {
   return (
-    <section className="mt-18 sm:mt-24">
-      <div className="rounded-[36px] border border-white/8 bg-[#071322]/82 px-6 py-8 sm:px-8 sm:py-10">
+    <section className="mt-16 sm:mt-20 lg:mt-24">
+      <div className="rounded-[30px] border border-white/8 bg-[#071322]/82 px-5 py-6 sm:rounded-[36px] sm:px-8 sm:py-10">
         <SectionHeader title={copy.methodTitle} description={copy.methodDescription} />
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-3 md:gap-6">
           {copy.methodItems.map((item) => (
             <div key={item.title} className="border-t border-white/10 pt-5">
               <div className="mb-3 flex items-center gap-3">
@@ -620,10 +687,9 @@ function MethodSection({ copy }: { copy: Copy }) {
     </section>
   );
 }
-
 function Footer({ copy }: { copy: Copy }) {
   return (
-    <footer className="mt-20 border-t border-white/8 pb-14 pt-10 sm:mt-24">
+    <footer className="mt-18 border-t border-white/8 pb-14 pt-10 sm:mt-24">
       <div className="grid gap-10 lg:grid-cols-[1.1fr_1fr_1fr_1fr]">
         <div className="max-w-sm">
           <div className="text-[11px] uppercase tracking-[0.34em] text-slate-500">Get8 Pro</div>
@@ -650,7 +716,14 @@ function Footer({ copy }: { copy: Copy }) {
 function AmbientBackground() {
   return (
     <>
-      <div className="pointer-events-none absolute inset-0 opacity-[0.22]" style={{ backgroundImage: "linear-gradient(rgba(56,189,248,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(56,189,248,0.08) 1px, transparent 1px)", backgroundSize: "56px 56px" }} />
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.22]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(56,189,248,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(56,189,248,0.08) 1px, transparent 1px)",
+          backgroundSize: "56px 56px",
+        }}
+      />
       <div className="pointer-events-none absolute inset-x-0 top-[-140px] h-[520px] bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.28),transparent_55%)]" />
       <div className="pointer-events-none absolute left-[-120px] top-[280px] h-[360px] w-[360px] rounded-full bg-cyan-500/8 blur-[100px]" />
       <div className="pointer-events-none absolute right-[-90px] top-[140px] h-[320px] w-[320px] rounded-full bg-emerald-400/7 blur-[110px]" />
@@ -702,32 +775,32 @@ export default function Portal() {
         </button>
       </div>
 
-      <main className="relative z-10 mx-auto max-w-7xl px-4 pb-16 pt-16 sm:px-6 sm:pb-18 sm:pt-20 lg:px-8 lg:pt-24">
+      <main className="relative z-10 mx-auto max-w-7xl px-4 pb-16 pt-14 sm:px-6 sm:pb-18 sm:pt-16 lg:px-8 lg:pt-20">
         <section className="mx-auto max-w-5xl text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/18 bg-amber-400/8 px-4 py-2 text-sm font-medium text-amber-300">
+          <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/18 bg-amber-400/8 px-3.5 py-1.5 text-xs font-medium text-amber-300 sm:px-4 sm:py-2 sm:text-sm">
             <span className="h-2 w-2 rounded-full bg-amber-300" />
             {copy.badge}
           </div>
 
-          <h1 className="mt-8 text-balance text-[3rem] font-semibold leading-[0.95] tracking-tight text-white sm:text-[4.75rem] lg:text-[6.25rem]">
+          <h1 className="mt-6 text-balance text-[2.5rem] font-semibold leading-[0.95] tracking-tight text-white sm:mt-8 sm:text-[4.4rem] lg:text-[6.05rem]">
             {copy.titleLineOne}
           </h1>
-          <p className="mx-auto mt-5 max-w-4xl text-balance text-2xl font-medium leading-tight text-slate-200 sm:text-3xl lg:text-[2.75rem]">
+          <p className="mx-auto mt-4 max-w-4xl text-balance text-[1.8rem] font-medium leading-tight text-slate-200 sm:mt-5 sm:text-3xl lg:text-[2.7rem]">
             <span className="bg-[linear-gradient(90deg,#f8fafc_0%,#67e8f9_28%,#fbbf24_65%,#f8fafc_100%)] bg-clip-text text-transparent">
               {copy.titleHighlight}
             </span>
           </p>
-          <p className="mx-auto mt-5 max-w-3xl text-balance text-lg leading-8 text-slate-350 sm:text-xl">
+          <p className="mx-auto mt-4 max-w-3xl text-balance text-base leading-7 text-slate-350 sm:mt-5 sm:text-xl sm:leading-8">
             {copy.subtitle}
           </p>
-          <p className="mx-auto mt-6 max-w-3xl text-sm leading-8 text-slate-450 sm:text-base">
+          <p className="mx-auto mt-5 max-w-3xl text-sm leading-7 text-slate-450 sm:mt-6 sm:text-base sm:leading-8">
             {copy.description}
           </p>
 
-          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:mt-10 sm:flex-row">
             <Link
               href={copy.primaryHref}
-              className="inline-flex min-h-[50px] items-center justify-center gap-2 rounded-full bg-cyan-300 px-6 py-3 text-sm font-semibold text-slate-950 transition-all hover:bg-cyan-200"
+              className="inline-flex min-h-[46px] items-center justify-center gap-2 rounded-full bg-cyan-300 px-5 py-3 text-sm font-semibold text-slate-950 transition-all hover:bg-cyan-200 sm:min-h-[50px] sm:px-6"
               onMouseEnter={() => preloadRoute(copy.primaryHref)}
               onTouchStart={() => preloadRoute(copy.primaryHref)}
             >
@@ -736,7 +809,7 @@ export default function Portal() {
             </Link>
             <Link
               href={copy.secondaryHref}
-              className="inline-flex min-h-[50px] items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-6 py-3 text-sm font-semibold text-white transition-all hover:border-white/18 hover:bg-white/[0.06]"
+              className="inline-flex min-h-[46px] items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-5 py-3 text-sm font-semibold text-white transition-all hover:border-white/18 hover:bg-white/[0.06] sm:min-h-[50px] sm:px-6"
               onMouseEnter={() => preloadRoute(copy.secondaryHref)}
               onTouchStart={() => preloadRoute(copy.secondaryHref)}
             >
@@ -744,11 +817,11 @@ export default function Portal() {
             </Link>
           </div>
 
-          <div className="mx-auto mt-10 grid max-w-4xl gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mx-auto mt-8 grid max-w-4xl gap-2.5 sm:mt-10 sm:grid-cols-2 sm:gap-3 lg:grid-cols-4">
             {copy.proofPoints.map((item) => (
               <div
                 key={item}
-                className="flex min-h-[52px] items-center justify-center rounded-full border border-white/8 bg-white/[0.02] px-4 py-3 text-sm text-slate-300"
+                className="flex min-h-[46px] items-center justify-center rounded-full border border-white/8 bg-white/[0.02] px-4 py-2.5 text-sm text-slate-300 sm:min-h-[52px] sm:py-3"
               >
                 {item}
               </div>
@@ -756,12 +829,12 @@ export default function Portal() {
           </div>
         </section>
 
-        <section className="mt-16 sm:mt-20">
-          <div className="grid gap-6 rounded-[36px] border border-white/8 bg-[#061321]/88 px-6 py-8 sm:px-8 sm:py-9 lg:grid-cols-[0.9fr_1.1fr]">
+        <section className="mt-12 sm:mt-16 lg:mt-20">
+          <div className="grid gap-6 rounded-[28px] border border-white/8 bg-[#061321]/88 px-5 py-6 sm:rounded-[36px] sm:px-8 sm:py-9 lg:grid-cols-[0.9fr_1.1fr]">
             <div>
               <div className="text-[11px] uppercase tracking-[0.32em] text-slate-500">Trust Layer</div>
-              <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white">{copy.trustTitle}</h2>
-              <p className="mt-4 text-sm leading-8 text-slate-400 sm:text-base">{copy.trustDescription}</p>
+              <h2 className="mt-4 text-[1.95rem] font-semibold tracking-tight text-white sm:text-3xl">{copy.trustTitle}</h2>
+              <p className="mt-4 text-sm leading-7 text-slate-400 sm:text-base sm:leading-8">{copy.trustDescription}</p>
             </div>
             <div className="grid gap-5 md:grid-cols-3">
               {copy.trustItems.map((item) => (
@@ -774,6 +847,7 @@ export default function Portal() {
           </div>
         </section>
 
+        <ProvenanceSection copy={copy} />
         <PathSelector copy={copy} />
         <ModuleGrid copy={copy} />
         <MethodSection copy={copy} />
