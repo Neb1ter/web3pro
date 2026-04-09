@@ -7,7 +7,6 @@ import {
   Bot,
   Compass,
   Download,
-  FileCheck2,
   Globe,
   Newspaper,
   ShieldCheck,
@@ -71,9 +70,6 @@ type Copy = {
   modulesTitle: string;
   modulesDescription: string;
   modules: ModuleCard[];
-  methodTitle: string;
-  methodDescription: string;
-  methodItems: { title: string; description: string }[];
   footerTagline: string;
   footerLegal: string;
   footerColumns: { title: string; links: LinkItem[] }[];
@@ -224,23 +220,6 @@ const COPY: Record<LanguageKey, Copy> = {
         note: "仅访问时加载",
         icon: "automation",
         preload: false,
-      },
-    ],
-    methodTitle: "Get8 Pro 的方法，不靠堆卡片来显得专业",
-    methodDescription:
-      "更有质感的首页，不是做更多模块，而是让用户先看到主命题、再看到证据、最后才进入目录。首页应该像清晰的研究入口，而不是功能堆栈。",
-    methodItems: [
-      {
-        title: "一屏只讲一个主命题",
-        description: "首屏先讲你是谁、为什么可信、最该从哪开始，而不是把所有入口同时推到用户面前。",
-      },
-      {
-        title: "用层级取代厚重卡片",
-        description: "更多使用区块、分割线和留白，让主入口和辅助入口自然分开，减少视觉噪声。",
-      },
-      {
-        title: "让导航更像专业终端",
-        description: "保留深色交易氛围，但压低浮躁感，提升可扫描性和判断效率。",
       },
     ],
     footerTagline: "Get8 Pro 旨在把学习、判断与执行入口整理得更清晰。",
@@ -422,23 +401,6 @@ const COPY: Record<LanguageKey, Copy> = {
         note: "Loads on visit",
         icon: "automation",
         preload: false,
-      },
-    ],
-    methodTitle: "A more credible homepage needs less visual noise",
-    methodDescription:
-      "A higher-quality homepage does not rely on more cards. It leads with the main thesis, supports it with evidence, and only then opens the directory of modules.",
-    methodItems: [
-      {
-        title: "One idea per viewport",
-        description: "The first screen should explain who you are, why the site is credible, and where to begin.",
-      },
-      {
-        title: "Use hierarchy instead of chrome",
-        description: "Lean on sections, dividers, and spacing so major and minor entries stop competing with each other.",
-      },
-      {
-        title: "Make navigation feel terminal-like",
-        description: "Keep the dark trading atmosphere, but reduce noise and improve scan rhythm so it feels more like a research product.",
       },
     ],
     footerTagline: "Get8 Pro is built to make learning, judging, and acting easier to navigate.",
@@ -667,26 +629,6 @@ function ModuleSurface({ module, kind }: { module: ModuleCard; kind: "primary" |
   );
 }
 
-function MethodSection({ copy }: { copy: Copy }) {
-  return (
-    <section className="mt-16 sm:mt-20 lg:mt-24">
-      <div className="rounded-[30px] border border-white/8 bg-[#071322]/82 px-5 py-6 sm:rounded-[36px] sm:px-8 sm:py-10">
-        <SectionHeader title={copy.methodTitle} description={copy.methodDescription} />
-        <div className="grid gap-5 md:grid-cols-3 md:gap-6">
-          {copy.methodItems.map((item) => (
-            <div key={item.title} className="border-t border-white/10 pt-5">
-              <div className="mb-3 flex items-center gap-3">
-                <FileCheck2 className="h-4 w-4 text-cyan-300" />
-                <h3 className="text-lg font-medium text-white">{item.title}</h3>
-              </div>
-              <p className="text-sm leading-7 text-slate-400">{item.description}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
 function Footer({ copy }: { copy: Copy }) {
   return (
     <footer className="mt-18 border-t border-white/8 pb-14 pt-10 sm:mt-24">
@@ -850,7 +792,6 @@ export default function Portal() {
         <ProvenanceSection copy={copy} />
         <PathSelector copy={copy} />
         <ModuleGrid copy={copy} />
-        <MethodSection copy={copy} />
         <Footer copy={copy} />
       </main>
     </div>
