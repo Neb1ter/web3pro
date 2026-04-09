@@ -1,793 +1,784 @@
-import { useState, useEffect, useRef, lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
-import { useScrollMemory } from '@/hooks/useScrollMemory';
+import {
+  ArrowRight,
+  BookOpenText,
+  Bot,
+  Compass,
+  Download,
+  FileCheck2,
+  Globe,
+  Newspaper,
+  ShieldCheck,
+  Sparkles,
+  Wrench,
+} from "lucide-react";
+import { useScrollMemory } from "@/hooks/useScrollMemory";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { preloadRoute, scheduleIdle } from "@/lib/routePreload";
-import { Compass, ShieldCheck, Sparkles } from "lucide-react";
 
 const OnboardingPrompt = lazy(() => import("@/components/OnboardingPrompt"));
 
-// ============================================================
-// 多语言文案
-// ============================================================
-const LANG = {
+type LanguageKey = "zh" | "en";
+
+type LinkItem = {
+  label: string;
+  href: string;
+};
+
+type PathCard = {
+  title: string;
+  description: string;
+  href: string;
+  cta: string;
+  tone: string;
+  icon: "compass" | "sparkles" | "shield";
+};
+
+type ModuleCard = {
+  title: string;
+  subtitle: string;
+  description: string;
+  href: string;
+  cta: string;
+  stat: string;
+  note: string;
+  icon: "guide" | "rebate" | "exchange" | "tools" | "news" | "automation";
+  preload?: boolean;
+};
+
+type Copy = {
+  badge: string;
+  titleLineOne: string;
+  titleHighlight: string;
+  subtitle: string;
+  description: string;
+  primaryCta: string;
+  secondaryCta: string;
+  primaryHref: string;
+  secondaryHref: string;
+  proofPoints: string[];
+  trustTitle: string;
+  trustDescription: string;
+  trustItems: { title: string; description: string }[];
+  pathsTitle: string;
+  pathsDescription: string;
+  paths: PathCard[];
+  modulesTitle: string;
+  modulesDescription: string;
+  modules: ModuleCard[];
+  methodTitle: string;
+  methodDescription: string;
+  methodItems: { title: string; description: string }[];
+  footerTagline: string;
+  footerLegal: string;
+  footerColumns: { title: string; links: LinkItem[] }[];
+  languageToggle: string;
+};
+
+const COPY: Record<LanguageKey, Copy> = {
   zh: {
-    badge: "Web3 专业交易者的可信导航仪",
-    h1a: "Get it, ",
-    h1b: "Get Pro.",
-    h1c: "",
-    h1sub: "Web3 交易者的晋升之路",
-    desc: "消除信息不对称，重建行业信任链。我们通过官方合作返佣与权威数据分析，降低交易成本，提升决策效率。在 Get8 Pro，像专业交易者一样思考、决策、盈利。",
-    stat1v: "5", stat1u: "大板块", stat1l: "内容模块",
-    stat2v: "5+", stat2u: "家交易所", stat2l: "合作平台",
-    stat3v: "永久", stat3u: "个性化返佣", stat3l: "终身有效",
-    sectionTitle: "选择你的学习路径",
-    sectionSub: "六大核心板块，覆盖从入门、实操到自动化管理的完整路径",
-    comingSoonBadge: "即将推出",
-    comingSoonTitle: "更多板块正在建设中",
-    lockLabel: "敬请期待",
-    footerCopy: "© 2026 Get8 Pro · 官方认证，专业致胜。",
-    footerDisclaimer: "内容仅供参考，不构成投资建议。投资有风险，入市需谨慎。",
-    contactUs: "联系我们",
-    langBtn: "EN",
+    badge: "研究型交易导航",
+    titleLineOne: "Get8 Pro",
+    titleHighlight: "让路径更清楚，让判断更可靠。",
+    subtitle: "官方入口、可信来源、交易决策与学习路径，整合在同一个首页。",
+    description:
+      "我们不把首页做成噪声堆叠的流量页，而是把它整理成一个更像专业研究终端的入口。先帮你判断该从哪里开始，再把返佣、交易所、学习内容和实时信息按优先级排清楚。",
+    primaryCta: "开始 2 分钟测评",
+    secondaryCta: "直接查看交易成本与返佣",
+    primaryHref: "/web3-quiz",
+    secondaryHref: "/crypto-saving?path=trader#action",
+    proofPoints: ["官方合作入口", "公开来源数据", "返佣规则透明", "移动端优先浏览"],
+    trustTitle: "先建立信任，再引导动作",
+    trustDescription:
+      "首页应该先回答“这个站值不值得继续看”，而不是急着把所有模块一次性推给用户。这里把来源、方法和路径先说清楚。",
+    trustItems: [
+      {
+        title: "官方合作与公开路径",
+        description: "注册链接、返佣说明与下载路径都尽量采用可验证的官方来源，不把关键步骤藏起来。",
+      },
+      {
+        title: "研究视角先于营销话术",
+        description: "重点模块先讲判断依据、适用人群和限制条件，帮助用户快速做出可信决策。",
+      },
+      {
+        title: "首页只承担导航，不承担全部内容",
+        description: "复杂内容继续留在对应页面深入展开，首页只保留最有价值的入口与证据。",
+      },
+    ],
+    pathsTitle: "按你的情况进入",
+    pathsDescription:
+      "不同用户的目标不一样。首页不再让所有入口同等说话，而是先把最短决策路径摆在前面。",
+    paths: [
+      {
+        title: "我是第一次接触币圈",
+        description: "先做测评，再按 Web3 基础、KYC、交易所下载这条线慢慢走，最不容易迷路。",
+        href: "/web3-quiz",
+        cta: "先做 2 分钟测评",
+        tone: "cyan",
+        icon: "compass",
+      },
+      {
+        title: "我已经会交易，只想省手续费",
+        description: "先确认返佣规则、合作交易所与下载路径，把默认 20% 的成本优化入口先拿到手。",
+        href: "/crypto-saving?path=trader#action",
+        cta: "直接看返佣路径",
+        tone: "amber",
+        icon: "sparkles",
+      },
+      {
+        title: "我是老用户，想知道还能不能绑定",
+        description: "先把老账户限制讲清楚，再给你新的开户方案和联络路径，避免走弯路。",
+        href: "/crypto-saving?path=old#how-to-get",
+        cta: "先看老用户方案",
+        tone: "emerald",
+        icon: "shield",
+      },
+    ],
+    modulesTitle: "六个核心入口，按优先级排好",
+    modulesDescription:
+      "不再把所有模块做成同级目录。先把最能产生判断与转化的入口放在前面，其余模块做辅助支撑。",
     modules: [
       {
-        badge: "NEW",
-        subtitle: "WEB3 ONBOARDING",
-        title: "Web3 入圈指南",
-        description: "拒绝噪音，回归基本面。我们聚合官方文档与链上数据，为你构建机构级的 Web3 知识体系。从宏观经济到赛道分析，像专业人士一样思考，做出理性决策。",
-        cta: "开始探索 Web3 →",
-        stats: [{ label: "核心概念", value: "12+" }, { label: "投资方式", value: "4种" }, { label: "适合人群", value: "零基础" }],
-      },
-      {
-        badge: "HOT",
-        subtitle: "TRADING COST & REBATE GUIDE",
         title: "交易成本与返佣指南",
-        description: "每一笔返佣，都来自交易所官方合作协议。返佣比例公开、结算记录可查。在 Get8 Pro，信任无需猜测，成本清晰可见。",
-        cta: "查看省钱攻略 →",
-        stats: [{ label: "合作交易所", value: "5家" }, { label: "永久返佣", value: "个性化" }, { label: "已服务用户", value: "持续增长" }],
+        subtitle: "核心动作入口",
+        description:
+          "默认返佣比例、适用限制、交易所合作入口、下载路径与实际节省逻辑都集中在这里，是大多数用户最先需要的主入口。",
+        href: "/crypto-saving",
+        cta: "进入主入口",
+        stat: "默认 20%",
+        note: "官方合作返佣",
+        icon: "rebate",
       },
       {
-        badge: "GUIDE",
-        subtitle: "EXCHANGE TUTORIAL",
+        title: "Web3 入圈指南",
+        subtitle: "学习骨架",
+        description: "从概念、钱包、KYC 到投资方式，用更干净的结构帮新手建立顺序感。",
+        href: "/web3-guide",
+        cta: "查看学习路径",
+        stat: "7 章主线",
+        note: "新手优先",
+        icon: "guide",
+      },
+      {
         title: "交易所扫盲指南",
-        description: "基于独立评测模型，我们对各大交易所进行安全性、流动性、合规性三维评分。不因佣金高低改变评分，敢于曝光风险，助你安全交易。",
-        cta: "开始扫盲 →",
-        stats: [{ label: "功能板块", value: "13个" }, { label: "覆盖交易所", value: "5家" }, { label: "互动测验", value: "全程" }],
+        subtitle: "决策辅助",
+        description: "把平台差异、安全性、功能和使用场景讲明白，帮助你缩短选择时间。",
+        href: "/exchange-guide",
+        cta: "开始筛选平台",
+        stat: "5 家平台",
+        note: "独立评测逻辑",
+        icon: "exchange",
       },
       {
-        badge: "TOOLS",
-        subtitle: "CRYPTO TOOLS HUB",
         title: "币圈工具合集",
-        description: "精选新手到专业交易者都能用到的加密货币工具，标注工具来源与功能，涵盖行情查询、图表分析、链上数据、DeFi、税务等多个层面。",
-        cta: "查看工具合集 →",
-        stats: [{ label: "工具数量", value: "12+" }, { label: "适合人群", value: "全级别" }, { label: "持续更新", value: "实时" }],
+        subtitle: "效率工具",
+        description: "把图表、链上数据、DeFi、税务等工具按用途重新归类，不再靠零散收藏记忆。",
+        href: "/tools",
+        cta: "查看工具清单",
+        stat: "12+ 工具",
+        note: "持续更新",
+        icon: "tools",
       },
       {
-        badge: "LIVE",
-        subtitle: "CRYPTO NEWS",
         title: "加密快讯",
-        description: "实时聚合律动BlockBeats、深潮TechFlow等权威媒体快讯，自动分类行情、政策、交易所、DeFi 等板块，第一时间掌握市场动态，不错过任何重要信号。",
-        cta: "查看最新快讯 →",
-        stats: [{ label: "更新频率", value: "30分钟" }, { label: "快讯来源", value: "3家" }, { label: "分类标签", value: "6种" }],
+        subtitle: "实时动态",
+        description: "聚合重点行业动态，把市场、平台、政策和链上变化更清楚地分类给你。",
+        href: "/crypto-news",
+        cta: "查看最新快讯",
+        stat: "30 分钟更新",
+        note: "多源聚合",
+        icon: "news",
       },
       {
-        badge: "AUTO",
-        subtitle: "CODEX BUSINESS",
         title: "Codex Business 自动化中心",
-        description: "把媒体运营、任务调度、执行状态与日志追踪收进同一个业务入口。首页只保留轻入口，真正的 UI 和后端状态在访问后再懒加载，不拖慢首屏。",
-        cta: "进入自动化中心 →",
-        stats: [{ label: "接入方式", value: "模块化" }, { label: "运行状态", value: "实时" }, { label: "加载策略", value: "按需" }],
+        subtitle: "第六板块",
+        description: "把媒体运营、任务调度、兑换与质保等业务入口收进同一套系统，首页只保留轻入口。",
+        href: "/codex-business",
+        cta: "进入第六板块",
+        stat: "按需加载",
+        note: "仅访问时加载",
+        icon: "automation",
+        preload: false,
       },
     ],
-    comingSoon: [
-      { icon: "📊", title: "量化策略指南", desc: "自动化交易策略与量化工具介绍" },
-      { icon: "🔐", title: "Web3 安全手册", desc: "钱包安全、防骗指南与资产保护" },
-      { icon: "🌐", title: "NFT 与元宇宙", desc: "数字资产、NFT 投资与元宇宙入门" },
+    methodTitle: "Get8 Pro 的方法，不靠堆叠卡片来显得专业",
+    methodDescription:
+      "更有质感的首页，不是做更多模块，而是让用户先看到主命题、再看到证据、最后才进入目录。首页应该像一个清楚的研究入口，而不是功能堆栈。",
+    methodItems: [
+      {
+        title: "一屏只说一个主命题",
+        description: "首屏先讲你是谁、为什么可信、最该从哪开始，而不是把所有入口同时推到用户面前。",
+      },
+      {
+        title: "用层级取代大面积卡片",
+        description: "更多使用区块、分割线和留白，让主入口和辅助入口的权重自然分开。",
+      },
+      {
+        title: "让导航更像专业终端",
+        description: "保留深色交易氛围，但减少噪声，提升可扫描性，让首页更像研究工具而不是营销落地页。",
+      },
     ],
-    footer: {
-      tagline: "Get8 Pro: 官方认证，专业致胜。",
-      columns: [
-        { title: "学习与指南", links: [{ label: "Web3 入圈指南", href: "/web3-guide" }, { label: "交易成本与返佣指南", href: "/crypto-saving" }, { label: "交易所扫盲", href: "/exchange-guide" }, { label: "KYC实名流程", href: "/web3-guide/kyc-flow" }, { label: "下载交易所", href: "/exchange-download" }, { label: "知识测评", href: "/web3-quiz" }] },
-        { title: "交易与工具", links: [{ label: "交易所对比", href: "/exchanges" }, { label: "币圈工具合集", href: "/tools" }, { label: "现货模拟", href: "/sim/spot" }, { label: "合约模拟", href: "/sim/futures" }, { label: "杠杆模拟", href: "/sim/margin" }] },
-        { title: "支持与关于", links: [{ label: "关于我们", href: "/about" }, { label: "编辑原则", href: "/standards" }, { label: "联系我们", href: "/contact" }, { label: "新手入门", href: "/beginner" }, { label: "加密货币科普", href: "/crypto-intro" }, { label: "加密快讯", href: "/crypto-news" }] },
-        { title: "法律与合规", links: [{ label: "免责声明", href: "/legal#disclaimer" }, { label: "风险提示", href: "/legal#risk" }, { label: "合规说明", href: "/legal#compliance" }] },
-      ],
-      copyright: "© 2026 Get8 Pro",
-      disclaimer: "内容仅供参考，不构成投资建议。投资有风险，入市需谨慎。",
-    },
+    footerTagline: "Get8 Pro 旨在把学习、判断与执行入口整理得更清楚。",
+    footerLegal: "内容仅供参考，不构成投资建议。交易与投资均有风险，请结合自身情况谨慎判断。",
+    footerColumns: [
+      {
+        title: "核心入口",
+        links: [
+          { label: "Web3 入圈指南", href: "/web3-guide" },
+          { label: "交易成本与返佣指南", href: "/crypto-saving" },
+          { label: "交易所扫盲指南", href: "/exchange-guide" },
+          { label: "KYC 实名流程", href: "/web3-guide/kyc-flow" },
+        ],
+      },
+      {
+        title: "工具与信息",
+        links: [
+          { label: "交易所下载", href: "/exchange-download" },
+          { label: "币圈工具合集", href: "/tools" },
+          { label: "加密快讯", href: "/crypto-news" },
+          { label: "交易所对比", href: "/exchanges" },
+        ],
+      },
+      {
+        title: "支持与说明",
+        links: [
+          { label: "关于我们", href: "/about" },
+          { label: "编辑原则", href: "/standards" },
+          { label: "联系我们", href: "/contact" },
+          { label: "法律与披露", href: "/legal" },
+        ],
+      },
+    ],
+    languageToggle: "EN",
   },
   en: {
-    badge: "The Trusted Navigator for Web3 Professionals",
-    h1a: "Get it, ",
-    h1b: "Get Pro.",
-    h1c: "",
-    h1sub: "From Trader. To Pro.",
-    desc: "Eliminating information asymmetry. Rebuilding industry trust. We provide officially-partnered rebates and authority-backed data analysis to lower your trading costs and sharpen your decisions.",
-    stat1v: "5", stat1u: "Modules", stat1l: "Content Areas",
-    stat2v: "5+", stat2u: "Exchanges", stat2l: "Partners",
-    stat3v: "Lifetime", stat3u: "Personalized Rebates", stat3l: "Forever Valid",
-    sectionTitle: "Choose Your Learning Path",
-    sectionSub: "Six core modules covering onboarding, execution, and automation operations",
-    comingSoonBadge: "Coming Soon",
-    comingSoonTitle: "More Modules Under Construction",
-    lockLabel: "Stay Tuned",
-    footerCopy: "© 2026 Get8 Pro · Officially Verified, Professionally Vetted.",
-    footerDisclaimer: "Content is for reference only and does not constitute investment advice. Invest responsibly.",
-    contactUs: "Contact Us",
-    langBtn: "中文",
+    badge: "Research-led Trading Navigation",
+    titleLineOne: "Get8 Pro",
+    titleHighlight: "Clearer paths. More reliable decisions.",
+    subtitle: "Official entry links, trusted sources, trading decisions, and learning paths in one homepage.",
+    description:
+      "Instead of turning the homepage into a noisy traffic page, we shape it like a research terminal. First identify where you should start, then surface rebates, exchanges, learning modules, and market updates in the right order.",
+    primaryCta: "Take the 2-minute quiz",
+    secondaryCta: "View trading cost and rebate guide",
+    primaryHref: "/web3-quiz",
+    secondaryHref: "/crypto-saving?path=trader#action",
+    proofPoints: ["Official partner entry", "Public source-based data", "Transparent rebate rules", "Mobile-first reading"],
+    trustTitle: "Build trust first, then guide action",
+    trustDescription:
+      "A strong homepage should answer whether the site is worth trusting before pushing every module at once. This section brings source quality, method, and path design forward.",
+    trustItems: [
+      {
+        title: "Official partner paths",
+        description: "Registration links, rebates, and download flows are aligned with verifiable official sources whenever possible.",
+      },
+      {
+        title: "Research before marketing",
+        description: "Core modules explain fit, limits, and decision value before asking users to click deeper.",
+      },
+      {
+        title: "Homepage as a navigator",
+        description: "Complex content stays in deeper pages. The homepage keeps only the highest-value entry points and evidence.",
+      },
+    ],
+    pathsTitle: "Start from your situation",
+    pathsDescription:
+      "Different visitors want different outcomes. The homepage should shorten that decision path instead of making every entry fight for attention.",
+    paths: [
+      {
+        title: "I'm new to crypto",
+        description: "Start with the quiz, then move through Web3 basics, KYC, and exchange setup without getting lost.",
+        href: "/web3-quiz",
+        cta: "Take the 2-minute quiz",
+        tone: "cyan",
+        icon: "compass",
+      },
+      {
+        title: "I already trade and want lower fees",
+        description: "Review rebate rules, supported exchanges, and the setup path first to lock in the cost-saving entry.",
+        href: "/crypto-saving?path=trader#action",
+        cta: "Go to the rebate path",
+        tone: "amber",
+        icon: "sparkles",
+      },
+      {
+        title: "I already have an account",
+        description: "See the restrictions for existing users first, then move to the next workable setup path.",
+        href: "/crypto-saving?path=old#how-to-get",
+        cta: "See existing-user options",
+        tone: "emerald",
+        icon: "shield",
+      },
+    ],
+    modulesTitle: "Six entry points, ordered by priority",
+    modulesDescription:
+      "The homepage no longer treats every module as the same level. The highest-value paths come first, while the rest support the broader experience.",
     modules: [
       {
-        badge: "NEW",
-        subtitle: "WEB3 ONBOARDING",
-        title: "Web3 Onboarding Guide",
-        description: "Cut through the noise. We aggregate official documentation and on-chain data to build an institutional-grade Web3 knowledge base — from macro economics to sector analysis, think like a pro.",
-        cta: "Start Exploring Web3 →",
-        stats: [{ label: "Core Concepts", value: "12+" }, { label: "Invest Methods", value: "4" }, { label: "For", value: "Beginners" }],
-      },
-      {
-        badge: "HOT",
-        subtitle: "TRADING COST & REBATE GUIDE",
         title: "Trading Cost & Rebate Guide",
-        description: "Every rebate is sourced from official exchange partnership agreements. Rebate rates are public, settlement records are verifiable. At Get8 Pro, trust is not assumed — it's proven.",
-        cta: "View Saving Tips →",
-        stats: [{ label: "Partner Exchanges", value: "5+" }, { label: "Lifetime Rebates", value: "Custom" }, { label: "Users Served", value: "Growing" }],
+        subtitle: "Primary action",
+        description:
+          "Default rebate rules, eligibility limits, supported exchange entries, download paths, and actual cost-saving logic are all gathered here.",
+        href: "/crypto-saving",
+        cta: "Open primary entry",
+        stat: "Default 20%",
+        note: "Official rebate path",
+        icon: "rebate",
       },
       {
-        badge: "GUIDE",
-        subtitle: "EXCHANGE TUTORIAL",
+        title: "Web3 Onboarding Guide",
+        subtitle: "Learning backbone",
+        description: "A cleaner sequence covering concepts, wallets, KYC, and investment basics for first-time users.",
+        href: "/web3-guide",
+        cta: "View learning path",
+        stat: "7 chapters",
+        note: "Beginner-first",
+        icon: "guide",
+      },
+      {
         title: "Exchange Tutorial",
-        description: "Built on an independent review model, we score exchanges across three dimensions: security, liquidity, and compliance. We don't change ratings for higher commissions — we expose risks.",
-        cta: "Start Learning →",
-        stats: [{ label: "Feature Modules", value: "13" }, { label: "Exchanges", value: "5" }, { label: "Quizzes", value: "All" }],
+        subtitle: "Decision support",
+        description: "Compare platform differences, safety, functions, and fit with less guesswork and less marketing noise.",
+        href: "/exchange-guide",
+        cta: "Start evaluating",
+        stat: "5 platforms",
+        note: "Independent review logic",
+        icon: "exchange",
       },
       {
-        badge: "TOOLS",
-        subtitle: "CRYPTO TOOLS HUB",
         title: "Crypto Tools Hub",
-        description: "Curated crypto tools for beginners to pro traders — with source labels and function descriptions. Covers price data, charts, on-chain analytics, DeFi, tax tools, and more.",
-        cta: "View Tools Hub →",
-        stats: [{ label: "Tools", value: "12+" }, { label: "For", value: "All Levels" }, { label: "Updated", value: "Live" }],
+        subtitle: "Utility layer",
+        description: "A reorganized toolkit for charts, on-chain data, DeFi workflows, tax support, and research efficiency.",
+        href: "/tools",
+        cta: "Browse tools",
+        stat: "12+ tools",
+        note: "Continuously updated",
+        icon: "tools",
       },
       {
-        badge: "LIVE",
-        subtitle: "CRYPTO NEWS",
-        title: "Crypto News Feed",
-        description: "Real-time aggregation from BlockBeats, TechFlow and other authoritative sources. Auto-categorized into market, policy, exchange, and DeFi — never miss a signal that matters.",
-        cta: "View Latest News →",
-        stats: [{ label: "Update Cycle", value: "30 min" }, { label: "Sources", value: "3" }, { label: "Categories", value: "6" }],
+        title: "Crypto News",
+        subtitle: "Live updates",
+        description: "Structured news aggregation covering market changes, exchanges, policy, and on-chain developments.",
+        href: "/crypto-news",
+        cta: "See latest news",
+        stat: "Every 30 min",
+        note: "Multi-source feed",
+        icon: "news",
       },
       {
-        badge: "AUTO",
-        subtitle: "CODEX BUSINESS",
         title: "Codex Business Automation Hub",
-        description: "Keep media operations, task scheduling, runtime status, and logs inside one business entry. The homepage stays light while the full UI and backend state load only after visit.",
-        cta: "Open Automation Hub →",
-        stats: [{ label: "Integration", value: "Modular" }, { label: "Status", value: "Live" }, { label: "Load", value: "On demand" }],
+        subtitle: "Sixth module",
+        description: "Business operations, scheduling, redemption, and warranty flows are grouped into one system with on-demand loading.",
+        href: "/codex-business",
+        cta: "Open module six",
+        stat: "On demand",
+        note: "Loads on visit",
+        icon: "automation",
+        preload: false,
       },
     ],
-    comingSoon: [
-      { icon: "📊", title: "Quant Strategy Guide", desc: "Automated trading strategies and quant tools" },
-      { icon: "🔐", title: "Web3 Security Manual", desc: "Wallet safety, scam prevention, and asset protection" },
-      { icon: "🌐", title: "NFT & Metaverse", desc: "Digital assets, NFT investing, and metaverse intro" },
+    methodTitle: "A more credible homepage needs less visual noise",
+    methodDescription:
+      "A higher-quality homepage does not rely on more cards. It leads with the main thesis, supports it with evidence, and only then opens the directory of modules.",
+    methodItems: [
+      {
+        title: "One idea per viewport",
+        description: "The first screen should explain who you are, why the site is credible, and where to begin.",
+      },
+      {
+        title: "Use hierarchy instead of chrome",
+        description: "Lean on sections, dividers, and spacing so major and minor entries stop competing with each other.",
+      },
+      {
+        title: "Make navigation feel terminal-like",
+        description: "Keep the dark trading atmosphere, but reduce noise and improve scan rhythm so it feels more like a research product.",
+      },
     ],
-    footer: {
-      tagline: "Get8 Pro: Officially Verified, Professionally Vetted.",
-      columns: [
-        { title: "Learn & Guide", links: [{ label: "Web3 Guide", href: "/web3-guide" }, { label: "Trading Cost & Rebate Guide", href: "/crypto-saving" }, { label: "Exchange Tutorial", href: "/exchange-guide" }, { label: "KYC Verification Flow", href: "/web3-guide/kyc-flow" }, { label: "Download Exchange", href: "/exchange-download" }, { label: "Knowledge Quiz", href: "/web3-quiz" }] },
-        { title: "Trade & Tools", links: [{ label: "Exchange Compare", href: "/exchanges" }, { label: "Crypto Tools Hub", href: "/tools" }, { label: "Spot Sim", href: "/sim/spot" }, { label: "Futures Sim", href: "/sim/futures" }, { label: "Margin Sim", href: "/sim/margin" }] },
-        { title: "Support & About", links: [{ label: "About Us", href: "/about" }, { label: "Editorial Standards", href: "/standards" }, { label: "Contact Us", href: "/contact" }, { label: "Beginner Guide", href: "/beginner" }, { label: "Crypto Intro", href: "/crypto-intro" }, { label: "Crypto News", href: "/crypto-news" }] },
-        { title: "Legal", links: [{ label: "Disclaimer", href: "/legal#disclaimer" }, { label: "Risk Notice", href: "/legal#risk" }, { label: "Compliance", href: "/legal#compliance" }] },
-      ],
-      copyright: "© 2026 Get8 Pro",
-      disclaimer: "Content is for reference only and does not constitute investment advice. Invest responsibly.",
-    },
+    footerTagline: "Get8 Pro is built to make learning, judging, and acting easier to navigate.",
+    footerLegal: "Content is for reference only and does not constitute investment advice. Please make decisions carefully and at your own risk.",
+    footerColumns: [
+      {
+        title: "Core entries",
+        links: [
+          { label: "Web3 Guide", href: "/web3-guide" },
+          { label: "Trading Cost & Rebate Guide", href: "/crypto-saving" },
+          { label: "Exchange Tutorial", href: "/exchange-guide" },
+          { label: "KYC Flow", href: "/web3-guide/kyc-flow" },
+        ],
+      },
+      {
+        title: "Tools & Information",
+        links: [
+          { label: "Exchange Download", href: "/exchange-download" },
+          { label: "Crypto Tools", href: "/tools" },
+          { label: "Crypto News", href: "/crypto-news" },
+          { label: "Exchange Compare", href: "/exchanges" },
+        ],
+      },
+      {
+        title: "Support",
+        links: [
+          { label: "About", href: "/about" },
+          { label: "Standards", href: "/standards" },
+          { label: "Contact", href: "/contact" },
+          { label: "Legal", href: "/legal" },
+        ],
+      },
+    ],
+    languageToggle: "中文",
   },
 };
 
-// ============================================================
-// 交易所 / DEX 文字数据（纯文字跑马灯，无假 Logo）
-// ============================================================
-function QuickStartPaths({ lang }: { lang: string }) {
-  const zh = lang === "zh";
-  const paths = zh
-    ? [
-        {
-          title: "我是第一次接触币圈",
-          desc: "先做测评，再按 Web3 基础、KYC、交易所下载这条线慢慢走，最不容易迷路。",
-          href: "/web3-quiz",
-          label: "先做 2 分钟测评",
-          icon: <Compass className="w-5 h-5" />,
-          tone: "border-cyan-500/25 bg-cyan-500/10 text-cyan-300",
-        },
-        {
-          title: "我已经会交易，只想省手续费",
-          desc: "直接看返佣规则、合作交易所和下载页，先把默认 20% 拿到手，再决定要不要升级。",
-          href: "/crypto-saving?path=trader#action",
-          label: "直接看返佣路径",
-          icon: <Sparkles className="w-5 h-5" />,
-          tone: "border-amber-500/25 bg-amber-500/10 text-amber-300",
-        },
-        {
-          title: "我是老用户，想知道还能不能绑定",
-          desc: "老账户通常无法补绑返佣，这里会先告诉你限制，再给你新的开户与联系路径。",
-          href: "/crypto-saving?path=old#how-to-get",
-          label: "先看老用户方案",
-          icon: <ShieldCheck className="w-5 h-5" />,
-          tone: "border-emerald-500/25 bg-emerald-500/10 text-emerald-300",
-        },
-      ]
-    : [
-        {
-          title: "I'm brand new to crypto",
-          desc: "Start with the quiz, then follow the basics -> KYC -> exchange setup path.",
-          href: "/web3-quiz",
-          label: "Take the 2-minute quiz",
-          icon: <Compass className="w-5 h-5" />,
-          tone: "border-cyan-500/25 bg-cyan-500/10 text-cyan-300",
-        },
-        {
-          title: "I already trade and just want lower fees",
-          desc: "Go straight to rebates, supported exchanges, and the download flow to lock in the default 20% first.",
-          href: "/crypto-saving?path=trader#action",
-          label: "See the rebate path",
-          icon: <Sparkles className="w-5 h-5" />,
-          tone: "border-amber-500/25 bg-amber-500/10 text-amber-300",
-        },
-        {
-          title: "I already have an account",
-          desc: "Existing accounts usually cannot be retrofitted, so we explain the limit first and then show your next move.",
-          href: "/crypto-saving?path=old#how-to-get",
-          label: "See existing-user options",
-          icon: <ShieldCheck className="w-5 h-5" />,
-          tone: "border-emerald-500/25 bg-emerald-500/10 text-emerald-300",
-        },
-      ];
+const toneClasses = {
+  cyan: {
+    border: "border-cyan-400/18",
+    marker: "bg-cyan-300",
+    text: "text-cyan-300",
+    glow: "from-cyan-500/12 via-cyan-400/6 to-transparent",
+  },
+  amber: {
+    border: "border-amber-400/18",
+    marker: "bg-amber-300",
+    text: "text-amber-300",
+    glow: "from-amber-500/12 via-amber-400/6 to-transparent",
+  },
+  emerald: {
+    border: "border-emerald-400/18",
+    marker: "bg-emerald-300",
+    text: "text-emerald-300",
+    glow: "from-emerald-500/12 via-emerald-400/6 to-transparent",
+  },
+} as const;
+
+function getIcon(name: ModuleCard["icon"] | PathCard["icon"]) {
+  switch (name) {
+    case "compass":
+      return <Compass className="h-4 w-4" />;
+    case "sparkles":
+      return <Sparkles className="h-4 w-4" />;
+    case "shield":
+      return <ShieldCheck className="h-4 w-4" />;
+    case "guide":
+      return <BookOpenText className="h-5 w-5" />;
+    case "rebate":
+      return <Sparkles className="h-5 w-5" />;
+    case "exchange":
+      return <Download className="h-5 w-5" />;
+    case "tools":
+      return <Wrench className="h-5 w-5" />;
+    case "news":
+      return <Newspaper className="h-5 w-5" />;
+    case "automation":
+      return <Bot className="h-5 w-5" />;
+    default:
+      return <Globe className="h-5 w-5" />;
+  }
+}
+
+function PathSelector({ copy }: { copy: Copy }) {
+  return (
+    <section className="mt-14 sm:mt-20">
+      <SectionHeader title={copy.pathsTitle} description={copy.pathsDescription} />
+      <div className="grid gap-4 lg:grid-cols-3">
+        {copy.paths.map((item) => {
+          const tone = toneClasses[item.tone as keyof typeof toneClasses];
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`group relative overflow-hidden rounded-[28px] border ${tone.border} bg-[#071525]/85 px-6 py-6 transition-all duration-300 hover:border-white/18 hover:bg-[#091b2f]`}
+              onMouseEnter={() => preloadRoute(item.href)}
+              onTouchStart={() => preloadRoute(item.href)}
+            >
+              <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${tone.glow} opacity-0 transition-opacity duration-300 group-hover:opacity-100`} />
+              <div className="relative flex h-full flex-col">
+                <div className="mb-5 flex items-center gap-3">
+                  <div className={`flex h-10 w-10 items-center justify-center rounded-2xl border ${tone.border} bg-white/[0.03] ${tone.text}`}>
+                    {getIcon(item.icon)}
+                  </div>
+                  <div className={`h-px flex-1 ${tone.marker} opacity-25`} />
+                </div>
+                <h3 className="max-w-[16ch] text-xl font-semibold leading-tight text-white">{item.title}</h3>
+                <p className="mt-3 flex-1 text-sm leading-7 text-slate-350 sm:text-[15px]">{item.description}</p>
+                <div className={`mt-6 inline-flex items-center gap-2 text-sm font-semibold ${tone.text}`}>
+                  <span>{item.cta}</span>
+                  <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+                </div>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function SectionHeader({ title, description }: { title: string; description: string }) {
+  return (
+    <div className="mb-8 max-w-3xl">
+      <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">{title}</h2>
+      <p className="mt-3 text-sm leading-7 text-slate-400 sm:text-base">{description}</p>
+    </div>
+  );
+}
+
+function ModuleGrid({ copy }: { copy: Copy }) {
+  const [primary, secondaryA, secondaryB, ...rest] = copy.modules;
 
   return (
-    <section className="mb-10">
-      <div className="mb-5 text-center">
-        <h2 className="text-2xl sm:text-3xl font-bold text-white">
-          {zh ? "先按你的情况进入" : "Start With Your Situation"}
-        </h2>
-        <p className="mt-2 text-slate-400">
-          {zh ? "不同人看到同一个网站，想找的不是同一件事。这里先帮你缩短决策路径。" : "Different visitors want different things. This section shortens the path."}
-        </p>
+    <section className="mt-18 sm:mt-24">
+      <SectionHeader title={copy.modulesTitle} description={copy.modulesDescription} />
+      <div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
+        <ModuleSurface module={primary} kind="primary" />
+        <div className="grid gap-5">
+          <ModuleSurface module={secondaryA} kind="secondary" />
+          <ModuleSurface module={secondaryB} kind="secondary" />
+        </div>
       </div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        {paths.map((path) => (
-          <Link
-            key={path.href}
-            href={path.href}
-            className="tap-target block"
-            onMouseEnter={() => preloadRoute(path.href.split('#')[0])}
-            onTouchStart={() => preloadRoute(path.href.split('#')[0])}
-          >
-            <div className={`h-full rounded-2xl border p-5 transition-all hover:-translate-y-0.5 hover:border-white/20 ${path.tone}`}>
-              <div className="mb-4 inline-flex rounded-xl border border-white/10 bg-black/20 p-2">
-                {path.icon}
-              </div>
-              <h3 className="mb-2 text-lg font-black text-white">{path.title}</h3>
-              <p className="mb-4 text-sm leading-6 text-slate-200/90">{path.desc}</p>
-              <span className="text-sm font-bold">{path.label} →</span>
-            </div>
-          </Link>
+      <div className="mt-5 grid gap-4 md:grid-cols-3">
+        {rest.map((module) => (
+          <ModuleSurface key={module.href} module={module} kind="compact" />
         ))}
       </div>
     </section>
   );
 }
 
-function SixthModuleEntry({ lang }: { lang: string }) {
-  const zh = lang === "zh";
+function ModuleSurface({ module, kind }: { module: ModuleCard; kind: "primary" | "secondary" | "compact" }) {
+  const isCompact = kind === "compact";
+  const isPrimary = kind === "primary";
+
   return (
-    <section className="mb-10">
-      <div className="rounded-3xl border border-cyan-500/20 bg-cyan-500/[0.05] p-5 sm:p-6">
-        <div className="mb-2 inline-flex rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-cyan-300">
-          {zh ? "第六板块" : "Module 6"}
+    <Link
+      href={module.href}
+      className={`group relative overflow-hidden rounded-[32px] border border-white/8 bg-[#071525]/82 transition-all duration-300 hover:border-white/14 hover:bg-[#091a2d] ${
+        isCompact ? "px-5 py-5" : "px-6 py-6 sm:px-7 sm:py-7"
+      }`}
+      onMouseEnter={() => {
+        if (module.preload !== false) preloadRoute(module.href);
+      }}
+      onTouchStart={() => {
+        if (module.preload !== false) preloadRoute(module.href);
+      }}
+    >
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(96,165,250,0.14),transparent_36%),radial-gradient(circle_at_bottom_left,rgba(16,185,129,0.08),transparent_34%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      <div className="relative">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start gap-4">
+            <div className="mt-0.5 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03] text-cyan-300">
+              {getIcon(module.icon)}
+            </div>
+            <div>
+              <div className="text-[11px] uppercase tracking-[0.28em] text-slate-500">{module.subtitle}</div>
+              <h3 className={`${isPrimary ? "mt-3 text-3xl sm:text-[2rem]" : "mt-2 text-2xl"} font-semibold tracking-tight text-white`}>
+                {module.title}
+              </h3>
+            </div>
+          </div>
+          <div className="rounded-full border border-amber-400/16 bg-amber-400/8 px-3 py-1 text-xs font-medium text-amber-300">
+            {module.stat}
+          </div>
         </div>
-        <h3 className="text-xl font-black text-white sm:text-2xl">Codex Business</h3>
-        <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-300 sm:text-base">
-          {zh
-            ? "自动化业务能力中心：把运营流程、任务调度和执行日志整合为可复用模块。该页面为独立路由懒加载，仅在访问时加载，不拖慢首页。"
-            : "Automation business hub for reusable operation flows, scheduling, and execution logs. This route is lazy-loaded and only fetched on visit."}
-        </p>
-        <Link
-          href="/codex-business"
-          className="tap-target mt-5 inline-flex items-center gap-2 rounded-xl border border-cyan-400/40 bg-cyan-400/15 px-4 py-2 text-sm font-bold text-cyan-200 transition hover:border-cyan-300 hover:bg-cyan-400/25"
-        >
-          {zh ? "进入第六板块" : "Open Module 6"}
-          <span aria-hidden>→</span>
-        </Link>
+
+        <div className={`mt-5 grid ${isPrimary ? "gap-10 lg:grid-cols-[1fr_220px]" : "gap-5"} items-start`}>
+          <div>
+            <p className={`text-slate-350 ${isCompact ? "text-sm leading-7" : "text-[15px] leading-8 sm:text-base"} max-w-[46rem]`}>
+              {module.description}
+            </p>
+            <div className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-cyan-300">
+              <span>{module.cta}</span>
+              <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+            </div>
+          </div>
+          <div className={`${isPrimary ? "border-l border-white/8 pl-6" : ""}`}>
+            <div className="text-xs uppercase tracking-[0.24em] text-slate-500">Signal</div>
+            <div className="mt-2 text-sm leading-7 text-slate-300">{module.note}</div>
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function MethodSection({ copy }: { copy: Copy }) {
+  return (
+    <section className="mt-18 sm:mt-24">
+      <div className="rounded-[36px] border border-white/8 bg-[#071322]/82 px-6 py-8 sm:px-8 sm:py-10">
+        <SectionHeader title={copy.methodTitle} description={copy.methodDescription} />
+        <div className="grid gap-6 md:grid-cols-3">
+          {copy.methodItems.map((item) => (
+            <div key={item.title} className="border-t border-white/10 pt-5">
+              <div className="mb-3 flex items-center gap-3">
+                <FileCheck2 className="h-4 w-4 text-cyan-300" />
+                <h3 className="text-lg font-medium text-white">{item.title}</h3>
+              </div>
+              <p className="text-sm leading-7 text-slate-400">{item.description}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
 }
 
-function SixthModuleEntryV2({ lang }: { lang: string }) {
-  const zh = lang === "zh";
-
+function Footer({ copy }: { copy: Copy }) {
   return (
-    <section className="mb-10">
-      <div className="rounded-3xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/[0.08] via-blue-500/[0.05] to-slate-900/50 p-5 sm:p-6">
-        <div className="mb-3 inline-flex rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-cyan-300">
-          {zh ? "第六板块" : "Module 6"}
+    <footer className="mt-20 border-t border-white/8 pb-14 pt-10 sm:mt-24">
+      <div className="grid gap-10 lg:grid-cols-[1.1fr_1fr_1fr_1fr]">
+        <div className="max-w-sm">
+          <div className="text-[11px] uppercase tracking-[0.34em] text-slate-500">Get8 Pro</div>
+          <p className="mt-4 text-sm leading-7 text-slate-350">{copy.footerTagline}</p>
+          <p className="mt-4 text-xs leading-6 text-slate-500">{copy.footerLegal}</p>
         </div>
-        <h3 className="text-xl font-black text-white sm:text-2xl">
-          {zh ? "Codex Business 自动化中心" : "Codex Business Automation Hub"}
-        </h3>
-        <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-300 sm:text-base">
-          {zh
-            ? "把高频运营动作沉淀为可复用流程：任务调度、执行状态、日志追踪统一在一个入口管理，并保持懒加载，不影响首页首屏速度。"
-            : "Consolidate high-frequency operations into reusable flows with unified scheduling, runtime status, and logs. The route stays lazy-loaded to avoid homepage slowdown."}
-        </p>
-        <div className="mt-4 grid gap-2 text-xs text-slate-300 sm:grid-cols-3">
-          <div className="rounded-lg border border-white/10 bg-black/20 px-3 py-2">
-            {zh ? "仅访问时加载" : "Loaded on visit only"}
+        {copy.footerColumns.map((column) => (
+          <div key={column.title}>
+            <div className="text-[11px] uppercase tracking-[0.28em] text-slate-500">{column.title}</div>
+            <div className="mt-4 space-y-3">
+              {column.links.map((link) => (
+                <Link key={link.href} href={link.href} className="block text-sm text-slate-350 transition-colors hover:text-white">
+                  {link.label}
+                </Link>
+              ))}
+            </div>
           </div>
-          <div className="rounded-lg border border-white/10 bg-black/20 px-3 py-2">
-            {zh ? "后端状态可见" : "Live backend status"}
-          </div>
-          <div className="rounded-lg border border-white/10 bg-black/20 px-3 py-2">
-            {zh ? "支持服务器部署" : "Server deployment ready"}
-          </div>
-        </div>
-        <Link
-          href="/codex-business"
-          className="tap-target mt-5 inline-flex items-center gap-2 rounded-xl border border-cyan-400/40 bg-cyan-400/15 px-4 py-2 text-sm font-bold text-cyan-200 transition hover:border-cyan-300 hover:bg-cyan-400/25"
-        >
-          {zh ? "进入第六板块" : "Open Module 6"}
-          <span aria-hidden>→</span>
-        </Link>
+        ))}
       </div>
-    </section>
+    </footer>
   );
 }
 
-// ============================================================
-// 背景动画
-// ============================================================
-function AnimatedBackground() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    let w = (canvas.width = window.innerWidth);
-    let h = (canvas.height = window.innerHeight);
-    const particles: { x: number; y: number; r: number; vx: number; vy: number; opacity: number }[] = [];
-    for (let i = 0; i < 40; i++) {
-      particles.push({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        r: Math.random() * 1.5 + 0.5,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.3,
-        opacity: Math.random() * 0.5 + 0.2,
-      });
-    }
-    let raf: number;
-    const render = () => {
-      ctx.clearRect(0, 0, w, h);
-      ctx.fillStyle = "rgba(100, 150, 255, 0.05)";
-      const step = 60;
-      ctx.beginPath();
-      for (let x = 0; x < w; x += step) {
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, h);
-      }
-      for (let y = 0; y < h; y += step) {
-        ctx.moveTo(0, y);
-        ctx.lineTo(w, y);
-      }
-      ctx.strokeStyle = "rgba(100, 150, 255, 0.03)";
-      ctx.stroke();
-      particles.forEach((p) => {
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.x < 0) p.x = w;
-        if (p.x > w) p.x = 0;
-        if (p.y < 0) p.y = h;
-        if (p.y > h) p.y = 0;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity})`;
-        ctx.fill();
-      });
-      raf = requestAnimationFrame(render);
-    };
-    render();
-    const onResize = () => {
-      w = canvas.width = window.innerWidth;
-      h = canvas.height = window.innerHeight;
-    };
-    window.addEventListener("resize", onResize);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("resize", onResize);
-    };
-  }, []);
-  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none" />;
-}
-
-function QuizBanner({ lang }: { lang: string }) {
-  const zh = lang === "zh";
+function AmbientBackground() {
   return (
-    <div className="mb-8">
-      <Link
-        href="/web3-quiz"
-        className="tap-target group mx-auto flex max-w-xl items-center gap-4 rounded-2xl border border-cyan-500/15 p-4 hover:border-cyan-500/35 transition-all"
-        onMouseEnter={() => preloadRoute("/web3-quiz")}
-        onTouchStart={() => preloadRoute("/web3-quiz")}
-        style={{ background: "linear-gradient(135deg, rgba(6,182,212,0.04), rgba(139,92,246,0.02))" }}
-      >
-          <span className="text-3xl shrink-0" style={{ animation: "float 3s ease-in-out infinite" }}>🧭</span>
-          <div className="flex-1 min-w-0">
-            <h4 className="text-sm font-bold text-white group-hover:text-cyan-300 transition-colors">
-              {zh ? "不知道从何开始？让我了解你" : "Not sure where to start? Let us know you"}
-            </h4>
-            <p className="text-xs text-slate-500">{zh ? "2 分钟测评，获取专属学习路径" : "2-min quiz for a personalized path"}</p>
-          </div>
-          <svg className="w-5 h-5 text-slate-600 group-hover:text-cyan-400 transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-      </Link>
-      <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-6px); }
-        }
-      `}</style>
-    </div>
+    <>
+      <div className="pointer-events-none absolute inset-0 opacity-[0.22]" style={{ backgroundImage: "linear-gradient(rgba(56,189,248,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(56,189,248,0.08) 1px, transparent 1px)", backgroundSize: "56px 56px" }} />
+      <div className="pointer-events-none absolute inset-x-0 top-[-140px] h-[520px] bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.28),transparent_55%)]" />
+      <div className="pointer-events-none absolute left-[-120px] top-[280px] h-[360px] w-[360px] rounded-full bg-cyan-500/8 blur-[100px]" />
+      <div className="pointer-events-none absolute right-[-90px] top-[140px] h-[320px] w-[320px] rounded-full bg-emerald-400/7 blur-[110px]" />
+    </>
   );
 }
-
-const moduleColors = [
-  {
-    accentColor: "from-emerald-500/20 to-teal-500/10",
-    borderColor: "border-emerald-500/30 hover:border-emerald-400/60",
-    titleColor: "text-emerald-400",
-    badgeColor: "bg-emerald-500",
-    ctaColor: "bg-emerald-500 hover:bg-emerald-400",
-    href: "/web3-guide",
-    icon: (
-      <svg viewBox="0 0 64 64" fill="none" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="32" cy="32" r="28" stroke="#6EE7B7" strokeWidth="2" opacity="0.3"/>
-        <circle cx="32" cy="32" r="18" stroke="#6EE7B7" strokeWidth="2" opacity="0.5"/>
-        <circle cx="32" cy="32" r="8" fill="#6EE7B7" opacity="0.8"/>
-        <path d="M32 4 L32 60 M4 32 L60 32" stroke="#6EE7B7" strokeWidth="1.5" opacity="0.4"/>
-        <path d="M12 12 L52 52 M52 12 L12 52" stroke="#6EE7B7" strokeWidth="1" opacity="0.25"/>
-        <circle cx="32" cy="4" r="3" fill="#6EE7B7"/>
-        <circle cx="32" cy="60" r="3" fill="#6EE7B7"/>
-        <circle cx="4" cy="32" r="3" fill="#6EE7B7"/>
-        <circle cx="60" cy="32" r="3" fill="#6EE7B7"/>
-      </svg>
-    ),
-  },
-  {
-    accentColor: "from-yellow-500/20 to-amber-500/10",
-    borderColor: "border-yellow-500/30 hover:border-yellow-400/60",
-    titleColor: "text-yellow-400",
-    badgeColor: "bg-yellow-500",
-    ctaColor: "bg-yellow-500 hover:bg-yellow-400 text-black",
-    href: "/crypto-saving",
-    icon: (
-      <svg viewBox="0 0 64 64" fill="none" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="32" cy="32" r="28" stroke="#FFD700" strokeWidth="2" opacity="0.3"/>
-        <path d="M32 14 L36 26 L50 26 L39 34 L43 46 L32 38 L21 46 L25 34 L14 26 L28 26 Z" fill="#FFD700" opacity="0.8"/>
-        <circle cx="32" cy="32" r="6" fill="#0A192F"/>
-        <text x="32" y="36" textAnchor="middle" fill="#FFD700" fontSize="8" fontWeight="bold">$</text>
-      </svg>
-    ),
-  },
-  {
-    accentColor: "from-blue-500/20 to-indigo-500/10",
-    borderColor: "border-blue-500/30 hover:border-blue-400/60",
-    titleColor: "text-blue-400",
-    badgeColor: "bg-blue-500",
-    ctaColor: "bg-blue-500 hover:bg-blue-400 text-white",
-    href: "/exchange-guide",
-    icon: (
-      <svg viewBox="0 0 64 64" fill="none" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-        <rect x="8" y="16" width="48" height="32" rx="4" stroke="#60A5FA" strokeWidth="2" opacity="0.4"/>
-        <rect x="14" y="22" width="10" height="10" rx="2" fill="#60A5FA" opacity="0.7"/>
-        <rect x="28" y="22" width="18" height="3" rx="1.5" fill="#60A5FA" opacity="0.5"/>
-        <rect x="28" y="28" width="12" height="3" rx="1.5" fill="#60A5FA" opacity="0.3"/>
-        <rect x="14" y="36" width="36" height="3" rx="1.5" fill="#60A5FA" opacity="0.4"/>
-        <rect x="14" y="42" width="24" height="3" rx="1.5" fill="#60A5FA" opacity="0.3"/>
-        <circle cx="52" cy="48" r="8" fill="#1E3A5F" stroke="#60A5FA" strokeWidth="1.5"/>
-        <path d="M49 48 L55 48 M52 45 L52 51" stroke="#60A5FA" strokeWidth="1.5" strokeLinecap="round"/>
-      </svg>
-    ),
-  },
-  {
-    accentColor: "from-purple-500/20 to-violet-500/10",
-    borderColor: "border-purple-500/30 hover:border-purple-400/60",
-    titleColor: "text-purple-400",
-    badgeColor: "bg-purple-500",
-    ctaColor: "bg-purple-500 hover:bg-purple-400 text-white",
-    href: "/tools",
-    icon: (
-      <svg viewBox="0 0 64 64" fill="none" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="32" cy="32" r="28" stroke="#A78BFA" strokeWidth="2" opacity="0.3"/>
-        <rect x="18" y="20" width="12" height="12" rx="3" fill="#A78BFA" opacity="0.7"/>
-        <rect x="34" y="20" width="12" height="12" rx="3" fill="#A78BFA" opacity="0.5"/>
-        <rect x="18" y="36" width="12" height="12" rx="3" fill="#A78BFA" opacity="0.5"/>
-        <rect x="34" y="36" width="12" height="12" rx="3" fill="#A78BFA" opacity="0.7"/>
-        <circle cx="24" cy="26" r="3" fill="#0A192F"/>
-        <circle cx="40" cy="26" r="3" fill="#0A192F"/>
-        <circle cx="24" cy="42" r="3" fill="#0A192F"/>
-        <circle cx="40" cy="42" r="3" fill="#0A192F"/>
-      </svg>
-    ),
-  },
-  {
-    accentColor: "from-cyan-500/20 to-blue-500/10",
-    borderColor: "border-cyan-500/30 hover:border-cyan-400/60",
-    titleColor: "text-cyan-400",
-    badgeColor: "bg-cyan-500",
-    ctaColor: "bg-cyan-500 hover:bg-cyan-400 text-black",
-    href: "/crypto-news",
-    icon: (
-      <svg viewBox="0 0 64 64" fill="none" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="32" cy="32" r="28" stroke="#67E8F9" strokeWidth="2" opacity="0.3"/>
-        <rect x="14" y="18" width="36" height="5" rx="2.5" fill="#67E8F9" opacity="0.8"/>
-        <rect x="14" y="27" width="28" height="4" rx="2" fill="#67E8F9" opacity="0.5"/>
-        <rect x="14" y="35" width="32" height="4" rx="2" fill="#67E8F9" opacity="0.4"/>
-        <rect x="14" y="43" width="20" height="4" rx="2" fill="#67E8F9" opacity="0.3"/>
-        <circle cx="50" cy="46" r="6" fill="#67E8F9" opacity="0.9"/>
-        <path d="M48 46 L50 48 L53 44" stroke="#0A192F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
-  },
-  {
-    accentColor: "from-sky-500/20 to-cyan-500/10",
-    borderColor: "border-sky-500/30 hover:border-sky-400/60",
-    titleColor: "text-sky-300",
-    badgeColor: "bg-sky-400",
-    ctaColor: "bg-sky-400 hover:bg-sky-300 text-slate-950",
-    href: "/codex-business",
-    preload: false,
-    icon: (
-      <svg viewBox="0 0 64 64" fill="none" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-        <rect x="10" y="14" width="44" height="36" rx="8" stroke="#7DD3FC" strokeWidth="2" opacity="0.32"/>
-        <rect x="16" y="20" width="14" height="10" rx="3" fill="#38BDF8" opacity="0.8"/>
-        <rect x="34" y="20" width="14" height="4" rx="2" fill="#7DD3FC" opacity="0.65"/>
-        <rect x="34" y="27" width="10" height="4" rx="2" fill="#7DD3FC" opacity="0.35"/>
-        <path d="M20 40H44" stroke="#7DD3FC" strokeWidth="2" opacity="0.45" strokeLinecap="round"/>
-        <path d="M20 46H36" stroke="#7DD3FC" strokeWidth="2" opacity="0.28" strokeLinecap="round"/>
-        <circle cx="50" cy="48" r="8" fill="#082032" stroke="#38BDF8" strokeWidth="1.5"/>
-        <path d="M50 44V52" stroke="#38BDF8" strokeWidth="1.5" strokeLinecap="round"/>
-        <path d="M46 48H54" stroke="#38BDF8" strokeWidth="1.5" strokeLinecap="round"/>
-      </svg>
-    ),
-  },
-];
 
 export default function Portal() {
   useScrollMemory();
-  const [mounted, setMounted] = useState(false);
-  const [showAmbientEffects, setShowAmbientEffects] = useState(false);
+  const { language, setLanguage } = useLanguage();
+  const lang = (language === "en" ? "en" : "zh") as LanguageKey;
+  const copy = useMemo(() => COPY[lang], [lang]);
+  const [showAmbient, setShowAmbient] = useState(false);
   const [showOnboardingPrompt, setShowOnboardingPrompt] = useState(false);
-  const { language: lang, setLanguage: setLang } = useLanguage();
-  const t = LANG[lang as "zh" | "en"] ?? LANG["zh"];
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    if (typeof window === "undefined") return undefined;
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const mobileViewport = window.matchMedia("(max-width: 768px)").matches;
 
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const isMobileViewport = window.matchMedia("(max-width: 768px)").matches;
-
-    if (!prefersReducedMotion && !isMobileViewport) {
-      return scheduleIdle(() => {
-        setShowAmbientEffects(true);
-      }, 1200);
+    if (!reducedMotion && !mobileViewport) {
+      return scheduleIdle(() => setShowAmbient(true), 1200);
     }
 
-    setShowAmbientEffects(false);
+    setShowAmbient(false);
     return undefined;
   }, []);
 
-  useEffect(() => {
-    return scheduleIdle(() => {
-      setShowOnboardingPrompt(true);
-    }, 1800);
-  }, []);
+  useEffect(() => scheduleIdle(() => setShowOnboardingPrompt(true), 1800), []);
 
   return (
-    <div className="min-h-screen bg-[#050D1A] text-white relative overflow-hidden">
+    <div className="relative min-h-screen overflow-hidden bg-[#04101d] text-white">
+      {showAmbient ? <AmbientBackground /> : null}
       {showOnboardingPrompt ? (
         <Suspense fallback={null}>
           <OnboardingPrompt lang={lang} />
         </Suspense>
       ) : null}
-      {showAmbientEffects ? <AnimatedBackground /> : null}
 
-      {showAmbientEffects ? (
-        <>
-          <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
-          <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-emerald-600/8 rounded-full blur-[100px] pointer-events-none" />
-        </>
-      ) : null}
-
-      <div className="fixed top-4 right-4 z-50">
+      <div className="fixed right-4 top-4 z-50">
         <button
-          onClick={() => setLang(lang === "zh" ? "en" : "zh")}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-600/60 bg-slate-900/80 backdrop-blur-sm text-slate-300 hover:text-white hover:border-slate-400 transition-all text-xs font-medium"
+          type="button"
+          onClick={() => setLanguage(lang === "zh" ? "en" : "zh")}
+          className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-[#09192b]/88 px-3.5 py-2 text-xs font-medium text-slate-300 backdrop-blur-md transition-colors hover:border-white/18 hover:text-white"
         >
-          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
-          </svg>
-          {t.langBtn}
+          <Globe className="h-3.5 w-3.5" />
+          {copy.languageToggle}
         </button>
       </div>
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="pt-16 pb-10 sm:pt-24 sm:pb-12 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-yellow-500/30 bg-yellow-500/10 text-yellow-400 text-sm font-medium mb-8">
-            <span className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" />
-            {t.badge}
+      <main className="relative z-10 mx-auto max-w-7xl px-4 pb-16 pt-16 sm:px-6 sm:pb-18 sm:pt-20 lg:px-8 lg:pt-24">
+        <section className="mx-auto max-w-5xl text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/18 bg-amber-400/8 px-4 py-2 text-sm font-medium text-amber-300">
+            <span className="h-2 w-2 rounded-full bg-amber-300" />
+            {copy.badge}
           </div>
 
-          <style>{`
-            @keyframes gradientShift {
-              0%   { background-position: 0% 50%; }
-              50%  { background-position: 100% 50%; }
-              100% { background-position: 0% 50%; }
-            }
-            .animated-gradient {
-              background: linear-gradient(270deg, #a78bfa, #60a5fa, #34d399, #fbbf24, #f472b6, #a78bfa);
-              background-size: 300% 300%;
-              animation: gradientShift 6s ease infinite;
-              -webkit-background-clip: text;
-              -webkit-text-fill-color: transparent;
-              background-clip: text;
-            }
-            .subtitle-gradient {
-              background: linear-gradient(135deg, #94a3b8 0%, #cbd5e1 50%, #94a3b8 100%);
-              -webkit-background-clip: text;
-              -webkit-text-fill-color: transparent;
-              background-clip: text;
-            }
-          `}</style>
-          <h1 className="mb-4 leading-tight tracking-tight">
-            <div className="text-4xl sm:text-5xl lg:text-7xl font-black">
-              <span className="text-white">{t.h1a}</span>
-              <span className="animated-gradient">{t.h1b}</span>
-            </div>
-            <div className="text-xl sm:text-2xl lg:text-3xl font-semibold mt-3 subtitle-gradient tracking-wide">
-              {t.h1sub}
-            </div>
+          <h1 className="mt-8 text-balance text-[3rem] font-semibold leading-[0.95] tracking-tight text-white sm:text-[4.75rem] lg:text-[6.25rem]">
+            {copy.titleLineOne}
           </h1>
-
-          <p className="text-slate-400 text-lg sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-            {t.desc}
+          <p className="mx-auto mt-5 max-w-4xl text-balance text-2xl font-medium leading-tight text-slate-200 sm:text-3xl lg:text-[2.75rem]">
+            <span className="bg-[linear-gradient(90deg,#f8fafc_0%,#67e8f9_28%,#fbbf24_65%,#f8fafc_100%)] bg-clip-text text-transparent">
+              {copy.titleHighlight}
+            </span>
+          </p>
+          <p className="mx-auto mt-5 max-w-3xl text-balance text-lg leading-8 text-slate-350 sm:text-xl">
+            {copy.subtitle}
+          </p>
+          <p className="mx-auto mt-6 max-w-3xl text-sm leading-8 text-slate-450 sm:text-base">
+            {copy.description}
           </p>
 
-        </div>
-
-        <QuizBanner lang={lang} />
-        <QuickStartPaths lang={lang} />
-
-        <div className="pb-16">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">{t.sectionTitle}</h2>
-            <p className="text-slate-400">{t.sectionSub}</p>
+          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Link
+              href={copy.primaryHref}
+              className="inline-flex min-h-[50px] items-center justify-center gap-2 rounded-full bg-cyan-300 px-6 py-3 text-sm font-semibold text-slate-950 transition-all hover:bg-cyan-200"
+              onMouseEnter={() => preloadRoute(copy.primaryHref)}
+              onTouchStart={() => preloadRoute(copy.primaryHref)}
+            >
+              {copy.primaryCta}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              href={copy.secondaryHref}
+              className="inline-flex min-h-[50px] items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-6 py-3 text-sm font-semibold text-white transition-all hover:border-white/18 hover:bg-white/[0.06]"
+              onMouseEnter={() => preloadRoute(copy.secondaryHref)}
+              onTouchStart={() => preloadRoute(copy.secondaryHref)}
+            >
+              {copy.secondaryCta}
+            </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
-            {t.modules.map((mod, index) => {
-              const colors = moduleColors[index];
-              return (
-                <Link
-                  key={index}
-                  href={colors.href}
-                  className={`
-                    tap-target group relative block rounded-2xl border ${colors.borderColor}
-                    bg-gradient-to-br ${colors.accentColor}
-                    backdrop-blur-sm overflow-hidden
-                    transition-all duration-300
-                    hover:scale-[1.02] hover:shadow-2xl
-                    ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}
-                  `}
-                  onMouseEnter={() => {
-                    if (colors.preload !== false) preloadRoute(colors.href);
-                  }}
-                  onTouchStart={() => {
-                    if (colors.preload !== false) preloadRoute(colors.href);
-                  }}
-                  style={{
-                    transitionDelay: `${index * 100}ms`,
-                    background: "rgba(10, 25, 47, 0.7)",
-                  }}
-                >
-                  <div
-                    className={`
-                      absolute inset-0 bg-gradient-to-br ${colors.accentColor}
-                      opacity-0 group-hover:opacity-100 transition-opacity duration-300
-                    `}
-                  />
-                  <div className="relative p-6 sm:p-8">
-                      <div className="flex items-start justify-between mb-6">
-                        <div className="w-16 h-16 sm:w-20 sm:h-20">{colors.icon}</div>
-                        <div className="flex flex-col items-end gap-2">
-                          <span className={`${colors.badgeColor} text-black text-xs font-black px-3 py-1 rounded-full`}>
-                            {mod.badge}
-                          </span>
-                          <span className="text-slate-500 text-xs font-mono tracking-widest">{mod.subtitle}</span>
-                        </div>
-                      </div>
-                      <h3 className={`text-2xl sm:text-3xl font-black ${colors.titleColor} mb-3`}>{mod.title}</h3>
-                      <p className="text-slate-300 text-sm sm:text-base leading-relaxed mb-6">{mod.description}</p>
-                      <div className="grid grid-cols-3 gap-3 mb-6 p-4 rounded-xl bg-black/20 border border-white/5">
-                        {mod.stats.map((stat, i) => (
-                          <div key={i} className="text-center">
-                            <div className={`text-lg font-black ${colors.titleColor}`}>{stat.value}</div>
-                            <div className="text-slate-500 text-xs mt-0.5">{stat.label}</div>
-                          </div>
-                        ))}
-                      </div>
-                      <span className={`block w-full ${colors.ctaColor} font-bold py-3 px-6 rounded-xl transition-all duration-200 text-sm sm:text-base group-hover:shadow-lg text-center`}>
-                        {mod.cta}
-                      </span>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-
-        <footer className="border-t border-slate-800/80 bg-slate-900/40">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-14">
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 lg:gap-10">
-              <div className="col-span-2 sm:col-span-3 lg:col-span-2">
-                <Link href="/" className="inline-flex items-center gap-2 mb-4">
-                  <span className="text-2xl font-black text-white tracking-tight">
-                    Web3<span className="text-yellow-400">导航</span>
-                  </span>
-                </Link>
-                <p className="text-slate-400 text-sm leading-relaxed max-w-xs">
-                  {t.footer.tagline}
-                </p>
+          <div className="mx-auto mt-10 grid max-w-4xl gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {copy.proofPoints.map((item) => (
+              <div
+                key={item}
+                className="flex min-h-[52px] items-center justify-center rounded-full border border-white/8 bg-white/[0.02] px-4 py-3 text-sm text-slate-300"
+              >
+                {item}
               </div>
-              {t.footer.columns.map((col, i) => (
-                <div key={i}>
-                  <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">
-                    {col.title}
-                  </h4>
-                  <ul className="space-y-3">
-                    {col.links.map((link, j) => (
-                      <li key={j}>
-                        <Link href={link.href} className="tap-target text-sm text-slate-400 hover:text-yellow-400 transition-colors">
-                          <span>
-                            {link.label}
-                          </span>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-16 sm:mt-20">
+          <div className="grid gap-6 rounded-[36px] border border-white/8 bg-[#061321]/88 px-6 py-8 sm:px-8 sm:py-9 lg:grid-cols-[0.9fr_1.1fr]">
+            <div>
+              <div className="text-[11px] uppercase tracking-[0.32em] text-slate-500">Trust Layer</div>
+              <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white">{copy.trustTitle}</h2>
+              <p className="mt-4 text-sm leading-8 text-slate-400 sm:text-base">{copy.trustDescription}</p>
+            </div>
+            <div className="grid gap-5 md:grid-cols-3">
+              {copy.trustItems.map((item) => (
+                <div key={item.title} className="border-l border-white/10 pl-4">
+                  <h3 className="text-base font-medium text-white">{item.title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-slate-400">{item.description}</p>
                 </div>
               ))}
             </div>
-            <div className="mt-12 pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <p className="text-slate-500 text-sm">
-                <a
-                  href="/manage-m2u0z0i04"
-                  style={{ color: 'inherit', textDecoration: 'none', cursor: 'default' }}
-                >©</a>{t.footer.copyright.replace('©', '')}
-              </p>
-              <p id="disclaimer" className="text-slate-600 text-xs max-w-xl text-center sm:text-right">
-                {t.footer.disclaimer}
-              </p>
-            </div>
           </div>
-        </footer>
-      </div>
+        </section>
+
+        <PathSelector copy={copy} />
+        <ModuleGrid copy={copy} />
+        <MethodSection copy={copy} />
+        <Footer copy={copy} />
+      </main>
     </div>
   );
 }
