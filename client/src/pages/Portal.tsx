@@ -58,12 +58,7 @@ type Copy = {
   primaryHref: string;
   secondaryHref: string;
   proofPoints: string[];
-  trustTitle: string;
-  trustDescription: string;
-  trustItems: { title: string; description: string }[];
-  provenanceTitle: string;
-  provenanceDescription: string;
-  provenanceItems: { label: string; title: string; description: string }[];
+  credibilityItems: { title: string; description: string }[];
   pathsTitle: string;
   pathsDescription: string;
   paths: PathCard[];
@@ -88,47 +83,14 @@ const COPY: Record<LanguageKey, Copy> = {
     secondaryCta: "直接查看交易成本与返佣",
     primaryHref: "/web3-quiz",
     secondaryHref: "/crypto-saving?path=trader#action",
-    proofPoints: ["官方合作入口", "公开来源数据", "返佣规则透明", "移动端优先浏览"],
-    trustTitle: "先建立信任，再引导动作",
-    trustDescription:
-      "更像研究站的首页，应该先回答‘为什么值得继续看’，再告诉用户下一步去哪。这里把来源、方法和限制前置，让首屏就建立起可信框架。",
-    trustItems: [
-      {
-        title: "官方合作与可验证路径",
-        description: "注册链接、返佣说明和下载路径尽量采用可核验的官方来源，不把关键步骤藏在深层页面里。",
-      },
-      {
-        title: "研究逻辑先于营销语气",
-        description: "重点模块先解释适用人群、限制条件和判断依据，再给出行动入口，减少被情绪化文案误导。",
-      },
-      {
-        title: "首页只承担导航，不承担全部内容",
-        description: "复杂说明留在对应页面深入展开，首页只保留最有价值的入口、证据和阅读节奏。",
-      },
+    proofPoints: ["官方合作入口", "公开来源数据", "返佣规则透明"],
+    credibilityItems: [
+      { title: "来源可查", description: "优先官方注册页、公告与帮助中心" },
+      { title: "规则透明", description: "返佣、限制与风险提示前置说明" },
+      { title: "路径清晰", description: "新手、老用户、交易用户分开进入" },
     ],
-    provenanceTitle: "可信来源 / 方法论 / 披露",
-    provenanceDescription:
-      "这是首页最重要的信任层。我们把内容从哪里来、怎么筛选、哪些地方需要你额外注意，直接可视化展示出来，让 GEO 和真实用户都能更快理解站点边界。",
-    provenanceItems: [
-      {
-        label: "来源",
-        title: "优先官方页面与公开公告",
-        description: "返佣、下载、交易所说明优先引用官方注册页、官方公告、帮助中心和公开活动页，再做路径整理与翻译说明。",
-      },
-      {
-        label: "方法",
-        title: "先限制，再入口，最后操作",
-        description: "每个重点板块都优先写清限制条件、适用对象和官方验证点，再给入口和实操步骤，避免误导式跳转。",
-      },
-      {
-        label: "披露",
-        title: "返佣与绑定结果以平台实际为准",
-        description: "默认 20% 返佣与更高额度方案会明确标注；老账户能否补绑、邀请码是否生效，均以平台显示和官方沟通结果为准。",
-      },
-    ],
-    pathsTitle: "按你的情况进入",
-    pathsDescription:
-      "不同用户来这里，不是为了同一件事。我们先把最短决策路径分出来，让首屏之后的阅读更线性，也更不容易迷路。",
+    pathsTitle: "先选你的路径",
+    pathsDescription: "三种常见需求，一步进入对应页面。",
     paths: [
       {
         title: "我是第一次接触币圈",
@@ -155,9 +117,8 @@ const COPY: Record<LanguageKey, Copy> = {
         icon: "shield",
       },
     ],
-    modulesTitle: "六个核心入口，按优先级排好",
-    modulesDescription:
-      "首页不再把所有模块做成同级目录，而是把最可能产生判断与转化的入口前置，其余模块做辅助支撑。",
+    modulesTitle: "主要入口",
+    modulesDescription: "保留最常用的入口，其他说明进入页面后再展开。",
     modules: [
       {
         title: "交易成本与返佣指南",
@@ -266,50 +227,14 @@ const COPY: Record<LanguageKey, Copy> = {
     secondaryCta: "View trading cost and rebate guide",
     primaryHref: "/web3-quiz",
     secondaryHref: "/crypto-saving?path=trader#action",
-    proofPoints: ["Official partner entry", "Public source-based data", "Transparent rebate rules", "Mobile-first reading"],
-    trustTitle: "Build trust first, then guide action",
-    trustDescription:
-      "A strong homepage should answer whether the site is worth trusting before pushing every module at once. This section brings source quality, method, and path design forward.",
-    trustItems: [
-      {
-        title: "Official partner paths",
-        description: "Registration links, rebates, and download flows are aligned with verifiable official sources whenever possible.",
-      },
-      {
-        title: "Research before marketing",
-        description: "Core modules explain fit, limits, and decision value before asking users to click deeper.",
-      },
-      {
-        title: "Homepage as a navigator",
-        description: "Complex content stays in deeper pages. The homepage keeps only the highest-value entry points and evidence.",
-      },
+    proofPoints: ["Official partner entry", "Public sources", "Transparent rebate rules"],
+    credibilityItems: [
+      { title: "Verifiable sources", description: "Official pages, notices, and help centers first" },
+      { title: "Clear rules", description: "Rebates, limits, and risk notes stay visible" },
+      { title: "Short paths", description: "New users, traders, and existing users split early" },
     ],
-    provenanceTitle: "Sources / Method / Disclosure",
-    provenanceDescription:
-      "This is the trust layer that matters most. We make source quality, editorial method, and disclosure visible up front so both users and search systems can understand the boundaries of the site quickly.",
-    provenanceItems: [
-      {
-        label: "Sources",
-        title: "Official pages and public notices first",
-        description:
-          "Exchange entry flows, rebate explanations, and download guidance are built from official registration pages, help centers, public announcements, and campaign pages whenever possible.",
-      },
-      {
-        label: "Method",
-        title: "Limits first, entry second, actions last",
-        description:
-          "Each core module explains who it fits, what the limits are, and what to verify before presenting links and step-by-step actions.",
-      },
-      {
-        label: "Disclosure",
-        title: "Platform-side results always take priority",
-        description:
-          "Default 20% rebate paths and higher-tier options are clearly labeled, but actual binding results and invite-code behavior always depend on what the platform shows in real time.",
-      },
-    ],
-    pathsTitle: "Start from your situation",
-    pathsDescription:
-      "Different visitors want different outcomes. The homepage should shorten that decision path instead of making every entry fight for attention.",
+    pathsTitle: "Choose your path",
+    pathsDescription: "Three common needs, each with a direct next step.",
     paths: [
       {
         title: "I'm new to crypto",
@@ -336,9 +261,8 @@ const COPY: Record<LanguageKey, Copy> = {
         icon: "shield",
       },
     ],
-    modulesTitle: "Six entry points, ordered by priority",
-    modulesDescription:
-      "The homepage no longer treats every module as the same level. The highest-value paths come first, while the rest support the broader experience.",
+    modulesTitle: "Primary entries",
+    modulesDescription: "Keep the homepage focused; detailed explanations continue inside each page.",
     modules: [
       {
         title: "Trading Cost & Rebate Guide",
@@ -532,20 +456,19 @@ function PathSelector({ copy }: { copy: Copy }) {
   );
 }
 
-function ProvenanceSection({ copy }: { copy: Copy }) {
+function CredibilityStrip({ copy }: { copy: Copy }) {
   return (
-    <section className="mt-12 sm:mt-16 lg:mt-18">
-      <div className="rounded-[28px] border border-white/8 bg-[#06121f]/88 px-5 py-6 sm:rounded-[34px] sm:px-7 sm:py-8">
-        <SectionHeader title={copy.provenanceTitle} description={copy.provenanceDescription} />
-        <div className="grid gap-4 lg:grid-cols-3 lg:gap-5">
-          {copy.provenanceItems.map((item) => (
-            <div key={item.title} className="border-t border-white/10 pt-4 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
-              <div className="text-[11px] uppercase tracking-[0.28em] text-cyan-300/90">{item.label}</div>
-              <h3 className="mt-3 text-lg font-semibold text-white">{item.title}</h3>
-              <p className="mt-3 text-sm leading-7 text-slate-400">{item.description}</p>
+    <section className="mt-10 border-y border-white/8 py-5 sm:mt-12 sm:py-6">
+      <div className="grid gap-4 md:grid-cols-3">
+        {copy.credibilityItems.map((item) => (
+          <div key={item.title} className="flex gap-3 md:border-l md:border-white/8 md:pl-5 first:md:border-l-0 first:md:pl-0">
+            <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300" />
+            <div>
+              <h2 className="text-sm font-semibold text-white">{item.title}</h2>
+              <p className="mt-1 text-sm leading-6 text-slate-400">{item.description}</p>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
     </section>
   );
@@ -759,37 +682,20 @@ export default function Portal() {
             </Link>
           </div>
 
-          <div className="mx-auto mt-8 grid max-w-4xl gap-2.5 sm:mt-10 sm:grid-cols-2 sm:gap-3 lg:grid-cols-4">
+          <div className="mx-auto mt-7 flex max-w-3xl flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-slate-400 sm:mt-8">
             {copy.proofPoints.map((item) => (
               <div
                 key={item}
-                className="flex min-h-[46px] items-center justify-center rounded-full border border-white/8 bg-white/[0.02] px-4 py-2.5 text-sm text-slate-300 sm:min-h-[52px] sm:py-3"
+                className="inline-flex items-center gap-2"
               >
+                <span className="h-1.5 w-1.5 rounded-full bg-cyan-300/80" />
                 {item}
               </div>
             ))}
           </div>
         </section>
 
-        <section className="mt-12 sm:mt-16 lg:mt-20">
-          <div className="grid gap-6 rounded-[28px] border border-white/8 bg-[#061321]/88 px-5 py-6 sm:rounded-[36px] sm:px-8 sm:py-9 lg:grid-cols-[0.9fr_1.1fr]">
-            <div>
-              <div className="text-[11px] uppercase tracking-[0.32em] text-slate-500">Trust Layer</div>
-              <h2 className="mt-4 text-[1.95rem] font-semibold tracking-tight text-white sm:text-3xl">{copy.trustTitle}</h2>
-              <p className="mt-4 text-sm leading-7 text-slate-400 sm:text-base sm:leading-8">{copy.trustDescription}</p>
-            </div>
-            <div className="grid gap-5 md:grid-cols-3">
-              {copy.trustItems.map((item) => (
-                <div key={item.title} className="border-l border-white/10 pl-4">
-                  <h3 className="text-base font-medium text-white">{item.title}</h3>
-                  <p className="mt-3 text-sm leading-7 text-slate-400">{item.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <ProvenanceSection copy={copy} />
+        <CredibilityStrip copy={copy} />
         <PathSelector copy={copy} />
         <ModuleGrid copy={copy} />
         <Footer copy={copy} />
