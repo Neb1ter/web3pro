@@ -38,6 +38,19 @@ jobs:
         env:
           NODE_ENV: production
 
+      - name: Compress workspace
+        run: tar -czf workspace.tar.gz .
+
+      - name: Upload to Server via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          source: "workspace.tar.gz"
+          target: "C:\\web3pro"
+
       - name: Deploy on server via SSH
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -52,14 +65,15 @@ jobs:
             $repoPath = 'C:\web3pro';
             if (-not (Test-Path $repoPath)) { New-Item -ItemType Directory -Path $repoPath | Out-Null };
             Set-Location $repoPath;
-            if (-not (Test-Path '.git')) { git init | Out-Null };
-            $remotes = @(git remote);
-            if ($remotes -contains 'origin') { git remote remove origin };
-            git remote add origin 'https://github.com/Neb1ter/web3pro.git';
-            git fetch origin main --depth=1;
-            git reset --hard origin/main;
+            
+            Write-Host 'Extracting workspace...';
+            tar -xzf workspace.tar.gz --force-local;
+            
             if (-not (Test-Path '.env.runtime') -and -not (Test-Path '.env')) { Write-Host 'Warning: .env.runtime and .env are both missing on server' };
+            
+            Write-Host 'Running deploy script...';
             powershell.exe -NoProfile -ExecutionPolicy Bypass -File 'C:\web3pro\scripts\deploy.ps1';
+            if ($LASTEXITCODE -ne 0) { throw \"deploy.ps1 failed with code $LASTEXITCODE\" }
             }"
 
       - name: Inspect runtime on server
