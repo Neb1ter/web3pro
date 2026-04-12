@@ -39,7 +39,7 @@ jobs:
           NODE_ENV: production
 
       - name: Compress workspace
-        run: tar --exclude=workspace.tar.gz -czf workspace.tar.gz .
+        run: tar -czf /tmp/workspace.tar.gz .
 
       - name: Upload to Server via SCP
         uses: appleboy/scp-action@v0.1.7
@@ -48,8 +48,9 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
-          source: "workspace.tar.gz"
-          target: "C:\\web3pro"
+          source: "/tmp/workspace.tar.gz"
+          target: "C:\\web3pro_tmp"
+          strip_components: 2
 
       - name: Deploy on server via SSH
         uses: appleboy/ssh-action@v1.2.0
@@ -67,7 +68,7 @@ jobs:
             Set-Location $repoPath;
             
             Write-Host 'Extracting workspace...';
-            tar -xzf workspace.tar.gz --force-local;
+            tar -xzf C:\web3pro_tmp\workspace.tar.gz --force-local;
             
             if (-not (Test-Path '.env.runtime') -and -not (Test-Path '.env')) { Write-Host 'Warning: .env.runtime and .env are both missing on server' };
             
