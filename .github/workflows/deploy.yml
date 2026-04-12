@@ -39,7 +39,7 @@ jobs:
           NODE_ENV: production
 
       - name: Compress workspace
-        run: tar -czf /tmp/workspace.tar.gz .
+        run: tar --exclude=node_modules --exclude=.git --exclude=dist -czf /tmp/workspace.tar.gz .
 
       - name: Upload to Server via SCP
         uses: appleboy/scp-action@v0.1.7
