@@ -476,7 +476,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-          {false ? <div className="mx-auto mt-8 max-w-4xl text-left">
+          {true ? <div className="mx-auto mt-8 max-w-4xl text-left">
             <TrustSignalsCard
               zh={zh}
               title={zh ? "作者、审核与返佣披露" : "Authorship, Review & Rebate Disclosure"}

@@ -78,40 +78,7 @@
   --sidebar-ring: #FFD700;
 }
 
-.dark {
-  --primary: #FFD700;
-  --primary-foreground: #0A192F;
-  --sidebar-primary: #FFD700;
-  --sidebar-primary-foreground: #0A192F;
-  --background: #0A192F;
-  --foreground: #FFFFFF;
-  --card: #172A45;
-  --card-foreground: #FFFFFF;
-  --popover: #172A45;
-  --popover-foreground: #FFFFFF;
-  --secondary: #FFD700;
-  --secondary-foreground: #0A192F;
-  --muted: rgba(255, 255, 255, 0.3);
-  --muted-foreground: rgba(255, 255, 255, 0.7);
-  --accent: #FFD700;
-  --accent-foreground: #0A192F;
-  --destructive: #FF6B6B;
-  --destructive-foreground: #FFFFFF;
-  --border: rgba(255, 215, 0, 0.2);
-  --input: rgba(255, 215, 0, 0.1);
-  --ring: #FFD700;
-  --chart-1: #FFD700;
-  --chart-2: #FFA500;
-  --chart-3: #FF8C00;
-  --chart-4: #FF7F50;
-  --chart-5: #FF6347;
-  --sidebar: #172A45;
-  --sidebar-foreground: #FFFFFF;
-  --sidebar-accent: #FFD700;
-  --sidebar-accent-foreground: #0A192F;
-  --sidebar-border: rgba(255, 215, 0, 0.2);
-  --sidebar-ring: #FFD700;
-}
+/* .dark block removed — site enforces dark mode, :root already defines all tokens. */
 
 @layer base {
   * {
@@ -203,6 +170,7 @@
     }
   }
 }
+
 /* ─── 移动端章节标题滑入动画 ─── */
 @keyframes slideInFromBottom {
   from {
@@ -212,5 +180,17 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* CTA pulse glow animation */
+@keyframes ctaPulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
   }
 }

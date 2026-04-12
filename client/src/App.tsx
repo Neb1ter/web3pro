@@ -221,7 +221,7 @@ function SimulatorLoadingScreen() {
       <div className="w-full max-w-md rounded-3xl border border-cyan-500/20 bg-slate-950/55 p-7 shadow-2xl shadow-cyan-950/40 backdrop-blur-xl">
         <div className="mb-5 flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-500/12 text-2xl">
-            Game
+            🎮
           </div>
           <div>
             <p className="text-sm font-black uppercase tracking-[0.18em] text-cyan-300">Simulation Loading</p>
