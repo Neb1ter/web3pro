@@ -525,6 +525,8 @@ function AppInner() {
   const [showToaster, setShowToaster] = useState(false);
   const [location] = useLocation();
   const hideFloatNav =
+    location === "/" ||
+    location === "/portal" ||
     location.startsWith("/sim/") ||
     location === "/crypto-intro" ||
     location === "/web3-quiz" ||
