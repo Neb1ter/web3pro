@@ -56,6 +56,9 @@ jobs:
           target: "C:\\web3pro_tmp"
           strip_components: 1
 
+      - name: Wait for SSH to settle
+        run: sleep 75
+
       - name: Deploy on server via SSH
         uses: appleboy/ssh-action@v1.2.0
         with:
