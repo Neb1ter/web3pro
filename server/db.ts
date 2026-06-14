@@ -65,6 +65,29 @@ function inferToolNeedVpn(tool: Pick<InsertCryptoTool, "name" | "nameEn" | "sour
   return !DIRECT_TOOL_HINTS.some((hint) => haystack.includes(hint));
 }
 
+function isDuplicateColumnError(error: unknown): boolean {
+  const values = [String(error)];
+  const seen = new Set<unknown>();
+  let current: unknown = error;
+
+  while (current && typeof current === "object" && !seen.has(current)) {
+    seen.add(current);
+    const record = current as Record<string, unknown>;
+    for (const key of ["message", "code", "errno", "sqlMessage", "sqlState"]) {
+      const value = record[key];
+      if (typeof value === "string" || typeof value === "number") {
+        values.push(String(value));
+      }
+    }
+    current = record.cause;
+  }
+
+  return values.some((value) => {
+    const normalized = value.toLowerCase();
+    return normalized.includes("duplicate column") || normalized.includes("er_dup_fieldname") || normalized === "1060";
+  });
+}
+
 export async function ensureCryptoToolsSchema(): Promise<void> {
   const db = await getDb();
   if (!db) return;
@@ -73,8 +96,7 @@ export async function ensureCryptoToolsSchema(): Promise<void> {
     await db.execute("ALTER TABLE crypto_tools ADD COLUMN needVpn BOOLEAN NOT NULL DEFAULT TRUE");
     console.log("[Database] Added crypto_tools.needVpn column");
   } catch (error) {
-    const message = String(error).toLowerCase();
-    if (!message.includes("duplicate column")) {
+    if (!isDuplicateColumnError(error)) {
       console.warn("[Database] Failed to ensure crypto_tools.needVpn column:", error);
     }
   }
@@ -117,8 +139,7 @@ export async function ensureExchangeGuideImageSchema(): Promise<void> {
       await db.execute(column.sql);
       console.log(`[Database] Added exchange_links.${column.name} column`);
     } catch (error) {
-      const message = String(error).toLowerCase();
-      if (!message.includes("duplicate column")) {
+      if (!isDuplicateColumnError(error)) {
         console.warn(`[Database] Failed to ensure exchange_links.${column.name} column:`, error);
       }
     }
