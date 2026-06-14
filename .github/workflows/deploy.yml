@@ -69,7 +69,7 @@ jobs:
             && (if not exist C:\web3pro_tmp\workspace.tar.gz (echo Missing C:\web3pro_tmp\workspace.tar.gz && exit /b 1))
             && cd /d C:\web3pro
             && echo Extracting workspace...
-            && tar -xzf C:\web3pro_tmp\workspace.tar.gz --force-local
+            && tar -xzf C:\web3pro_tmp\workspace.tar.gz
             && powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\web3pro\scripts\deploy.ps1"
 
       - name: Inspect runtime on server
