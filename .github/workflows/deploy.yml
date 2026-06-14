@@ -63,10 +63,12 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
           script_stop: true
-          script: |
-            cmd.exe /c "if not exist C:\web3pro mkdir C:\web3pro"
-            cmd.exe /c "cd /d C:\web3pro && echo Extracting workspace... && tar -xzf C:\web3pro_tmp\workspace.tar.gz --force-local"
-            powershell.exe -NoProfile -ExecutionPolicy Bypass -File "C:\web3pro\scripts\deploy.ps1"
+          script: >
+            cmd.exe /c "if not exist C:\web3pro mkdir C:\web3pro
+            && cd /d C:\web3pro
+            && echo Extracting workspace...
+            && tar -xzf C:\web3pro_tmp\workspace.tar.gz --force-local
+            && powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\web3pro\scripts\deploy.ps1"
 
       - name: Inspect runtime on server
         continue-on-error: true
