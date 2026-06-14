@@ -1,6 +1,7 @@
 import { eq, like, or, asc, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { createPool } from "mysql2/promise";
+import { inspect } from "node:util";
 import {
   InsertUser, users,
   contactSubmissions, InsertContactSubmission,
@@ -66,7 +67,7 @@ function inferToolNeedVpn(tool: Pick<InsertCryptoTool, "name" | "nameEn" | "sour
 }
 
 function isDuplicateColumnError(error: unknown): boolean {
-  const values = [String(error)];
+  const values = [String(error), inspect(error, { depth: 5 })];
   const seen = new Set<unknown>();
   let current: unknown = error;
 
