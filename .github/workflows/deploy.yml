@@ -63,22 +63,10 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
           script_stop: true
-          script: >
-            powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "& {
-            $ErrorActionPreference = 'Stop';
-            $repoPath = 'C:\web3pro';
-            if (-not (Test-Path $repoPath)) { New-Item -ItemType Directory -Path $repoPath | Out-Null };
-            Set-Location $repoPath;
-            
-            Write-Host 'Extracting workspace...';
-            tar -xzf C:\web3pro_tmp\workspace.tar.gz --force-local;
-            
-            if (-not (Test-Path '.env.runtime') -and -not (Test-Path '.env')) { Write-Host 'Warning: .env.runtime and .env are both missing on server' };
-            
-            Write-Host 'Running deploy script...';
-            powershell.exe -NoProfile -ExecutionPolicy Bypass -File 'C:\web3pro\scripts\deploy.ps1';
-            if ($LASTEXITCODE -ne 0) { throw \"deploy.ps1 failed with code $LASTEXITCODE\" }
-            }"
+          script: |
+            cmd.exe /c "if not exist C:\web3pro mkdir C:\web3pro"
+            cmd.exe /c "cd /d C:\web3pro && echo Extracting workspace... && tar -xzf C:\web3pro_tmp\workspace.tar.gz --force-local"
+            powershell.exe -NoProfile -ExecutionPolicy Bypass -File "C:\web3pro\scripts\deploy.ps1"
 
       - name: Inspect runtime on server
         continue-on-error: true
