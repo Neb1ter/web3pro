@@ -31,5 +31,9 @@ Write-Host "[deploy] Starting web3pro"
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot "start-web3pro.ps1")
 if ($LASTEXITCODE -ne 0) { throw "start-web3pro.ps1 failed with code $LASTEXITCODE" }
 
+Write-Host "[deploy] Ensuring nginx reverse proxy"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot "ensure-nginx.ps1")
+if ($LASTEXITCODE -ne 0) { throw "ensure-nginx.ps1 failed with code $LASTEXITCODE" }
+
 Write-Host "[deploy] Running diagnostics"
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot "diagnose-runtime.ps1")

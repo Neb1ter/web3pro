@@ -90,13 +90,24 @@ function Start-Web3Pro {
     throw "web3pro failed to bind to port 3000"
   }
 
-  try {
-    $rootResponse = Invoke-WebRequest "http://127.0.0.1:3000/" -UseBasicParsing -TimeoutSec 15
-    $codexHealth = Invoke-WebRequest "http://127.0.0.1:3000/codex-business/app/api/health" -UseBasicParsing -TimeoutSec 15
-    if ($rootResponse.StatusCode -ne 200 -or $codexHealth.StatusCode -ne 200) {
-      throw "unexpected localhost status root=$($rootResponse.StatusCode) codex=$($codexHealth.StatusCode)"
+  $probeDeadline = (Get-Date).AddSeconds(75)
+  $probeError = $null
+  do {
+    try {
+      $rootResponse = Invoke-WebRequest "http://127.0.0.1:3000/" -UseBasicParsing -TimeoutSec 10
+      $codexHealth = Invoke-WebRequest "http://127.0.0.1:3000/codex-business/app/api/health" -UseBasicParsing -TimeoutSec 10
+      if ($rootResponse.StatusCode -eq 200 -and $codexHealth.StatusCode -eq 200) {
+        $probeError = $null
+        break
+      }
+      $probeError = "unexpected localhost status root=$($rootResponse.StatusCode) codex=$($codexHealth.StatusCode)"
+    } catch {
+      $probeError = $_.Exception.Message
     }
-  } catch {
+    Start-Sleep -Seconds 5
+  } while ((Get-Date) -lt $probeDeadline)
+
+  if ($probeError) {
     Write-Host "--- scheduled task detail ---"
     try {
       Get-ScheduledTask -TaskName $TaskName | Format-List *
@@ -111,7 +122,7 @@ function Start-Web3Pro {
     if (Test-Path $StdErr) {
       Get-Content $StdErr -Tail 120
     }
-    throw "web3pro started process but localhost probes failed: $($_.Exception.Message)"
+    throw "web3pro started process but localhost probes failed: $probeError"
   }
 
   $runtimePid = if (Test-Path $PidFile) { Get-Content $PidFile | Select-Object -First 1 } else { "unknown" }
