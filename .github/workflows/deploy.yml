@@ -65,8 +65,8 @@ jobs:
           port: 22
           script_stop: true
           script: >
-            cmd.exe /c "if not exist C:\web3pro mkdir C:\web3pro
-            && if not exist C:\web3pro_tmp\workspace.tar.gz (echo Missing C:\web3pro_tmp\workspace.tar.gz && exit /b 1)
+            cmd.exe /c "(if not exist C:\web3pro mkdir C:\web3pro)
+            && (if not exist C:\web3pro_tmp\workspace.tar.gz (echo Missing C:\web3pro_tmp\workspace.tar.gz && exit /b 1))
             && cd /d C:\web3pro
             && echo Extracting workspace...
             && tar -xzf C:\web3pro_tmp\workspace.tar.gz --force-local
