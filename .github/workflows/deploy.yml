@@ -41,7 +41,7 @@ jobs:
       - name: Compress workspace
         run: |
           mkdir -p .deploy
-          tar --exclude=node_modules --exclude=.git --exclude=dist --exclude=.deploy -czf .deploy/workspace.tar.gz .
+          tar --exclude=node_modules --exclude=.git --exclude=.deploy -czf .deploy/workspace.tar.gz .
           ls -lh .deploy/workspace.tar.gz
 
       - name: Upload to Server via SCP
@@ -70,7 +70,7 @@ jobs:
             && cd /d C:\web3pro
             && echo Extracting workspace...
             && tar -xzf C:\web3pro_tmp\workspace.tar.gz
-            && powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\web3pro\scripts\deploy.ps1"
+            && powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\web3pro\scripts\deploy.ps1 -UsePrebuiltBuild"
 
       - name: Inspect runtime on server
         continue-on-error: true
