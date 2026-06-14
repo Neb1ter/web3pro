@@ -39,7 +39,10 @@ jobs:
           NODE_ENV: production
 
       - name: Compress workspace
-        run: tar --exclude=node_modules --exclude=.git --exclude=dist -czf /tmp/workspace.tar.gz .
+        run: |
+          mkdir -p .deploy
+          tar --exclude=node_modules --exclude=.git --exclude=dist --exclude=.deploy -czf .deploy/workspace.tar.gz .
+          ls -lh .deploy/workspace.tar.gz
 
       - name: Upload to Server via SCP
         uses: appleboy/scp-action@v0.1.7
@@ -48,9 +51,9 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
-          source: "/tmp/workspace.tar.gz"
+          source: ".deploy/workspace.tar.gz"
           target: "C:\\web3pro_tmp"
-          strip_components: 2
+          strip_components: 1
 
       - name: Deploy on server via SSH
         uses: appleboy/ssh-action@v1.2.0
